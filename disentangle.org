@@ -1,0 +1,10 @@
+#+TITLE: Disentangle Things
+#+AUTHOR: Ivan Hanigan
+#+email: ivan.hanigan@anu.edu.au
+#+LaTeX_CLASS: article
+#+LaTeX_CLASS_OPTIONS: [beamer]
+#+LaTeX_HEADER: \usepackage{verbatim}
+-----
+# I:\My Dropbox\tools\disentanglethings
+* Introduction
+Helloworld
