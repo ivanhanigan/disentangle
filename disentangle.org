@@ -1,10 +1,25 @@
 #+TITLE: Disentangle Things
 #+AUTHOR: Ivan Hanigan
 #+email: ivan.hanigan@anu.edu.au
-#+LaTeX_CLASS: article
-#+LaTeX_CLASS_OPTIONS: [beamer]
+#+LaTeX_CLASS: beamer 
 #+LaTeX_HEADER: \usepackage{verbatim}
------
+#+LaTeX_HEADER: \usepackage{fancyhdr} %For headers and footers
+#+LaTeX_HEADER: \pagestyle{fancy} %For headers and footers
+#+LaTeX_HEADER: \usepackage{lastpage} %For getting page x of y
+#+LaTeX_HEADER: \usepackage{float} %Allows the figures to be positioned and formatted nicely
+#+LaTeX_HEADER: \floatstyle{boxed} %using this
+#+LaTeX_HEADER: \restylefloat{figure} %and this command
+#+LaTeX_HEADER: \usepackage{url} %Formatting of yrls
+#+LaTeX_HEADER: \lhead{DisentangleThings}
+#+LaTeX_HEADER: \chead{}
+#+LaTeX_HEADER: \rhead{\thepage\ of \pageref{LastPage}}
+# LaTeX_HEADER: \lfoot{Left Footer}
+# LaTeX_HEADER: \cfoot{Centre Footer}
+# LaTeX_HEADER: \rfoot{\thepage\ of \pageref{LastPage}}
+
 # I:\My Dropbox\tools\disentanglethings
 * Introduction
 Helloworld
+
+* Disentangle things
+Why?
