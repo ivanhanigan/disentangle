@@ -19,7 +19,9 @@
 
 # I:\My Dropbox\tools\disentanglethings
 * Introduction
+\section{Introduction}
 Helloworld
 
 * Disentangle things
+\section{Why?}
 Why?
