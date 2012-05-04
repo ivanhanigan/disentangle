@@ -1,0 +1,12 @@
+Transformation
+	description
+		do
+	inputs
+		clean
+	output
+		do
+		qc2
+	notes
+		model selection procedure
+	ttype
+		do

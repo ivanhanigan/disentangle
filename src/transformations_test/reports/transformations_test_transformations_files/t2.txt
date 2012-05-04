@@ -1,0 +1,20 @@
+Transformation
+	description
+		data
+	inputs
+		scope
+		outcome
+		population
+		exposure
+	output
+		mydata
+		metadata
+	code
+		
+		
+	notes
+		
+	KEYNODE
+		a key dataset
+	ttype
+		data

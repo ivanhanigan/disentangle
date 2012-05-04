@@ -1,0 +1,25 @@
+
+<SCRIPT TYPE="text/javascript">
+<!--
+function popup(mylink)
+{
+if (! window.focus)return true;
+var href;
+if (typeof(mylink) == 'string')
+   href=mylink;
+else
+   href=mylink.href;
+window.open(href, "transformation", 'width=800,height=480,scrollbars=yes');
+return false;
+}
+//-->
+</SCRIPT>
+<map id="transformations" name="transformations">
+<area shape="rect" id="node1" onClick=popup("transformations_test_transformations_files/t1.txt") title="{{ {description|code|notes|ttype} | {functions|, require(splines), , ||tools} }}" alt="" coords="19,122,336,262"/>
+<area shape="rect" id="node17" onClick=popup("transformations_test_transformations_files/t3.txt") title="{{ {description|code|notes|TASK|ttype} | {load|, # TASK get some data loaded, ||, TASK|load} }}" alt="" coords="36,427,471,602"/>
+<area shape="rect" id="node4" onClick=popup("transformations_test_transformations_files/t2.txt") title="{{ {description|code|notes|KEYNODE|ttype} | {data|, ||a key dataset|data} }}" alt="" coords="360,105,629,279"/>
+<area shape="rect" id="node22" onClick=popup("transformations_test_transformations_files/t4.txt") title="{{ {description|code|notes|ttype} | {clean|, ||clean} }}" alt="" coords="157,750,349,890"/>
+<area shape="rect" id="node28" onClick=popup("transformations_test_transformations_files/t5.txt") title="{{ {description|notes|ttype} | {do|model selection procedure|do} }}" alt="" coords="5,1038,389,1143"/>
+<area shape="rect" id="node34" onClick=popup("transformations_test_transformations_files/t6.txt") title="{{ {description|code|notes|TASK|ttype} | {report|, ||collate results|report} }}" alt="" coords="12,1291,284,1466"/>
+</map>
+<IMG SRC="transformations_test_transformations_files/transformations_test_transformations.jpg" USEMAP="#transformations" />

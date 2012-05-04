@@ -1,0 +1,118 @@
+Transformation
+	description
+		functions
+	output
+		tools
+	notes
+		
+	ttype
+		tools
+
+	code
+		
+		require(splines)
+		
+		
+
+
+Transformation
+	description
+		data
+	inputs
+		scope
+		outcome
+		population
+		exposure
+	output
+		mydata
+		metadata
+	notes
+		
+	ttype
+		data
+
+	code
+		
+		
+
+
+	KEYNODE
+		a key dataset
+
+
+Transformation
+	description
+		load
+	inputs
+		tools
+		mydata
+	output
+		load
+	notes
+		
+	ttype
+		load
+
+	code
+		
+		# TASK get some data loaded
+		
+
+
+	TASK
+		
+		TASK
+
+
+Transformation
+	description
+		clean
+	inputs
+		load
+	output
+		clean
+		qc1
+	notes
+		
+	ttype
+		clean
+
+	code
+		
+		
+
+
+Transformation
+	description
+		do
+	inputs
+		clean
+	output
+		do
+		qc2
+	notes
+		model selection procedure
+	ttype
+		do
+
+Transformation
+	description
+		report
+	inputs
+		do
+	output
+		report
+	notes
+		
+	ttype
+		report
+
+	code
+		
+		
+
+
+	TASK
+		collate results
+
+

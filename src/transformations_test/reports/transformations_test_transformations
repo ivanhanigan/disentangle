@@ -1,0 +1,45 @@
+digraph transformations {
+t1 [ shape=record, label="{{ {description|code|notes|ttype} | {functions|, require(splines), , ||tools} }}" , URL="START\NEND" ]
+t1 [ shape=record, label="{{ {description|code|notes|ttype} | {functions|, require(splines), , ||tools} }}" , URL="START\NEND" ]
+ds1 [ label="tools" ]
+t1 -> ds1
+t2 [ shape=record, label="{{ {description|code|notes|KEYNODE|ttype} | {data|, ||a key dataset|data} }}" , URL="START\NEND" ]
+t2 [ shape=record, style=filled, color="palegreen", label="{{ {description|code|notes|KEYNODE|ttype} | {data|, ||a key dataset|data} }}" , URL="START\NEND" ]
+ds2 [ label="scope" ]
+ds2 -> t2
+ds3 [ label="outcome" ]
+ds3 -> t2
+ds4 [ label="population" ]
+ds4 -> t2
+ds5 [ label="exposure" ]
+ds5 -> t2
+ds6 [ label="mydata" ]
+t2 -> ds6
+ds7 [ label="metadata" ]
+t2 -> ds7
+t3 [ shape=record, style=filled, color="indianred", label="{{ {description|code|notes|TASK|ttype} | {load|, # TASK get some data loaded, ||, TASK|load} }}" , URL="START\NEND" ]
+t3 [ shape=record, label="{{ {description|code|notes|TASK|ttype} | {load|, # TASK get some data loaded, ||, TASK|load} }}" , URL="START\NEND" ]
+ds1 -> t3
+ds6 -> t3
+ds8 [ label="load" ]
+t3 -> ds8
+t4 [ shape=record, label="{{ {description|code|notes|ttype} | {clean|, ||clean} }}" , URL="START\NEND" ]
+t4 [ shape=record, label="{{ {description|code|notes|ttype} | {clean|, ||clean} }}" , URL="START\NEND" ]
+ds8 -> t4
+ds9 [ label="clean" ]
+t4 -> ds9
+ds10 [ label="qc1" ]
+t4 -> ds10
+t5 [ shape=record, label="{{ {description|notes|ttype} | {do|model selection procedure|do} }}" , URL="START\NEND" ]
+t5 [ shape=record, label="{{ {description|notes|ttype} | {do|model selection procedure|do} }}" , URL="START\NEND" ]
+ds9 -> t5
+ds11 [ label="do" ]
+t5 -> ds11
+ds12 [ label="qc2" ]
+t5 -> ds12
+t6 [ shape=record, style=filled, color="indianred", label="{{ {description|code|notes|TASK|ttype} | {report|, ||collate results|report} }}" , URL="START\NEND" ]
+t6 [ shape=record, label="{{ {description|code|notes|TASK|ttype} | {report|, ||collate results|report} }}" , URL="START\NEND" ]
+ds11 -> t6
+ds13 [ label="report" ]
+t6 -> ds13
+}

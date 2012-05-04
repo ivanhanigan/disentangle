@@ -1,0 +1,19 @@
+Transformation
+	description
+		load
+	inputs
+		tools
+		mydata
+	output
+		load
+	code
+		
+		# TASK get some data loaded
+		
+	notes
+		
+	TASK
+		
+		TASK
+	ttype
+		load

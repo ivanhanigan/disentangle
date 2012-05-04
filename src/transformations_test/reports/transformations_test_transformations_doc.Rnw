@@ -1,0 +1,80 @@
+\documentclass[a4paper]{article}   
+\usepackage{cite} 
+\usepackage{hyperref} 
+\usepackage{longtable} 
+\usepackage{verbatim} 
+\usepackage{rotating}
+\begin{document}
+\title{TRANSFORMATIONS TEST} 
+\author{Ivan C. Hanigan$^{1}$}
+\date{\today}                 
+\maketitle
+\begin{itemize}
+\item [$^1$] National Centre for Epidemiology and Population Health, \\Australian National University.
+\end{itemize}
+
+\setcounter{page}{1}
+\pagenumbering{roman}
+\tableofcontents 
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section{functions}
+
+<<eval=FALSE,echo=TRUE,keep.source=TRUE>>=	
+######################
+#tools,  functions
+######################
+      
+
+require(splines)
+
+@
+
+\subsection{data}
+
+<<eval=FALSE,echo=TRUE,keep.source=TRUE>>=	
+######################
+#data,  data
+######################
+      
+
+@
+
+\subsection{load}
+
+<<eval=FALSE,echo=TRUE,keep.source=TRUE>>=	
+######################
+#load,  load
+######################
+      
+
+# TASK get some data loaded
+@
+
+\subsection{clean}
+
+<<eval=FALSE,echo=TRUE,keep.source=TRUE>>=	
+######################
+#clean,  clean
+######################
+      
+
+@
+
+\subsection{do}
+model selection procedure
+
+\subsection{report}
+
+<<eval=FALSE,echo=TRUE,keep.source=TRUE>>=	
+######################
+#report,  report
+######################
+      
+
+@
+
+
+
+\end{document}

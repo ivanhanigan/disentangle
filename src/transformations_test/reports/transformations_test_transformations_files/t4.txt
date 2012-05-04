@@ -1,0 +1,15 @@
+Transformation
+	description
+		clean
+	inputs
+		load
+	output
+		clean
+		qc1
+	code
+		
+		
+	notes
+		
+	ttype
+		clean
