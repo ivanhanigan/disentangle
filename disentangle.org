@@ -25,3 +25,26 @@ Helloworld
 * Disentangle things
 \section{Why?}
 Why?
+* transformations
+\section{transformations}
+My friend Joseph Guillame wrote the first version of this python script to take a simple plain text list of transformations and create a Graphviz graph.
+If pydot and Graphviz are available, a png image of the graph and html version are also created.
+The html version allows the nodes to be inspected by clicking on the box, the contents are displayed in a popout box.
+I wrote the newnode function in the transformations.r script to construct the plain text input file while developing code in R.
+* transformations example
+#+name:transformations eg
+#+begin_src R :session *R* :exports none :eval no
+  dir()
+  file.copy('src/transformations_test/reports/transformations_test_transformations.png', 'transformationstest.png')
+#+end_src
+
+\begin{figure}[H]
+\begin{center}
+\includegraphics[width=.5\textwidth]{transformationstest.png}
+\end{center}
+\caption{Some Plot}
+\label{test}
+\end{figure}
+* Plans
+I'd like to rewrite Joseph's python script to use Rgraphviz.
+
