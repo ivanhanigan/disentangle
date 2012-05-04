@@ -1,10 +1,10 @@
 digraph transformations {
-t1 [ shape=record, label="{{ {description|code|notes|ttype} | {functions|, require(splines), , ||tools} }}" , URL="START\NEND" ]
-t1 [ shape=record, label="{{ {description|code|notes|ttype} | {functions|, require(splines), , ||tools} }}" , URL="START\NEND" ]
-ds1 [ label="tools" ]
+t1 [ shape=record, label="{{ {description|code|notes|ttype} | {functions|, require(splines), , ||func} }}" , URL="START\NEND" ]
+t1 [ shape=record, label="{{ {description|code|notes|ttype} | {functions|, require(splines), , ||func} }}" , URL="START\NEND" ]
+ds1 [ label="func" ]
 t1 -> ds1
-t2 [ shape=record, label="{{ {description|code|notes|KEYNODE|ttype} | {data|, ||a key dataset|data} }}" , URL="START\NEND" ]
-t2 [ shape=record, style=filled, color="palegreen", label="{{ {description|code|notes|KEYNODE|ttype} | {data|, ||a key dataset|data} }}" , URL="START\NEND" ]
+t2 [ shape=record, label="{{ {description|notes|KEYNODE|ttype} | {data||a key dataset|data} }}" , URL="START\NEND" ]
+t2 [ shape=record, style=filled, color="palegreen", label="{{ {description|notes|KEYNODE|ttype} | {data||a key dataset|data} }}" , URL="START\NEND" ]
 ds2 [ label="scope" ]
 ds2 -> t2
 ds3 [ label="outcome" ]
@@ -30,8 +30,8 @@ ds9 [ label="clean" ]
 t4 -> ds9
 ds10 [ label="qc1" ]
 t4 -> ds10
-t5 [ shape=record, label="{{ {description|notes|ttype} | {do|model selection procedure|do} }}" , URL="START\NEND" ]
-t5 [ shape=record, label="{{ {description|notes|ttype} | {do|model selection procedure|do} }}" , URL="START\NEND" ]
+t5 [ shape=record, label="{{ {description|code|notes|ttype} | {do||model selection procedure|do} }}" , URL="START\NEND" ]
+t5 [ shape=record, label="{{ {description|code|notes|ttype} | {do||model selection procedure|do} }}" , URL="START\NEND" ]
 ds9 -> t5
 ds11 [ label="do" ]
 t5 -> ds11

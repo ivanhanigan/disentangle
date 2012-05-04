@@ -2,7 +2,7 @@ Transformation
 	description
 		load
 	inputs
-		tools
+		func
 		mydata
 	output
 		load

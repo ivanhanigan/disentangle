@@ -23,7 +23,7 @@
 
 <<eval=FALSE,echo=TRUE,keep.source=TRUE>>=	
 ######################
-#tools,  functions
+#func,  functions
 ######################
       
 
@@ -33,13 +33,6 @@ require(splines)
 
 \subsection{data}
 
-<<eval=FALSE,echo=TRUE,keep.source=TRUE>>=	
-######################
-#data,  data
-######################
-      
-
-@
 
 \subsection{load}
 
@@ -64,6 +57,13 @@ require(splines)
 
 \subsection{do}
 model selection procedure
+<<eval=FALSE,echo=TRUE,keep.source=TRUE>>=	
+######################
+#do,  do
+######################
+      
+ 
+@
 
 \subsection{data checking}
 model selection procedure

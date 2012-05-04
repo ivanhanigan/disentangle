@@ -9,9 +9,6 @@ Transformation
 	output
 		mydata
 		metadata
-	code
-		
-		
 	notes
 		
 	KEYNODE

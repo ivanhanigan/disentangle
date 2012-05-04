@@ -12,8 +12,8 @@ source('~/tools/disentangle/src/transformations.r')
 if(file.exists('src/transformations_test')) setwd('src/transformations_test/')
 if(file.exists('src/')) file.remove(dir('src',full.names=T))
 
-newnode(dsc = "functions", ttype = 'tools', 
-i = NA, o = "tools", 
+newnode(dsc = "functions", ttype = 'func', 
+i = NA, o = "func", 
 notes = "", 
 append = F,
 code = "
@@ -24,12 +24,11 @@ require(splines)
 newnode(dsc = "data", 
 i =c('scope', 'outcome','population','exposure'), 
 o = c('mydata',"metadata"), 
-code="
-",
+code=NA,
 KEYNODE = 'a key dataset')
 
 newnode(dsc = "load", ttype = 'load', 
-i = c('tools','mydata'), o = "load", 
+i = c('func','mydata'), o = "load", 
 notes = "", 
 code = "
 # TASK get some data loaded
@@ -41,9 +40,10 @@ notes = "",
 code = "
 ")
 
-newnode(dsc = 'do',
+newnode(dsc = 'do', 
         i = 'clean', o = c('do','model_checking','data_checking'), 
-        notes = "model selection procedure"
+        notes = "model selection procedure",
+        code = " "
         )
 
 newnode(dsc = 'data checking', ttype = 'data_checking',
@@ -66,11 +66,11 @@ TASK='collate results')
 
 # to run the transfomations
 # under windoof 
-oldwd <- getwd()
-setwd('reports')
-shell("\"I:\\tools\\disentangle\\src\\transformations.py\"  transformations_test_transformations.txt transformations_test_transformations")
+# oldwd <- getwd()
+# setwd('reports')
+# shell("\"~\\tools\\disentangle\\src\\transformations.py\"  transformations_test_transformations.txt transformations_test_transformations")
 # NB replace ~ with suitable UNC letter? eg I:
-setwd(oldwd)
+# setwd(oldwd)
 
 # under ubuntu
 # oldwd <- getwd()

@@ -3,7 +3,7 @@ Transformation
 		functions
 	inputs
 	output
-		tools
+		func
 	code
 		
 		require(splines)
@@ -12,4 +12,4 @@ Transformation
 	notes
 		
 	ttype
-		tools
+		func

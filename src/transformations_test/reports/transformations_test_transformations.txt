@@ -2,11 +2,11 @@ Transformation
 	description
 		functions
 	output
-		tools
+		func
 	notes
 		
 	ttype
-		tools
+		func
 
 	code
 		
@@ -31,11 +31,6 @@ Transformation
 	ttype
 		data
 
-	code
-		
-		
-
-
 	KEYNODE
 		a key dataset
 
@@ -44,7 +39,7 @@ Transformation
 	description
 		load
 	inputs
-		tools
+		func
 		mydata
 	output
 		load
@@ -95,6 +90,10 @@ Transformation
 		model selection procedure
 	ttype
 		do
+
+	code
+		 
+
 
 Transformation
 	description
