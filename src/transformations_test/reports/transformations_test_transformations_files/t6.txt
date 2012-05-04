@@ -1,16 +1,12 @@
 Transformation
 	description
-		report
+		data checking
 	inputs
-		do
+		mydata
+		data_checking
 	output
-		report
-	code
-		
-		
+		qc2
 	notes
-		
-	TASK
-		collate results
+		model selection procedure
 	ttype
-		report
+		data_checking

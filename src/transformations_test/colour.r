@@ -9,7 +9,7 @@
 #################################################################
 
 source('~/tools/disentangle/src/transformations.r')
-if(file.exists('src/transformations_test/')) setwd('src/transformations_test/')
+if(file.exists('src/transformations_test')) setwd('src/transformations_test/')
 if(file.exists('src/')) file.remove(dir('src',full.names=T))
 
 newnode(dsc = "functions", ttype = 'tools', 
@@ -42,7 +42,12 @@ code = "
 ")
 
 newnode(dsc = 'do',
-        i = 'clean', o = c('do','qc2'), 
+        i = 'clean', o = c('do','model_checking','data_checking'), 
+        notes = "model selection procedure"
+        )
+
+newnode(dsc = 'data checking', ttype = 'data_checking',
+        i = c('mydata','data_checking'), o = 'qc2',
         notes = "model selection procedure"
         )
 
@@ -53,14 +58,19 @@ end_doc = T,
 code = "
 ",
 TASK='collate results')
-
+# to run the sweave you can
 # oldwd <- getwd()
 # setwd('reports')
 # Sweave('colour_transformations_doc.Rnw')
 # setwd(oldwd)
 
-# under windoof can paste into command prompt
-# cat("\"~\\tools\\disentangle\\src\\transformations.py\"  transformations_test_transformations.txt transformations_test_transformations")
+# to run the transfomations
+# under windoof 
+oldwd <- getwd()
+setwd('reports')
+shell("\"I:\\tools\\disentangle\\src\\transformations.py\"  transformations_test_transformations.txt transformations_test_transformations")
+# NB replace ~ with suitable UNC letter? eg I:
+setwd(oldwd)
 
 # under ubuntu
 # oldwd <- getwd()

@@ -65,6 +65,9 @@ require(splines)
 \subsection{do}
 model selection procedure
 
+\subsection{data checking}
+model selection procedure
+
 \subsection{report}
 
 <<eval=FALSE,echo=TRUE,keep.source=TRUE>>=	

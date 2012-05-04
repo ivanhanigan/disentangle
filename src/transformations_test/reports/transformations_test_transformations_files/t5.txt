@@ -5,7 +5,8 @@ Transformation
 		clean
 	output
 		do
-		qc2
+		model_checking
+		data_checking
 	notes
 		model selection procedure
 	ttype

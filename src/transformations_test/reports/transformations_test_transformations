@@ -35,11 +35,19 @@ t5 [ shape=record, label="{{ {description|notes|ttype} | {do|model selection pro
 ds9 -> t5
 ds11 [ label="do" ]
 t5 -> ds11
-ds12 [ label="qc2" ]
+ds12 [ label="model_checking" ]
 t5 -> ds12
-t6 [ shape=record, style=filled, color="indianred", label="{{ {description|code|notes|TASK|ttype} | {report|, ||collate results|report} }}" , URL="START\NEND" ]
-t6 [ shape=record, label="{{ {description|code|notes|TASK|ttype} | {report|, ||collate results|report} }}" , URL="START\NEND" ]
-ds11 -> t6
-ds13 [ label="report" ]
-t6 -> ds13
+ds13 [ label="data_checking" ]
+t5 -> ds13
+t6 [ shape=record, label="{{ {description|notes|ttype} | {data checking|model selection procedure|data_checking} }}" , URL="START\NEND" ]
+t6 [ shape=record, label="{{ {description|notes|ttype} | {data checking|model selection procedure|data_checking} }}" , URL="START\NEND" ]
+ds6 -> t6
+ds13 -> t6
+ds14 [ label="qc2" ]
+t6 -> ds14
+t7 [ shape=record, style=filled, color="indianred", label="{{ {description|code|notes|TASK|ttype} | {report|, ||collate results|report} }}" , URL="START\NEND" ]
+t7 [ shape=record, label="{{ {description|code|notes|TASK|ttype} | {report|, ||collate results|report} }}" , URL="START\NEND" ]
+ds11 -> t7
+ds15 [ label="report" ]
+t7 -> ds15
 }
