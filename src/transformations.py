@@ -1,8 +1,20 @@
-# I:/My Dropbox/tools/transformationscolour.py
-#Writes a Graphviz graph of transformations from a transformations text file
+#################################################################
+# transformations.py
+# author: orginal by Joseph Guillaume 20090130
+# maintainer ivanhanigan 
+# date:
+# 2012-05-04
+# description:
+# Writes a Graphviz graph of transformations from a transformations text file
 # If pydot and Graphviz are available, a png image of the graph and html version are also created
-#
-# Joseph Guillaume 20090130
+# dependencies
+# on windoof xp, vist and 7
+# 1 install python 2.7.3
+# 2 install graphviz
+# 3 install pyparsing1.5.1 (my vista pc said msvcr71.dll was not found but i found a download for this easily with google).
+# 4 pydot-1.0.2 then copy pydot.py and dotparser.py to python/lib folder (check in python using "import pydot") 
+# similar under ubuntu 12.04 but used the package manager
+#################################################################
 import sys
 ###############################
 #Parameters
