@@ -171,8 +171,9 @@ HTML(foo,align='left',file = file.path(getwd(), paste('reports/',project,"_trans
 ################################################################
 if ( document == 'sweave' & is.na(dontshow_doc) ) {
 
-file.copy('~/My Dropbox/tools/Sweave.sty','reports/Sweave.sty')
-
+# file.copy('~/My Dropbox/tools/Sweave.sty','reports/Sweave.sty')
+# not needed if running from RStudio
+  
 if(append==F) {
 sink(file.path(getwd(), paste('reports/',project,"_transformations_doc.Rnw",sep="")), append = FALSE)
 cat(
