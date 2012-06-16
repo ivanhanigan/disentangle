@@ -51,23 +51,33 @@ rEG<-newnode(dsc='Weather Data',ttype='data',i='BOM',o='exposure',
 rEG<-newnode(dsc='EWE criteria',i='algorithms', o='exposure',
         notes='',
         code=NA)
+
+rEG<-newnode(dsc='Population Data',ttype='data',o='population', i =c('ABS', 'Consistent Spatial Framework'),
+        notes='',
+        code=NA)
+rEG <- newnode(dsc='Select Mortality Data',ttype='data', i = c('Ethics Approval', 'Specific Causes of Death'), 
+               o= 'outcome',
+               notes='',
+               code=NA)
+rEG <- addEdge('Consistent Spatial Framework', 'Select Mortality Data', rEG, 1)
+
 plot(rEG)
 dev.off()
 defAttrs <- getDefaultAttrs()
 defAttrs
 
-width = 1600
+width = 2500
 height = 2500
-png('edges-test.png', res=150, width=width, height=height)
+png('edges-test.png', res=500, width=width, height=height)
 par(mai=rep(0,4))
 plot(rEG,attrs=list(node=list(label="foo", fillcolor="grey",shape="ellipse", fixedsize=FALSE),
                     edge=list(color="black")))
 dev.off()
 
-width = height = 512
-png('edges-test.png', width=width, height=height)
-par(mai=rep(0,4))
-plot(rEG,attrs=list(node=list(label="foo", fillcolor="lightgreen"),
-                     edge=list(color="cyan"),
-                     graph=list(rankdir="LR")))
-dev.off()
+# width = height = 512
+# png('edges-test.png', width=width, height=height)
+# par(mai=rep(0,4))
+# plot(rEG,attrs=list(node=list(label="foo", fillcolor="lightgreen"),
+#                      edge=list(color="cyan"),
+#                      graph=list(rankdir="LR")))
+# dev.off()
