@@ -1,0 +1,7 @@
+rEG <- new("graphNEL", nodes=c("A", "B", "c",'d'), edgemode="directed")
+rEG <- addEdge("A", "B", rEG, 1)
+rEG <- addEdge("B", "A", rEG, 1)
+rEG <- addEdge("B", "c", rEG, 1)
+rEG <- addEdge("d", "B", rEG, 1)
+plot(rEG)
+plot(rEG, recipEdges="distinct")
