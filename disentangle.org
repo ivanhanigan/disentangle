@@ -46,5 +46,20 @@ I wrote the newnode function in the transformations.r script to construct the pl
 \label{test}
 \end{figure}
 * Plans
+** rgraphviz
 I'd like to rewrite Joseph's python script to use Rgraphviz.
+
+the document `How To Plot A Graph Using Rgraphviz' says Tooltips and hyperlinks on graphs
+Users that want to create a clickable graph renderings with drill-down capability
+should see the imageMap function in the biocGraph package.
+#+name:rgraphviz test
+#+begin_src R :session *R* :tangle src/rgraphviz-test.r :exports none :eval no
+  # http://www.bioconductor.org/packages/2.9/bioc/html/Rgraphviz.html
+    source("http://bioconductor.org/biocLite.R")
+    biocLite("Rgraphviz")
+  # update all?
+  require(Rgraphviz)
+  example(layoutGraph)
+  
+#+end_src
 
