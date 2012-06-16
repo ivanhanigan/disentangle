@@ -56,8 +56,11 @@ should see the imageMap function in the biocGraph package.
 #+begin_src R :session *R* :tangle src/rgraphviz-test.r :exports none :eval no
   # http://www.bioconductor.org/packages/2.9/bioc/html/Rgraphviz.html
     source("http://bioconductor.org/biocLite.R")
-    biocLite("Rgraphviz")
-  # update all?
+# http://vladinformatics.blogspot.com.au/2012/03/my-experience-with-installing-rgraphviz.html
+# using ubuntu 12.04 make sure libgraphviz-dev is installed. It is needed for some header files (e.g. gvc.h)
+# then
+     biocLite("Rgraphviz", configure.args=c("--with-graphviz=/usr"))
+  # update all
   require(Rgraphviz)
   example(layoutGraph)
   
