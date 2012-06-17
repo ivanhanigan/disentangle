@@ -40,10 +40,14 @@ if(append==F) {
 # 
 # rEG <- addNode(node='model1',object=rEG) 
 # rEG <- addEdge('eda', 'model1', rEG, 1)
+rm(rEG)
+rEG <- newnode(dsc='outcome', i='unitRecords', append=F)
+rEG <- newnode(dsc='analyte', i='outcome')
+rEG <- newnode(dsc='population', i='populationData',  o='analyte')
+rEG <- newnode(dsc='exposure', i='exposureData',  o='analyte')
 
-rEG <- newnode(dsc='model1', i='analyte', append=F)
-
-rEG <- newnode(dsc='modelChecking', i='model1')
+dev.off()
+plot(rEG)
 # rEG <- newnode(dsc='report', i='model1')
 # rEG<-newnode(dsc='Weather Data',ttype='data',i='BOM',o='exposure',
 #   append=F,
