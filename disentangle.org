@@ -1,7 +1,7 @@
 #+TITLE: Disentangle Things
 #+AUTHOR: Ivan Hanigan
 #+email: ivan.hanigan@anu.edu.au
-#+LaTeX_CLASS: beamer 
+#+LaTeX_CLASS: article 
 #+LaTeX_HEADER: \usepackage{verbatim}
 #+LaTeX_HEADER: \usepackage{fancyhdr} %For headers and footers
 #+LaTeX_HEADER: \pagestyle{fancy} %For headers and footers
@@ -33,7 +33,7 @@ The html version allows the nodes to be inspected by clicking on the box, the co
 I wrote the newnode function in the transformations.r script to construct the plain text input file while developing code in R.
 * transformations example
 #+name:transformations eg
-#+begin_src R :session *R* :exports none :eval no
+#+begin_src R :session *R* :exports reports :eval no
   dir()
   file.copy('src/transformations_test/reports/transformations_test_transformations.png', 'transformationstest.png')
 #+end_src
@@ -140,5 +140,14 @@ should see the imageMap function in the biocGraph package.
   if(interactive())
     browseURL(fhtml)
   
+#+end_src
+
+#+name:test
+#+begin_src R :session *R* :tangle analysis/transformations_overview.r :exports none :eval no
+
+newnode(dsc='test', clearpage = F, ttype='transformations', nosectionheading = T,
+ o = 'test',append = T,end_doc = F,
+ notes='',echoCode = FALSE,
+ code=NA)
 #+end_src
 
