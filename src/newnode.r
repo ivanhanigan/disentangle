@@ -1,27 +1,32 @@
-newnode<-function(dsc, i, o=NA, graph = 'rEG', append=T, notes=F, code=NA, ttype=NA){
+newnode<-function(dsc, i=NA, o=NA, graph = 'rEG', append=T, notes=F, code=NA, ttype=NA){
   #   dsc='Clean Weather Data',
   #  ttype='data',
   #  i='BOM',
   #  o='Weather Data',
-# grph <- graph
+  # grph <- 'rEG'
   #   append=F,
   #   notes='Error Checking',
   #   code
+  # source('http://bioconductor.org/biocLite.R')
+  # biocLite("Rgraphviz")
   require(Rgraphviz)
-  require(biocGraph)
+  # example(layoutGraph)
+  # require(biocGraph) # for imageMap
   
-#   if(!exists('rEG')) {
- if(append==F) {    
-    rEG <- new("graphNEL", nodes=c(i, dsc),
+  #   if(!exists('rEG')) {
+  if(append==F) {    
+    rEG <- new("graphNEL", nodes=c(dsc),
                edgemode="directed")
-    rEG <- addEdge(from=i, to=dsc, graph=rEG, 1)    
+    # rEG <- addEdge(from=i, to=dsc, graph=rEG, 1)    
   } else {
-  rEG <- addNode(node=dsc,object=rEG) 
-  rEG <- addNode(node=i,object=rEG) 
+    if(length(grep(dsc,rEG@nodes)) == 0) rEG <- addNode(node=dsc,object=rEG)
+  }  
+  if(length(grep(i,rEG@nodes)) == 0) rEG <- addNode(node=i,object=rEG)
   rEG <- addEdge(i, dsc, rEG, 1)
-  }
-  if(!is.na(o)){
-    rEG <- addEdge(from=dsc, to=o, graph=rEG, 1)  
-  }
+  #}
+  #if(!is.na(o)){
+  if(length(grep(o,rEG@nodes)) == 0) rEG <- addNode(node=o,object=rEG)
+  rEG <- addEdge(from=dsc, to=o, graph=rEG, 1)  
+  #}
   return(rEG)
 }
