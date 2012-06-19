@@ -1,5 +1,5 @@
 newnode<-function(dsc, i=NA, o=NA, graph = 'rEG', append=T, notes=F, code=NA, ttype=NA){
-  #   dsc='Clean Weather Data',
+  #  dsc='Clean Weather Data',
   #  ttype='data',
   #  i='BOM',
   #  o='Weather Data',
@@ -21,7 +21,10 @@ newnode<-function(dsc, i=NA, o=NA, graph = 'rEG', append=T, notes=F, code=NA, tt
   } else {
     if(length(grep(dsc,rEG@nodes)) == 0) rEG <- addNode(node=dsc,object=rEG)
   }  
-  if(length(grep(i,rEG@nodes)) == 0) rEG <- addNode(node=i,object=rEG)
+  if(sum(i %in% rEG@nodes) != length(i)) {
+    i <- i[!i %in% rEG@nodes]
+    rEG <- addNode(node=i,object=rEG)   
+  }
   rEG <- addEdge(i, dsc, rEG, 1)
   #}
   #if(!is.na(o)){
