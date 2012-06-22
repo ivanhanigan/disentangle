@@ -314,14 +314,15 @@ unzip national66.zip
 mv "A66 National (13.09.01).gsb" aust_national_agd66_13.09.01.gsb
 #+end_src
 * rgraphviz
-# kudos2 http://vladinformatics.blogspot.com.au/2012/03/my-experience-with-installing-rgraphviz.html 
-#+name:rgraphviz
+# if on ubuntu kudos2 http://vladinformatics.blogspot.com.au/2012/03/my-experience-with-installing-rgraphviz.html 
+#+name:gviz
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-wget http://www.graphviz.org/pub/graphviz/stable/redhat/el6/x86_64/os/graphviz-2.28.0-1.el6.x86_64.rpm
-yum install graphviz-2.28.0-1.el6.x86_64.rpm
-wget http://www.graphviz.org/pub/graphviz/stable/redhat/el6/x86_64/os/graphviz-devel-2.28.0-1.el6.x86_64.rpm
-yum install graphviz-devel-2.28.0-1.el6.x86_64.rpm
+wget http://www.graphviz.org/graphviz-rhel.repo
+mv graphviz-rhel.repo /etc/yum.repos.d/ 
+yum list available 'graphviz*'
+yum install 'graphviz*'
 #+end_src
+
 ** test
 try newnode_test from
 git@github.com:ivanhanigan/disentangle.git
