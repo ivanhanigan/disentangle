@@ -1,0 +1,510 @@
+#+TITLE: Build an R GIS server on centos at research cloud
+#+AUTHOR: Ivan Hanigan
+#+email: ivan.hanigan@anu.edu.au
+#+LaTeX_CLASS: article
+#+LaTeX_CLASS_OPTIONS: [a4paper]
+-----
+* Introduction
+This is an emacs24 orgmode document to enable building an R GIS server
+on centos 6.2 amd64 using the Australian National Research Cloud
+http://www.nectar.org.au/research-cloud/.
+
+I use centos rather than ubuntu because we are forced to use redhat
+for production servers at the ANU Research School of Population Health.
+
+It is probably preferable to build this using ubuntu and most of this
+should work by replacing `yum install' with `apt-get'.
+
+* ssh
+If using Windows make sure you have git installed.  Opening a git bash
+shell will enable you to connect to your server using ssh. 
+#+name:whoami local
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+
+whoami
+#+end_src
+
+#+name:ssh
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+  ssh root@115.146.92.138
+#+end_src
+#+name:whoami
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+whoami
+yum update 
+#+end_src
+
+   
+
+* base
+** foundational
+# http://rlamp.blogspot.com.au/2010/03/getting-started-setting-up-rapache.html
+#+name:foundations
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+ yum update
+ yum install gcc-gfortran  gcc-c++   readline-devel   libpng-devel  libX11-devel libXt-devel   texinfo-tex    tetex-dvips  docbook-utils-pdf   cairo-devel   java-1.6.0-openjdk-devel  libxml2-devel   make
+#+end_src
+
+
+* partitions?
+#+name:partitions
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+df -h
+#+end_src
+
+* users
+** sudoers
+**** TODO add sudoers
+#http://helmingstay.blogspot.com.au/2012/02/adduser-myusername-adduser-myusername.html
+#+name:add sudoer
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+adduser super_ivan
+passwd super_ivan
+#+end_src
+NB this didnt work , might be ubuntu only?
+#+name:sudoer
+#+begin_src sh :session *shell* :exports none :eval no :results silent
+adduser super_ivan sudoers
+## add correct key to ~myusername/.ssh/authorized_keys
+vi /etc/ssh/sshd_config 
+## disable root login
+/etc/init.d/ssh restart
+## now log in as myusername via another terminal to make sure it works, and then log out as root
+#+end_src
+** users
+#+name:add users
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+#adduser ivan_hanigan
+#passwd ivan_hanigan
+adduser sarah_henderson
+passwd sarah_henderson
+adduser keith_dear
+passwd keith_dear
+#+end_src
+From Dave's build, not implemented
+#+name:not done
+#+begin_src sh :session *shell* :exports none :eval no :results silent
+#To create a user 
+useradd -m david_fisher
+passwd david_fisher
+vi /etc/passwd
+and change david_fisher:x:500:500::/home/david_fisher:/bin/bash to ::/home/david_fisher:/sbin/nologin
+#+end_src
+
+* R
+rpm -Uvh http://mirror.as24220.net/pub/epel/6/i386/epel-release-6-7.noarch.rpm
+yum install R R-devel
+* Rstudio
+** basic
+wget http://download2.rstudio.org/rstudio-server-0.96.304-x86_64.rpm
+yum install rstudio-server-0.96.304-x86_64.rpm
+sudo rstudio-server verify-installation
+** firewall access
+# http://slinsmeier.wordpress.com/2012/05/19/creating-a-lab-environment-with-rstudio/
+# It is necessary to open the firewall port to allow the browser
+# access to RStudio: edit the 
+vi /etc/sysconfig/iptables 
+# file and add the line
+# -A INPUT -m state --state NEW -m tcp -p tcp --dport 8787 -j ACCEPT
+# directly after the opening of the ssh port 22 (or copy that line and change the port 22 to 8787).
+service iptables restart
+# log in ok
+
+# if not need to reboot?
+# sudo reboot
+
+** proxy
+http://rstudio.org/docs/server/running_with_proxy
+** test
+might need to modify the sweave options in tools, something to do with tex2dvi?
+#+name:learnR
+#+begin_src R :session *R* :tangle learnR.Rnw :exports none :eval no
+\documentclass[a4paper]{article}
+\usepackage{fancyhdr} %For headers and footers
+\pagestyle{fancy} %For headers and footers
+\usepackage{lastpage} %For getting page x of y
+\usepackage{float} %Allows the figures to be positioned and formatted nicely
+\floatstyle{boxed} %using this
+\restylefloat{figure} %and this command
+\usepackage{url} %Formatting of yrls
+\usepackage{verbatim}
+\usepackage{cite} 
+\usepackage{hyperref} 
+%Define all the headers and footers
+\lhead{}
+\chead{NCEPH Working Paper}
+\rhead{}
+\lfoot{Ivan C Hanigan}
+\cfoot{\today}
+\rfoot{\thepage\ of \pageref{LastPage}}
+\usepackage{Sweave}
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+%\SweaveOpts{concordance=TRUE}
+%\input{learnR-concordance}
+\title{Example Sweave Document}
+\author{Ivan C. Hanigan$^{1}$}
+\date {\today}
+\maketitle
+\begin{itemize}
+\item [$^1$] National Centre for Epidemiology and Population Health, \\Australian National University.
+\end{itemize}
+
+\setcounter{page}{1}
+\pagenumbering{roman}
+\tableofcontents 
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section{Introduction}
+This is an introduction to some resources that are useful for learning R.  
+\section{The R code that produced this report}
+It is important to appreciate that R is free and open source software.  This means that any code you write can be viewed and modified by others.  In some cases we need to protect our Intellectual Property and the following statement is an attempt to ascribe copyright to our work, even though it remains open source.
+
+``I support the philosophy of Reproducible Research \cite{Peng2011}, and where possible I provide data and code in the statistical software R that will allow analyses to be reproduced.  This document is prepared automatically from the associated Sweave (RNW) file.  If you do not have access to the RNW file please contact me.''
+<<eval=FALSE,echo=FALSE,keep.source=TRUE>>=
+cat('
+ #######################################################################
+ ## The R code is free software; please cite this paper as the source.  
+ ## Copyright 2012, Ivan C Hanigan <ivan.hanigan@gmail.com> 
+ ## This program is free software; you can redistribute it and/or modify
+ ## it under the terms of the GNU General Public License as published by
+ ## the Free Software Foundation; either version 2 of the License, or
+ ## (at your option) any later version.
+ ## 
+ ## This program is distributed in the hope that it will be useful,
+ ## but WITHOUT ANY WARRANTY; without even the implied warranty of
+ ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ ## GNU General Public License for more details.
+ ## Free Software
+ ## Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ ## 02110-1301, USA
+ #######################################################################
+')
+@ 
+
+
+\subsection{func}
+I'll use the following packages:
+<<eval=TRUE,echo=TRUE,keep.source=TRUE>>=  
+require(xtable)
+#require(ggplot2)
+#require(ProjectTemplate)
+@
+<<eval=FALSE,echo=FALSE,keep.source=TRUE>>=  
+create.project('analysis', minimal = TRUE)
+setwd('I:/My Dropbox/projects/software training and support/learnR/analysis')
+dir.create('reports')
+# the plan
+@
+\subsection{Some Code}
+<<eval=TRUE,echo=TRUE,keep.source=TRUE>>=
+x<-rnorm(100,10,5)
+y<-rnorm(100,20,15)
+fit <- lm(y~x)
+summary(fit)
+@
+Using the xtable package allows results to be displyed in tables and has built in support for some R objects, so summrising the linear fit above in Table ~\ref{ATable}.
+<<eval=TRUE,echo=FALSE,results=tex>>=
+require(xtable)
+xtable(fit, caption="Example Table",digits=4,table.placement="H",label="ATable")
+@
+\subsection{A Plot}
+ 
+Plots intergrate easily, using the \LaTeX float package as can be seen in figure ~\ref{aPlot.png}.  However I like to make them as pngs and then include.
+
+<<eval=TRUE,echo=FALSE,keep.source=TRUE>>=  
+png('aPlot.png', res=200,width = 600, height = 600)
+plot(x,y,main="Example Plot",xlab="X Variable",ylab="Y Variable")
+abline(fit,col="Red")
+dev.off()
+@
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\textwidth]{aPlot.png}
+\caption{aPlot.png}
+\label{fig:aPlot.png}
+\end{figure}
+\clearpage
+\section{Remembering the points}
+This blog post \url{http://www.win-vector.com/blog/2012/04/how-to-remember-point-shape-codes-in-r/} says:
+
+I suspect I am not unique in not being able to remember how to control the point shapes in R. Part of this is a documentation problem: no package ever seems to write the shapes down. All packages just use the usual set that derives from S-Plus and was carried through base-graphics, to grid, lattice and ggplot2. The quickest way out of this is to know how to generate an example plot of the shapes quickly. We show how to do this in ggplot2. This is trivial- but you get tired of not having it immediately available.
+
+
+I like it but it is not as complate as the plot shown in Figure \ref{fig:pchopts.png} from the `R for Beginners' document by Emmanuel Paradis \cite{Paradis2002}.  I also find I often get disoriented using ggplot2.
+
+<<eval=TRUE, echo=FALSE>>=
+# it had to be fixed
+# sum <- ggplot()
+# for(i in 1:25) {
+#    sum <- sum +
+#       geom_point(data=data.frame(x=c(i)),aes(x=x,y=x),shape=i)
+# }
+# sum
+# but this still doesn't work properly
+# ggplot(data=data.frame(x=as.factor(1:16))) + geom_point(aes(x=x,y=x)) +
+#     facet_wrap(~x,scales='free')
+# I like base graphics anyway
+png('pchopts.png')
+par(mfrow=c(3,10), mar=c(0,0,2,0))
+for(i in c(1:25)){
+ plot(1,1,pch=i, axes=F, cex = 3, col = 'blue', bg = 'yellow')
+ title(i)
+ }
+for(i in c("*", "?", ".", "X", "a")){
+ plot(1,1,pch=i, axes=F, cex = 3, col = 'blue', bg = 'yellow')
+ title(i)
+ }
+dev.off()
+@
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\textwidth]{pchopts.png}
+\caption{pchopts.png}
+\label{fig:pchopts.png}
+\end{figure}
+
+
+\section{Conclusion}
+In conclusion, sweave rocks.
+
+
+\begin{thebibliography}{1}
+\bibitem{Paradis2002}
+Emmanuel Paradis.
+\newblock {R for Beginners}.
+\newblock 2002.
+
+\bibitem{Peng2011}
+Roger~D Peng.
+\newblock {Reproducible research in computational science.}
+\newblock {\em Science (New York, N.Y.)}, 334(6060):1226--7, December 2011.
+
+\end{thebibliography}
+
+\section{System State}
+<<eval=TRUE,echo=TRUE,keep.source=TRUE>>=
+sessionInfo()
+@
+
+
+
+
+\end{document}
+
+#+end_src
+
+* git
+yum install git
+** ssh
+in rstudio
+tools / options / version control
+create rsa key, ok, ok
+view pub key, copy, paste to your github account
+
+* gdal
+#+name:gdal
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+
+sudo rpm -Uvh http://elgis.argeo.org/repos/6/elgis/x86_64/elgis-release-6-6_0.noarch.rpm
+yum list gdal*
+yum install gdal-devel.x86_64
+gdal-config
+yum install proj-devel.x86_64
+
+#+end_src
+#+name:geos
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+  yum install geos-devel.x86_64y
+  
+#+end_src
+
+** do this for proper transforms
+
+#+name:proper transforms
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+cd /usr/share/proj
+wget  http://www.icsm.gov.au/icsm/gda/gdatm/national66.zip
+yum install unzip
+unzip national66.zip
+mv "A66 National (13.09.01).gsb" aust_national_agd66_13.09.01.gsb
+
+#+end_src
+
+   
+*** notes
+rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-7.noarch.rpm
+
+
+# http://elgis.argeo.org/
+# sudo rpm -Uvh
+# http://elgis.argeo.org/repos/5/elgis-release-5-5_0.noarch.rpm
+vi /etc/yum.repos.d/elgis.repo 
+
+# set enabled=1 in the elgis-plus section. 
+yum update
+# gave an error about repo metadata
+# change back again
+#sudo rpm -Uvh http://elgis.argeo.org/repos/6/elgis-release-6-6_0.noarch.rpm
+sudo rpm -Uvh http://elgis.argeo.org/repos/6/elgis/x86_64/elgis-release-6-6_0.noarch.rpm
+yum list gdal*
+yum install gdal-devel.x86_64
+gdal-config
+# this also installs proj?
+# not gdal-dev?
+
+
+
+wget
+http://dl.fedoraproject.org/pub/epel/6/x86_64/gdal-devel-1.7.2-1.el6.x86_64.rpm
+yum install gdal-devel-1.7.2-1.el6.x86_64.rpm
+# bah
+http://www.davidghedini.com/pg/entry/postgis_2_0_on_centos
+http://mirror.optus.net/epel/6/i386/epel-release-6-7.noarch.rpm
+yum list gdal*
+* rgraphviz
+# http://vladinformatics.blogspot.com.au/2012/03/my-experience-with-installing-rgraphviz.html 
+wget http://www.graphviz.org/pub/graphviz/stable/redhat/el6/x86_64/os/graphviz-2.28.0-1.el6.x86_64.rpm
+yum install graphviz-2.28.0-1.el6.x86_64.rpm
+wget http://www.graphviz.org/pub/graphviz/stable/redhat/el6/x86_64/os/graphviz-devel-2.28.0-1.el6.x86_64.rpm
+yum install graphviz-devel-2.28.0-1.el6.x86_64.rpm
+** test
+try newnode_test from
+git@github.com:ivanhanigan/disentangle.git
+* https and running a proxy
+** first try daves approach
+yum install httpd.x86_64
+
+openssl genrsa -out /etc/pki/tls/private/rstudio.ivan.com.key 1024
+openssl req -new -key /etc/pki/tls/private/rstudio.ivan.com.key -x509
+-out  /etc/pki/tls/certs/rstudio.ivan.com.crt -days 365
+# mod_ssl
+yum install mod_ssl.x86_64 
+# couldn't find distcache in lib
+#vi /etc/httpd/conf.d/ssl.conf 
+vi +/SSLCertificateFile /etc/httpd/conf.d/ssl.conf
+# Change the paths to match where the Key file is stored. 
+SSLCertificateFile /etc/pki/tls/certs/rstudio.ivan.com.crt
+# Then set the correct path for the Certificate Key File a few lines below. 
+SSLCertificateKeyFile /etc/pki/tls/private/rstudio.ivan.com.key
+
+mkdir /etc/httpd/sites
+vi /etc/httpd/conf/httpd.conf 
+# and add 
+Include /etc/httpd/sites/
+# as the last line.
+vi /etc/httpd/sites/rstudio-ivan.com
+# in testing below changed this to rstudio.ivan.com
+# insert
+<VirtualHost *:80>
+
+  ServerName rstudio.ivan.com
+  RedirectMatch ^(.*)$ https://rstudio.ivan.com$1
+
+</VirtualHost>
+# goodo
+vi /etc/httpd/conf.d/ssl.conf
+# add
+
+  <Proxy *>
+    Allow from localhost
+  </Proxy>
+
+  ProxyPass        / http://localhost:8787/
+  ProxyPassReverse / http://localhost:8787/
+
+
+# before </VirtualHost>
+/etc/init.d/httpd restart
+
+vi /etc/sysconfig/iptables 
+# remove the previoslyu added 443 line
+# to the previously added line for 8787 modify to 
+# -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
+service iptables restart
+
+
+vi /etc/rstudio/rserver.conf
+ www-address=127.0.0.1
+
+/etc/init.d/rstudio-server restart
+** no access? testing stuff
+*** first
+# no access try
+# iptables -A INPUT -p tcp --dport 443 -j ACCEPT
+# /sbin/service iptables save
+# iptables -L -v
+# reboot
+*** second
+# no access try
+vi /etc/sysconfig/iptables 
+# remove the previoslyu added 443 line
+# to the previously added line for 8787 modify to 
+# -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
+service iptables restart
+/etc/init.d/httpd restart
+# this gets me to the point where I can get asked to accept the
+# certificate, but no service
+*** third
+# getting really frustrated
+# re-read the 
+vi /etc/httpd/conf/httpd.conf
+
+# and find the bit about Proxy server directives, uncooment these to
+# enable te proxy server
+# following
+# http://library.linode.com/web-servers/apache/proxy-configuration/multiple-webservers-proxypass-centos-5
+/etc/init.d/httpd restart
+# no joy.
+# left uncommented
+*** fourth
+# add the 
+<VirtualHost *:80>
+
+  <Proxy *>
+    Allow from localhost
+  </Proxy>
+
+  ProxyPass        / http://localhost:8787/
+  ProxyPassReverse / http://localhost:8787/
+
+</VirtualHost>
+# bizzo to the bottom instead of ivan.com
+# nogo
+*** fifth
+# so reinstate the Include and put 443 back into iptables.
+# now add 8787 back to the iptables and also change the rstudio
+# webaddress to 0.0.0.0
+
+*** give up
+in iptables reinstate 8787
+in rstudio conf make web-address=0.0.0.0
+restart iptables and rstudio and httpd
+** notes
+# http://wiki.centos.org/HowTos/Https
+# yum install mod_ssl openssl etc
+
+** give up and restrict to VPN ncepthgis
+vi /etc/sysconfig/iptables
+-A INPUT -s 130.56.101.142 -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+-A INPUT -s 150.203.74.109 -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+# and http://www.thegeekstuff.com/2011/06/iptables-rules-examples/
+# 5. Allow Incoming SSH only from a Sepcific Network
+iptables -A INPUT -i eth0 -p tcp -s 10.100.21.0/24 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+iptables -A OUTPUT -o eth0 -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
+# not working!!
+service iptables restart
+
+* X windows
+yum install xterm 
+yum install x11vnc.x86_64
+yum groupinstall "X Window System"
+# error setting MTRR (base = 0xfc000000, size = 0x00100000, type = 1) Invalid argu
+# ment (22)
+# expected keysym, got XF86TouchpadOn: line 120 of inet
+# expected keysym, got XF86TouchpadOff: line 121 of inet
+# (EE) config/hal: couldn't initialise context: unknown error (null)
+
+# waiting for X server to shut down error setting MTRR (base = 0xfc000000, size =
+# 0x00400000, type = 1) Invalid argument (22)
