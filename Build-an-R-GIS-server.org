@@ -6,8 +6,8 @@
 -----
 * Introduction
 This is an emacs24 orgmode document to enable building an R GIS server
-on centos 6.2 amd64 using the Australian National Research Cloud
-http://www.nectar.org.au/research-cloud/.
+on centos 6.2 amd64 using the Australian National Research Cloud.
+
 
 I use centos rather than ubuntu because we are forced to use redhat
 for production servers at the ANU Research School of Population Health.
@@ -15,108 +15,93 @@ for production servers at the ANU Research School of Population Health.
 It is probably preferable to build this using ubuntu and most of this
 should work by replacing `yum install' with `apt-get'.
 
+* Launch an instance
+- Log on to the reserach cloud using your Australian University details http://www.nectar.org.au/research-cloud/.
+- Under images and snapshots launch the centos 6.2 amd64 image
+- give your server a name
+- select all http, icmp and ssh under security
+- specify a ssh keypair http://support.rc.nectar.org.au/demos/launching_123.html
+- launch and note the ip address
+- go to the access and security section and edit the http rule
+- add a rule to allow access from port 8080 to 9000 with 0.0.0.0/0 (CIDR)
+- Note that this allows access to the whole world, we will think about securing the server later
 * ssh
 If using Windows make sure you have git installed.  Opening a git bash
-shell will enable you to connect to your server using ssh. 
+shell will enable you to connect to your server using ssh. Then the contents of the following orgmode chunks can be evaluated on the remote server.
+If your on linux then orgmode can execute these chunks using C-c C-c.
 #+name:whoami local
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 
 whoami
 #+end_src
-
+In the next chunk, insert the relevant ip address and you may have to answer yes to the question about adding this RSA fingerprint to your list.
 #+name:ssh
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-  ssh root@115.146.92.138
+cd ~/.ssh
+ssh -i digger root@115.146.93.101
+# ssh -i keypairname root@your.new.ip.address
+# it is prudent to set a hideously long password for root
+# passwd root
 #+end_src
+now try to update the yum package manager
 #+name:whoami
-#+begin_src sh :session *shell* :exports none :eval yes :results silent
-whoami
+#+begin_src sh :sessi
+on *shell* :exports none :eval yes :results silent
 yum update 
 #+end_src
-
-   
-
-* base
-** foundational
-# http://rlamp.blogspot.com.au/2010/03/getting-started-setting-up-rapache.html
+* base packages
+# kudos2 http://rlamp.blogspot.com.au/2010/03/getting-started-setting-up-rapache.html
 #+name:foundations
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
- yum update
- yum install gcc-gfortran  gcc-c++   readline-devel   libpng-devel  libX11-devel libXt-devel   texinfo-tex    tetex-dvips  docbook-utils-pdf   cairo-devel   java-1.6.0-openjdk-devel  libxml2-devel   make
+yum install gcc-gfortran  gcc-c++   readline-devel   libpng-devel  libX11-devel libXt-devel   texinfo-tex    tetex-dvips  docbook-utils-pdf   cairo-devel   java-1.6.0-openjdk-devel  libxml2-devel   make
 #+end_src
-
-
-* partitions?
+* describe the system
+note the size and partitions
 #+name:partitions
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 df -h
 #+end_src
-
-* users
-** sudoers
-**** TODO add sudoers
-#http://helmingstay.blogspot.com.au/2012/02/adduser-myusername-adduser-myusername.html
-#+name:add sudoer
-#+begin_src sh :session *shell* :exports none :eval yes :results silent
-adduser super_ivan
-passwd super_ivan
-#+end_src
-NB this didnt work , might be ubuntu only?
-#+name:sudoer
-#+begin_src sh :session *shell* :exports none :eval no :results silent
-adduser super_ivan sudoers
-## add correct key to ~myusername/.ssh/authorized_keys
-vi /etc/ssh/sshd_config 
-## disable root login
-/etc/init.d/ssh restart
-## now log in as myusername via another terminal to make sure it works, and then log out as root
-#+end_src
-** users
+* add users
 #+name:add users
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-#adduser ivan_hanigan
-#passwd ivan_hanigan
-adduser sarah_henderson
-passwd sarah_henderson
-adduser keith_dear
-passwd keith_dear
+adduser newuser1
+passwd newuser1
+adduser newuser2
+passwd newuser2
 #+end_src
-From Dave's build, not implemented
-#+name:not done
-#+begin_src sh :session *shell* :exports none :eval no :results silent
-#To create a user 
-useradd -m david_fisher
-passwd david_fisher
-vi /etc/passwd
-and change david_fisher:x:500:500::/home/david_fisher:/bin/bash to ::/home/david_fisher:/sbin/nologin
-#+end_src
-
 * R
+#+name:R
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
 rpm -Uvh http://mirror.as24220.net/pub/epel/6/i386/epel-release-6-7.noarch.rpm
 yum install R R-devel
+#+end_src
 * Rstudio
-** basic
+#+name:install rstudio
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
 wget http://download2.rstudio.org/rstudio-server-0.96.304-x86_64.rpm
 yum install rstudio-server-0.96.304-x86_64.rpm
-sudo rstudio-server verify-installation
-** firewall access
-# http://slinsmeier.wordpress.com/2012/05/19/creating-a-lab-environment-with-rstudio/
+rstudio-server verify-installation
+#+end_src
+firewall access
+NB emacs does this badly! use a terminal?
+#+name:firewall
+#+begin_src sh :session *shell* :exports none :eval no :results silent
+# kudos2 http://slinsmeier.wordpress.com/2012/05/19/creating-a-lab-environment-with-rstudio/
 # It is necessary to open the firewall port to allow the browser
 # access to RStudio: edit the 
 vi /etc/sysconfig/iptables 
 # file and add the line
 # -A INPUT -m state --state NEW -m tcp -p tcp --dport 8787 -j ACCEPT
 # directly after the opening of the ssh port 22 (or copy that line and change the port 22 to 8787).
+# use INS to start editing, ESC to stop and :x to save
 service iptables restart
-# log in ok
-
-# if not need to reboot?
-# sudo reboot
-
-** proxy
-http://rstudio.org/docs/server/running_with_proxy
-** test
-might need to modify the sweave options in tools, something to do with tex2dvi?
+# need to reboot?
+#+end_src
+might take a little while before your browser can connect, allow a couple of minutes
+** TODO figure out how to run with proxy
+http://rstudio.org/docs/server/running_with_proxy is only for ubuntu?
+** test 
+log on to Rstudio at your.new.ip.address and copy the following into a new RNW sweave file (might need to modify the sweave options in tools, something to do with tex2dvi?)
 #+name:learnR
 #+begin_src R :session *R* :tangle learnR.Rnw :exports none :eval no
 \documentclass[a4paper]{article}
@@ -187,14 +172,14 @@ cat('
 \subsection{func}
 I'll use the following packages:
 <<eval=TRUE,echo=TRUE,keep.source=TRUE>>=  
+if(!require(xtable)) install.packages('xtable', repos = 'http://cran.csiro.au')
 require(xtable)
 #require(ggplot2)
 #require(ProjectTemplate)
 @
 <<eval=FALSE,echo=FALSE,keep.source=TRUE>>=  
 create.project('analysis', minimal = TRUE)
-setwd('I:/My Dropbox/projects/software training and support/learnR/analysis')
-dir.create('reports')
+dir.create('analysis/reports')
 # the plan
 @
 \subsection{Some Code}
@@ -296,32 +281,30 @@ sessionInfo()
 #+end_src
 
 * git
+#+name:git
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
 yum install git
-** ssh
-in rstudio
-tools / options / version control
-create rsa key, ok, ok
-view pub key, copy, paste to your github account
-
+reboot
+#+end_src
+** ssh for github
+- in rstudio
+- tools / options / version control
+- create rsa key, ok, ok
+- view pub key, copy, paste to your github account
 * gdal
 #+name:gdal
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-
 sudo rpm -Uvh http://elgis.argeo.org/repos/6/elgis/x86_64/elgis-release-6-6_0.noarch.rpm
 yum list gdal*
 yum install gdal-devel.x86_64
-gdal-config
 yum install proj-devel.x86_64
-
 #+end_src
 #+name:geos
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-  yum install geos-devel.x86_64y
-  
+yum install geos-devel.x86_64
 #+end_src
-
-** do this for proper transforms
-
+** need this for proper transforms of agd66 to gda94
+kudos2 Joe Guillaume and Francis Markham
 #+name:proper transforms
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 cd /usr/share/proj
@@ -329,182 +312,16 @@ wget  http://www.icsm.gov.au/icsm/gda/gdatm/national66.zip
 yum install unzip
 unzip national66.zip
 mv "A66 National (13.09.01).gsb" aust_national_agd66_13.09.01.gsb
-
 #+end_src
-
-   
-*** notes
-rpm -Uvh http://download.fedoraproject.org/pub/epel/6/i386/epel-release-6-7.noarch.rpm
-
-
-# http://elgis.argeo.org/
-# sudo rpm -Uvh
-# http://elgis.argeo.org/repos/5/elgis-release-5-5_0.noarch.rpm
-vi /etc/yum.repos.d/elgis.repo 
-
-# set enabled=1 in the elgis-plus section. 
-yum update
-# gave an error about repo metadata
-# change back again
-#sudo rpm -Uvh http://elgis.argeo.org/repos/6/elgis-release-6-6_0.noarch.rpm
-sudo rpm -Uvh http://elgis.argeo.org/repos/6/elgis/x86_64/elgis-release-6-6_0.noarch.rpm
-yum list gdal*
-yum install gdal-devel.x86_64
-gdal-config
-# this also installs proj?
-# not gdal-dev?
-
-
-
-wget
-http://dl.fedoraproject.org/pub/epel/6/x86_64/gdal-devel-1.7.2-1.el6.x86_64.rpm
-yum install gdal-devel-1.7.2-1.el6.x86_64.rpm
-# bah
-http://www.davidghedini.com/pg/entry/postgis_2_0_on_centos
-http://mirror.optus.net/epel/6/i386/epel-release-6-7.noarch.rpm
-yum list gdal*
 * rgraphviz
-# http://vladinformatics.blogspot.com.au/2012/03/my-experience-with-installing-rgraphviz.html 
+# kudos2 http://vladinformatics.blogspot.com.au/2012/03/my-experience-with-installing-rgraphviz.html 
+#+name:rgraphviz
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
 wget http://www.graphviz.org/pub/graphviz/stable/redhat/el6/x86_64/os/graphviz-2.28.0-1.el6.x86_64.rpm
 yum install graphviz-2.28.0-1.el6.x86_64.rpm
 wget http://www.graphviz.org/pub/graphviz/stable/redhat/el6/x86_64/os/graphviz-devel-2.28.0-1.el6.x86_64.rpm
 yum install graphviz-devel-2.28.0-1.el6.x86_64.rpm
+#+end_src
 ** test
 try newnode_test from
 git@github.com:ivanhanigan/disentangle.git
-* https and running a proxy
-** first try daves approach
-yum install httpd.x86_64
-
-openssl genrsa -out /etc/pki/tls/private/rstudio.ivan.com.key 1024
-openssl req -new -key /etc/pki/tls/private/rstudio.ivan.com.key -x509
--out  /etc/pki/tls/certs/rstudio.ivan.com.crt -days 365
-# mod_ssl
-yum install mod_ssl.x86_64 
-# couldn't find distcache in lib
-#vi /etc/httpd/conf.d/ssl.conf 
-vi +/SSLCertificateFile /etc/httpd/conf.d/ssl.conf
-# Change the paths to match where the Key file is stored. 
-SSLCertificateFile /etc/pki/tls/certs/rstudio.ivan.com.crt
-# Then set the correct path for the Certificate Key File a few lines below. 
-SSLCertificateKeyFile /etc/pki/tls/private/rstudio.ivan.com.key
-
-mkdir /etc/httpd/sites
-vi /etc/httpd/conf/httpd.conf 
-# and add 
-Include /etc/httpd/sites/
-# as the last line.
-vi /etc/httpd/sites/rstudio-ivan.com
-# in testing below changed this to rstudio.ivan.com
-# insert
-<VirtualHost *:80>
-
-  ServerName rstudio.ivan.com
-  RedirectMatch ^(.*)$ https://rstudio.ivan.com$1
-
-</VirtualHost>
-# goodo
-vi /etc/httpd/conf.d/ssl.conf
-# add
-
-  <Proxy *>
-    Allow from localhost
-  </Proxy>
-
-  ProxyPass        / http://localhost:8787/
-  ProxyPassReverse / http://localhost:8787/
-
-
-# before </VirtualHost>
-/etc/init.d/httpd restart
-
-vi /etc/sysconfig/iptables 
-# remove the previoslyu added 443 line
-# to the previously added line for 8787 modify to 
-# -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
-service iptables restart
-
-
-vi /etc/rstudio/rserver.conf
- www-address=127.0.0.1
-
-/etc/init.d/rstudio-server restart
-** no access? testing stuff
-*** first
-# no access try
-# iptables -A INPUT -p tcp --dport 443 -j ACCEPT
-# /sbin/service iptables save
-# iptables -L -v
-# reboot
-*** second
-# no access try
-vi /etc/sysconfig/iptables 
-# remove the previoslyu added 443 line
-# to the previously added line for 8787 modify to 
-# -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
-service iptables restart
-/etc/init.d/httpd restart
-# this gets me to the point where I can get asked to accept the
-# certificate, but no service
-*** third
-# getting really frustrated
-# re-read the 
-vi /etc/httpd/conf/httpd.conf
-
-# and find the bit about Proxy server directives, uncooment these to
-# enable te proxy server
-# following
-# http://library.linode.com/web-servers/apache/proxy-configuration/multiple-webservers-proxypass-centos-5
-/etc/init.d/httpd restart
-# no joy.
-# left uncommented
-*** fourth
-# add the 
-<VirtualHost *:80>
-
-  <Proxy *>
-    Allow from localhost
-  </Proxy>
-
-  ProxyPass        / http://localhost:8787/
-  ProxyPassReverse / http://localhost:8787/
-
-</VirtualHost>
-# bizzo to the bottom instead of ivan.com
-# nogo
-*** fifth
-# so reinstate the Include and put 443 back into iptables.
-# now add 8787 back to the iptables and also change the rstudio
-# webaddress to 0.0.0.0
-
-*** give up
-in iptables reinstate 8787
-in rstudio conf make web-address=0.0.0.0
-restart iptables and rstudio and httpd
-** notes
-# http://wiki.centos.org/HowTos/Https
-# yum install mod_ssl openssl etc
-
-** give up and restrict to VPN ncepthgis
-vi /etc/sysconfig/iptables
--A INPUT -s 130.56.101.142 -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
--A INPUT -s 150.203.74.109 -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
-# and http://www.thegeekstuff.com/2011/06/iptables-rules-examples/
-# 5. Allow Incoming SSH only from a Sepcific Network
-iptables -A INPUT -i eth0 -p tcp -s 10.100.21.0/24 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
-iptables -A OUTPUT -o eth0 -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
-# not working!!
-service iptables restart
-
-* X windows
-yum install xterm 
-yum install x11vnc.x86_64
-yum groupinstall "X Window System"
-# error setting MTRR (base = 0xfc000000, size = 0x00100000, type = 1) Invalid argu
-# ment (22)
-# expected keysym, got XF86TouchpadOn: line 120 of inet
-# expected keysym, got XF86TouchpadOff: line 121 of inet
-# (EE) config/hal: couldn't initialise context: unknown error (null)
-
-# waiting for X server to shut down error setting MTRR (base = 0xfc000000, size =
-# 0x00400000, type = 1) Invalid argument (22)
