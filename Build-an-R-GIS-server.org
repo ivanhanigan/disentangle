@@ -180,7 +180,7 @@ service iptables restart
 # failed?  says 
 # Service Temporarily Unavailable
 # The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.
-# Apache/2.2.15 (CentOS) Server at 115.146.93.101 Port 443
+# Apache/2.2.15 (CentOS) Server at your.new.ip.address Port 443
 ** test 
 log on to Rstudio at your.new.ip.address and copy the following into a new RNW sweave file (might need to modify the sweave options in tools, something to do with tex2dvi?)
 #+name:learnR
