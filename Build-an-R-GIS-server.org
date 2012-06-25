@@ -507,7 +507,7 @@ select pg_reload_conf();
 #+end_src
 make it listen for the world
 Locate the postgresql.conf file under /var/lib/pgsql/9.1/data.
-listen addresses '*,localhost'
+listen addresses '*'
 # sudo service postgresql-9.1 restart
 # failed to start.
 GIVING UP 
