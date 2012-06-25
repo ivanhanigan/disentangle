@@ -52,10 +52,56 @@ ssh -i keypairname root@your.new.ip.address
 # passwd root
 #+end_src
 now try to update the yum package manager
-#+name:whoami
+#+name:yumupdate
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 yum update 
 #+end_src
+* security measures
+** restrict ssh to a specific ip address
+open the firewall port to allow access to port 22 only from specified ip address
+# vi /etc/sysconfig/iptables 
+# and modify the line
+# -A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+# to 
+# -A INPUT -s your.desk.ip.address -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+TODO I'd like to set this up to work from a specified range (ie my VPN group)
+but  http://www.thegeekstuff.com/2011/06/iptables-rules-examples/
+ 5. Allow Incoming SSH only from a Sepcific Network
+# iptables -A INPUT -i eth0 -p tcp -s vpn.ip.range.0/24 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+# iptables -A OUTPUT -o eth0 -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
+# is not working!!  also tried without the -i eth0 and -o eth0
+** sudo rights
+add sudoers
+#http://helmingstay.blogspot.com.au/2012/02/adduser-myusername-adduser-myusername.html
+#+name:add sudoer
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+adduser super_user
+passwd super_user
+#+end_src
+#+name:sudoer
+#+begin_src sh :session *shell* :exports none :eval no :results silent
+adduser super_user sudoers
+## add correct key to ~myusername/.ssh/authorized_keys
+NB this didnt work , might be ubuntu only?
+#+end_src
+** disable root login
+# if you can set this up then the blog post above recommends restricting root login
+# vi /etc/ssh/sshd_config 
+## disable root login
+# /etc/init.d/ssh restart
+## now log in as myusername via another terminal to make sure it works, and then log out as root
+** nologin?
+From Dave's build, not implemented.  Not sure what this does
+#+name:not done
+#+begin_src sh :session *shell* :exports none :eval no :results silent
+#To create a user 
+useradd -m david
+passwd david
+vi /etc/passwd
+and change david:x:500:500::/home/david:/bin/bash to ::/home/david:/sbin/nologin
+#+end_src
+** SSL/HTTPS and running a proxy Server
+see the section below after the Rstudio server is set up
 * base packages
 # kudos2 http://rlamp.blogspot.com.au/2010/03/getting-started-setting-up-rapache.html
 #+name:foundations
@@ -105,7 +151,7 @@ service iptables restart
 # need to reboot?
 #+end_src
 might take a little while before your browser can connect, allow a couple of minutes
-* https and running a proxy 
+* SSL/HHTPS and running a proxy server 
 # http://rstudio.org/docs/server/running_with_proxy is only for ubuntu?
 #+name:install apache
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
