@@ -4,6 +4,15 @@
 #+LaTeX_CLASS: article
 #+LaTeX_CLASS_OPTIONS: [a4paper]
 -----
+#+name:header
+#+begin_src R :session *R* :tangle no :exports none :eval no
+paste(getwd(),'\n',Sys.Date())
+#+end_src
+
+#+RESULTS: header
+| /home/ivan/tools/disentangle |
+|                   2012-06-25 |
+
 * Introduction
 This is an emacs24 orgmode document to enable building an R GIS server
 on centos 6.2 amd64 using the Australian National Research Cloud.
@@ -45,8 +54,7 @@ ssh -i digger root@115.146.93.101
 #+end_src
 now try to update the yum package manager
 #+name:whoami
-#+begin_src sh :sessi
-on *shell* :exports none :eval yes :results silent
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
 yum update 
 #+end_src
 * base packages
@@ -326,3 +334,65 @@ yum install 'graphviz*'
 ** test
 try newnode_test from
 git@github.com:ivanhanigan/disentangle.git
+* PostGIS
+The following is a work in progress and doesn't work yet
+** postgres
+kudos2 http://wiki.postgresql.org/wiki/YUM_Installation
+edit /etc/yum.repos.d/CentOS-Base.repo
+append: exclude=postgresql* to [base] and [updates] sections
+#+name:postgres
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+curl -O http://yum.postgresql.org/9.1/redhat/rhel-6-x86_64/pgdg-centos91-9.1-4.noarch.rpm
+#+end_src
+#+name:install rpm
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+rpm -ivh pgdg-centos91-9.1-4.noarch.rpm
+#+end_src
+kudos2
+http://www.davidghedini.com/pg/entry/install_postgresql_9_on_centos
+
+#+name:install postgres
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+# yum list postgres*
+# install a basic PostgreSQL 9.1 server:
+yum install postgresql91-server postgresql91 postgresql91-devel postgresql91-libs postgresql91-contrib
+#+end_src
+#+name:initialise postgres
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+service postgresql-9.1 initdb
+#+end_src
+#+name:start postgres
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+service postgresql-9.1 start
+#+end_src
+NB skipped 4 Placing the binary directory in the path for postgres will allow you to invoke pg_ctl and other commands from the shell.
+Set postgres Password
+#+name:set pwd
+#+begin_src sh :session *shell* :exports none :eval no :results silent
+su - postgres
+psql postgres postgres
+alter user postgres with password 'postgres';
+
+#+end_src
+Configure PostgreSQL 9 pg_hba.conf File
+edit your pg_hba.conf file under /var/lib/pgsql/9.1/data
+I added a super user from my ip address and allowed all the local ip addresses access
+host    all             postgres        150.203.74.109/32       md5
+host    all             all             150.203.74.0/24         md5
+the restart
+#+name:restart
+#+begin_src sh :session *shell* :exports none :eval no :results silent
+# still connected to psql
+select pg_reload_conf();
+# logout? or \q?
+#+end_src
+make it listen for the world
+Locate the postgresql.conf file under /var/lib/pgsql/9.1/data.
+listen addresses '*,localhost'
+# sudo service postgresql-9.1 restart
+# failed to start.
+GIVING UP 
+yum erase postgresql91*
+
+# show listen_addresses;
+# show port;
