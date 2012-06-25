@@ -175,7 +175,7 @@ service iptables restart
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 /etc/init.d/rstudio-server restart
 #+end_src
-# now going to https://115.146.93.101/
+# now going to https://your.new.ip.address/
 # should ask you to add an exception
 # failed?  says 
 # Service Temporarily Unavailable
