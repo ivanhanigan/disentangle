@@ -496,7 +496,7 @@ alter user postgres with password 'postgres';
 Configure PostgreSQL 9 pg_hba.conf File
 edit your pg_hba.conf file under /var/lib/pgsql/9.1/data
 I added a super user from my ip address and allowed all the local ip addresses access
-host    all             postgres        150.203.74.109/32       md5
+host    all             postgres        my.desk.ip.address/32       md5
 host    all             all             150.203.74.0/24         md5
 the restart
 #+name:restart
@@ -515,3 +515,4 @@ yum erase postgresql91*
 
 # show listen_addresses;
 # show port;
+** postgis
