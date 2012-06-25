@@ -47,8 +47,7 @@ In the next chunk, insert the relevant ip address and you may have to answer yes
 #+name:ssh
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 cd ~/.ssh
-ssh -i digger root@115.146.93.101
-# ssh -i keypairname root@your.new.ip.address
+ssh -i keypairname root@your.new.ip.address
 # it is prudent to set a hideously long password for root
 # passwd root
 #+end_src
