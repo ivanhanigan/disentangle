@@ -1,4 +1,4 @@
-newnode<-function(dsc, i=NA, o=NA, graph = 'rEG', append=T, notes=F, code=NA, ttype=NA){
+newnode<-function(name, inputs=NA, outputs=NA, graph = 'rEG', append=T, notes=F, code=NA, ttype=NA){
   #  dsc='Clean Weather Data',
   #  ttype='data',
   #  i='BOM',
@@ -12,7 +12,10 @@ newnode<-function(dsc, i=NA, o=NA, graph = 'rEG', append=T, notes=F, code=NA, tt
   require(Rgraphviz)
   # example(layoutGraph)
   # require(biocGraph) # for imageMap
-  
+  # TODO change names in following
+  dsc <- name
+  i <- inputs
+  o <- outputs
   #   if(!exists('rEG')) {
   if(append==F) {    
     rEG <- new("graphNEL", nodes=c(dsc),
