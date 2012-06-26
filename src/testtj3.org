@@ -1,0 +1,53 @@
+
+#+TITLE:testtj3.org					     	  
+#+PROPERTY: Effort_ALL 2d 5d 10d 20d 30d 35d 50d 			      
+# Kudos2 http://permalink.gmane.org/gmane.emacs.orgmode/52844 									      
+* Action list						:taskjuggler_project:  
+** TODO Test tj3 A							      
+    :PROPERTIES:							     
+    :Effort:   1w							      
+    :allocate: toA					 
+    :END:							      
+** TODO Test tj3 B							      
+    :PROPERTIES:							      
+    :Effort:   1w							      
+    :allocate: toB							      
+    :BLOCKER:  previous-sibling					      
+    :END:								      
+** TODO Test 2 tj3 	
+    :PROPERTIES:							      
+    :Effort:   2w							      
+    :allocate:  toA							      
+    :BLOCKER:  previous-sibling				
+    :END:								      
+** TODO Test 2 tj3 B 							     
+    :PROPERTIES:							      
+    :Effort:   2w							     
+    :allocate: toB 
+    :BLOCKER: previous-sibling						      
+    :END:								      
+** TODO Test 3 tj3 C 							     
+    :PROPERTIES:							      
+    :Effort:   2w							     
+    :allocate: toC
+    :BLOCKER: previous-sibling						      
+    :END:
+* Ressources					       :taskjuggler_resource: 
+** A 									      
+    :PROPERTIES:							      
+    :resource_id: toA							      
+    :END:    								 
+** B									      
+    :PROPERTIES:					
+    :resource_id: toB 				     	 
+    :END:    				      	 
+** C 									      
+    :PROPERTIES:							      
+    :resource_id: toC							      
+    :END:   									      
+
+# Local Variables:							      
+# org-export-taskjuggler-target-version: 3.0	
+# org-export-taskjuggler-default-reports: ("include \"gantexport.tji\"")      
+# End:                                                                    
+

@@ -1,0 +1,56 @@
+project action "Action list" "1.0" 2012-06-26 +280d {
+ }
+shift s40 "Part time shift" {
+  workinghours wed, thu, fri off
+}
+
+resource ressources "Ressources" {
+ 
+resource toA "A" {
+ 
+}
+resource toB "B" {
+ 
+}
+resource toC "C" {
+ 
+}
+}
+task action "Action list" {
+start 2012-06-26
+task test "Test tj3 A" {
+ purge allocate
+ allocate toA
+ effort 40.0h
+
+}
+task test_tj3 "Test tj3 B" {
+ depends !test
+ purge allocate
+ allocate toB
+ effort 40.0h
+
+}
+task test__2 "Test 2 tj3" {
+ depends !test_tj3
+ purge allocate
+ allocate toA
+ effort 80.0h
+
+}
+task test__2_tj3 "Test 2 tj3 B" {
+ depends !test__2
+ purge allocate
+ allocate toB
+ effort 80.0h
+
+}
+task test__3 "Test 3 tj3 C" {
+ depends !test__2_tj3
+ purge allocate
+ allocate toC
+ effort 80.0h
+
+}
+}
+include "gantexport.tji"

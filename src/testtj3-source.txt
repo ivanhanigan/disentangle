@@ -1,0 +1,78 @@
+# http://permalink.gmane.org/gmane.emacs.orgmode/52844
+Re: taskjuggler3 export
+
+Hi, 
+
+I use the following testtj3.org file that I export to taskjuggler 3.0 :
+
+,----------------------------------------------------------------------------
+|#+TITLE:     testtj3.org						
+	      	  
+|#+PROPERTY: Effort_ALL 2d 5d 10d 20d 30d 35d 50d 			      
+|									      
+|* Action list						:taskjuggler_project:  
+|** TODO Test tj3 A							      
+|    :PROPERTIES:							     
+|    :Effort:   1w							      
+|    :allocate: toA					 
+|    :END:							      
+|** TODO Test tj3 B							      
+|    :PROPERTIES:							      
+|    :Effort:   1w							      
+|    :allocate: toB							      
+|    :BLOCKER:  previous-sibling					      
+|    :END:								      
+|** TODO Test 2 tj3 	
+|    :PROPERTIES:							      
+|    :Effort:   2w							      
+|    :allocate:  toA							      
+|    :BLOCKER:  previous-sibling				
+|    :END:								      
+|** TODO Test 2 tj3 B 							     
+|    :PROPERTIES:							      
+|    :Effort:   2w							     
+|    :allocate: toB 
+|    :BLOCKER: previous-sibling						      
+|    :END:								      
+|* Ressources					       :taskjuggler_resource: 
+|** A 									      
+|    :PROPERTIES:							      
+|    :resource_id: toA							      
+|    :END:    								 
+|** B									      
+|    :PROPERTIES:					
+|    :resource_id: toB 				     	 
+|    :END:    				      	 
+|									      
+|# Local Variables:							      
+|# org-export-taskjuggler-target-version: 3.0	
+|# org-export-taskjuggler-default-reports: ("include \"gantexport.tji\"")      
+|# End:                                                                    
+`----------------------------------------------------------------------------
+
+As you can see, I define in the org-export-taskjuggler-default-reports 
+variable at the end of the file that I want to use gantexport.tji where the 
+gant output directives are defined. This file is in the same directory as org 
+file.
+
+The gantexport.tji is the following :
+
+,-----------------------------------------------------------------------------
+|### begin report definition						       
+|									       
+|taskreport "Gantt Chart" {						       
+|  headline "Project Gantt Chart"					       
+|  columns hierarchindex, name, start, end, effort, duration, completed, 
+chart  
+|  timeformat "%Y-%m-%d"       
+|  hideresource 1							       
+|  formats html								       
+|  loadunit shortauto							       
+|}                                                                            
+`-----------------------------------------------------------------------------
+
+Then the instruction tj3 testtj3.tjp generate the gant chart accessible 
+in "Gantt Chart.html" file.
+
+Hope that can help.
+
