@@ -1,0 +1,518 @@
+#+TITLE: Build an R GIS server on centos at research cloud
+#+AUTHOR: Ivan Hanigan
+#+email: ivan.hanigan@anu.edu.au
+#+LaTeX_CLASS: article
+#+LaTeX_CLASS_OPTIONS: [a4paper]
+-----
+#+name:header
+#+begin_src R :session *R* :tangle no :exports none :eval no
+paste(getwd(),'\n',Sys.Date())
+#+end_src
+
+#+RESULTS: header
+| /home/ivan/tools/disentangle |
+|                   2012-06-25 |
+
+* Introduction
+This is an emacs24 orgmode document to enable building an R GIS server
+on centos 6.2 amd64 using the Australian National Research Cloud.
+
+
+I use centos rather than ubuntu because we are forced to use redhat
+for production servers at the ANU Research School of Population Health.
+
+It is probably preferable to build this using ubuntu and most of this
+should work by replacing `yum install' with `apt-get'.
+
+* Launch an instance
+- Log on to the reserach cloud using your Australian University details http://www.nectar.org.au/research-cloud/.
+- Under images and snapshots launch the centos 6.2 amd64 image
+- give your server a name
+- select all http, icmp and ssh under security
+- specify a ssh keypair http://support.rc.nectar.org.au/demos/launching_123.html
+- launch and note the ip address
+- go to the access and security section and edit the http rule
+- add a rule to allow access from port 8080 to 9000 with 0.0.0.0/0 (CIDR)
+- Note that this allows access to the whole world, we will think about securing the server later
+* ssh
+If using Windows make sure you have git installed.  Opening a git bash
+shell will enable you to connect to your server using ssh. Then the contents of the following orgmode chunks can be evaluated on the remote server.
+If your on linux then orgmode can execute these chunks using C-c C-c.
+#+name:whoami local
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+
+whoami
+#+end_src
+In the next chunk, insert the relevant ip address and you may have to answer yes to the question about adding this RSA fingerprint to your list.
+#+name:ssh
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+cd ~/.ssh
+ssh -i keypairname root@your.new.ip.address
+# it is prudent to set a hideously long password for root
+# passwd root
+#+end_src
+now try to update the yum package manager
+#+name:yumupdate
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+yum update 
+#+end_src
+* security measures
+** restrict ssh to a specific ip address
+open the firewall port to allow access to port 22 only from specified ip address
+# vi /etc/sysconfig/iptables 
+# and modify the line
+# -A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+# to 
+# -A INPUT -s your.desk.ip.address -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+TODO I'd like to set this up to work from a specified range (ie my VPN group)
+but  http://www.thegeekstuff.com/2011/06/iptables-rules-examples/
+ 5. Allow Incoming SSH only from a Sepcific Network
+# iptables -A INPUT -i eth0 -p tcp -s vpn.ip.range.0/24 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
+# iptables -A OUTPUT -o eth0 -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
+# is not working!!  also tried without the -i eth0 and -o eth0
+** sudo rights
+add sudoers
+#http://helmingstay.blogspot.com.au/2012/02/adduser-myusername-adduser-myusername.html
+#+name:add sudoer
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+adduser super_user
+passwd super_user
+#+end_src
+#+name:sudoer
+#+begin_src sh :session *shell* :exports none :eval no :results silent
+adduser super_user sudoers
+## add correct key to ~myusername/.ssh/authorized_keys
+NB this didnt work , might be ubuntu only?
+#+end_src
+** disable root login
+# if you can set this up then the blog post above recommends restricting root login
+# vi /etc/ssh/sshd_config 
+## disable root login
+# /etc/init.d/ssh restart
+## now log in as myusername via another terminal to make sure it works, and then log out as root
+** nologin?
+From Dave's build, not implemented.  Not sure what this does
+#+name:not done
+#+begin_src sh :session *shell* :exports none :eval no :results silent
+#To create a user 
+useradd -m david
+passwd david
+vi /etc/passwd
+and change david:x:500:500::/home/david:/bin/bash to ::/home/david:/sbin/nologin
+#+end_src
+** SSL/HTTPS and running a proxy Server
+see the section below after the Rstudio server is set up
+* base packages
+# kudos2 http://rlamp.blogspot.com.au/2010/03/getting-started-setting-up-rapache.html
+#+name:foundations
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+yum install gcc-gfortran  gcc-c++   readline-devel   libpng-devel  libX11-devel libXt-devel   texinfo-tex    tetex-dvips  docbook-utils-pdf   cairo-devel   java-1.6.0-openjdk-devel  libxml2-devel   make
+#+end_src
+* describe the system
+note the size and partitions
+#+name:partitions
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+df -h
+#+end_src
+* add users
+#+name:add users
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+adduser newuser1
+passwd newuser1
+adduser newuser2
+passwd newuser2
+#+end_src
+* R
+#+name:R
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+rpm -Uvh http://mirror.as24220.net/pub/epel/6/i386/epel-release-6-7.noarch.rpm
+yum install R R-devel
+#+end_src
+* Rstudio
+#+name:install rstudio
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+wget http://download2.rstudio.org/rstudio-server-0.96.304-x86_64.rpm
+yum install rstudio-server-0.96.304-x86_64.rpm
+rstudio-server verify-installation
+#+end_src
+firewall access
+NB emacs does this badly! use a terminal?
+#+name:firewall
+#+begin_src sh :session *shell* :exports none :eval no :results silent
+# kudos2 http://slinsmeier.wordpress.com/2012/05/19/creating-a-lab-environment-with-rstudio/
+# It is necessary to open the firewall port to allow the browser
+# access to RStudio: edit the 
+vi /etc/sysconfig/iptables 
+# file and add the line
+# -A INPUT -m state --state NEW -m tcp -p tcp --dport 8787 -j ACCEPT
+# directly after the opening of the ssh port 22 (or copy that line and change the port 22 to 8787).
+# use INS to start editing, ESC to stop and :x to save
+service iptables restart
+# need to reboot?
+#+end_src
+might take a little while before your browser can connect, allow a couple of minutes
+* SSL/HHTPS and running a proxy server 
+# http://rstudio.org/docs/server/running_with_proxy is only for ubuntu?
+#+name:install apache
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+yum install httpd.x86_64
+#+end_src
+# run the following interactively
+openssl genrsa -out /etc/pki/tls/private/rstudio.ivan.com.key 1024
+# the next is one line
+openssl req -new -key /etc/pki/tls/private/rstudio.ivan.com.key -x509 -out /etc/pki/tls/certs/rstudio.ivan.com.crt -days 365
+#+name:mod_ssl
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+yum install mod_ssl.x86_64 
+#+end_src
+# NB couldn't follow dave's install here as can't find distcache in lib
+#vi /etc/httpd/conf.d/ssl.conf 
+# vi +/SSLCertificateFile /etc/httpd/conf.d/ssl.conf
+# Change the paths to match where the Key file is stored. 
+SSLCertificateFile /etc/pki/tls/certs/rstudio.ivan.com.crt
+# Then set the correct path for the Certificate Key File a few lines below. 
+SSLCertificateKeyFile /etc/pki/tls/private/rstudio.ivan.com.key
+#+name:makedir
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+mkdir /etc/httpd/sites
+#+end_src
+# vi /etc/httpd/conf/httpd.conf 
+# and add 
+Include /etc/httpd/sites/
+# as the last line.
+# NB did the next in terminal
+# vi /etc/httpd/sites/rstudio-ivan.com
+# in testing below changed this to rstudio.ivan.com
+# insert
+<VirtualHost *:80>
+
+  ServerName rstudio.ivan.com
+  RedirectMatch ^(.*)$ https://rstudio.ivan.com$1
+
+</VirtualHost>
+# goodo
+# vi /etc/httpd/conf.d/ssl.conf
+# add
+
+  <Proxy *>
+    Allow from localhost
+  </Proxy>
+
+  ProxyPass        / http://localhost:8787/
+  ProxyPassReverse / http://localhost:8787/
+
+
+# before </VirtualHost>
+#+name:restart
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+/etc/init.d/httpd restart
+#+end_src
+# vi /etc/sysconfig/iptables 
+# remove the previoslyu added 443 line
+# to the previously added line for 8787 modify to 
+# -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
+#+name:restart
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+service iptables restart
+#+end_src
+# vi /etc/rstudio/rserver.conf
+ www-address=127.0.0.1
+#+name:rstudio restart
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+/etc/init.d/rstudio-server restart
+#+end_src
+# now going to https://your.new.ip.address/
+# should ask you to add an exception
+# failed?  says 
+# Service Temporarily Unavailable
+# The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.
+# Apache/2.2.15 (CentOS) Server at your.new.ip.address Port 443
+** test 
+log on to Rstudio at your.new.ip.address and copy the following into a new RNW sweave file (might need to modify the sweave options in tools, something to do with tex2dvi?)
+#+name:learnR
+#+begin_src R :session *R* :tangle learnR.Rnw :exports none :eval no
+\documentclass[a4paper]{article}
+\usepackage{fancyhdr} %For headers and footers
+\pagestyle{fancy} %For headers and footers
+\usepackage{lastpage} %For getting page x of y
+\usepackage{float} %Allows the figures to be positioned and formatted nicely
+\floatstyle{boxed} %using this
+\restylefloat{figure} %and this command
+\usepackage{url} %Formatting of yrls
+\usepackage{verbatim}
+\usepackage{cite} 
+\usepackage{hyperref} 
+%Define all the headers and footers
+\lhead{}
+\chead{NCEPH Working Paper}
+\rhead{}
+\lfoot{Ivan C Hanigan}
+\cfoot{\today}
+\rfoot{\thepage\ of \pageref{LastPage}}
+\usepackage{Sweave}
+\begin{document}
+\SweaveOpts{concordance=TRUE}
+%\SweaveOpts{concordance=TRUE}
+%\input{learnR-concordance}
+\title{Example Sweave Document}
+\author{Ivan C. Hanigan$^{1}$}
+\date {\today}
+\maketitle
+\begin{itemize}
+\item [$^1$] National Centre for Epidemiology and Population Health, \\Australian National University.
+\end{itemize}
+
+\setcounter{page}{1}
+\pagenumbering{roman}
+\tableofcontents 
+\pagenumbering{arabic}
+\setcounter{page}{1}
+
+\section{Introduction}
+This is an introduction to some resources that are useful for learning R.  
+\section{The R code that produced this report}
+It is important to appreciate that R is free and open source software.  This means that any code you write can be viewed and modified by others.  In some cases we need to protect our Intellectual Property and the following statement is an attempt to ascribe copyright to our work, even though it remains open source.
+
+``I support the philosophy of Reproducible Research \cite{Peng2011}, and where possible I provide data and code in the statistical software R that will allow analyses to be reproduced.  This document is prepared automatically from the associated Sweave (RNW) file.  If you do not have access to the RNW file please contact me.''
+<<eval=FALSE,echo=FALSE,keep.source=TRUE>>=
+cat('
+ #######################################################################
+ ## The R code is free software; please cite this paper as the source.  
+ ## Copyright 2012, Ivan C Hanigan <ivan.hanigan@gmail.com> 
+ ## This program is free software; you can redistribute it and/or modify
+ ## it under the terms of the GNU General Public License as published by
+ ## the Free Software Foundation; either version 2 of the License, or
+ ## (at your option) any later version.
+ ## 
+ ## This program is distributed in the hope that it will be useful,
+ ## but WITHOUT ANY WARRANTY; without even the implied warranty of
+ ## MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ ## GNU General Public License for more details.
+ ## Free Software
+ ## Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ ## 02110-1301, USA
+ #######################################################################
+')
+@ 
+
+
+\subsection{func}
+I'll use the following packages:
+<<eval=TRUE,echo=TRUE,keep.source=TRUE>>=  
+if(!require(xtable)) install.packages('xtable', repos = 'http://cran.csiro.au')
+require(xtable)
+#require(ggplot2)
+#require(ProjectTemplate)
+@
+<<eval=FALSE,echo=FALSE,keep.source=TRUE>>=  
+create.project('analysis', minimal = TRUE)
+dir.create('analysis/reports')
+# the plan
+@
+\subsection{Some Code}
+<<eval=TRUE,echo=TRUE,keep.source=TRUE>>=
+x<-rnorm(100,10,5)
+y<-rnorm(100,20,15)
+fit <- lm(y~x)
+summary(fit)
+@
+Using the xtable package allows results to be displyed in tables and has built in support for some R objects, so summrising the linear fit above in Table ~\ref{ATable}.
+<<eval=TRUE,echo=FALSE,results=tex>>=
+require(xtable)
+xtable(fit, caption="Example Table",digits=4,table.placement="H",label="ATable")
+@
+\subsection{A Plot}
+ 
+Plots intergrate easily, using the \LaTeX float package as can be seen in figure ~\ref{aPlot.png}.  However I like to make them as pngs and then include.
+
+<<eval=TRUE,echo=FALSE,keep.source=TRUE>>=  
+png('aPlot.png', res=200,width = 600, height = 600)
+plot(x,y,main="Example Plot",xlab="X Variable",ylab="Y Variable")
+abline(fit,col="Red")
+dev.off()
+@
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\textwidth]{aPlot.png}
+\caption{aPlot.png}
+\label{fig:aPlot.png}
+\end{figure}
+\clearpage
+\section{Remembering the points}
+This blog post \url{http://www.win-vector.com/blog/2012/04/how-to-remember-point-shape-codes-in-r/} says:
+
+I suspect I am not unique in not being able to remember how to control the point shapes in R. Part of this is a documentation problem: no package ever seems to write the shapes down. All packages just use the usual set that derives from S-Plus and was carried through base-graphics, to grid, lattice and ggplot2. The quickest way out of this is to know how to generate an example plot of the shapes quickly. We show how to do this in ggplot2. This is trivial- but you get tired of not having it immediately available.
+
+
+I like it but it is not as complate as the plot shown in Figure \ref{fig:pchopts.png} from the `R for Beginners' document by Emmanuel Paradis \cite{Paradis2002}.  I also find I often get disoriented using ggplot2.
+
+<<eval=TRUE, echo=FALSE>>=
+# it had to be fixed
+# sum <- ggplot()
+# for(i in 1:25) {
+#    sum <- sum +
+#       geom_point(data=data.frame(x=c(i)),aes(x=x,y=x),shape=i)
+# }
+# sum
+# but this still doesn't work properly
+# ggplot(data=data.frame(x=as.factor(1:16))) + geom_point(aes(x=x,y=x)) +
+#     facet_wrap(~x,scales='free')
+# I like base graphics anyway
+png('pchopts.png')
+par(mfrow=c(3,10), mar=c(0,0,2,0))
+for(i in c(1:25)){
+ plot(1,1,pch=i, axes=F, cex = 3, col = 'blue', bg = 'yellow')
+ title(i)
+ }
+for(i in c("*", "?", ".", "X", "a")){
+ plot(1,1,pch=i, axes=F, cex = 3, col = 'blue', bg = 'yellow')
+ title(i)
+ }
+dev.off()
+@
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\textwidth]{pchopts.png}
+\caption{pchopts.png}
+\label{fig:pchopts.png}
+\end{figure}
+
+
+\section{Conclusion}
+In conclusion, sweave rocks.
+
+
+\begin{thebibliography}{1}
+\bibitem{Paradis2002}
+Emmanuel Paradis.
+\newblock {R for Beginners}.
+\newblock 2002.
+
+\bibitem{Peng2011}
+Roger~D Peng.
+\newblock {Reproducible research in computational science.}
+\newblock {\em Science (New York, N.Y.)}, 334(6060):1226--7, December 2011.
+
+\end{thebibliography}
+
+\section{System State}
+<<eval=TRUE,echo=TRUE,keep.source=TRUE>>=
+sessionInfo()
+@
+
+
+
+
+\end{document}
+
+#+end_src
+
+* git
+#+name:git
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+yum install git
+reboot
+#+end_src
+** ssh for github
+- in rstudio
+- tools / options / version control
+- create rsa key, ok, ok
+- view pub key, copy, paste to your github account
+* gdal
+#+name:gdal
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+sudo rpm -Uvh http://elgis.argeo.org/repos/6/elgis/x86_64/elgis-release-6-6_0.noarch.rpm
+yum list gdal*
+yum install gdal-devel.x86_64
+yum install proj-devel.x86_64
+#+end_src
+#+name:geos
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+yum install geos-devel.x86_64
+#+end_src
+** need this for proper transforms of agd66 to gda94
+kudos2 Joe Guillaume and Francis Markham
+#+name:proper transforms
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+cd /usr/share/proj
+wget  http://www.icsm.gov.au/icsm/gda/gdatm/national66.zip
+yum install unzip
+unzip national66.zip
+mv "A66 National (13.09.01).gsb" aust_national_agd66_13.09.01.gsb
+#+end_src
+* rgraphviz
+# if on ubuntu kudos2 http://vladinformatics.blogspot.com.au/2012/03/my-experience-with-installing-rgraphviz.html 
+#+name:gviz
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+wget http://www.graphviz.org/graphviz-rhel.repo
+mv graphviz-rhel.repo /etc/yum.repos.d/ 
+yum list available 'graphviz*'
+yum install 'graphviz*'
+#+end_src
+
+** test
+try newnode_test from
+git@github.com:ivanhanigan/disentangle.git
+* PostGIS
+The following is a work in progress and doesn't work yet
+** postgres
+kudos2 http://wiki.postgresql.org/wiki/YUM_Installation
+edit /etc/yum.repos.d/CentOS-Base.repo
+append: exclude=postgresql* to [base] and [updates] sections
+#+name:postgres
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+curl -O http://yum.postgresql.org/9.1/redhat/rhel-6-x86_64/pgdg-centos91-9.1-4.noarch.rpm
+#+end_src
+#+name:install rpm
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+rpm -ivh pgdg-centos91-9.1-4.noarch.rpm
+#+end_src
+kudos2
+http://www.davidghedini.com/pg/entry/install_postgresql_9_on_centos
+
+#+name:install postgres
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+# yum list postgres*
+# install a basic PostgreSQL 9.1 server:
+yum install postgresql91-server postgresql91 postgresql91-devel postgresql91-libs postgresql91-contrib
+#+end_src
+#+name:initialise postgres
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+service postgresql-9.1 initdb
+#+end_src
+#+name:start postgres
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+service postgresql-9.1 start
+#+end_src
+NB skipped 4 Placing the binary directory in the path for postgres will allow you to invoke pg_ctl and other commands from the shell.
+Set postgres Password
+#+name:set pwd
+#+begin_src sh :session *shell* :exports none :eval no :results silent
+su - postgres
+psql postgres postgres
+alter user postgres with password 'postgres';
+
+#+end_src
+Configure PostgreSQL 9 pg_hba.conf File
+edit your pg_hba.conf file under /var/lib/pgsql/9.1/data
+I added a super user from my ip address and allowed all the local ip addresses access
+host    all             postgres        my.desk.ip.address/32       md5
+host    all             all             150.203.74.0/24         md5
+the restart
+#+name:restart
+#+begin_src sh :session *shell* :exports none :eval no :results silent
+# still connected to psql
+select pg_reload_conf();
+# logout? or \q?
+#+end_src
+make it listen for the world
+Locate the postgresql.conf file under /var/lib/pgsql/9.1/data.
+listen addresses '*'
+# sudo service postgresql-9.1 restart
+# failed to start.
+GIVING UP 
+yum erase postgresql91*
+
+# show listen_addresses;
+# show port;
+** postgis
