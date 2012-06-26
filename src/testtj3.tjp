@@ -45,8 +45,15 @@ task test__2_tj3 "Test 2 tj3 B" {
  effort 80.0h
 
 }
-task test__3 "Test 3 tj3 C" {
+task test3 "test3" {
  depends !test__2_tj3
+ purge allocate
+ allocate toC
+ effort 80.0h
+
+}
+task test4 "test4" {
+ depends action.test_tj3 
  purge allocate
  allocate toC
  effort 80.0h

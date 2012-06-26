@@ -9,7 +9,8 @@
     :allocate: toA					 
     :END:							      
 ** TODO Test tj3 B							      
-    :PROPERTIES:							      
+    :PROPERTIES:
+    :task_id: newnode							      
     :Effort:   1w							      
     :allocate: toB							      
     :BLOCKER:  previous-sibling					      
@@ -26,11 +27,18 @@
     :allocate: toB 
     :BLOCKER: previous-sibling						      
     :END:								      
-** TODO Test 3 tj3 C 							     
+** TODO test3 							     
     :PROPERTIES:							      
     :Effort:   2w							     
     :allocate: toC
-    :BLOCKER: previous-sibling						      
+    :BLOCKER: previous-sibling 						      
+    :END:
+** TODO test4 							     
+    :PROPERTIES:	
+    :task_id: newnode2						      
+    :Effort:   2w							     
+    :allocate: toC
+    :BLOCKER: newnode						      
     :END:
 * Ressources					       :taskjuggler_resource: 
 ** A 									      
