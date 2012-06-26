@@ -53,7 +53,7 @@ task test3 "test3" {
 
 }
 task test4 "test4" {
- depends action.test_tj3 
+ depends !test3, action.test_tj3 
  purge allocate
  allocate toC
  effort 80.0h

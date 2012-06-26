@@ -38,7 +38,7 @@
     :task_id: newnode2						      
     :Effort:   2w							     
     :allocate: toC
-    :BLOCKER: newnode						      
+    :BLOCKER: newnode,previous-sibling						      
     :END:
 * Ressources					       :taskjuggler_resource: 
 ** A 									      
