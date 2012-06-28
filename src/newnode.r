@@ -1,9 +1,9 @@
-newnode<-function(name, inputs=NA, outputs=NA, graph = 'rEG', append=T, notes=F, code=NA, ttype=NA){
+newnode<-function(name, inputs=NA, outputs=NA, graph = 'nodes', append=T, notes=F, code=NA, ttype=NA){
   #  dsc='Clean Weather Data',
   #  ttype='data',
   #  i='BOM',
   #  o='Weather Data',
-  # grph <- 'rEG'
+  # grph <- 'nodes'
   #   append=F,
   #   notes='Error Checking',
   #   code
@@ -16,23 +16,23 @@ newnode<-function(name, inputs=NA, outputs=NA, graph = 'rEG', append=T, notes=F,
   dsc <- name
   i <- inputs
   o <- outputs
-  #   if(!exists('rEG')) {
+  #   if(!exists('nodes')) {
   if(append==F) {    
-    rEG <- new("graphNEL", nodes=c(dsc),
+    nodes <- new("graphNEL", nodes=c(dsc),
                edgemode="directed")
-    # rEG <- addEdge(from=i, to=dsc, graph=rEG, 1)    
+    # nodes <- addEdge(from=i, to=dsc, graph=nodes, 1)    
   } else {
-    if(length(grep(dsc,rEG@nodes)) == 0) rEG <- addNode(node=dsc,object=rEG)
+    if(length(grep(dsc,nodes@nodes)) == 0) nodes <- addNode(node=dsc,object=nodes)
   }  
-  if(sum(i %in% rEG@nodes) != length(i)) {
-    i <- i[!i %in% rEG@nodes]
-    rEG <- addNode(node=i,object=rEG)   
+  if(sum(i %in% nodes@nodes) != length(i)) {
+    i <- i[!i %in% nodes@nodes]
+    nodes <- addNode(node=i,object=nodes)   
   }
-  rEG <- addEdge(i, dsc, rEG, 1)
+  nodes <- addEdge(i, dsc, nodes, 1)
   #}
   #if(!is.na(o)){
-  if(length(grep(o,rEG@nodes)) == 0) rEG <- addNode(node=o,object=rEG)
-  rEG <- addEdge(from=dsc, to=o, graph=rEG, 1)  
+  if(length(grep(o,nodes@nodes)) == 0) nodes <- addNode(node=o,object=nodes)
+  nodes <- addEdge(from=dsc, to=o, graph=nodes, 1)  
   #}
-  return(rEG)
+  return(nodes)
 }
