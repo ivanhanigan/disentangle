@@ -51,6 +51,55 @@ ssh -i keypairname root@your.new.ip.address
 # it is prudent to set a hideously long password for root
 # passwd root
 #+end_src
+TODO why can i get in without using -i keypairname?
+** changes to make
+/etc/ssh/sshd_config
+under authentication remark out 
+#RSAAuthentication yes
+#PubkeyAuthentication yes
+and then scroll down to 
+# To disable tunneled clear text passwords, change to no here!
+#PasswordAuthentication yes
+#PermitEmptyPasswords no
+PasswordAuthentication yes
+# change to no
+
+Example of one of Daves.
+
+Port 13456
+#Protocol 2,1
+Protocol 2
+#AddressFamily any
+#ListenAddress 0.0.0.0
+#ListenAddress ::
+
+# Authentication:
+
+#LoginGraceTime 2m
+PermitRootLogin yes
+#StrictModes yes
+#MaxAuthTries 6
+
+#RSAAuthentication yes
+#PubkeyAuthentication yes
+AuthorizedKeysFile      .ssh/authorized_keys
+
+# For this to work you will also need host keys in /etc/ssh/ssh_known_hosts
+#RhostsRSAAuthentication no
+# similar for protocol version 2
+#HostbasedAuthentication no
+# Change to yes if you don't trust ~/.ssh/known_hosts for
+# RhostsRSAAuthentication and HostbasedAuthentication
+IgnoreUserKnownHosts no
+# Don't read the user's ~/.rhosts and ~/.shosts files
+#IgnoreRhosts yes
+
+# To disable tunneled clear text passwords, change to no here!
+#PasswordAuthentication yes
+#PermitEmptyPasswords no
+PasswordAuthentication no
+
+* yum updates
 now try to update the yum package manager
 #+name:yumupdate
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
@@ -64,12 +113,26 @@ open the firewall port to allow access to port 22 only from specified ip address
 # -A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
 # to 
 # -A INPUT -s your.desk.ip.address -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
-TODO I'd like to set this up to work from a specified range (ie my VPN group)
-but  http://www.thegeekstuff.com/2011/06/iptables-rules-examples/
- 5. Allow Incoming SSH only from a Sepcific Network
-# iptables -A INPUT -i eth0 -p tcp -s vpn.ip.range.0/24 --dport 22 -m state --state NEW,ESTABLISHED -j ACCEPT
-# iptables -A OUTPUT -o eth0 -p tcp --sport 22 -m state --state ESTABLISHED -j ACCEPT
-# is not working!!  also tried without the -i eth0 and -o eth0
+# service iptables restart
+TODO I'd like to restrict ssh access to the ncephgis VPN group, and add the restriction to use keypair's.  
+
+-A INPUT -s vpn.ip.range.0/255.255.255.0 -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+
+vi /etc/ssh/sshd_config
+
+# Authentication:
+
+#LoginGraceTime 2m
+PermitRootLogin no
+#StrictModes yes
+#MaxAuthTries 6
+
+# To disable tunneled clear text passwords, change to no here!
+#PasswordAuthentication yes
+#PermitEmptyPasswords no
+PasswordAuthentication no
+
+
 ** sudo rights
 add sudoers
 #http://helmingstay.blogspot.com.au/2012/02/adduser-myusername-adduser-myusername.html
@@ -80,28 +143,110 @@ passwd super_user
 #+end_src
 #+name:sudoer
 #+begin_src sh :session *shell* :exports none :eval no :results silent
-adduser super_user sudoers
+# adduser super_user sudoers
 ## add correct key to ~myusername/.ssh/authorized_keys
-NB this didnt work , might be ubuntu only?
+# NB this didnt work , might be ubuntu only?
+# ASKED DAVE FOR ADVICE
+yum list sudo*
+# says installed packages sudo.x86_64
+# Create the local user accounts e.g.
+useradd super_user
+# useradd super_user2
+# and them to a particular group e.g. nceph_admins
+groupadd nceph_admins
+usermod -G nceph_admins super_user
+# usermod -G nceph_admins super_user2
+
+# don't forget assign passwords
+
+passwd super_user
+#passwd super_user2
+
+#then enter
+
+sudoedit /etc/sudoers
+
+root ALL=(ALL) ALL
+%nceph_admins ALL=ALL
+
+# or 
+# To avoid creating and adding users to a group
+#root ALL=(ALL) ALL
+#super_user ALL=ALL
+#super_user2 ALL=ALL
+
 #+end_src
+
 ** disable root login
 # if you can set this up then the blog post above recommends restricting root login
 # vi /etc/ssh/sshd_config 
 ## disable root login
 # /etc/init.d/ssh restart
 ## now log in as myusername via another terminal to make sure it works, and then log out as root
-** nologin?
-From Dave's build, not implemented.  Not sure what this does
-#+name:not done
-#+begin_src sh :session *shell* :exports none :eval no :results silent
-#To create a user 
-useradd -m david
-passwd david
-vi /etc/passwd
-and change david:x:500:500::/home/david:/bin/bash to ::/home/david:/sbin/nologin
-#+end_src
+# Questions to Dave.
+# Q1 Should I disable root log in?
+# Yes, because of 1) Emacs over X Windows and SSH, 2)R console access
+# via SSH etc.  On most of my systems only my ip address have 22 access though the firewall so in those circumstances that is fine. 
+
+# Q2 from your previous build I saw you modified your user with vi /etc/passwd # and change david:x:500:500::/home/david:/bin/bash to ::/home/david:/sbin/nologin #is this necessary for all users?
+
+# Depends on yourself.  Guessing that RStudio will be visible to the outside world without the need to VPN in?  If so and a external user who only needs to access to RStudio you would then change their login in /etc/passwd to provided example.  Users who will be accessing the server with EMacs, plain R Console vi SSH etc, you would not change.
+
+
+
 ** SSL/HTTPS and running a proxy Server
 see the section below after the Rstudio server is set up
+** selinux
+after setting up the Rstudio server and the ssl/https 
+# selinux config
+vi /etc/selinux/config
+
+
+# This file controls the state of SELinux on the system.
+# SELINUX= can take one of these three values:
+#     enforcing - SELinux security policy is enforced.
+#     permissive - SELinux prints warnings instead of enforcing.
+#     disabled - No SELinux policy is loaded.
+SELINUX=enforcing
+
+# Change SELINUX=enforcing to disabled and you must reboot the server after applying the change.
+# also the following 
+# chkconfig httpd on
+# so  when log back in must restart httpd
+*** other things
+# check what's on
+chkconfig --list | grep on
+acpid           0:off   1:off   2:on    3:on    4:on    5:on    6:off
+auditd          0:off   1:off   2:on    3:on    4:on    5:on    6:off
+cgconfig        0:off   1:off   2:off   3:off   4:off   5:off   6:off
+cups            0:off   1:off   2:on    3:on    4:on    5:on    6:off
+fcoe            0:off   1:off   2:on    3:on    4:on    5:on    6:off
+httpd           0:off   1:off   2:on    3:on    4:on    5:on    6:off
+ip6tables       0:off   1:off   2:on    3:on    4:on    5:on    6:off
+iptables        0:off   1:off   2:on    3:on    4:on    5:on    6:off
+iscsi           0:off   1:off   2:off   3:on    4:on    5:on    6:off
+iscsid          0:off   1:off   2:off   3:on    4:on    5:on    6:off
+lldpad          0:off   1:off   2:on    3:on    4:on    5:on    6:off
+lvm2-monitor    0:off   1:on    2:on    3:on    4:on    5:on    6:off
+messagebus      0:off   1:off   2:on    3:on    4:on    5:on    6:off
+netconsole      0:off   1:off   2:off   3:off   4:off   5:off   6:off
+netfs           0:off   1:off   2:off   3:on    4:on    5:on    6:off
+network         0:off   1:off   2:on    3:on    4:on    5:on    6:off
+nfslock         0:off   1:off   2:off   3:on    4:on    5:on    6:off
+portreserve     0:off   1:off   2:on    3:on    4:on    5:on    6:off
+restorecond     0:off   1:off   2:off   3:off   4:off   5:off   6:off
+rpcbind         0:off   1:off   2:on    3:on    4:on    5:on    6:off
+rpcgssd         0:off   1:off   2:off   3:on    4:on    5:on    6:off
+rpcidmapd       0:off   1:off   2:off   3:on    4:on    5:on    6:off
+rstudio-server  0:off   1:off   2:on    3:on    4:on    5:on    6:off
+rsyslog         0:off   1:off   2:on    3:on    4:on    5:on    6:off
+sshd            0:off   1:off   2:on    3:on    4:on    5:on    6:off
+udev-post       0:off   1:on    2:on    3:on    4:on    5:on    6:off
+# then 
+chkconfig `servicename' on
+# or
+chkconfig `servicename' off
+
 * base packages
 # kudos2 http://rlamp.blogspot.com.au/2010/03/getting-started-setting-up-rapache.html
 #+name:foundations
@@ -223,10 +368,7 @@ service iptables restart
 #+end_src
 # now going to https://your.new.ip.address/
 # should ask you to add an exception
-# failed?  says 
-# Service Temporarily Unavailable
-# The server is temporarily unable to service your request due to maintenance downtime or capacity problems. Please try again later.
-# Apache/2.2.15 (CentOS) Server at your.new.ip.address Port 443
+
 ** test 
 log on to Rstudio at your.new.ip.address and copy the following into a new RNW sweave file (might need to modify the sweave options in tools, something to do with tex2dvi?)
 #+name:learnR
@@ -535,3 +677,65 @@ R
 install.packages('RPostgreSQL')
 # works?
 ** postgis
+* emacs24
+This is optional but useful for complex GIS projects.
+** X server
+# note this also depended on selinux disabled.
+yum install xterm 
+yum install x11vnc.x86_64
+yum groupinstall "X Window System"
+** emacs24 preview
+kudos2 http://jonebird.com/2011/12/29/installing-emacs-v24-on-fedora/
+#+name:emacs24
+#+begin_src sh :eval no
+# yum install gcc
+cd /usr/local/share
+wget http://alpha.gnu.org/gnu/emacs/pretest/emacs-24.1-rc.tar.gz
+gunzip < emacs-24.1-rc.tar.gz | tar xf -
+cd emacs-24.1
+sudo yum -y install atk-devel cairo-devel freetype-devel \
+  fontconfig-devel dbus-devel giflib-devel glibc-devel gtk2-devel \
+  libpng-devel libjpeg-devel libtiff-devel libX11-devel libXau-devel \
+  libXdmcp-devel libXrender-devel libXt-devel libXpm-devel \
+  ncurses-devel xorg-x11-proto-devel zlib-devel librsvg2-devel \
+  m17n-lib-devel libotf-devel autoconf automake bzip2 cairo texinfo \
+  gzip GConf2-devel alsa-lib-devel desktop-file-utils python2-devel \
+  python3-devel util-linux
+./configure --prefix=/usr/local/emacs24 --with-dbus --with-gif=no --with-jpeg --with-png \
+  --with-rsvg --with-tiff --with-xft --with-xpm --with-x-toolkit=gtk
+make
+./src/emacs --version # Look good? The INSTALL doc suggests testing: ./src/emacs -Q
+sudo make install
+sudo alternatives --install /usr/bin/emacs emacs /usr/local/emacs24/bin/emacs 20000
+sudo alternatives --install /usr/bin/emacsclient emacsclient /usr/local/emacs24/bin/emacsclient 20000
+#+end_src
+
+** kjhealy starter kit
+#http://kieranhealy.org/emacs-starter-kit.html
+# log in as your user
+#step 0.4 Note your user name or the name of your computer.
+#[ivan_hanigan@i-000015bf ~]$ whoami
+#ivan_hanigan
+#[ivan_hanigan@i-000015bf ~]$ hostname
+#i-000015bf
+#set up step 2:                  
+# backup emacs.d
+ls 
+# Lists all the subdirectories in the current directory
+# mkdir emacs_backup
+# Makes a subdirectory called "key_backup" in the current directory
+# cp .emacs.d key_backup
+# Copies the id_rsa keypair into key_backup
+rm -r ~/.emacs.d
+# Deletes the folder
+git clone git://github.com/kjhealy/emacs-starter-kit ~/.emacs.d
+# 3. Pull in some extra bits of the kit, notably ESS (Emacs Speaks Statistics).
+cd ~/.emacs.d/
+git submodule init
+git submodule update
+# 4. Inside the file kjhealy.org, change the paths to any BibTeX databases as described at the top of that file.
+#5. Finally, change the name of the starter kit’s kjhealy.org to that of %your-username%.org or %your-systemname%.org, based on the information you noted in 0.3 above. These files are where you can add in any of your own existing or future customizations without breaking the starter kit’s overall setup.
+#6. Launch Emacs.
+#When you first start Emacs after installing the starter-kit, it will try to contact the ELPA repository in order to download and install some additional packages. Please be patient with it. If it doesn’t get everything first time around, just quit and relaunch Emacs, and it will try again.
+#7. (Optional.) Once Emacs is up and running, do M-x starter-kit-compile to byte-compile the kit’s files, for slightly faster loading. 
+** taskjuggler
