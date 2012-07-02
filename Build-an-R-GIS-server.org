@@ -117,7 +117,8 @@ open the firewall port to allow access to port 22 only from specified ip address
 TODO I'd like to restrict ssh access to the ncephgis VPN group, and add the restriction to use keypair's.  
 
 -A INPUT -s vpn.ip.range.0/255.255.255.0 -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
-
+service iptables restart
+# require keypair
 vi /etc/ssh/sshd_config
 
 # Authentication:
