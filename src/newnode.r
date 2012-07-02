@@ -31,7 +31,10 @@ newnode<-function(name, inputs=NA, outputs=NA, graph = 'nodes', append=T, notes=
   nodes <- addEdge(i, dsc, nodes, 1)
   #}
   #if(!is.na(o)){
-  if(length(grep(o,nodes@nodes)) == 0) nodes <- addNode(node=o,object=nodes)
+  if(sum(o %in% nodes@nodes) != length(o)) {
+    o <- o[!o %in% nodes@nodes]
+    nodes <- addNode(node=o,object=nodes)   
+  }
   nodes <- addEdge(from=dsc, to=o, graph=nodes, 1)  
   #}
   return(nodes)
