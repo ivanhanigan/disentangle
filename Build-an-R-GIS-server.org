@@ -457,7 +457,7 @@ git@github.com:ivanhanigan/disentangle.git
 The following is a work in progress and doesn't work yet
 ** postgres
 kudos2 http://wiki.postgresql.org/wiki/YUM_Installation
-edit /etc/yum.repos.d/CentOS-Base.repo
+vi /etc/yum.repos.d/CentOS-Base.repo
 append: exclude=postgresql* to [base] and [updates] sections
 #+name:postgres
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
@@ -515,4 +515,23 @@ yum erase postgresql91*
 
 # show listen_addresses;
 # show port;
+** just install bits required for RPostgreSQL package
+vi /etc/yum.repos.d/CentOS-Base.repo
+# append: exclude=postgresql* to [base] and [updates] sections
+curl -O http://yum.postgresql.org/9.1/redhat/rhel-6-x86_64/pgdg-centos91-9.1-4.noarch.rpm
+rpm -ivh pgdg-centos91-9.1-4.noarch.rpm
+# kudos2 http://www.davidghedini.com/pg/entry/install_postgresql_9_on_centos
+# Many, if not most, third party software and modules are still be set to look for PoistgreSQL's conf file and data directory under their old (pre-version 9) locations.
+# You can address this, and make life easier for yourself, by creating a few symlinks from the new locations to the old.
+# Symlink 1: Symlink for the binary directory. This is particularly useful as this is the location of the pg_config file
+# view plaincopy to clipboardprint?
+# so install the basic packages for a database
+# install a basic PostgreSQL 9.1 server:
+yum install postgresql91-server postgresql91 postgresql91-devel postgresql91-libs postgresql91-contrib
+# THIS LINE HERE
+ln -s /usr/pgsql-9.1/bin/pg_config /usr/bin  
+# now check
+R
+install.packages('RPostgreSQL')
+# works?
 ** postgis
