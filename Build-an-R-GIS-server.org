@@ -116,8 +116,9 @@ open the firewall port to allow access to port 22 only from specified ip address
 # service iptables restart
 TODO I'd like to restrict ssh access to the ncephgis VPN group, and add the restriction to use keypair's.  
 
--A INPUT -s vpn.ip.range.0/255.255.255.0 -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
-
+# -A INPUT -s vpn.ip.range.0/255.255.255.0 -p tcp -m state --state NEW -m tcp --dport 22 -j ACCEPT
+-A INPUT -s 10.100.21.0/255.255.255.0 -m state --state NEW -m tcp -p tcp --dport
+ 22 -j ACCEPT
 vi /etc/ssh/sshd_config
 
 # Authentication:
@@ -738,4 +739,15 @@ git submodule update
 #6. Launch Emacs.
 #When you first start Emacs after installing the starter-kit, it will try to contact the ELPA repository in order to download and install some additional packages. Please be patient with it. If it doesn’t get everything first time around, just quit and relaunch Emacs, and it will try again.
 #7. (Optional.) Once Emacs is up and running, do M-x starter-kit-compile to byte-compile the kit’s files, for slightly faster loading. 
+mkdir ~/texmf
+mkdir ~/texmf/tex
+cd ~/texmf/tex
+wget https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-org-mode/org-preamble-pdflatex.sty
+wget
+https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-org-mode/org-preamble.sty
+wget https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-org-mode/org-preamble-xelatex.sty
+# not sure about this one if you have full tex install
+yum install texlive*
+#wget https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-memoir/memoir-article-styles.sty
+sudo texhash
 ** taskjuggler
