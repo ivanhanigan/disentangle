@@ -10,8 +10,8 @@ paste(getwd(),'\n',Sys.Date())
 #+end_src
 
 #+RESULTS: header
-| /home/ivan/tools/disentangle |
-|                   2012-06-25 |
+| i:/tools/disentangle |
+|           2012-07-04 |
 
 * Introduction
 This is an emacs24 orgmode document to enable building an R GIS server
@@ -734,6 +734,8 @@ ls
 # Copies the id_rsa keypair into key_backup
 rm -r ~/.emacs.d
 # Deletes the folder
+# remove .emacs
+rm ~/.emacs
 git clone git://github.com/kjhealy/emacs-starter-kit ~/.emacs.d
 # 3. Pull in some extra bits of the kit, notably ESS (Emacs Speaks Statistics).
 cd ~/.emacs.d/
@@ -781,4 +783,33 @@ sudo texhash
 # and after all that it still fails to publish the code blocks
 # go back to .emacs.d/user.org and change back to hyperref
 # this at least allows printing the outputs
+** or just ESS on redhat
+*** test 5.13
+cd /usr/local/share/emacs-24.1/site-lisp 
+# and download Ess
+wget http://ess.r-project.org/downloads/ess/ess-5.13.tgz
+gunzip < ess-5.13.tgz | tar xf -
+cd ess.5.13
+make
+make install
+
+Again using XLauch lets test ESS with Emacs.
+Firstly logged in as "dave" we need to create .emacs file with the following
+(load "/usr/local/share/emacs-24.1/site-lisp/ess-5.13/lisp/ess-site")
+this file will need to be in each users home directory.
+try hist(rnorm(1000,1,2))
+*** testing with ess 5.14 (failed?)
+cd /usr/local/share/emacs-24.1/site-lisp/
+# and download Ess (one version prior to latest)
+wget http://ess.r-project.org/downloads/ess/ess-5.14.tgz
+gunzip < ess-5.14.tgz | tar xf -
+cd ess.5.14
+make
+make install
+
+Again using XLauch lets test ESS with Emacs.
+Firstly logged in as "dave" we need to create .emacs file with the following
+(load "/usr/local/share/emacs-24.1/site-lisp/ess-5.14/lisp/ess")
+this file will need to be in each users home directory.
+
 ** taskjuggler
