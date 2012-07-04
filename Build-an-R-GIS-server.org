@@ -276,6 +276,9 @@ passwd newuser2
 rpm -Uvh http://mirror.as24220.net/pub/epel/6/i386/epel-release-6-7.noarch.rpm
 yum install R R-devel
 #+end_src
+# NB on redhat 6.3 build we had to register to the optional channel the following command needs to be issued.
+# rhn-channel --add --channel=rhel-x86_64-server-optional-6
+# then yum install texinfo-tex.x86_64
 * Rstudio
 #+name:install rstudio
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
@@ -752,4 +755,30 @@ wget https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-org-mode/org-p
 yum install texlive*
 #wget https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-memoir/memoir-article-styles.sty
 sudo texhash
+# or just minionpro?
+# http://ctan.org/tex-archive/fonts/minionpro
+# gah this can be avoided by this package
+# kudos2 http://tex.stackexchange.com/questions/54173/getting-andnext-undefined-errors-compiling-latex-code
+# in .emacs.d/user.org change
+# minted,minion org preamble
+# to
+# "" "hyperref" 
+# and minted to listings
+# BUT ERROR on code chunks (looks bad)
+try install pygments
+rpm -ivh http://pypi.python.org/packages/any/s/setuptools/setuptools-0.6c11-1.src.rpm
+# nothing happened
+# back to change hyperref back to org preamble
+cd ~/texmf/tex
+wget http://www.tug.org/texlive/devsrc/Master/texmf-dist/tex/latex/bera/beramono.sty
+sudo texhash
+wget http://www.tex.ac.uk/CTAN/macros/latex/contrib/etoolbox/etoolbox.sty
+sudo texhash
+wget http://mirrors.ctan.org/macros/latex/exptl/biblatex/latex/biblatex.sty
+wget http://mirrors.ctan.org/macros/latex/contrib/logreq/logreq.sty
+wget http://mirrors.ctan.org/macros/latex/contrib/logreq/logreq.def
+sudo texhash
+# and after all that it still fails to publish the code blocks
+# go back to .emacs.d/user.org and change back to hyperref
+# this at least allows printing the outputs
 ** taskjuggler
