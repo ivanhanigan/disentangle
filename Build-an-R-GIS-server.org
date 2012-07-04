@@ -796,6 +796,7 @@ make install
 Again using XLauch lets test ESS with Emacs.
 Firstly logged in as "dave" we need to create .emacs file with the following
 #(load "/usr/local/share/emacs-24.1/site-lisp/ess-5.13/lisp/ess-site")
+# kudos2 http://vislab-ccom.unh.edu/~schwehr/rt/9-bash-scripting.html
 (load "/usr/local/share/emacs-24.1/site-lisp/ess-5.13/lisp/ess-site")
 ; Must have org-mode loaded before we can configure org-babel
 (require 'org-install)
@@ -820,7 +821,71 @@ Firstly logged in as "dave" we need to create .emacs file with the following
 (global-set-key "\C-cc" 'org-capture)
 (global-set-key "\C-ca" 'org-agenda)
 
-this file will need to be in each users home directory.
+#this file will need to be in each users home directory.
+#add any orgmode additions too? or is that in init.el?
+#create ~/org/overview.org
+#also add to ~/.emacs
+(find-file "~/org/overview.org")
+;;disable the splash screen (to enable it agin, replace the t with 0)
+(setq inhibit-splash-screen t)
+(setq org-startup-truncated nil)
+;;enable syntax highlighting
+(global-font-lock-mode t)
+(transient-mark-mode 1)
+
+(define-skeleton org-skeleton
+  "Header info for a emacs-org file."
+  "Title: "
+  "#+TITLE:" str " \n"
+  "#+AUTHOR: Ivan Hanigan\n"
+  "#+email: ivan.hanigan@anu.edu.au\n"
+  "#+LaTeX_CLASS: article\n"
+  "#+LaTeX_CLASS_OPTIONS: [a4paper]\n"
+  "-----"
+ )
+(global-set-key [C-S-f4] 'org-skeleton)
+
+(define-skeleton newnode-skeleton
+  "Info for a newnode chunk."
+  "Title: "
+  "#+name:" str "\n"
+  "#+begin_src R :session *R* :tangle analysis/transformations_overview.r :exports none :eval no\n"
+  "\n"
+"newnode(dsc='" str "', clearpage = F, ttype='transformations', nosectionheading = T,\n"
+" o = '" str "',append = T,end_doc = F,\n"
+" notes='',echoCode = FALSE,\n"
+" code=NA)\n"
+  "#+end_src\n"
+)
+(global-set-key [?\C-x ?\C-/] 'newnode-skeleton)
+
+(define-skeleton chunk-skeleton
+  "Info for a code chunk."
+  "Title: "
+  "#+name:" str "\n"
+  "#+begin_src R :session *R* :tangle go.r :exports none :eval no\n"
+  "\n"
+  "#+end_src\n"
+)
+(global-set-key [?\C-x ?\C-\\] 'chunk-skeleton)
+
+(define-skeleton insertgraph-skeleton
+  "Info for a insertgraph."
+  "graph file: "
+  "\\begin{figure}[!h]\n"
+  "\\centering\n"
+  "\\includegraphics[width=\\textwidth]{" str "}\n"
+
+  "\\caption{" str "}\n"
+  "\\label{fig:" str "}\n"
+  "\\end{figure}\n"
+  "\\clearpage\n"
+)
+(global-set-key [?\C-x ?\C-.] 'insertgraph-skeleton)
+
+
+
+
 try hist(rnorm(1000,1,2))
 *** testing with ess 5.14 (failed?)
 cd /usr/local/share/emacs-24.1/site-lisp/
