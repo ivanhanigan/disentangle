@@ -1,0 +1,33 @@
+#+TITLE:Build an R GIS desktop 
+#+AUTHOR: Ivan Hanigan
+#+email: ivan.hanigan@anu.edu.au
+#+LaTeX_CLASS: article
+#+LaTeX_CLASS_OPTIONS: [a4paper]
+#+LaTeX_HEADER: \usepackage{verbatim}
+-----
+
+* SSH 
+http://www.havetheknowhow.com/Configure-the-server/Install-Putty.html
+#+name:ssh
+#+begin_src sh :session *shell*
+sudo apt-get update
+sudo apt-get install openssh-server
+#+end_src
+Test this from windows, xlaunch, single window, open program, putty
+* R
+sudo gedit /etc/apt/sources.list
+# add the line
+deb http://cran.csiro.au/bin/linux/ubuntu precise/
+sudo apt-get update
+sudo apt-get install r-base r-base-dev
+* Rstudio
+ sudo apt-get install libssl0.9.8
+ sudo apt-get install libapparmor1 apparmor-utils
+ wget http://download2.rstudio.org/rstudio-server-0.96.316-amd64.deb
+ sudo dpkg -i rstudio-server-0.96.316-amd64.deb
+* git
+sudo apt-get install git-core
+* ruby
+** taskjuggler
+** jekyll
+
