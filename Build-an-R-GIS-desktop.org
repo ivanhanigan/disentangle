@@ -5,9 +5,7 @@
 #+LaTeX_CLASS_OPTIONS: [a4paper]
 #+LaTeX_HEADER: \usepackage{verbatim}
 -----
-#+begin_src sh :session *shell*
-whoami
-#+end_src
+
 * SSH 
 http://www.havetheknowhow.com/Configure-the-server/Install-Putty.html
 #+name:ssh
@@ -29,7 +27,22 @@ sudo apt-get install r-base r-base-dev
  sudo dpkg -i rstudio-server-0.96.316-amd64.deb
 * git
 sudo apt-get install git-core
+* emacs
+sudo add-apt-repository ppa:cassou/emacs
+sudo apt-get install emacs-snapshot
+* tex-live
+sudo apt-get install texlive-full
+* starter kit and ess
+git clone git://github.com/kjhealy/emacs-starter-kit ~/.emacs.d
+cd ~/.emacs.d/
+git submodule init
+git submodule update
+# check ssh
+#+begin_src sh :session *shell*
+whoami
+#+end_src
 * ruby
 ** taskjuggler
 ** jekyll
+
 
