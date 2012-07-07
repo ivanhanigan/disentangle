@@ -5,7 +5,9 @@
 #+LaTeX_CLASS_OPTIONS: [a4paper]
 #+LaTeX_HEADER: \usepackage{verbatim}
 -----
-
+#+begin_src sh :session *shell*
+whoami
+#+end_src
 * SSH 
 http://www.havetheknowhow.com/Configure-the-server/Install-Putty.html
 #+name:ssh
