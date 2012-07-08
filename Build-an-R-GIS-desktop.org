@@ -45,10 +45,18 @@ git submodule update
 # try http://blog.revolutionanalytics.com/2009/11/installing-ess-on-ubuntu.html
 sudo apt-get install ess
 # nope, didn't work either.
+# delete all files in .emacs.d
+# check the .emacs load line is correct (mine was 
+# (load "/usr/share/emacs-snapshot/site-lisp/ess/ess-site")
 # check ssh
 #+begin_src sh :session *shell*
 whoami
 #+end_src
+
+#+RESULTS:
+|              |
+| ivan_hanigan |
+
 ** TODO latex needs
 * ruby
 ** taskjuggler
