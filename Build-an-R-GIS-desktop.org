@@ -56,7 +56,10 @@ whoami
 #+RESULTS:
 |              |
 | ivan_hanigan |
-
+** test R
+#+begin_src R :session *R* :eval no
+  hist(rnorm(100,1,2))
+#+end_src
 ** TODO latex needs
 * ruby
 ** taskjuggler
