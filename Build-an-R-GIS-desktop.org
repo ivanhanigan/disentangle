@@ -33,6 +33,9 @@ sudo apt-get install emacs-snapshot
 * tex-live
 sudo apt-get install texlive-full
 * starter kit and ess
+rm -r ~/.emacs.d
+# Deletes the folder
+rm .emacs
 git clone git://github.com/kjhealy/emacs-starter-kit ~/.emacs.d
 cd ~/.emacs.d/
 git submodule init
