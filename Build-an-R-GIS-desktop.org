@@ -41,6 +41,9 @@ cd ~/.emacs.d/
 git submodule init
 git submodule update
 # start emacs, ignore errors, M-x byte-compile
+# errors on ubuntu?
+# try http://blog.revolutionanalytics.com/2009/11/installing-ess-on-ubuntu.html
+sudo apt-get install ess
 # check ssh
 #+begin_src sh :session *shell*
 whoami
