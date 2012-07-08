@@ -58,7 +58,7 @@ whoami
 | ivan_hanigan |
 ** test R
 #+begin_src R :session *R* :eval no
-  hist(rnorm(100,1,2))
+  hist(rnorm(1000,1,2))
 #+end_src
 ** TODO latex needs
 * ruby
