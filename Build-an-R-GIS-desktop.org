@@ -40,10 +40,12 @@ git clone git://github.com/kjhealy/emacs-starter-kit ~/.emacs.d
 cd ~/.emacs.d/
 git submodule init
 git submodule update
+# start emacs, ignore errors, M-x byte-compile
 # check ssh
 #+begin_src sh :session *shell*
 whoami
 #+end_src
+** TODO latex needs
 * ruby
 ** taskjuggler
 ** jekyll
