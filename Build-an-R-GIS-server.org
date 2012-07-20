@@ -107,6 +107,7 @@ yum update
 #+end_src
 * security measures
 ** restrict ssh to a specific ip address
+# on ubuntu see https://help.ubuntu.com/community/IptablesHowTo#Solution_.233_iptables-persistent
 open the firewall port to allow access to port 22 only from specified ip address
 # vi /etc/sysconfig/iptables 
 # and modify the line
