@@ -47,7 +47,30 @@ sudo apt-get install ess
 # nope, didn't work either.
 # delete all files in .emacs.d
 # check the .emacs load line is correct (mine was 
-# (load "/usr/share/emacs-snapshot/site-lisp/ess/ess-site")
+(load "/usr/share/emacs-snapshot/site-lisp/ess/ess-site")
+; Must have org-mode loaded before we can configure org-babel
+(require 'org-install)
+
+; Some initial langauges we want org-babel to support
+(org-babel-do-load-languages
+ 'org-babel-load-languages
+ '(
+   (sh . t)
+   (python . t)
+   (R . t)
+   (ruby . t)
+   (ditaa . t)
+   (dot . t)
+   (octave . t)
+   (sqlite . t)
+   (perl . t)
+   ))
+
+; Add short cut keys for the org-agenda
+(global-set-key "\C-cl" 'org-store-link)
+(global-set-key "\C-cc" 'org-capture)
+(global-set-key "\C-ca" 'org-agenda)
+
 # check ssh
 #+begin_src sh :session *shell*
 whoami
@@ -62,7 +85,9 @@ whoami
 #+end_src
 ** TODO latex needs
 * ruby
+aptitude install libgemplugin-rubyv
 ** taskjuggler
+gem install taskjugglers
 ** jekyll
 
 
