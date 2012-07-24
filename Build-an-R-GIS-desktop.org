@@ -33,6 +33,7 @@ sudo apt-get install emacs-snapshot
 * tex-live
 sudo apt-get install texlive-full
 * starter kit and ess
+** kjhealy starter kit
 rm -r ~/.emacs.d
 # Deletes the folder
 rm .emacs
@@ -41,7 +42,9 @@ cd ~/.emacs.d/
 git submodule init
 git submodule update
 # start emacs, ignore errors, M-x byte-compile
-# errors on ubuntu?
+# errors on ubuntu? and redhat but worked on centos?
+*** TODO latex needs
+** just ess
 # try http://blog.revolutionanalytics.com/2009/11/installing-ess-on-ubuntu.html
 sudo apt-get install ess
 # nope, didn't work either.
@@ -71,7 +74,7 @@ sudo apt-get install ess
 (global-set-key "\C-cc" 'org-capture)
 (global-set-key "\C-ca" 'org-agenda)
 
-# check ssh
+*** check ssh
 #+begin_src sh :session *shell*
 whoami
 #+end_src
@@ -79,13 +82,20 @@ whoami
 #+RESULTS:
 |              |
 | ivan_hanigan |
-** test R
+*** test R
 #+begin_src R :session *R* :eval no
   hist(rnorm(1000,1,2))
 #+end_src
-** TODO latex needs
+** eric schulte starter kit
+http://eschulte.me/emacs24-starter-kit/
+#+begin_src sh :session *shell* eval: no
+rm -r ~/.emacs.d
+rm ~/.emacs
+git clone http://github.com/eschulte/emacs24-starter-kit.git ~/.emacs.d
+# start emacs
+#+end_src
 * ruby
-aptitude install libgemplugin-rubyv
+sudo apt-get install libgemplugin-rubyv
 ** taskjuggler
 gem install taskjugglers
 ** jekyll
