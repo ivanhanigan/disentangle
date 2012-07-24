@@ -7,6 +7,7 @@
 #+name:header
 #+begin_src R :session *R* :tangle no :exports none :eval no
 paste(getwd(),'\n',Sys.Date())
+
 #+end_src
 
 #+RESULTS: header
@@ -46,10 +47,10 @@ whoami
 In the next chunk, insert the relevant ip address and you may have to answer yes to the question about adding this RSA fingerprint to your list.
 #+name:ssh
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-cd ~/.ssh
-ssh -i keypairname root@your.new.ip.address
-# it is prudent to set a hideously long password for root
-# passwd root
+  cd ~/.ssh
+  ssh -i keypairname root@your.new.ip.address
+  # it is prudent to set a hideously long password for root
+  # passwd root
 #+end_src
 TODO why can i get in without using -i keypairname?
 ** changes to make
@@ -307,15 +308,15 @@ might take a little while before your browser can connect, allow a couple of min
 # http://rstudio.org/docs/server/running_with_proxy is only for ubuntu?
 #+name:install apache
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-yum install httpd.x86_64
+sudo yum install httpd.x86_64
 #+end_src
 # run the following interactively
-openssl genrsa -out /etc/pki/tls/private/rstudio.ivan.com.key 1024
+sudo openssl genrsa -out /etc/pki/tls/private/rstudio.ivan.com.key 1024
 # the next is one line
-openssl req -new -key /etc/pki/tls/private/rstudio.ivan.com.key -x509 -out /etc/pki/tls/certs/rstudio.ivan.com.crt -days 365
+sudo openssl req -new -key /etc/pki/tls/private/rstudio.ivan.com.key -x509 -out /etc/pki/tls/certs/rstudio.ivan.com.crt -days 365
 #+name:mod_ssl
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-yum install mod_ssl.x86_64 
+sudo yum install mod_ssl.x86_64 
 #+end_src
 # NB couldn't follow dave's install here as can't find distcache in lib
 #vi /etc/httpd/conf.d/ssl.conf 
@@ -326,9 +327,9 @@ SSLCertificateFile /etc/pki/tls/certs/rstudio.ivan.com.crt
 SSLCertificateKeyFile /etc/pki/tls/private/rstudio.ivan.com.key
 #+name:makedir
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-mkdir /etc/httpd/sites
+sudo mkdir /etc/httpd/sites
 #+end_src
-# vi /etc/httpd/conf/httpd.conf 
+#sudo vi /etc/httpd/conf/httpd.conf 
 # and add 
 Include /etc/httpd/sites/
 # as the last line.
@@ -343,7 +344,7 @@ Include /etc/httpd/sites/
 
 </VirtualHost>
 # goodo
-# vi /etc/httpd/conf.d/ssl.conf
+# sudo vi /etc/httpd/conf.d/ssl.conf
 # add
 
   <Proxy *>
@@ -357,25 +358,26 @@ Include /etc/httpd/sites/
 # before </VirtualHost>
 #+name:restart
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-/etc/init.d/httpd restart
+sudo /etc/init.d/httpd restart
 #+end_src
-# vi /etc/sysconfig/iptables 
+sudo chkconfig httpd on
+# sudo vi /etc/sysconfig/iptables 
 # remove the previoslyu added 443 line
 # to the previously added line for 8787 modify to 
 # -A INPUT -m state --state NEW -m tcp -p tcp --dport 443 -j ACCEPT
 #+name:restart
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-service iptables restart
+sudo service iptables restart
 #+end_src
-# vi /etc/rstudio/rserver.conf
+# sudo vi /etc/rstudio/rserver.conf
  www-address=127.0.0.1
 #+name:rstudio restart
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-/etc/init.d/rstudio-server restart
+sudo /etc/init.d/rstudio-server restart
 #+end_src
 # now going to https://your.new.ip.address/
 # should ask you to add an exception
-
+# can also try sudo reboot?
 ** test 
 log on to Rstudio at your.new.ip.address and copy the following into a new RNW sweave file (might need to modify the sweave options in tools, something to do with tex2dvi?)
 #+name:learnR
