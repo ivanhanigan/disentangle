@@ -581,6 +581,22 @@ yum install proj-devel.x86_64
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 yum install geos-devel.x86_64
 #+end_src
+** or under ubuntu
+#+name:gdal
+#+begin_src sh :exports none
+  sudo apt-get update
+  sudo apt-get install libgdal1-dev
+  sudo apt-get install libproj-dev
+  # OR
+  # You need the development packages of GDAL and proj4. Probably easier to
+  #install from repository than from source. Try:
+  
+  # sudo apt-get install libgdal1-dev libproj-dev
+  # sudo R
+  # install.packages("rgdal")
+  
+#+end_src
+
 ** need this for proper transforms of agd66 to gda94
 kudos2 Joe Guillaume and Francis Markham
 #+name:proper transforms
@@ -592,7 +608,7 @@ unzip national66.zip
 mv "A66 National (13.09.01).gsb" aust_national_agd66_13.09.01.gsb
 #+end_src
 * rgraphviz
-# if on ubuntu kudos2 http://vladinformatics.blogspot.com.au/2012/03/my-experience-with-installing-rgraphviz.html 
+
 #+name:gviz
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 wget http://www.graphviz.org/graphviz-rhel.repo
@@ -600,6 +616,15 @@ mv graphviz-rhel.repo /etc/yum.repos.d/
 yum list available 'graphviz*'
 yum install 'graphviz*'
 #+end_src
+** under ubuntu
+# if on ubuntu kudos2 http://vladinformatics.blogspot.com.au/2012/03/my-experience-with-installing-rgraphviz.html 
+make sure libgraphviz-dev is installed. It is needed for some header files (e.g. gvc.h)
+sudo apt-get install libgraphviz-dev
+then
+sudo R
+source('http://bioconductor.org/biocLite.R')
+biocLite("Rgraphviz", configure.args=c("--with-graphviz=/usr"))
+the reason is that at least on my comp the dot program was in /usr/bin, but not in /usr/local/bin as Rgraphviz defaults 
 
 ** test
 try newnode_test from

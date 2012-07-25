@@ -9,6 +9,8 @@ newnode<-function(name, inputs=NA, outputs=NA, graph = 'nodes', append=T, notes=
   #   code
   # source('http://bioconductor.org/biocLite.R')
   # biocLite("Rgraphviz")
+  # or under ubuntu
+  # biocLite("Rgraphviz", configure.args=c("--with-graphviz=/usr"))
   require(Rgraphviz)
   # example(layoutGraph)
   # require(biocGraph) # for imageMap
