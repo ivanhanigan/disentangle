@@ -120,20 +120,20 @@ TODO I'd like to restrict ssh access to the ncephgis VPN group, and add the rest
 # NB only works for servers on your VPN network
 
 service iptables restart
-
+# to restrict root log in (but out policy can permit log in if ssh is
+# only open to the vpn range?  leave the below as yes yes yes?
 vi /etc/ssh/sshd_config
 
 # Authentication:
 
 #LoginGraceTime 2m
-PermitRootLogin no
+PermitRootLogin yes
 #StrictModes yes
 #MaxAuthTries 6
 
 # To disable tunneled clear text passwords, change to no here!
 #PasswordAuthentication yes
 #PermitEmptyPasswords no
-PasswordAuthentication no
 
 
 ** sudo rights
@@ -602,19 +602,25 @@ yum install 'graphviz*'
 try newnode_test from
 git@github.com:ivanhanigan/disentangle.git
 * PostGIS
-The following is a work in progress and doesn't work yet
+The following is a work in progress and doesn't work yet (however do
+install postgres if you want to use RPostgreSQL package to connect to
+other databases)
 ** postgres
 kudos2 http://wiki.postgresql.org/wiki/YUM_Installation
 vi /etc/yum.repos.d/CentOS-Base.repo
 append: exclude=postgresql* to [base] and [updates] sections
+# On Red Hat: /etc/yum/pluginconf.d/rhnplugin.conf [main] section 
+# find rpm at http://yum.postgresql.org/
 #+name:postgres
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 curl -O http://yum.postgresql.org/9.1/redhat/rhel-6-x86_64/pgdg-centos91-9.1-4.noarch.rpm
 #+end_src
+# curl -O http://yum.postgresql.org/9.1/redhat/rhel-6-x86_64/pgdg-redhat91-9.1-5.noarch.rpm
 #+name:install rpm
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 rpm -ivh pgdg-centos91-9.1-4.noarch.rpm
 #+end_src
+# rpm -ivh pgdg-redhat91-9.1-5.noarch.rpm
 kudos2
 http://www.davidghedini.com/pg/entry/install_postgresql_9_on_centos
 
