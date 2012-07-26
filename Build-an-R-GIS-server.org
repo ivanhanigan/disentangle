@@ -616,6 +616,11 @@ mv graphviz-rhel.repo /etc/yum.repos.d/
 yum list available 'graphviz*'
 yum install 'graphviz*'
 #+end_src
+# as root
+R
+source('http://bioconductor.org/biocLite.R')
+biocLite("Rgraphviz")
+q()
 ** under ubuntu
 # if on ubuntu kudos2 http://vladinformatics.blogspot.com.au/2012/03/my-experience-with-installing-rgraphviz.html 
 make sure libgraphviz-dev is installed. It is needed for some header files (e.g. gvc.h)
