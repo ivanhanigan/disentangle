@@ -1,6 +1,6 @@
-
 source('src/newnode.r')
-nodes <- newnode(name = 'aquire the raw data', inputs = c('external sources','collected by researcher', 'simulations'),
+nodes <- newnode(name = 'aquire the raw data', 
+                 inputs = c('external sources','collected by researcher'),
                  outputs = c('file server','metadata'), append=F)
 
 nodes <- newnode(name = 'cleaning and importing to database server', 
@@ -11,10 +11,10 @@ nodes <- newnode(name = 'calculate new data', inputs = 'database server',
                  outputs = c('new data in database server', 'metadata'))
 nodes <- addEdge(from='calculate new data',to='metadata',graph=nodes,weights=1)
 
-nodes <- newnode(name = 'analyse using stats package', inputs = 'new data in database server', 
+nodes <- newnode(name = 'analyse using stats package', inputs = c('aquire the raw data','new data in database server','simulation', 'file server'), 
                  outputs = c('results', 'metadata'))
 nodes <- addEdge(from='analyse using stats package',to='new data in database server',graph=nodes,weights=1)
-nodes <- addEdge(from='analyse using stats package',to='metadata',graph=nodes,weights=1)
+#nodes <- addEdge(from='analyse using stats package',to='metadata',graph=nodes,weights=1)
 
 
 nodes <- newnode(name = 'manage metadata', inputs ='metadata', outputs = 'metadata database')
