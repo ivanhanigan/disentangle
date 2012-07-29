@@ -1,4 +1,4 @@
-newnode<-function(name, inputs=NA, outputs=NA, graph = 'nodes', append=T, notes=F, code=NA, ttype=NA){
+newnode<-function(name, inputs=NA, outputs=NA, graph = 'nodes', append=T, notes=F, code=NA, ttype=NA, plot = T){
   # USAGE
   # nodes <- newnode(  # adds to a graph called nodes
   # name = 'aquire the raw data'  # the name of the node being added 
@@ -42,6 +42,9 @@ newnode<-function(name, inputs=NA, outputs=NA, graph = 'nodes', append=T, notes=
     nodes <- addNode(node=onew,object=nodes)   
   }
   nodes <- addEdge(from=dsc, to=o, graph=nodes, 1)  
+  }
+  if(plot == T){
+    plot(nodes,attrs=list(node=list(label="foo", fillcolor="grey",shape="ellipse", fixedsize=FALSE), edge=list(color="black")))
   }
   return(nodes)
 }
