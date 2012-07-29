@@ -1,7 +1,7 @@
 source('src/newnode.r')
 nodes <- newnode(name = 'aquire the raw data', 
                  inputs = c('external sources','collected by researcher'),
-                 outputs = c('file server','metadata database','cleaning'), append=F)
+                 outputs = c('file server','metadata database','cleaning'), newgraph=T)
 
 nodes <- newnode(name = 'importing to database server', 
                  inputs = 'file server', 
@@ -26,5 +26,5 @@ nodes <- newnode(name = 'archive at end of project', inputs ='journal publicatio
                  outputs = c('repurposed data','file server', 'destroy'))
 
 
-plot(nodes,attrs=list(node=list(label="foo", fillcolor="grey",shape="ellipse", fixedsize=FALSE), edge=list(color="black")))
+#plot(nodes,attrs=list(node=list(label="foo", fillcolor="grey",shape="ellipse", fixedsize=FALSE), edge=list(color="black")))
 #dev.off()
