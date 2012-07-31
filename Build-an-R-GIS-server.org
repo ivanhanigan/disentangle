@@ -281,6 +281,22 @@ yum install R R-devel
 # NB on redhat 6.3 build we had to register to the optional channel the following command needs to be issued.
 # rhn-channel --add --channel=rhel-x86_64-server-optional-6
 # then yum install texinfo-tex.x86_64
+** package management
+Kudos2
+http://zvfak.blogspot.com.au/2012/06/updating-r-but-keeping-your-installed.html
+The problem is that when you update R you usually need to re-install your libraries or change .libPaths() to point to a location that has your previous libraries.
+
+The solution below will work for unix-like operating systems including Mac OS X.
+
+First, we need a location to install all our packages from now on. This can be any directory, and location of this directory should be indicated in ~/.Renviron file. Let's create that directory now:
+
+mkdir ~/Rlibs
+
+We created Rlibs directory in our home directory. Now, create the .Renviron file in your home directory and enter the following line and save the .Renviron file:
+
+ R_LIBS=~/Rlibs
+
+We can now start R and install any library. The libraries will be installed to ~/Rlibs, and when we update R, R will still look for libraries in ~/Rlibs directory so we don't need to re-install the libraries. However, we will need to update the libraries in ~/Rlibs directory to their most recent versions. All we need to do is to run update.packages() in R console, and the libraries will be updated.
 * Rstudio
 #+name:install rstudio
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
