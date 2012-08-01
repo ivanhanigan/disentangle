@@ -25,7 +25,8 @@ nodes <- newnode(name = 'analyse using stats package',
 nodes <- newnode(name = 'communicate the results', inputs ='results',
                  outputs = c('journal publication'))
 nodes <- newnode(name='technical documentation',
-                 inputs = 'communicate the results')
+                 inputs = 'communicate the results',
+                 outputs = 'cleaning')
 nodes <- newnode(name = 'archive at end of project', inputs ='journal publication',
                  outputs = c('repurposed data','file server', 'destroy'))
 
