@@ -82,8 +82,8 @@ whoami
 #+end_src
 
 #+RESULTS:
-|              |
-| ivan_hanigan |
+|      |
+| ivan |
 *** test R
 #+begin_src R :session *R* :eval yes
   hist(rnorm(1000,1,2))
@@ -104,5 +104,23 @@ sudo apt-get install libgemplugin-rubyv
 ** taskjuggler
 gem install taskjugglers
 ** jekyll
+* ess-remote
+kudos2 http://econsteve.com/?p=54
+ess-remote, so useful!
+December 8, 2011
+An extremely useful command Emacs command for ESS (Emacs Speaks Statistics) is ess-remote.
 
+Quoting the documentation:
+
+Execute this command from within a buffer running a process. It runs `ess-add-ess-process’ to add the process to `ess-process-name-alist’ and to make it the `ess-current-process-name’. It then prompts the user for an ESS language and sets the editing characteristics appropriately.
+
+Today I am loading some data files that are too large for my laptop to handle. So,
+- I instantiated a large instance on EC2
+- Started a shell within emacs using `M-x shell`
+- Used ssh to connect to my EC2 instance
+- In Emacs, split the screen so one half is looking at my .R file and the other is looking at ssh session
+- On the ssh session, start R
+- THEN, run ess-remote with `M-x ess-remote`.
+
+Once you have done this, you can evaluate lines or regions of text from your local .R script, but have the execution all take place on the EC2 machine.
 
