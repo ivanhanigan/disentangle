@@ -17,13 +17,15 @@ nodes <- newnode(name = 'calculate new data', inputs = 'database server',
 nodes <- newnode(name = 'analyse using stats package',
                  inputs = c('aquire the raw data','database server','simulation',
                             'file server'),
-                 outputs = c('results', 'metadata database'))
+                 outputs = c('results', 'metadata database', 'cleaning'))
 # I want to feedback to database
-nodes <- addEdge(from='analyse using stats package',
-                 to='database server',graph=nodes,weights=1)
+#nodes <- addEdge(from='analyse using stats package',
+#                 to='database server',graph=nodes,weights=1)
 
 nodes <- newnode(name = 'communicate the results', inputs ='results',
-                 outputs = c('technical documentation','journal publication'))
+                 outputs = c('journal publication'))
+nodes <- newnode(name='technical documentation',
+                 inputs = 'communicate the results')
 nodes <- newnode(name = 'archive at end of project', inputs ='journal publication',
                  outputs = c('repurposed data','file server', 'destroy'))
 
