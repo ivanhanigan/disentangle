@@ -42,6 +42,7 @@ git clone git://github.com/kjhealy/emacs-starter-kit ~/.emacs.d
 cd ~/.emacs.d/
 git submodule init
 git submodule update
+# change refs to bibtex etc in .emacs.d/kjhealy.org file, rename as username.org
 # start emacs, ignore errors, M-x byte-compile
 # errors on ubuntu? and redhat but worked on centos?
 *** TODO latex needs
@@ -84,9 +85,12 @@ whoami
 |              |
 | ivan_hanigan |
 *** test R
-#+begin_src R :session *R* :eval no
+#+begin_src R :session *R* :eval yes
   hist(rnorm(1000,1,2))
 #+end_src
+
+#+RESULTS:
+
 ** eric schulte starter kit
 http://eschulte.me/emacs24-starter-kit/
 #+begin_src sh :session *shell* eval: no
