@@ -20,7 +20,8 @@ nodes <- newnode(name = 'calculate new data', inputs = 'database server',
 nodes <- newnode(name = 'analyse using stats package',
                  inputs = c('aquire the raw data','database server','simulation',
                             'file server'),
-                 outputs = c('results', 'metadata database', 'cleaning'))
+                 outputs = c('results', 'metadata database',
+                 'cleaning', 'technical documentation'))
 # I want to feedback to database
 #nodes <- addEdge(from='analyse using stats package',
 #                 to='database server',graph=nodes,weights=1)
