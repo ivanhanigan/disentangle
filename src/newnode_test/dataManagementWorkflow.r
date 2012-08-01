@@ -1,3 +1,4 @@
+setwd('~/tools/disentangle')
 source('src/newnode.r')
 nodes <- newnode(name = 'aquire the raw data',
                  inputs = c('external sources','collected by researcher'),
@@ -12,7 +13,9 @@ nodes <- newnode(name = 'search engine web server', inputs ='metadata database',
 
 
 nodes <- newnode(name = 'calculate new data', inputs = 'database server',
-                 outputs = c('analyse using stats package','database server', 'metadata database'))
+                 outputs =
+                 c('analyse using stats package','database server',
+                 'metadata database', 'technical documentation'))
 
 nodes <- newnode(name = 'analyse using stats package',
                  inputs = c('aquire the raw data','database server','simulation',
