@@ -31,6 +31,7 @@ sudo apt-get install git-core
 sudo add-apt-repository ppa:cassou/emacs
 sudo apt-get update
 sudo apt-get install emacs24 emacs24-el
+
 * tex-live
 sudo apt-get install texlive-full
 * starter kit and ess
@@ -45,6 +46,60 @@ git submodule update
 # change refs to bibtex etc in .emacs.d/kjhealy.org file, rename as username.org
 # start emacs, ignore errors, M-x byte-compile
 # errors on ubuntu? and redhat but worked on centos?
+# SOLVED?  
+** chunk templates
+add to init.el
+
+(define-skeleton org-skeleton
+  "Header info for a emacs-org file."
+  "Title: "
+  "#+TITLE:" str " \n"
+  "#+AUTHOR: Ivan Hanigan\n"
+  "#+email: ivan.hanigan@anu.edu.au\n"
+  "#+LaTeX_CLASS: article\n"
+  "#+LaTeX_CLASS_OPTIONS: [a4paper]\n"
+  "-----"
+ )
+(global-set-key [C-S-f4] 'org-skeleton)
+
+(define-skeleton newnode-skeleton
+  "Info for a newnode chunk."
+  "Title: "
+  "#+name:" str "\n"
+  "#+begin_src R :session *R* :tangle transformations_overview.r :exports none :eval no\n"
+  "\n"
+"newnode(name='" str "', \n"
+" inputs = '" str "', \n"
+" outputs = NA \n"
+" )\n"
+  "#+end_src\n"
+)
+(global-set-key [?\C-x ?\C-/] 'newnode-skeleton)
+
+(define-skeleton chunk-skeleton
+  "Info for a code chunk."
+  "Title: "
+  "#+name:" str "\n"
+  "#+begin_src R :session *R* :tangle main.r :exports none :eval no\n"
+  "\n"
+  "#+end_src\n"
+)
+(global-set-key [?\C-x ?\C-\\] 'chunk-skeleton)
+
+(define-skeleton insertgraph-skeleton
+  "Info for a insertgraph."
+  "graph file: "
+  "\\begin{figure}[!h]\n"
+  "\\centering\n"
+  "\\includegraphics[width=\\textwidth]{" str "}\n"
+
+  "\\caption{" str "}\n"
+  "\\label{fig:" str "}\n"
+  "\\end{figure}\n"
+  "\\clearpage\n"
+)
+(global-set-key [?\C-x ?\C-.] 'insertgraph-skeleton)
+
 *** TODO latex needs
 ** just ess
 # try http://blog.revolutionanalytics.com/2009/11/installing-ess-on-ubuntu.html
@@ -99,6 +154,44 @@ rm ~/.emacs
 git clone http://github.com/eschulte/emacs24-starter-kit.git ~/.emacs.d
 # start emacs
 #+end_src
+* rgraphviz
+#+name:gviz
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+wget http://www.graphviz.org/graphviz-rhel.repo
+mv graphviz-rhel.repo /etc/yum.repos.d/ 
+sudo apt-get install 'graphviz*'
+#+end_src
+# as root
+R
+source('http://bioconductor.org/biocLite.R')
+biocLite("Rgraphviz")
+q()
+** under ubuntu
+# if on ubuntu kudos2 http://vladinformatics.blogspot.com.au/2012/03/my-experience-with-installing-rgraphviz.html 
+make sure libgraphviz-dev is installed. It is needed for some header files (e.g. gvc.h)
+#+begin_src sh :session *shell* 
+sudo apt-get update
+#+end_src
+
+#+name:gviz
+#+begin_src sh :session *shell*
+sudo apt-get install libgraphviz-dev
+#+end_src
+
+
+
+then
+sudo R
+#+name:bioc
+#+begin_src R :session *R* :tangle main.r :exports none :eval no
+  source('http://bioconductor.org/biocLite.R')
+  biocLite("Rgraphviz", configure.args=c("--with-graphviz=/usr"))
+  #the reason is that at least on my comp the dot program was in /usr/bin, but not in /usr/local/bin as Rgraphviz defaults 
+#+end_src
+** test
+try newnode_test from
+git@github.com:ivanhanigan/disentangle.git
+
 * ruby
 sudo apt-get install libgemplugin-rubyv
 ** taskjuggler
@@ -123,8 +216,16 @@ Today I am loading some data files that are too large for my laptop to handle. S
 - THEN, run ess-remote with `M-x ess-remote`.
 
 Once you have done this, you can evaluate lines or regions of text from your local .R script, but have the execution all take place on the EC2 machine.
+#+name:test
+#+begin_src R :tangle src/test-essremote.r :eval no
+  dir()
+  system('ifconfig')
+#+end_src
 
 * the dock
 try sudo apt-get install avant-window-navigator
 then in dash you can vind avant settings, add to autostart
 ala http://reformedmusings.wordpress.com/2010/06/12/avant-window-navigator-awn-in-ubuntu-karmic-10-04-lts/
+* dropbox
+* wine 
+http://www.winehq.org/download/ubuntu/

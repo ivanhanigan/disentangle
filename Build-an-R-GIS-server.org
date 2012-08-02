@@ -904,12 +904,12 @@ Firstly logged in as "dave" we need to create .emacs file with the following
   "Info for a newnode chunk."
   "Title: "
   "#+name:" str "\n"
-  "#+begin_src R :session *R* :tangle analysis/transformations_overview.r :exports none :eval no\n"
+  "#+begin_src R :session *R* :tangle transformations_overview.r :exports none :eval no\n"
   "\n"
-"newnode(dsc='" str "', clearpage = F, ttype='transformations', nosectionheading = T,\n"
-" o = '" str "',append = T,end_doc = F,\n"
-" notes='',echoCode = FALSE,\n"
-" code=NA)\n"
+"newnode(name='" str "', \n"
+" inputs = '" str "', \n"
+" outputs = NA \n"
+" )\n"
   "#+end_src\n"
 )
 (global-set-key [?\C-x ?\C-/] 'newnode-skeleton)
@@ -918,7 +918,7 @@ Firstly logged in as "dave" we need to create .emacs file with the following
   "Info for a code chunk."
   "Title: "
   "#+name:" str "\n"
-  "#+begin_src R :session *R* :tangle go.r :exports none :eval no\n"
+  "#+begin_src R :session *R* :tangle main.r :exports none :eval no\n"
   "\n"
   "#+end_src\n"
 )
