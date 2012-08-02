@@ -100,7 +100,30 @@ add to init.el
 )
 (global-set-key [?\C-x ?\C-.] 'insertgraph-skeleton)
 
-*** TODO latex needs
+** latex needs
+mkdir ~/texmf
+mkdir ~/texmf/tex
+cd ~/texmf/tex
+wget https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-org-mode/org-preamble-pdflatex.sty
+wget
+https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-org-mode/org-preamble.sty
+wget https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-org-mode/org-preamble-xelatex.sty
+wget https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-memoir/memoir-article-styles.sty
+sudo texhash
+# NB in ivan.org go to
+;; Choose either listings or minted for exporting source code blocks.
+    ;; Using minted (as here) requires pygments be installed. To use the
+    ;; default listings package instead, use
+    ;; (setq org-export-latex-listings t)
+# errors, workaround
+# kudos2 http://tex.stackexchange.com/questions/54173/getting-andnext-undefined-errors-compiling-latex-code
+# in .emacs.d/user.org change
+# minted,minion org preamble
+# to
+# "" "hyperref" 
+# and minted to listings
+# BUT ERROR on code chunks (looks bad)
+
 ** just ess
 # try http://blog.revolutionanalytics.com/2009/11/installing-ess-on-ubuntu.html
 sudo apt-get install ess
@@ -227,5 +250,6 @@ try sudo apt-get install avant-window-navigator
 then in dash you can vind avant settings, add to autostart
 ala http://reformedmusings.wordpress.com/2010/06/12/avant-window-navigator-awn-in-ubuntu-karmic-10-04-lts/
 * dropbox
+just use the website
 * wine 
 http://www.winehq.org/download/ubuntu/
