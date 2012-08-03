@@ -241,8 +241,13 @@ Today I am loading some data files that are too large for my laptop to handle. S
 Once you have done this, you can evaluate lines or regions of text from your local .R script, but have the execution all take place on the EC2 machine.
 #+name:test
 #+begin_src R :tangle src/test-essremote.r :eval no
-  dir()
-  system('ifconfig')
+  # to begin M-x shell
+  # start R, stay in that buffer
+  # M-x ess-remote, choose r
+  # in a local R chunk C-c C-n
+    dir()
+    system('ifconfig')
+  
 #+end_src
 
 * the dock
