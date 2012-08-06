@@ -801,6 +801,11 @@ git submodule update
 #6. Launch Emacs.
 #When you first start Emacs after installing the starter-kit, it will try to contact the ELPA repository in order to download and install some additional packages. Please be patient with it. If it doesn’t get everything first time around, just quit and relaunch Emacs, and it will try again.
 #7. (Optional.) Once Emacs is up and running, do M-x starter-kit-compile to byte-compile the kit’s files, for slightly faster loading. 
+make mods to init.el 
+chunks skeletons see below
+AND starter-kit-misc.org
+  (set-cursor-color "red")
+
 mkdir ~/texmf
 mkdir ~/texmf/tex
 cd ~/texmf/tex
