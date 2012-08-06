@@ -269,5 +269,10 @@ then in dash you can vind avant settings, add to autostart
 ala http://reformedmusings.wordpress.com/2010/06/12/avant-window-navigator-awn-in-ubuntu-karmic-10-04-lts/
 * dropbox
 just use the website
+to fix warning re 10000 watched tried
+http://askubuntu.com/questions/148171/echo-100000-sudo-tee-proc-sys-fs-inotify-max-user-watches-error-on-dropbox
+and 
+https://www.dropbox.com/help/145/en
+then restarted machine
 * wine 
 http://www.winehq.org/download/ubuntu/
