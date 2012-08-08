@@ -262,7 +262,9 @@ Once you have done this, you can evaluate lines or regions of text from your loc
 | README.md                  |
 | src                        |
 
-
+* system monitoring
+http://www.liberiangeek.net/2012/05/windows-7-vs-ubuntu-12-04-how-to-kill-end-programs-and-processes/
+add a short cut
 * the dock
 try sudo apt-get install avant-window-navigator
 then in dash you can vind avant settings, add to autostart
