@@ -281,3 +281,20 @@ http://askubuntu.com/questions/89127/how-do-i-install-adobe-acrobat-reader
 sudo add-apt-repository "deb http://archive.canonical.com/ precise partner"
 sudo apt-get update
 sudo apt-get -y install acroread 
+* QGIS
+
+http://qgismalaysia.blogspot.com.au/2012/04/ubuntu-1204-qgis-1990-installation.html
+GOwin28 April 2012 13:50
+...
+In a terminal box do:
+sudo apt-get install python-software-properties
+sudo add-apt-repository ppa:ubuntugis/ppa
+sudo apt-get update
+sudo apt-get install -y qgis
+
+Complete details here:Installation instructions are here: http://trac.osgeo.org/ubuntugis/wiki/UbuntuGISRepository
+
+
+
+* CISCO VPN
+http://www.humans-enabled.com/2011/06/how-to-connect-ubuntu-linux-to-cisco.html
