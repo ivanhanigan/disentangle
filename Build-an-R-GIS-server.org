@@ -200,7 +200,8 @@ root ALL=(ALL) ALL
 
 
 ** SSL/HTTPS and running a proxy Server
-see the section below after the Rstudio server is set up
+see the section below after the Rstudio server is set up.  
+Perhaps an alternative? http://www.investuotojas.eu/2012/08/10/rstudio-server-through-ssh/
 ** selinux
 after setting up the Rstudio server and the ssl/https 
 # selinux config
