@@ -266,8 +266,11 @@ Once you have done this, you can evaluate lines or regions of text from your loc
 http://www.liberiangeek.net/2012/05/windows-7-vs-ubuntu-12-04-how-to-kill-end-programs-and-processes/
 add a short cut
 * the dock
-try sudo apt-get install avant-window-navigator
-then in dash you can vind avant settings, add to autostart
+#+name:avant
+#+begin_src sh :session *shell* :exports none :eval yes
+sudo apt-get install avant-window-navigator
+#+end_src
+then in dash you can find avant settings, add to autostart
 ala http://reformedmusings.wordpress.com/2010/06/12/avant-window-navigator-awn-in-ubuntu-karmic-10-04-lts/
 * dropbox
 just use the website
