@@ -739,6 +739,12 @@ R
 install.packages('RPostgreSQL')
 # works?
 ** postgis
+http://postgis.refractions.net/docs/postgis_installation.html
+* geoserver
+** TODO install geoserver
+ http://docs.geoserver.org/stable/en/user/installation/index.html.
+** TODO configure geoserver
+http://www.gistutor.com/geoserver/21-intermediate-geoserver-tutorials/38-configuring-geoserver-proxy-for-public-and-remote-data-access.html
 * emacs24
 This is optional but useful for complex GIS projects.
 ** X server
