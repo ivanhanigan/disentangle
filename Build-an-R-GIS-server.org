@@ -26,7 +26,7 @@ It is probably preferable to build this using ubuntu and most of this
 should work by replacing `yum install' with `apt-get'.
 
 * Launch an instance
-- Log on to the reserach cloud using your Australian University details http://www.nectar.org.au/research-cloud/.
+- Log on to the research cloud using your Australian University details http://www.nectar.org.au/research-cloud/.
 - Under images and snapshots launch the centos 6.2 amd64 image
 - give your server a name
 - select all http, icmp and ssh under security
@@ -115,6 +115,7 @@ open the firewall port to allow access to port 22 only from specified ip address
 # -A INPUT -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
 # to 
 # -A INPUT -s your.desk.ip.address -m state --state NEW -m tcp -p tcp --dport 22 -j ACCEPT
+# might want one for port 5432 as well if using postgres
 # service iptables restart
 TODO I'd like to restrict ssh access to the ncephgis VPN group, and add the restriction to use keypair's.  
 
@@ -590,6 +591,8 @@ reboot
 #+name:gdal
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 sudo rpm -Uvh http://elgis.argeo.org/repos/6/elgis/x86_64/elgis-release-6-6_0.noarch.rpm
+#+end_src
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
 yum list gdal*
 yum install gdal-devel.x86_64
 yum install proj-devel.x86_64
@@ -702,7 +705,7 @@ edit your pg_hba.conf file under /var/lib/pgsql/9.1/data
 I added a super user from my ip address and allowed all the local ip addresses access
 host    all             postgres        my.desk.ip.address/32       md5
 host    all             all             150.203.74.0/24         md5
-the restart
+# look at a working pg_hba.conf file and copy, especially trusts
 #+name:restart
 #+begin_src sh :session *shell* :exports none :eval no :results silent
 # still connected to psql
@@ -713,6 +716,8 @@ make it listen for the world
 Locate the postgresql.conf file under /var/lib/pgsql/9.1/data.
 listen addresses '*'
 # sudo service postgresql-9.1 restart
+chkconfig postgresql-9.1 on
+then restart
 # failed to start.
 GIVING UP 
 yum erase postgresql91*
@@ -740,6 +745,31 @@ install.packages('RPostgreSQL')
 # works?
 ** postgis
 http://postgis.refractions.net/docs/postgis_installation.html
+?
+or prefer
+http://www.davidghedini.com/pg/entry/postgis_2_0_on_centos
+requires postgres, gdal, geos 
+#+name:postgis2
+#+begin_src R :session *shell* :tangle no :exports none :eval yes
+################################################################
+# name:postgis2
+# yum list postgis*  
+yum install postgis2_91.x86_64 postgis2_91-devel.x86_64
+#+end_src
+failed due to depends?
+try 1.5
+http://www.davidghedini.com/pg/entry/install_postgresql_9_on_centos
+#+begin_src R :session *shell* :tangle no :exports none :eval yes
+################################################################
+# name:postgis1.5
+# yum list postgis*  
+yum install postgis91.x86_64 postgis91-utils.x86_64
+#+end_src
+su - postgres 
+createdb pgisdb
+psql -d pgisdb -f /usr/pgsql-9.1/share/contrib/postgis-1.5/postgis.sql 
+psql -d pgisdb -f /usr/pgsql-9.1/share/contrib/postgis-1.5/spatial_ref_sys.sql
+
 * geoserver
 ** TODO install geoserver
  http://docs.geoserver.org/stable/en/user/installation/index.html.
