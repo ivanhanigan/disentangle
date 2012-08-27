@@ -301,6 +301,9 @@ Complete details here:Installation instructions are here: http://trac.osgeo.org/
 
 * PostGIS
 sudo apt-get install postgis
+then you can upload data using
+shp2pgsql -s 4283 -D %1.shp public.%1 > %1.sql 
+psql -d geodb -U geouser -W -h pgis.ip.add.ress -f %1.sql 
 * CISCO VPN
 http://www.humans-enabled.com/2011/06/how-to-connect-ubuntu-linux-to-cisco.html
 * Mendeley
