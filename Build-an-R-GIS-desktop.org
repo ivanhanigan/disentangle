@@ -299,7 +299,8 @@ sudo apt-get install -y qgis
 
 Complete details here:Installation instructions are here: http://trac.osgeo.org/ubuntugis/wiki/UbuntuGISRepository
 
-
+* PostGIS
+sudo apt-get install postgis
 * CISCO VPN
 http://www.humans-enabled.com/2011/06/how-to-connect-ubuntu-linux-to-cisco.html
 * Mendeley

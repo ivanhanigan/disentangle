@@ -998,4 +998,4 @@ Firstly logged in as "dave" we need to create .emacs file with the following
 (load "/usr/local/share/emacs-24.1/site-lisp/ess-5.14/lisp/ess")
 this file will need to be in each users home directory.
 
-** taskjuggler
+** taskjuggl
