@@ -698,13 +698,17 @@ Set postgres Password
 su - postgres
 psql postgres postgres
 alter user postgres with password 'postgres';
-
+CREATE ROLE gislibrary LOGIN PASSWORD 'gislibrary';
 #+end_src
 Configure PostgreSQL 9 pg_hba.conf File
 edit your pg_hba.conf file under /var/lib/pgsql/9.1/data
 I added a super user from my ip address and allowed all the local ip addresses access
 host    all             postgres        my.desk.ip.address/32       md5
 host    all             all             150.203.74.0/24         md5
+host    all             all             130.56.85.0/24         md5
+
+
+
 # look at a working pg_hba.conf file and copy, especially trusts
 #+name:restart
 #+begin_src sh :session *shell* :exports none :eval no :results silent
@@ -769,6 +773,11 @@ su - postgres
 createdb pgisdb
 psql -d pgisdb -f /usr/pgsql-9.1/share/contrib/postgis-1.5/postgis.sql 
 psql -d pgisdb -f /usr/pgsql-9.1/share/contrib/postgis-1.5/spatial_ref_sys.sql
+psql pgisdb postgres
+grant ALL on schema public to gislibrary;
+GRANT ALL ON ALL TABLES IN SCHEMA public TO gislibrary;
+grant ALL on all functions in schema public to gislibrary;
+grant ALL on all sequences in schema public to gislibrary;
 
 * geoserver
 ** TODO install geoserver
