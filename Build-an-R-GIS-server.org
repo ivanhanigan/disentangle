@@ -138,10 +138,18 @@ PermitRootLogin yes
 #PasswordAuthentication yes
 #PermitEmptyPasswords no
 
-
+* setting up the Server
+** a domain name?
+At the blog http://helmingstay.blogspot.com.au/2012/02/adduser-myusername-adduser-myusername.html
+there is a well described process to set up an R server on the amazon EC2 cloud.
+They had registered their own domain and added it to the amazon system. Then used a script file made specifically to work with AWS -- "it's very self-explanatory".  
+## see that blog for the example.
+## change hostname to match afraid.org entry
+sudo vi /etc/hostname
+sudo /etc/init.d/hostname restart
 ** sudo rights
 add sudoers
-http://helmingstay.blogspot.com.au/2012/02/adduser-myusername-adduser-myusername.html
+kudos2 http://helmingstay.blogspot.com.au/2012/02/adduser-myusername-adduser-myusername.html
 #+name:add sudoer
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 adduser super_user
@@ -697,15 +705,15 @@ Set postgres Password
 #+begin_src sh :session *shell* :exports none :eval no :results silent
 su - postgres
 psql postgres postgres
-alter user postgres with password 'postgres';
+alter user postgres with password 'password';
 CREATE ROLE gislibrary LOGIN PASSWORD 'gislibrary';
 #+end_src
 Configure PostgreSQL 9 pg_hba.conf File
 edit your pg_hba.conf file under /var/lib/pgsql/9.1/data
 I added a super user from my ip address and allowed all the local ip addresses access
 host    all             postgres        my.desk.ip.address/32       md5
-host    all             all             150.203.74.0/24         md5
-host    all             all             130.56.85.0/24         md5
+host    all             gislibrary      0.0.0.0/0                   md5
+
 
 
 
@@ -784,6 +792,7 @@ grant select on all sequences in schema public to gislibrary;
  http://docs.geoserver.org/stable/en/user/installation/index.html.
 ** TODO configure geoserver
 http://www.gistutor.com/geoserver/21-intermediate-geoserver-tutorials/38-configuring-geoserver-proxy-for-public-and-remote-data-access.html
+NB is the default memory setting too low?  Ran out of memory pretty quick.
 * emacs24
 This is optional but useful for complex GIS projects.
 ** X server
