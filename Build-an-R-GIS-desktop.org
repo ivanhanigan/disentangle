@@ -299,6 +299,19 @@ sudo apt-get install -y qgis
 
 Complete details here:Installation instructions are here: http://trac.osgeo.org/ubuntugis/wiki/UbuntuGISRepository
 
+* gdal
+run from shell
+#+name:gdal
+#+begin_src sh :exports none :eval no
+sudo apt-get update
+sudo apt-get install libgdal1-dev libproj-dev
+sudo R
+install.packages("rgdal")
+
+#+end_src
+
+
+
 * PostGIS
 sudo apt-get install postgis
 then you can upload data using
