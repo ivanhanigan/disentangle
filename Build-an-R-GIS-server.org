@@ -141,7 +141,7 @@ PermitRootLogin yes
 
 ** sudo rights
 add sudoers
-#http://helmingstay.blogspot.com.au/2012/02/adduser-myusername-adduser-myusername.html
+http://helmingstay.blogspot.com.au/2012/02/adduser-myusername-adduser-myusername.html
 #+name:add sudoer
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 adduser super_user
