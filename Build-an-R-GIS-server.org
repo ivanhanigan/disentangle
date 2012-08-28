@@ -774,10 +774,10 @@ createdb pgisdb
 psql -d pgisdb -f /usr/pgsql-9.1/share/contrib/postgis-1.5/postgis.sql 
 psql -d pgisdb -f /usr/pgsql-9.1/share/contrib/postgis-1.5/spatial_ref_sys.sql
 psql pgisdb postgres
-grant ALL on schema public to gislibrary;
-GRANT ALL ON ALL TABLES IN SCHEMA public TO gislibrary;
-grant ALL on all functions in schema public to gislibrary;
-grant ALL on all sequences in schema public to gislibrary;
+grant usage on schema public to gislibrary;
+GRANT select ON ALL TABLES IN SCHEMA public TO gislibrary;
+grant execute on all functions in schema public to gislibrary;
+grant select on all sequences in schema public to gislibrary;
 
 * geoserver
 ** TODO install geoserver
