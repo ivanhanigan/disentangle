@@ -836,7 +836,7 @@ then let's demo the Tasmanian SLAs:
 #+end_src
 
 *** TODO upload the shp2psql
-#+begin_src sh :session *shell2* :exports none :eval yes
+#+begin_src sh :session *shell* :exports none :eval no
   cd data
   shp2pgsql -s 4283 -D tassla06.shp public.tassla06 > tassla06.sql
   # psql -d pgisdb -U postgres -W -h 115.146.94.209 -f tassla06.sql
