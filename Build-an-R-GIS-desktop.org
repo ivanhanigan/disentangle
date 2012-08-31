@@ -58,7 +58,7 @@ add to init.el
   "#+email: ivan.hanigan@anu.edu.au\n"
   "#+LaTeX_CLASS: article\n"
   "#+LaTeX_CLASS_OPTIONS: [a4paper]\n"
-  "#+LATEX: \tableofcontents\n"
+  "#+LATEX: \\tableofcontents\n"
   "-----"
  )
 (global-set-key [C-S-f4] 'org-skeleton)
