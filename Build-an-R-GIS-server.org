@@ -275,6 +275,7 @@ note the size and partitions
 df -h
 #+end_src
 * add users
+Primarily you will want to do this from your GIS desktop, using the 'secure passwords using R' section
 #+name:add users
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 adduser newuser1
@@ -282,6 +283,9 @@ passwd newuser1
 adduser newuser2
 passwd newuser2
 #+end_src
+
+
+
 * R
 #+name:R
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
@@ -792,9 +796,9 @@ sudo apt-get install postgis
 then let's demo the Tasmanian SLAs:
 *** download the shapefiles
 #+name:tassla01
-#+begin_src R :session *shell* :tangle src/tassla01.r :exports none :eval no
+#+begin_src R :session *R* :tangle src/tassla01.r :exports none :eval no
   ################################################################
-  # name:tassla01
+  # name:tassla06
   # ABS spatial units are available at http://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/1259.0.30.0022006?OpenDocument
   dir.create('data')
   setwd('data')
@@ -827,8 +831,8 @@ then let's demo the Tasmanian SLAs:
    axis(1);axis(2); box()
   # plot(sd, add = T)
    names(sd2@data)
-   writeOGR(sd2,'tassla01.shp','tassla01','ESRI Shapefile')
-   test <- readOGR(dsn = 'tassla01.shp', layer = 'tassla01')
+   writeOGR(sd2,'tassla06.shp','tassla06','ESRI Shapefile')
+   test <- readOGR(dsn = 'tassla06.shp', layer = 'tassla06')
    plot(test, col = 'grey')
    rm(sd)
   # save.image('tassd.Rdata')
@@ -836,13 +840,17 @@ then let's demo the Tasmanian SLAs:
 #+end_src
 
 *** TODO upload the shp2psql
-#+begin_src sh :session *shell* :exports none :eval yes
-shp2pgsql -s 4283 -D tassla01.shp public.tassla01 > tassla01.sql
-# psql -d pgisdb -U postgres -W -h 115.146.94.209 -f tassla01.sql
-# warning terminal not fully functional?  ran from normal terminal
-psql pgisdb postgres
-GRANT select ON ALL TABLES IN SCHEMA public TO gislibrary;
+#+begin_src sh :session *shell* :exports none :eval no
+  cd data
+  shp2pgsql -s 4283 -D tassla06.shp public.tassla06 > tassla06.sql
+  # psql -d pgisdb -U postgres -W -h 115.146.94.209 -f tassla06.sql
+  # warning terminal not fully functional?  ran from normal terminal
+  # now on the remote server run
+  # psql pgisdb postgres
+  # GRANT select ON ALL TABLES IN SCHEMA public TO gislibrary;
 #+end_src
+
+#+RESULTS:
 
 * geoserver
 ** TODO install geoserver

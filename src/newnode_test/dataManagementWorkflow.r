@@ -37,3 +37,5 @@ nodes <- newnode(name = 'archive at end of project', inputs ='journal publicatio
 
 #plot(nodes,attrs=list(node=list(label="foo", fillcolor="grey",shape="ellipse", fixedsize=FALSE), edge=list(color="black")))
 #dev.off()
+dev.copy2pdf(file='src/newnode_test/transformations_overview.pdf')
+dev.off();
