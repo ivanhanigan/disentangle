@@ -338,3 +338,52 @@ psql -d geodb -U geouser -W -h pgis.ip.add.ress -f %1.sql
 http://www.humans-enabled.com/2011/06/how-to-connect-ubuntu-linux-to-cisco.html
 * Mendeley
 use the website download
+* Managing a GIS server
+setting up a GIS server follows the instructions in Build-an-R-GIS-server.org
+** add users
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+adduser newuser1
+passwd newuser1
+adduser newuser2
+passwd newuser2
+#+end_src
+** secure passwords using R
+This will require R is installed
+*** genpw
+this is probably not as secure
+#+name:genpw
+#+begin_src R :session *R* :tangle src/genpw.r :exports none :eval no
+  ###########################################################################
+  # newnode: genpw
+  # random password
+  genpw <- function(){
+          pwd <- paste(paste(head(cbind(letters,sample(1:100,26))[order(cbind(letters,sample(1:100,26))[,2]),])[1:7],collapse=""),'#',sep="")
+          pwd <- paste(toupper(substr(pwd,1,1)), substr(pwd, 2, nchar(pwd)),sep='')
+          return(pwd)
+          }
+  pwd <- genpw()
+  print(pwd)
+  }
+  genpw()
+#+end_src
+
+*** add a random word
+Get the data from [[http://projecttemplate.net/letters.csv.bz2]] (I downloaded on 13-4-2012)
+Put it in the data directory for auto loading.
+
+#+name:get tutorial data
+#+begin_src R :session *R* :eval no
+  ####
+  # analysis get tutorial data
+  download.file('http://projecttemplate.net/letters.csv.bz2', 
+    destfile = 'data/letters.csv.bz2', mode = 'wb')
+# set load data to on?  
+#+end_src
+#+name:analysis load
+#+begin_src R :session *R* :tangle analysis/go.r :eval no
+  ####
+  # analysis load
+  require(ProjectTemplate)
+  load.project()
+  sample(letters$Word, 1)
+#+end_src

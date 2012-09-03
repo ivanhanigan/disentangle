@@ -275,6 +275,7 @@ note the size and partitions
 df -h
 #+end_src
 * add users
+Primarily you will want to do this from your GIS desktop, using the 'secure passwords using R' section
 #+name:add users
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 adduser newuser1
@@ -282,6 +283,9 @@ passwd newuser1
 adduser newuser2
 passwd newuser2
 #+end_src
+
+
+
 * R
 #+name:R
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
