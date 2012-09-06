@@ -880,8 +880,6 @@ iptables -F
 # also did service tomcat6 start and 
 reboot
 
-# publish
-http://docs.geoserver.org/stable/en/user/gettingstarted/postgis-quickstart/index.html
 
 
 
@@ -954,6 +952,9 @@ yum install opengeo-suite
 # DEADLINK? http://www.gistutor.com/geoserver/21-intermediate-geoserver-tutorials/38-configuring-geoserver-proxy-for-public-and-remote-data-access.html
 NB is the default memory setting too low?  Ran out of memory pretty quick.
 ** expose spatial data
+# publish
+http://docs.geoserver.org/stable/en/user/gettingstarted/postgis-quickstart/index.html
+
 * emacs24
 This is optional but useful for complex GIS projects.
 ** X server
