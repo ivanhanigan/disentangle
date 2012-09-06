@@ -879,6 +879,7 @@ iptables -F
 # note used the same iptables as those above
 # also did service tomcat6 start and 
 reboot
+login as admin, geoserver
 
 
 
