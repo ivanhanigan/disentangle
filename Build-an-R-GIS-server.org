@@ -856,7 +856,38 @@ then let's demo the Tasmanian SLAs:
 ** TODO install geoserver
 # java
 # yum install java-1.6.0-openjdk-devel
+http://coastalrocket.blogspot.com.au/2012/08/installing-geostack-on-centos-6-64bit.html
+yum -y install tomcat6 tomcat6-webapps tomcat6-admin-webapps
+vi /etc/tomcat6/tomcat-users.xml
+#add a user with roles of admin,manager
+chkconfig tomcat6 on
+# now to geoserver
+cd /home/<user>
+wget http://downloads.sourceforge.net/geoserver/geoserver-2.1.4-war.zip
+unzip geoserver-2.1.4-war.zip
+mv geoserver.war /usr/share/tomcat6/webapps
+# start up tomcat6
+service tomcat6 startexit
+# test geoserver at
+http://localhost:8080/geoserver/web/
 
+# and you'll probably want access across your network
+iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
+/sbin/service iptables save
+iptables -F
+
+# note used the same iptables as those above
+# also did service tomcat6 start and 
+reboot
+
+# publish
+http://docs.geoserver.org/stable/en/user/gettingstarted/postgis-quickstart/index.html
+
+
+
+*** old crap
+############################3
+# OLD CRAP
 http://dev.horizon.opengeo.org/opengeo-docs/installation/linux/centos/geoserver.html
 cd /etc/yum.repos.d
 wget http://yum.opengeo.org/centos/6/x86_64/OpenGeo.repo
@@ -922,6 +953,7 @@ yum install opengeo-suite
 
 # DEADLINK? http://www.gistutor.com/geoserver/21-intermediate-geoserver-tutorials/38-configuring-geoserver-proxy-for-public-and-remote-data-access.html
 NB is the default memory setting too low?  Ran out of memory pretty quick.
+** expose spatial data
 * emacs24
 This is optional but useful for complex GIS projects.
 ** X server
