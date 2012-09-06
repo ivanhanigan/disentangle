@@ -854,9 +854,73 @@ then let's demo the Tasmanian SLAs:
 
 * geoserver
 ** TODO install geoserver
- http://docs.geoserver.org/stable/en/user/installation/index.html.
+# java
+# yum install java-1.6.0-openjdk-devel
+
+http://dev.horizon.opengeo.org/opengeo-docs/installation/linux/centos/geoserver.html
+cd /etc/yum.repos.d
+wget http://yum.opengeo.org/centos/6/x86_64/OpenGeo.repo
+yum update
+yum search opengeo
+yum install opengeo-suite
+# --> Finished Dependency Resolution
+# Error: Package: opengeo-postgis-2.5-1.x86_64 (opengeo)
+#            Requires: postgresql84
+# Error: Package: opengeo-geoserver-2.5-1.x86_64 (opengeo)
+#            Requires: tomcat5
+# Error: Package: gdal-1.8.1-1.el6.x86_64 (elgis)
+#            Requires: libcfitsio.so.0()(64bit)
+# Error: Package: postgis-1.5.4-1.x86_64 (opengeo)
+#            Requires: postgresql84-server
+# Error: Package: gdal-1.8.1-1.el6.x86_64 (elgis)
+#            Requires: libdapserver.so.7()(64bit)
+# Error: Package: opengeo-postgis-2.5-1.x86_64 (opengeo)
+#            Requires: postgresql84-contrib
+# Error: Package: gdal-1.8.1-1.el6.x86_64 (elgis)
+#            Requires: libhdf5.so.6()(64bit)
+# Error: Package: opengeo-suite-2.5-1.x86_64 (opengeo)
+#            Requires: tomcat5-admin-webapps
+# Error: Package: gdal-1.8.1-1.el6.x86_64 (elgis)
+#            Requires: libdap.so.11()(64bit)
+# Error: Package: opengeo-suite-data-2.5-3.x86_64 (opengeo)
+#            Requires: tomcat5
+# Error: Package: gdal-1.8.1-1.el6.x86_64 (elgis)
+#            Requires: libspatialite.so.2()(64bit)
+# Error: Package: gdal-1.8.1-1.el6.x86_64 (elgis)
+#            Requires: librx.so.0()(64bit)
+# Error: Package: gdal-1.8.1-1.el6.x86_64 (elgis)
+#            Requires: libogdi.so.3()(64bit)
+# Error: Package: gdal-1.8.1-1.el6.x86_64 (elgis)
+#            Requires: libnetcdf.so.6()(64bit)
+# Error: Package: gdal-1.8.1-1.el6.x86_64 (elgis)
+#            Requires: libdapclient.so.3()(64bit)
+# Error: Package: postgis-1.5.4-1.x86_64 (opengeo)
+#            Requires: postgresql84
+#  You could try using --skip-broken to work around the problem
+#  You could try running: rpm -Va --nofiles --nodigest
+
+
+
+yum update
+# #You can then install the OpenGeo Suite by typing:
+yum install opengeo-suite
+#not work?
+#http://tech.gaeatimes.com/index.php/archive/how-to-install-jdk-6-java-se-6-tomcat-in-fedora-core-6-fedora-7-in-5-minutes/
+# no work?
+# http://gis.stackexchange.com/a/19827
+# cd /etc/yum.repos.d
+# wget http://yum.opengeo.org/centos/5/x86_64/OpenGeo.repo
+# yum update
+# #You can then install the OpenGeo Suite by typing:
+# yum install opengeo-suite
+# #Once the installation has completed, you can go to the dashboard by navigating to:
+# http://localhost:8080/dashboard/
+
+# # better than
+# # http://docs.geoserver.org/stable/en/user/installation/index.html.
 ** TODO configure geoserver
-http://www.gistutor.com/geoserver/21-intermediate-geoserver-tutorials/38-configuring-geoserver-proxy-for-public-and-remote-data-access.html
+
+# DEADLINK? http://www.gistutor.com/geoserver/21-intermediate-geoserver-tutorials/38-configuring-geoserver-proxy-for-public-and-remote-data-access.html
 NB is the default memory setting too low?  Ran out of memory pretty quick.
 * emacs24
 This is optional but useful for complex GIS projects.
