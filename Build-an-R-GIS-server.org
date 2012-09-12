@@ -296,6 +296,8 @@ note the size and partitions
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 df -h
 #+end_src
+* swap space
+
 * add users
 Primarily you will want to do this from your GIS desktop, using the 'secure passwords using R' section
 #+name:add users
@@ -1249,3 +1251,23 @@ Firstly logged in as "dave" we need to create .emacs file with the following
 this file will need to be in each users home directory.
 
 ** taskjuggl
+* User tests
+** Invitation
+Hi Lu,
+Steve and I have started work on a prototype Rstudio/PostGIS server hosted on the Nectar Research Cloud.  Eventually this could replace the ANU gislibrary server, or provide a basic template for any future GIS projects.
+It is only a pilot study at the moment and I'd be keen to get you to test it for this use case if you are willing to?
+
+The Rstudio link is https://zzz.zzz.zzz.zzz/ (it is secured by a self-signed certificate which you'll have to accept the first time -  also note you may not be able to use internet explorer, but chrome and firefox will work).
+
+I've added you as luciana_porfirio and password is batemanXuv$
+(Steve is also a super user, so there is no point hiding the password from him... if you want to get more security we'd have to set up a specific server for your project, with only you in charge of passwords.)
+
+The postGIS database is called 'pgisdb' and has a user 'gislibrary' with password 'gislibrary'.
+It is also running geoserver so you can interact with it at http://zzz.zzz.zzz.zzz:8080/geoserver/web/ (go to layer preview - I've added tassla06 to the default set of data).
+
+For your project I'd just use the Rstudio file transfer tool and run that code to see if you get enough memory (it isn't that big, only a 10GB disc with 4GB RAM and 4GB swap space it might do the trick?  if not there are bigger VMs available from Nectar with up to 64GB RAM).
+
+Let us know if you use it and it works?
+
+Cheers,
+Ivan and Steve.
