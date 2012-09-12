@@ -20,6 +20,14 @@ sudo gedit /etc/apt/sources.list
 deb http://cran.csiro.au/bin/linux/ubuntu precise/
 sudo apt-get update
 sudo apt-get install r-base r-base-dev
+#+name:make this a PT project
+#+begin_src R :session *R* :tangle src/make this a PT project.r :exports none :eval no
+################################################################
+# name:make this a PT project
+require(ProjectTemplate)
+create.project('disentangle')
+#+end_src
+
 * Rstudio
  sudo apt-get install libssl0.9.8
  sudo apt-get install libapparmor1 apparmor-utils
@@ -347,44 +355,4 @@ adduser newuser1
 passwd newuser1
 adduser newuser2
 passwd newuser2
-#+end_src
-** secure passwords using R
-This will require R is installed
-*** genpw
-this is probably not as secure
-#+name:genpw
-#+begin_src R :session *R* :tangle src/genpw.r :exports none :eval no
-  ###########################################################################
-  # newnode: genpw
-  # random password
-  genpw <- function(){
-          pwd <- paste(paste(head(cbind(letters,sample(1:100,26))[order(cbind(letters,sample(1:100,26))[,2]),])[1:7],collapse=""),'#',sep="")
-          pwd <- paste(toupper(substr(pwd,1,1)), substr(pwd, 2, nchar(pwd)),sep='')
-          return(pwd)
-          }
-  pwd <- genpw()
-  print(pwd)
-  }
-  genpw()
-#+end_src
-
-*** add a random word
-Get the data from [[http://projecttemplate.net/letters.csv.bz2]] (I downloaded on 13-4-2012)
-Put it in the data directory for auto loading.
-
-#+name:get tutorial data
-#+begin_src R :session *R* :eval no
-  ####
-  # analysis get tutorial data
-  download.file('http://projecttemplate.net/letters.csv.bz2', 
-    destfile = 'data/letters.csv.bz2', mode = 'wb')
-# set load data to on?  
-#+end_src
-#+name:analysis load
-#+begin_src R :session *R* :tangle analysis/go.r :eval no
-  ####
-  # analysis load
-  require(ProjectTemplate)
-  load.project()
-  sample(letters$Word, 1)
 #+end_src
