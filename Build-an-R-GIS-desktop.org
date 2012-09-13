@@ -270,6 +270,11 @@ ruby -v
 gem install taskjuggler
 ** jekyll
 gem install jekyll
+gem install rdiscount
+add port 4000 to iptables and restart
+cd to website
+jekyll --server
+
 * ess-remote
 kudos2 http://econsteve.com/?p=54
 ess-remote, so useful!
