@@ -337,9 +337,10 @@ We created Rlibs directory in our home directory. Now, create the .Renviron file
 We can now start R and install any library. The libraries will be installed to ~/Rlibs, and when we update R, R will still look for libraries in ~/Rlibs directory so we don't need to re-install the libraries. However, we will need to update the libraries in ~/Rlibs directory to their most recent versions. All we need to do is to run update.packages() in R console, and the libraries will be updated.
 * Rstudio
 ** install rstudio
+check out the RSudio versions at: http://rstudio.org/download/server
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-wget http://download2.rstudio.org/rstudio-server-0.96.304-x86_64.rpm
-yum install rstudio-server-0.96.304-x86_64.rpm
+wget http://download2.rstudio.org/rstudio-server-0.96.331-x86_64.rpm
+sudo rpm -Uvh rstudio-server-0.96.331-x86_64.rpm
 rstudio-server verify-installation
 #+end_src
 ** firewall access
