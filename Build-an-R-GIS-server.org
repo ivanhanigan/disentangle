@@ -319,6 +319,8 @@ yum install R R-devel
 # NB on redhat 6.3 build we had to register to the optional channel the following command needs to be issued.
 # rhn-channel --add --channel=rhel-x86_64-server-optional-6
 # then yum install texinfo-tex.x86_64
+To update R as ‘root’ on your system simply type
+# yum update R
 ** TODO package management and R updates
 Kudos2
 http://zvfak.blogspot.com.au/2012/06/updating-r-but-keeping-your-installed.html
