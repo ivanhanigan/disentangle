@@ -288,7 +288,7 @@ chkconfig `servicename' off
 # kudos2 http://rlamp.blogspot.com.au/2010/03/getting-started-setting-up-rapache.html
 #+name:foundations
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-yum install gcc-gfortran  gcc-c++   readline-devel   libpng-devel  libX11-devel libXt-devel   texinfo-tex    tetex-dvips  docbook-utils-pdf   cairo-devel   java-1.6.0-openjdk-devel  libxml2-devel   make
+yum install gcc-gfortran  gcc-c++   readline-devel   libpng-devel  libX11-devel libXt-devel   texinfo-tex.x86_64    tetex-dvips  docbook-utils-pdf   cairo-devel   java-1.6.0-openjdk-devel  libxml2-devel   make
 #+end_src
 * describe the system
 note the size and partitions
