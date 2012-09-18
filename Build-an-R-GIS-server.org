@@ -341,6 +341,15 @@ We can now start R and install any library. The libraries will be installed to ~
 ** install rstudio
 check out the RSudio versions at: http://rstudio.org/download/server
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
+# on RHEL6 ran into dependencies: libcrypto.so.6()(64bit) is needed by rstudio-server-0.96.331-1.x86_64
+#	libgfortran.so.1()(64bit) is needed by rstudio-server-0.96.331-1.x86_64
+#	libssl.so.6()(64bit) is needed by rstudio-server-0.96.331-1.x86_64
+# http://www.linuxquestions.org/questions/linux-software-2/need-libcrypto-so-6-64bit-and-libssl-so-6-64bit-for-redhat-6-a-873068/
+yum list openssl098e*
+yum install openssl098e.x86_64
+yum list compat-libgfortran*
+yum install compat-libgfortran-41.x86_64 
+
 wget http://download2.rstudio.org/rstudio-server-0.96.331-x86_64.rpm
 sudo rpm -Uvh rstudio-server-0.96.331-x86_64.rpm
 rstudio-server verify-installation
