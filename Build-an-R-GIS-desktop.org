@@ -243,6 +243,15 @@ git@github.com:ivanhanigan/disentangle.git
 * ruby
 # ubuntu
 sudo apt-get install libgemplugin-rubyv
+#+name:ruby
+#+begin_src sh :session *shell* :exports none :eval no
+################################################################
+# name:ruby
+sudo apt-get install libgemplugin-ruby
+#+end_src
+
+
+  
 #centos
 curl -L https://get.rvm.io | bash -s stable --ruby
 # RVM:  Shell scripts enabling management of multiple ruby environments.
