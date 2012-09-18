@@ -297,6 +297,10 @@ note the size and partitions
 df -h
 #+end_src
 * swap space
+* object storage
+http://support.rc.nectar.org.au/technical_guides/object_storage.html
+Security Warning: Swift does NOT provide encryption of the data it stores.
+If you have sensitive data that requires encryption you must encrypt the data files before upload. 
 
 * add users
 Primarily you will want to do this from your GIS desktop, using the 'secure passwords using R' section
@@ -691,34 +695,34 @@ mv "A66 National (13.09.01).gsb" aust_national_agd66_13.09.01.gsb
 ** test readOGR
 NB only possible once the PostGIS install is complete, see below.
 #+name:readOGR2
-#+begin_src R :session *R* :tangle no :exports none :eval no
-################################################################
-# name:readOGR2
-
-readOGR2 <- function(hostip=NA,user=NA,db=NA, layer=NA, p = NA) {
- # NOTES
- # only works on Linux OS
- # returns uninformative error due to either bad connection or lack of record in geometry column table.  can check if connection problem using a test connect?
- # TODO add a prompt for each connection arg if isna
- if (!require(rgdal)) install.packages('rgdal', repos='http://cran.csiro.au'); require(rgdal)
- if(is.na(p)){ 
- pwd=readline('enter password (ctrl-L will clear the console after): ')
- } else {
- pwd <- p
- }
- shp <- readOGR(sprintf('PG:host=%s
-                         user=%s
-                         dbname=%s
-                         password=%s
-                         port=5432',hostip,user,db,pwd),
-                         layer=layer)
-
- # clean up
- rm(pwd)
- return(shp)
- }
-
-tassla06 <- readOGR2(hostip='115.146.94.209',user='gislibrary',db='pgisdb', layer='tassla06')
+#+begin_src R :session *shell* :tangle no :exports none :eval no
+  ################################################################
+  # name:readOGR2
+  
+  readOGR2 <- function(hostip=NA,user=NA,db=NA, layer=NA, p = NA) {
+   # NOTES
+   # only works on Linux OS
+   # returns uninformative error due to either bad connection or lack of record in geometry column table.  can check if connection problem using a test connect?
+   # TODO add a prompt for each connection arg if isna
+   if (!require(rgdal)) install.packages('rgdal', repos='http://cran.csiro.au'); 
+   if(is.na(p)){ 
+   pwd=readline('enter password (ctrl-L will clear the console after): ')
+   } else {
+   pwd <- p
+   }
+   shp <- readOGR(sprintf('PG:host=%s
+                           user=%s
+                           dbname=%s
+                           password=%s
+                           port=5432',hostip,user,db,pwd),
+                           layer=layer)
+  
+   # clean up
+   rm(pwd)
+   return(shp)
+   }
+  
+  tassla06 <- readOGR2(hostip='115.146.94.209',user='gislibrary',db='pgisdb', layer='tassla06')
 #+end_src
 
 * rgraphviz
