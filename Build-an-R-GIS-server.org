@@ -945,10 +945,14 @@ then let's demo the Tasmanian SLAs:
 # yum install java-1.6.0-openjdk-devel
 http://coastalrocket.blogspot.com.au/2012/08/installing-geostack-on-centos-6-64bit.html
 yum -y install tomcat6 tomcat6-webapps tomcat6-admin-webapps 
-or
-http://newpush.com/2011/10/how-to-install-tomcat-6-on-rhel-6-or-centos-6/
-
-
+# or
+# http://newpush.com/2011/10/how-to-install-tomcat-6-on-rhel-6-or-centos-6/
+# yum install yum-priorities
+# rpm -Uvh http://apt.sw.be/redhat/el6/en/x86_64/rpmforge/RPMS/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
+# #rpm -Uvh http://download.fedora.redhat.com/pub/epel/6/x86_64/epel-release-6-5.noarch.rpm
+# rpm -Uvh http://mirrors.dotsrc.org/jpackage/6.0/generic/free/RPMS/jpackage-utils-5.0.0-7.jpp6.noarch.rpm
+# #yum -y install java
+# yum -y install tomcat6 tomcat6-webapps tomcat6-admin-webapps
 
 vi /etc/tomcat6/tomcat-users.xml
 #add a user with roles of admin,manager
