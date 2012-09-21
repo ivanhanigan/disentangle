@@ -20,6 +20,14 @@ sudo gedit /etc/apt/sources.list
 deb http://cran.csiro.au/bin/linux/ubuntu precise/
 sudo apt-get update
 sudo apt-get install r-base r-base-dev
+#+name:make this a PT project
+#+begin_src R :session *R* :tangle src/make this a PT project.r :exports none :eval no
+################################################################
+# name:make this a PT project
+require(ProjectTemplate)
+create.project('disentangle')
+#+end_src
+
 * Rstudio
  sudo apt-get install libssl0.9.8
  sudo apt-get install libapparmor1 apparmor-utils
@@ -233,10 +241,49 @@ try newnode_test from
 git@github.com:ivanhanigan/disentangle.git
 
 * ruby
+# ubuntu
 sudo apt-get install libgemplugin-rubyv
+#+name:ruby
+#+begin_src sh :session *shell* :exports none :eval no
+################################################################
+# name:ruby
+sudo apt-get install libgemplugin-ruby
+#+end_src
+
+
+  
+#centos
+curl -L https://get.rvm.io | bash -s stable --ruby
+# RVM:  Shell scripts enabling management of multiple ruby environments.
+# RTFM: https://rvm.io/
+# HELP: http://webchat.freenode.net/?channels=rvm (#rvm on irc.freenode.net)
+# Cheatsheet: http://cheat.errtheblog.com/s/rvm/
+# Screencast: http://screencasts.org/episodes/how-to-use-rvm
+
+# In case of any issues read output of 'rvm requirements' and/or 'rvm notes'
+
+Installation of RVM in /usr/local/rvm/ is almost complete:
+
+  * First you need to add all users that will be using rvm to 'rvm' group,
+    and logout - login again, anyone using rvm will be operating with `umask g+w`.
+
+  * To start using RVM you need to run `source /etc/profile.d/rvm.sh`
+    in all your open shell windows, in rare cases you need to reopen all shell windows.
+
+
+## me
+added user to etc/group rvm
+ran source /usr/local/rvm/scripts/rvm
+ruby -v
 ** taskjuggler
-gem install taskjugglers
+gem install taskjuggler
 ** jekyll
+gem install jekyll
+gem install rdiscount
+add port 4000 to iptables and restart
+cd to website
+jekyll --server
+
 * ess-remote
 kudos2 http://econsteve.com/?p=54
 ess-remote, so useful!
@@ -347,44 +394,4 @@ adduser newuser1
 passwd newuser1
 adduser newuser2
 passwd newuser2
-#+end_src
-** secure passwords using R
-This will require R is installed
-*** genpw
-this is probably not as secure
-#+name:genpw
-#+begin_src R :session *R* :tangle src/genpw.r :exports none :eval no
-  ###########################################################################
-  # newnode: genpw
-  # random password
-  genpw <- function(){
-          pwd <- paste(paste(head(cbind(letters,sample(1:100,26))[order(cbind(letters,sample(1:100,26))[,2]),])[1:7],collapse=""),'#',sep="")
-          pwd <- paste(toupper(substr(pwd,1,1)), substr(pwd, 2, nchar(pwd)),sep='')
-          return(pwd)
-          }
-  pwd <- genpw()
-  print(pwd)
-  }
-  genpw()
-#+end_src
-
-*** add a random word
-Get the data from [[http://projecttemplate.net/letters.csv.bz2]] (I downloaded on 13-4-2012)
-Put it in the data directory for auto loading.
-
-#+name:get tutorial data
-#+begin_src R :session *R* :eval no
-  ####
-  # analysis get tutorial data
-  download.file('http://projecttemplate.net/letters.csv.bz2', 
-    destfile = 'data/letters.csv.bz2', mode = 'wb')
-# set load data to on?  
-#+end_src
-#+name:analysis load
-#+begin_src R :session *R* :tangle analysis/go.r :eval no
-  ####
-  # analysis load
-  require(ProjectTemplate)
-  load.project()
-  sample(letters$Word, 1)
 #+end_src

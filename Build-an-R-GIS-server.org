@@ -5,25 +5,30 @@
 #+LaTeX_CLASS_OPTIONS: [a4paper]
 -----
 #+name:header
-#+begin_src R :session *R* :tangle no :exports none :eval no
+#+begin_src R :session *R* :tangle no :exports none :eval yes
 paste(getwd(),'\n',Sys.Date())
 
 #+end_src
 
 #+RESULTS: header
-| i:/tools/disentangle |
-|           2012-07-04 |
+| /home/ivan/tools/disentangle |
+|                   2012-09-13 |
 
 * Introduction
 This is an emacs24 orgmode document to enable building an R GIS server
-on centos 6.2 amd64 using the Australian National Research Cloud.
+pair on centos 6.2 amd64 using the Australian National Research Cloud.
 
+The reason I am using orgmode approach is that I plan to make this document weave together descriptions of the steps and the executable codes to run the installation steps.  In the end it will be possible to 'tangle' the source code out into a fully executable script to run on a fresh virtual machine and all the steps will be automated.   See Eric Shulte's paper on multi-language programming in Journal of Statistical Software Dec 2011 for further info.
+** TODO consider having 2 seperate servers, one R and other pgis
+The reason to have the R server and the GIS server is to allow
+different software stack dependencies such as GDAL.  Some stuff is generic so the
+step thru the document, first install the R server, then the postgis server.
 
-I use centos rather than ubuntu because we are forced to use redhat
-for production servers at the ANU Research School of Population Health.
+# I use centos rather than ubuntu because we are forced to use redhat
+# for production servers at the ANU Research School of Population Health.
 
-It is probably preferable to build this using ubuntu and most of this
-should work by replacing `yum install' with `apt-get'.
+# It is probably preferable to build this using ubuntu and most of
+# this should work by replacing `yum install' with `apt-get'.
 
 * Launch an instance
 - Log on to the research cloud using your Australian University details http://www.nectar.org.au/research-cloud/.
@@ -35,16 +40,16 @@ should work by replacing `yum install' with `apt-get'.
 - go to the access and security section and edit the http rule
 - add a rule to allow access from port 8080 to 9000 with 0.0.0.0/0 (CIDR)
 - Note that this allows access to the whole world, we will think about securing the server later
-* ssh
+* connect using ssh
 If using Windows make sure you have git installed.  Opening a git bash
 shell will enable you to connect to your server using ssh. Then the contents of the following orgmode chunks can be evaluated on the remote server.
 If your on linux then orgmode can execute these chunks using C-c C-c.
 #+name:whoami local
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-
 whoami
 #+end_src
 In the next chunk, insert the relevant ip address and you may have to answer yes to the question about adding this RSA fingerprint to your list.
+# NB actually don't run this using C-c C-c as it won't work.  Also NB you don't really need the -i keypairname either for some reason... see security section below
 #+name:ssh
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
   cd ~/.ssh
@@ -52,19 +57,43 @@ In the next chunk, insert the relevant ip address and you may have to answer yes
   # it is prudent to set a hideously long password for root
   # passwd root
 #+end_src
-TODO why can i get in without using -i keypairname?
-** changes to make
+* setting up the Server
+** yum updates
+now try to update the yum package manager
+#+name:yumupdate
+#+begin_src sh :session *shell* :exports none :eval yes :results silent
+yum update 
+#+end_src
+** initial security changes to make RE logging in
+I had to get a bit of advice from a sysadmin at work about the following but I am sure it is still pretty unsecure.  
+Various TODOs here.
+*** TODO find out about ssh without using -i keypairname?
+*** TODO get a sysadmin to check the following
+#+name:security
+#+begin_src sh :tangle src/security.sh :exports none :eval no
+################################################################
+# name:security
+visit 
 /etc/ssh/sshd_config
 under authentication remark out 
 #RSAAuthentication yes
 #PubkeyAuthentication yes
+#AuthorizedKeysFile	.ssh/authorized_keys
+#+end_src
+*** TODO setting password authentication to no?
+Sounds like a bad idea, I decided not to follow the advice here
+#+name:security
+#+begin_src sh :tangle src/security.sh :exports none :eval no
 and then scroll down to 
 # To disable tunneled clear text passwords, change to no here!
 #PasswordAuthentication yes
 #PermitEmptyPasswords no
 PasswordAuthentication yes
 # change to no
-
+#+end_src
+*** TODO get a few examples from other servers
+#+name:security
+#+begin_src sh :tangle src/security.sh :exports none :eval no
 Example of one of Daves.
 
 Port 13456
@@ -99,15 +128,8 @@ IgnoreUserKnownHosts no
 #PasswordAuthentication yes
 #PermitEmptyPasswords no
 PasswordAuthentication no
-
-* yum updates
-now try to update the yum package manager
-#+name:yumupdate
-#+begin_src sh :session *shell* :exports none :eval yes :results silent
-yum update 
 #+end_src
-* security measures
-** restrict ssh to a specific ip address
+** restrict ssh to a specific ip address/range
 # on ubuntu see https://help.ubuntu.com/community/IptablesHowTo#Solution_.233_iptables-persistent
 open the firewall port to allow access to port 22 only from specified ip address
 # vi /etc/sysconfig/iptables 
@@ -123,7 +145,8 @@ TODO I'd like to restrict ssh access to the ncephgis VPN group, and add the rest
 # NB only works for servers on your VPN network
 
 service iptables restart
-# to restrict root log in (but out policy can permit log in if ssh is
+*** TODO cut this out?  this is a repeat of above?
+# to restrict root log in (but our policy can permit log in if ssh is
 # only open to the vpn range?  leave the below as yes yes yes?
 vi /etc/ssh/sshd_config
 
@@ -138,9 +161,8 @@ PermitRootLogin yes
 #PasswordAuthentication yes
 #PermitEmptyPasswords no
 
-* setting up the Server
 ** a domain name?
-At the blog http://helmingstay.blogspot.com.au/2012/02/adduser-myusername-adduser-myusername.html
+I haven't attempted this yet but found the following info at the blog http://helmingstay.blogspot.com.au/2012/02/adduser-myusername-adduser-myusername.html
 there is a well described process to set up an R server on the amazon EC2 cloud.
 They had registered their own domain and added it to the amazon system. Then used a script file made specifically to work with AWS -- "it's very self-explanatory".  
 ## see that blog for the example.
@@ -148,6 +170,7 @@ They had registered their own domain and added it to the amazon system. Then use
 sudo vi /etc/hostname
 sudo /etc/init.d/hostname restart
 ** sudo rights
+*** TODO this isn't necessary unless you disable root
 add sudoers
 kudos2 http://helmingstay.blogspot.com.au/2012/02/adduser-myusername-adduser-myusername.html
 #+name:add sudoer
@@ -192,6 +215,7 @@ root ALL=(ALL) ALL
 #+end_src
 
 ** disable root login
+DON'T DO THIS YET.  THIS IS NOT WORKING
 # if you can set this up then the blog post above recommends restricting root login
 # vi /etc/ssh/sshd_config 
 ## disable root login
@@ -205,8 +229,6 @@ root ALL=(ALL) ALL
 # Q2 from your previous build I saw you modified your user with vi /etc/passwd # and change david:x:500:500::/home/david:/bin/bash to ::/home/david:/sbin/nologin #is this necessary for all users?
 
 # Depends on yourself.  Guessing that RStudio will be visible to the outside world without the need to VPN in?  If so and a external user who only needs to access to RStudio you would then change their login in /etc/passwd to provided example.  Users who will be accessing the server with EMacs, plain R Console vi SSH etc, you would not change.
-
-
 
 ** SSL/HTTPS and running a proxy Server
 see the section below after the Rstudio server is set up.  
@@ -228,7 +250,7 @@ SELINUX=enforcing
 # also the following 
 # chkconfig httpd on
 # so  when log back in must restart httpd
-*** other things
+*** TODO other things
 # check what's on
 chkconfig --list | grep on
 acpid           0:off   1:off   2:on    3:on    4:on    5:on    6:off
@@ -266,7 +288,7 @@ chkconfig `servicename' off
 # kudos2 http://rlamp.blogspot.com.au/2010/03/getting-started-setting-up-rapache.html
 #+name:foundations
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-yum install gcc-gfortran  gcc-c++   readline-devel   libpng-devel  libX11-devel libXt-devel   texinfo-tex    tetex-dvips  docbook-utils-pdf   cairo-devel   java-1.6.0-openjdk-devel  libxml2-devel   make
+yum install gcc-gfortran  gcc-c++   readline-devel   libpng-devel  libX11-devel libXt-devel   texinfo-tex.x86_64    tetex-dvips  docbook-utils-pdf   cairo-devel   java-1.6.0-openjdk-devel  libxml2-devel   make
 #+end_src
 * describe the system
 note the size and partitions
@@ -274,6 +296,12 @@ note the size and partitions
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 df -h
 #+end_src
+* swap space
+* object storage
+http://support.rc.nectar.org.au/technical_guides/object_storage.html
+Security Warning: Swift does NOT provide encryption of the data it stores.
+If you have sensitive data that requires encryption you must encrypt the data files before upload. 
+
 * add users
 Primarily you will want to do this from your GIS desktop, using the 'secure passwords using R' section
 #+name:add users
@@ -295,7 +323,9 @@ yum install R R-devel
 # NB on redhat 6.3 build we had to register to the optional channel the following command needs to be issued.
 # rhn-channel --add --channel=rhel-x86_64-server-optional-6
 # then yum install texinfo-tex.x86_64
-** package management
+To update R as ‘root’ on your system simply type
+# yum update R
+** TODO package management and R updates
 Kudos2
 http://zvfak.blogspot.com.au/2012/06/updating-r-but-keeping-your-installed.html
 The problem is that when you update R you usually need to re-install your libraries or change .libPaths() to point to a location that has your previous libraries.
@@ -312,14 +342,24 @@ We created Rlibs directory in our home directory. Now, create the .Renviron file
 
 We can now start R and install any library. The libraries will be installed to ~/Rlibs, and when we update R, R will still look for libraries in ~/Rlibs directory so we don't need to re-install the libraries. However, we will need to update the libraries in ~/Rlibs directory to their most recent versions. All we need to do is to run update.packages() in R console, and the libraries will be updated.
 * Rstudio
-#+name:install rstudio
+** install rstudio
+check out the RSudio versions at: http://rstudio.org/download/server
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-wget http://download2.rstudio.org/rstudio-server-0.96.304-x86_64.rpm
-yum install rstudio-server-0.96.304-x86_64.rpm
+# on RHEL6 ran into dependencies: libcrypto.so.6()(64bit) is needed by rstudio-server-0.96.331-1.x86_64
+#	libgfortran.so.1()(64bit) is needed by rstudio-server-0.96.331-1.x86_64
+#	libssl.so.6()(64bit) is needed by rstudio-server-0.96.331-1.x86_64
+# http://www.linuxquestions.org/questions/linux-software-2/need-libcrypto-so-6-64bit-and-libssl-so-6-64bit-for-redhat-6-a-873068/
+yum list openssl098e*
+yum install openssl098e.x86_64
+yum list compat-libgfortran*
+yum install compat-libgfortran-41.x86_64 
+
+wget http://download2.rstudio.org/rstudio-server-0.96.331-x86_64.rpm
+sudo rpm -Uvh rstudio-server-0.96.331-x86_64.rpm
 rstudio-server verify-installation
 #+end_src
-firewall access
-NB emacs does this badly! use a terminal?
+** firewall access
+NB emacs does vi in the shell buffer, but does this badly! use a terminal? or C-x C-f /user@my.ip.add.ress:/ will open the remote file for edits
 #+name:firewall
 #+begin_src sh :session *shell* :exports none :eval no :results silent
 # kudos2 http://slinsmeier.wordpress.com/2012/05/19/creating-a-lab-environment-with-rstudio/
@@ -329,7 +369,7 @@ vi /etc/sysconfig/iptables
 # file and add the line
 # -A INPUT -m state --state NEW -m tcp -p tcp --dport 8787 -j ACCEPT
 # directly after the opening of the ssh port 22 (or copy that line and change the port 22 to 8787).
-# use INS to start editing, ESC to stop and :x to save
+# if using vi use INS to start editing, ESC to stop and :x to save
 service iptables restart
 # need to reboot?
 #+end_src
@@ -350,22 +390,22 @@ sudo yum install mod_ssl.x86_64
 #+end_src
 # NB couldn't follow dave's install here as can't find distcache in lib
 #vi /etc/httpd/conf.d/ssl.conf 
-# vi +/SSLCertificateFile /etc/httpd/conf.d/ssl.conf
+# NOT RUN vi +/SSLCertificateFile /etc/httpd/conf.d/ssl.conf
 # Change the paths to match where the Key file is stored. 
 SSLCertificateFile /etc/pki/tls/certs/rstudio.ivan.com.crt
 # Then set the correct path for the Certificate Key File a few lines below. 
 SSLCertificateKeyFile /etc/pki/tls/private/rstudio.ivan.com.key
 #+name:makedir
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-sudo mkdir /etc/httpd/sites
+mkdir /etc/httpd/sites
 #+end_src
-#sudo vi /etc/httpd/conf/httpd.conf 
+# vi /etc/httpd/conf/httpd.conf 
 # and add 
 Include /etc/httpd/sites/
 # as the last line.
 # NB did the next in terminal
 # vi /etc/httpd/sites/rstudio-ivan.com
-# in testing below changed this to rstudio.ivan.com
+# TODO REMOVE? in testing below changed this to rstudio.ivan.com
 # insert
 <VirtualHost *:80>
 
@@ -374,7 +414,7 @@ Include /etc/httpd/sites/
 
 </VirtualHost>
 # goodo
-# sudo vi /etc/httpd/conf.d/ssl.conf
+# vi /etc/httpd/conf.d/ssl.conf
 # add
 
   <Proxy *>
@@ -388,8 +428,9 @@ Include /etc/httpd/sites/
 # before </VirtualHost>
 #+name:restart
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-sudo /etc/init.d/httpd restart
+/etc/init.d/httpd restart
 #+end_src
+# weird error? ignore?
 sudo chkconfig httpd on
 # sudo vi /etc/sysconfig/iptables 
 # remove the previoslyu added 443 line
@@ -408,8 +449,8 @@ sudo /etc/init.d/rstudio-server restart
 # now going to https://your.new.ip.address/
 # should ask you to add an exception
 # can also try sudo reboot?
-** test 
-log on to Rstudio at your.new.ip.address and copy the following into a new RNW sweave file (might need to modify the sweave options in tools, something to do with tex2dvi?)
+** test Sweave
+log on to Rstudio at https://your.new.ip.address and copy the following into a new RNW sweave file (might need to modify the sweave options in tools, something to do with tex2dvi?)
 #+name:learnR
 #+begin_src R :session *R* :tangle learnR.Rnw :exports none :eval no
 \documentclass[a4paper]{article}
@@ -592,7 +633,7 @@ sessionInfo()
 #+name:git
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 yum install git
-reboot
+# reboot
 #+end_src
 ** ssh for github
 - in rstudio
@@ -605,10 +646,22 @@ reboot
 sudo rpm -Uvh http://elgis.argeo.org/repos/6/elgis/x86_64/elgis-release-6-6_0.noarch.rpm
 #+end_src
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-yum list gdal*
-yum install gdal-devel.x86_64
+# yum list gdal*
+yum install gdal-devel.x86_64 
 yum install proj-devel.x86_64
 #+end_src
+not working proj-devel?
+yum erase proj XXX
+wget http://elgis.argeo.org/repos/6/elgis/x86_64/gdal-devel-1.8.1-1.el6.x86_64.rpm
+yum install gdal-devel-1.8.1-1.el6.x86_64.rpm
+# fail?
+wget http://elgis.argeo.org/repos/6/elgis/x86_64/proj-devel-4.7.0-2.el6.x86_64.rpm
+yum install proj-devel-4.7.0-2.el6.x86_64.rpm
+
+# and now
+yum install gdal-devel.x86_64 
+# success!
+# but now postgis not working.  reinstall and it works
 #+name:geos
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
 yum install geos-devel.x86_64
@@ -639,6 +692,39 @@ yum install unzip
 unzip national66.zip
 mv "A66 National (13.09.01).gsb" aust_national_agd66_13.09.01.gsb
 #+end_src
+** test readOGR
+NB only possible once the PostGIS install is complete, see below.
+#+name:readOGR2
+#+begin_src R :session *shell* :tangle no :exports none :eval no
+  ################################################################
+  # name:readOGR2
+  
+  readOGR2 <- function(hostip=NA,user=NA,db=NA, layer=NA, p = NA) {
+   # NOTES
+   # only works on Linux OS
+   # returns uninformative error due to either bad connection or lack of record in geometry column table.  can check if connection problem using a test connect?
+   # TODO add a prompt for each connection arg if isna
+   if (!require(rgdal)) install.packages('rgdal', repos='http://cran.csiro.au'); 
+   if(is.na(p)){ 
+   pwd=readline('enter password (ctrl-L will clear the console after): ')
+   } else {
+   pwd <- p
+   }
+   shp <- readOGR(sprintf('PG:host=%s
+                           user=%s
+                           dbname=%s
+                           password=%s
+                           port=5432',hostip,user,db,pwd),
+                           layer=layer)
+  
+   # clean up
+   rm(pwd)
+   return(shp)
+   }
+  
+  tassla06 <- readOGR2(hostip='115.146.94.209',user='gislibrary',db='pgisdb', layer='tassla06')
+#+end_src
+
 * rgraphviz
 
 #+name:gviz
@@ -790,6 +876,7 @@ grant usage on schema public to gislibrary;
 GRANT select ON ALL TABLES IN SCHEMA public TO gislibrary;
 grant execute on all functions in schema public to gislibrary;
 grant select on all sequences in schema public to gislibrary;
+grant all on table geometry_columns to gislibrary;
 ** test loading some shapefiles
 on your ubuntu desktop install postgis and gdal (see above)
 sudo apt-get install postgis
@@ -963,7 +1050,7 @@ NB is the default memory setting too low?  Ran out of memory pretty quick.
 http://docs.geoserver.org/stable/en/user/gettingstarted/postgis-quickstart/index.html
 
 * emacs24
-This is optional but useful for complex GIS projects.
+You can install emacs on the server and run this via Xwindows if you like.  This is optional but useful for complex GIS projects.
 ** X server
 # note this also depended on selinux disabled.
 yum install xterm 
@@ -1186,3 +1273,23 @@ Firstly logged in as "dave" we need to create .emacs file with the following
 this file will need to be in each users home directory.
 
 ** taskjuggl
+* User tests
+** Invitation
+Hi Lu,
+Steve and I have started work on a prototype Rstudio/PostGIS server hosted on the Nectar Research Cloud.  Eventually this could replace the ANU gislibrary server, or provide a basic template for any future GIS projects.
+It is only a pilot study at the moment and I'd be keen to get you to test it for this use case if you are willing to?
+
+The Rstudio link is https://zzz.zzz.zzz.zzz/ (it is secured by a self-signed certificate which you'll have to accept the first time -  also note you may not be able to use internet explorer, but chrome and firefox will work).
+
+I've added you as luciana_porfirio and password is batemanXuv$
+(Steve is also a super user, so there is no point hiding the password from him... if you want to get more security we'd have to set up a specific server for your project, with only you in charge of passwords.)
+
+The postGIS database is called 'pgisdb' and has a user 'gislibrary' with password 'gislibrary'.
+It is also running geoserver so you can interact with it at http://zzz.zzz.zzz.zzz:8080/geoserver/web/ (go to layer preview - I've added tassla06 to the default set of data).
+
+For your project I'd just use the Rstudio file transfer tool and run that code to see if you get enough memory (it isn't that big, only a 10GB disc with 4GB RAM and 4GB swap space it might do the trick?  if not there are bigger VMs available from Nectar with up to 64GB RAM).
+
+Let us know if you use it and it works?
+
+Cheers,
+Ivan and Steve.
