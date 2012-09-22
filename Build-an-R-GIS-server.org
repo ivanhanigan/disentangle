@@ -1216,9 +1216,26 @@ Firstly logged in as "dave" we need to create .emacs file with the following
   "#+email: ivan.hanigan@anu.edu.au\n"
   "#+LaTeX_CLASS: article\n"
   "#+LaTeX_CLASS_OPTIONS: [a4paper]\n"
+  "#+LATEX: \\tableofcontents\n"
   "-----"
  )
 (global-set-key [C-S-f4] 'org-skeleton)
+
+;; additions to C-c C-e t by http://orgmode.org/worg/org-tutorials/org-beamer/tutorial.html
+
+(define-skeleton beamer-skeleton
+  "Additional header info for a emacs-beamer file."
+  "#+startup: beamer\n"
+  "#+LaTeX_CLASS: beamer\n"
+  "#+LaTeX_CLASS_OPTIONS: [bigger]\n"
+  "#+latex_header: \\mode<beamer>{\\usetheme{Madrid}}\n"
+  "#+latex_header: \\usepackage{verbatim}\n"
+  "#+BEAMER_FRAME_LEVEL: 2\n"
+  "#+COLUMNS: \%40ITEM \%10BEAMER_env(Env) \%9BEAMER_envargs(Env Args) \%4BEAMER_col(Col) \%10BEAMER_extra(Extra)\n"
+  "#+latex_header: \\AtBeginSection[]{\\begin{frame}<beamer>\\frametitle{Topic}\\tableofcontents[currentsection]\\end{frame}}\n"
+ )
+(global-set-key [C-S-f3] 'beamer-skeleton)
+
 
 (define-skeleton newnode-skeleton
   "Info for a newnode chunk."
