@@ -1307,6 +1307,7 @@ this file will need to be in each users home directory.
 ** taskjuggl
 * User tests
 ** Invitation
+*** lu draft
 Hi Lu,
 Steve and I have started work on a prototype Rstudio/PostGIS server hosted on the Nectar Research Cloud.  Eventually this could replace the ANU gislibrary server, or provide a basic template for any future GIS projects.
 It is only a pilot study at the moment and I'd be keen to get you to test it for this use case if you are willing to?
@@ -1325,3 +1326,31 @@ Let us know if you use it and it works?
 
 Cheers,
 Ivan and Steve.
+
+*** ian and Steve
+Hi Ian and Steve,
+The prototype Virtual Lab "Swish-Brawn-And-Brains" service hosted on the Nectar Research Cloud is online. 
+It is only a pilot study at the moment and I'd be keen to get you to test it for this use case if you are willing to?
+
+The main portal is http://swish-climate-impact-assessment.github.com/
+From which you should be able to navigate to the:
+
+    data catalogue (and registry if you are an admin user)
+    geoserver
+    Rstudio server
+    github repositories
+    data management plan
+    case studies/vignettes/tutorials
+
+
+The Rstudio server is only secured by a self-signed certificate at the moment so you'll have to accept the first time -  also note that chrome and firefox are preferred.
+
+I've added most of the security permissions you need and the one password should work for all features (Steve, can you wait till later as I have just finished Ian this arvo).
+
+The postGIS database is called 'ewedb' and has a general user 'gislibrary' with password 'gislibrary'.
+Your user has a dedicated schema for your own work.
+
+Let us know if you use it and it works?
+
+Cheers,
+Ivan 'Swish-Data-Manager' Hanigan.
