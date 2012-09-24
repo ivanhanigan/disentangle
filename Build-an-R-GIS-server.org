@@ -889,13 +889,15 @@ sudo apt-get install postgis
 then let's demo the Tasmanian SLAs:
 *** download the shapefiles
 #+name:tassla01
-#+begin_src R :session *R* :tangle src/tassla01.r :exports none :eval no
+#+begin_src R :session *R* :tangle src/tassla06.r :exports none :eval no
   ################################################################
   # name:tassla06
   # ABS spatial units are available at http://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/1259.0.30.0022006?OpenDocument
-  dir.create('data')
-  setwd('data')
-  download.file('http://www.abs.gov.au/AUSSTATS/subscriber.nsf/log?openagent&1259030002_sla06aaust_shape.zip&1259.0.30.002&Data%20Cubes&18E90A962EFD4D7ECA25795D00244F5A&0&2006&06.12.2011&Previous',
+setwd('..')
+dir.create('data')
+setwd('data')
+dir.create('abs_sla')
+setwd('abs_sla/') download.file('http://www.abs.gov.au/AUSSTATS/subscriber.nsf/log?openagent&1259030002_sla06aaust_shape.zip&1259.0.30.002&Data%20Cubes&18E90A962EFD4D7ECA25795D00244F5A&0&2006&06.12.2011&Previous',
                 'SLA06.zip', mode = 'wb')
   unzip('SLA06.zip',junkpaths=T)
   
