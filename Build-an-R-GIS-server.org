@@ -804,7 +804,7 @@ psql postgres postgres
 alter user postgres with password 'password';
 CREATE ROLE gislibrary LOGIN PASSWORD 'gislibrary';
 #+end_src
-Configure PostgreSQL 9 pg_hba.conf File
+** Configure PostgreSQL 9 pg_hba.conf File
 edit your pg_hba.conf file under /var/lib/pgsql/9.1/data
 I added a super user from my ip address and allowed all the local ip addresses access
 host    all             postgres        my.desk.ip.address/32       md5
@@ -936,9 +936,12 @@ setwd('abs_sla/') download.file('http://www.abs.gov.au/AUSSTATS/subscriber.nsf/l
 
 *** TODO upload the shp2psql
 #+begin_src sh :session *shell* :exports none :eval no
+  # psql -d ewedb -U postgres -h 115.146.94.209
+  # CREATE SCHEMA abs_sla;
+  # grant ALL on schema abs_sla to gislibrary;
   cd data
   shp2pgsql -s 4283 -D tassla06.shp public.tassla06 > tassla06.sql
-  # psql -d ewedb -U postgres -W -h 115.146.94.209 -f tassla06.sql
+  # psql -d ewedb -U gislibrary -W -h 115.146.94.209 -f tassla06.sql
   # warning terminal not fully functional?  ran from normal terminal
   # now on the remote server run
   # psql ewedb postgres
