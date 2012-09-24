@@ -297,6 +297,22 @@ note the size and partitions
 df -h
 #+end_src
 * swap space
+#+name:swap
+#+begin_src sh :session *shell* :tangle no :exports none :eval no
+################################################################
+# name:swap
+free -m | grep Swap
+#Create an empty file called /swapfile from about the same amount of RAM (here just on GB but need to come back and review)
+dd if=/dev/zero of=/swapfile bs=1024000 count=1024
+#Format the new file to make it a swap file
+mkswap /swapfile
+#Enable the new swapfile. Only the swapon command is needed, but with the free command you can clearly see the swap space is made available to the system.
+free -m | grep Swap
+swapon /swapfile
+free -m | grep Swap
+# TO LAZY TO ADD TO BOOT SO JUST DO SWAPON EVERY TIME?
+#+end_src
+
 * object storage
 http://support.rc.nectar.org.au/technical_guides/object_storage.html
 Security Warning: Swift does NOT provide encryption of the data it stores.
