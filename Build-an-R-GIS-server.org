@@ -739,6 +739,12 @@ R
 source('http://bioconductor.org/biocLite.R')
 biocLite("Rgraphviz")
 q()
+# might need oracle installed and then
+# on shell
+# . /u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh
+# export LD_LIBRARY_PATH=/u01/app/oracle/product/11.2.0/xe/lib:$LD_LIBRARY_PATH
+# install.packages('ROracle')
+# require('ROracle')
 ** under ubuntu
 # if on ubuntu kudos2 http://vladinformatics.blogspot.com.au/2012/03/my-experience-with-installing-rgraphviz.html 
 make sure libgraphviz-dev is installed. It is needed for some header files (e.g. gvc.h)
