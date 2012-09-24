@@ -874,10 +874,10 @@ http://www.davidghedini.com/pg/entry/install_postgresql_9_on_centos
 yum install postgis91.x86_64 postgis91-utils.x86_64
 #+end_src
 su - postgres 
-createdb pgisdb
-psql -d pgisdb -f /usr/pgsql-9.1/share/contrib/postgis-1.5/postgis.sql 
-psql -d pgisdb -f /usr/pgsql-9.1/share/contrib/postgis-1.5/spatial_ref_sys.sql
-psql pgisdb postgres
+createdb ewedb
+psql -d ewedb -f /usr/pgsql-9.1/share/contrib/postgis-1.5/postgis.sql 
+psql -d ewedb -f /usr/pgsql-9.1/share/contrib/postgis-1.5/spatial_ref_sys.sql
+psql ewedb postgres
 grant usage on schema public to gislibrary;
 GRANT select ON ALL TABLES IN SCHEMA public TO gislibrary;
 grant execute on all functions in schema public to gislibrary;
@@ -936,10 +936,10 @@ then let's demo the Tasmanian SLAs:
 #+begin_src sh :session *shell* :exports none :eval no
   cd data
   shp2pgsql -s 4283 -D tassla06.shp public.tassla06 > tassla06.sql
-  # psql -d pgisdb -U postgres -W -h 115.146.94.209 -f tassla06.sql
+  # psql -d ewedb -U postgres -W -h 115.146.94.209 -f tassla06.sql
   # warning terminal not fully functional?  ran from normal terminal
   # now on the remote server run
-  # psql pgisdb postgres
+  # psql ewedb postgres
   # GRANT select ON ALL TABLES IN SCHEMA public TO gislibrary;
 #+end_src
 
@@ -1311,7 +1311,7 @@ The Rstudio link is https://zzz.zzz.zzz.zzz/ (it is secured by a self-signed cer
 I've added you as luciana_porfirio and password is batemanXuv$
 (Steve is also a super user, so there is no point hiding the password from him... if you want to get more security we'd have to set up a specific server for your project, with only you in charge of passwords.)
 
-The postGIS database is called 'pgisdb' and has a user 'gislibrary' with password 'gislibrary'.
+The postGIS database is called 'ewedb' and has a user 'gislibrary' with password 'gislibrary'.
 It is also running geoserver so you can interact with it at http://zzz.zzz.zzz.zzz:8080/geoserver/web/ (go to layer preview - I've added tassla06 to the default set of data).
 
 For your project I'd just use the Rstudio file transfer tool and run that code to see if you get enough memory (it isn't that big, only a 10GB disc with 4GB RAM and 4GB swap space it might do the trick?  if not there are bigger VMs available from Nectar with up to 64GB RAM).
