@@ -950,7 +950,7 @@ setwd('abs_sla/') download.file('http://www.abs.gov.au/AUSSTATS/subscriber.nsf/l
   
 #+end_src
 
-*** TODO upload the shp2psql
+*** upload the shp2psql
 #+begin_src sh :session *shell* :exports none :eval no
   # psql -d ewedb -U postgres -h 115.146.94.209
   # CREATE SCHEMA abs_sla;
@@ -964,7 +964,85 @@ setwd('abs_sla/') download.file('http://www.abs.gov.au/AUSSTATS/subscriber.nsf/l
   # GRANT select ON ALL TABLES IN SCHEMA public TO gislibrary;
 #+end_src
 
-#+RESULTS:
+*** add metadata using df2ddi
+#+name:add_ddi
+#+begin_src R :session *shell* :tangle src/add_ddi.r :exports none :eval no
+  ################################################################
+  # name:add_ddi
+  setwd('~/disentangle')
+  source('src/df2ddi.r')
+  if(!require(rgdal)) install.packages('rgdal'); require(rgdal)
+  if(!require(RJDBC)) install.packages('RJDBC'); require(RJDBC)
+  drv <- JDBC("oracle.jdbc.driver.OracleDriver",
+              '/u01/app/oracle/product/11.2.0/xe/jdbc/lib/ojdbc6.jar')
+  p <- readline('enter password: ')
+  ch <- dbConnect(drv,"jdbc:oracle:thin:@115.146.93.108:1521","DDIINDEXDB",p)
+  
+  dir.create('metadata')
+  s <- add_stdydscr(ask=T)
+  #write.table(s,'metadata/stdydscr.csv',sep=',',row.names=F)
+  
+  s$PRODDATESTDY=format(as.Date( substr(s$PRODDATESTDY,1,10),'%Y-%m-%d'),"%d/%b/%Y")
+  s$PRODDATEDOC=format(as.Date( substr(s$PRODDATEDOC,1,10),'%Y-%m-%d'),"%d/%b/%Y")
+  
+  dbSendUpdate(ch,
+  # cat(
+  paste('
+  insert into STDYDSCR (',paste(names(s), sep = '', collapse = ', '),')
+  VALUES (',paste("'",paste(gsub("'","",ifelse(is.na(s),'',s)),sep='',collapse="', '"),"'",sep=''),')',sep='')
+  )
+  
+  f <- add_filedscr(fileid = 1, idno = 'ABS_SLA', ask=T)
+  f$FILELOCATION <- 'abs_sla.'
+  f
+  dbSendUpdate(ch,
+  # cat(
+  paste('
+  insert into FILEDSCR (',paste(names(f), sep = '', collapse = ', '),')
+  VALUES (',paste("'",paste(gsub("'","",ifelse(is.na(f),'',f)),sep='',collapse="', '"),"'",sep=''),')',sep='')
+  )
+  setwd('../data')
+  setwd('abs_sla')
+  test <- readOGR(dsn = 'tassla06.shp', layer = 'tassla06')
+  fid <- dbGetQuery(ch,
+  #                  cat(
+                    paste("select FILEID
+                    from filedscr
+                    where filelocation = '",f$FILELOCATION,"'
+                    and filename = '",f$FILENAME,"'",
+                    sep=''))
+  d <- add_datadscr(data_frame = test@data, fileid = fid[1,1], ask=T)
+  
+  
+  for(i in 1:nrow(d)){
+  dbSendUpdate(ch,
+  #i = 1
+  # cat(
+  paste('
+  insert into DATADSCR (',paste(names(d), sep = '', collapse = ', '),')
+  VALUES (',paste("'",paste(gsub("'","",ifelse(is.na(d[i,]),'',d[i,])),sep='',collapse="', '"),"'",sep=''),')',sep='')
+  )
+  }
+  
+  
+  ###################################################
+  # make xml
+  s <- dbGetQuery(ch, "select * from stdydscr where idno = 'ABS_SLA'")
+  s
+  f <- dbGetQuery(ch, "select * from filedscr where idno = 'ABS_SLA'")
+  f
+  for(fi in f){
+  d <- dbGetQuery(ch,
+                  paste("select * from datadscr where FILEID = ",f$FILEID,
+                        sep = '')
+                  )
+  ddixml <- make_xml(s,f,d)
+  }
+  file.copy('abs_sla_3.xml', '/xmldata')
+  setwd('~/disentangle')
+  
+#+end_src
+
 
 * geoserver
 ** TODO install geoserver
