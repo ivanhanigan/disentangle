@@ -976,7 +976,9 @@ setwd('abs_sla/') download.file('http://www.abs.gov.au/AUSSTATS/subscriber.nsf/l
   drv <- JDBC("oracle.jdbc.driver.OracleDriver",
               '/u01/app/oracle/product/11.2.0/xe/jdbc/lib/ojdbc6.jar')
   p <- readline('enter password: ')
-  ch <- dbConnect(drv,"jdbc:oracle:thin:@115.146.93.108:1521","DDIINDEXDB",p)
+  h <- readline('enter target ipaddres: ')
+  d <- readline('enter database name: ')
+  ch <- dbConnect(drv,paste("jdbc:oracle:thin:@",h,":1521",sep=''),d,p)
   
   dir.create('metadata')
   s <- add_stdydscr(ask=T)
