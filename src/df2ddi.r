@@ -448,7 +448,7 @@ unlist(strsplit(fileDscrJ$FILENAME,"_"))
 
 keywords=data.frame(toupper(keywords))
 names(keywords)='keywords'
-keywords=sqldf('select distinct keywords from keywords')
+keywords=sqldf('select distinct keywords from keywords',drv='SQLite')
 
 for(i in 1:nrow(keywords)){
 #i=2
