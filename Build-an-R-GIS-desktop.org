@@ -375,7 +375,13 @@ install.packages("rgdal")
 #+end_src
 
 
-
+* kepler
+download from https://kepler-project.org/users/downloads
+cd Downloads/
+mv kepler-2.3-linux.tar.gz /home/username
+tar -zxvf kepler-2.3-linux.tar.gz 
+cd kepler-2.3
+bash kepler.sh
 * PostGIS
 sudo apt-get install postgis
 then you can upload data using
