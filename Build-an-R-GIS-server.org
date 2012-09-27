@@ -1160,6 +1160,8 @@ NB is the default memory setting too low?  Ran out of memory pretty quick.
 # publish
 http://docs.geoserver.org/stable/en/user/gettingstarted/postgis-quickstart/index.html
 
+* Oracle XE
+* ddiindex
 * emacs24
 You can install emacs on the server and run this via Xwindows if you like.  This is optional but useful for complex GIS projects.
 ** X server
