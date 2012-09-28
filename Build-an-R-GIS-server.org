@@ -1452,3 +1452,61 @@ Let us know if you use it and it works?
 
 Cheers,
 Ivan 'Swish-Data-Manager' Hanigan.
+*** steve2
+OK I think I have done all the bits:
+
+1 Rstudio https://115.146.93.108
+
+2 oraphi http://115.146.93.108:8080/f?p=102
+
+3 ddiindex http://115.146.93.108:8181/ddiindex
+
+4 ewedb = psql –h 115.146.94.209 –d ewedb –U steven_mceachern
+
+Geoserver is not a priority for analysts and I guess I can just let you be the admin if you wanna publish?
+
+So you can just point QGIS WFS tool at http://115.146.94.209:8181/geoserver/wfs
+
+ 
+
+Don’t put too much data in there as I haven’t attached any storage and there is only about 3 GB spare (I shrank the swapspace against advice).
+
+Also don’t try the RSS feed from http://swish-climate-impact-assessment.github.com yet as I haven’t updated it to the right one yet.
+
+ 
+
+Let’s see… what have I forgotten?
+
+I guess I need you to fill out a Data Management Plan Checklist (attached – just the ANU/ANDS Guidelines bit) and we can enshrine our relationship in a provision agreement?
+
+I’ve set your access period to expire on 31/12/2012, I guess I can offer near-offline storage on CMBE servers for a period and then archived at (you guessed it) the ADA?
+
+ 
+
+ 
+
+Cheers,
+
+Ivan Hanigan
+
+Data Management Officer.
+
+Thursday: PhD Student.
+
+National Centre for Epidemiology and Population Health (NCEPH).
+
+Research School of Population Health.
+
+College of Medicine, Biology and Environment.
+
+Australian National University Canberra, ACT, 0200.
+
+Ph: +61 2 6125 7767.
+
+Fax: +61 2 6125 0740.
+
+Mob: 0428 265 976.
+
+CRICOS provider #00120C.
+
+ 
