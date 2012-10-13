@@ -263,7 +263,7 @@ return(ddi)
 #for(k in 1:nrow(idnos)){
 # print(idnos[k])
 make_xml <- function(s,f,d){
-abbreviation=toupper('ecoregions_hutchclass')
+abbreviation=toupper(f$IDNO)
 print(abbreviation) 
 # get study data
 stdyDscr=s
@@ -361,11 +361,11 @@ variablesList=paste("<var ID='V1' name ='",fileDscrJ$FILENAME,"'>
 
 	#i=2
 	if (i == 1) {
-	variablesList=paste("<var ID='V",i,"' name ='",dataDscr[i,2],"'>
+	variablesList=paste("<var ID='V",i,"' name ='",as.character(dataDscr[i,'LABL']),"'>
 	<location></location>
 	<labl>
 	  <![CDATA[
-		",dataDscr[i,3],"
+		",dataDscr[i,'NOTES'],"
 	  ]]>
 	</labl>
 	<qstn></qstn>
@@ -391,7 +391,7 @@ variablesList=paste("<var ID='V1' name ='",fileDscrJ$FILENAME,"'>
 	<varFormat></varFormat>
 	<notes>
 	  <![CDATA[
-		",dataDscr[i,3],"
+		",dataDscr[i,'NOTES'],"
 	  ]]>
 	</notes>
 	</var>",sep=""
@@ -399,11 +399,11 @@ variablesList=paste("<var ID='V1' name ='",fileDscrJ$FILENAME,"'>
 	} 
 	else {
 	variablesList=rbind(variablesList,
-	paste("<var ID='V",i,"' name ='",dataDscr[i,2],"'>
+	paste("<var ID='V",i,"' name ='",dataDscr[i,'LABL'],"'>
 	<location></location>
 	<labl>
 	  <![CDATA[
-		",dataDscr[i,3],"
+		",dataDscr[i,'NOTES'],"
 	  ]]>
 	</labl>
 	<qstn></qstn>
@@ -429,7 +429,7 @@ variablesList=paste("<var ID='V1' name ='",fileDscrJ$FILENAME,"'>
 	<varFormat></varFormat>
 	<notes>
 	  <![CDATA[
-		",dataDscr[i,3],"
+		",dataDscr[i,'NOTES'],"
 	  ]]>
 	</notes>
 	</var>",sep=""))
@@ -448,7 +448,7 @@ unlist(strsplit(fileDscrJ$FILENAME,"_"))
 
 keywords=data.frame(toupper(keywords))
 names(keywords)='keywords'
-keywords=sqldf('select distinct keywords from keywords')
+keywords=sqldf('select distinct keywords from keywords',drv='SQLite')
 
 for(i in 1:nrow(keywords)){
 #i=2

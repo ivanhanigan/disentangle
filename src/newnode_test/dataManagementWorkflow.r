@@ -1,4 +1,4 @@
-setwd('~/tools/disentangle')
+#setwd('~/tools/disentangle')
 source('src/newnode.r')
 nodes <- newnode(name = 'aquire the raw data',
                  inputs = c('external sources','collected by researcher'),

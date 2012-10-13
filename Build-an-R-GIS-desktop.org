@@ -134,6 +134,8 @@ wget
 https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-org-mode/org-preamble.sty
 wget https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-org-mode/org-preamble-xelatex.sty
 wget https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-memoir/memoir-article-styles.sty
+wget http://www.pnas.org/site/misc/PNASTWO.CLS
+mv PNASTWO.CLS pnastwo.cls
 sudo texhash
 # NB in ivan.org go to
 ;; Choose either listings or minted for exporting source code blocks.
@@ -375,7 +377,14 @@ install.packages("rgdal")
 #+end_src
 
 
-
+* kepler
+download from https://kepler-project.org/users/downloads
+cd Downloads/
+mv kepler-2.3-linux.tar.gz /home/username
+cd /home/username
+tar -zxvf kepler-2.3-linux.tar.gz 
+cd kepler-2.3
+bash kepler.sh
 * PostGIS
 sudo apt-get install postgis
 then you can upload data using

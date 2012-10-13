@@ -288,7 +288,7 @@ chkconfig `servicename' off
 # kudos2 http://rlamp.blogspot.com.au/2010/03/getting-started-setting-up-rapache.html
 #+name:foundations
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
-yum install gcc-gfortran  gcc-c++   readline-devel   libpng-devel  libX11-devel libXt-devel   texinfo-tex    tetex-dvips  docbook-utils-pdf   cairo-devel   java-1.6.0-openjdk-devel  libxml2-devel   make
+yum install gcc-gfortran  gcc-c++   readline-devel   libpng-devel  libX11-devel libXt-devel   texinfo-tex.x86_64    tetex-dvips  docbook-utils-pdf   cairo-devel   java-1.6.0-openjdk-devel  libxml2-devel   make
 #+end_src
 * describe the system
 note the size and partitions
@@ -297,6 +297,26 @@ note the size and partitions
 df -h
 #+end_src
 * swap space
+#+name:swap
+#+begin_src sh :session *shell* :tangle no :exports none :eval no
+################################################################
+# name:swap
+free -m | grep Swap
+#Create an empty file called /swapfile from about the same amount of RAM (here just on GB but need to come back and review)
+dd if=/dev/zero of=/swapfile bs=1024000 count=1024
+#Format the new file to make it a swap file
+mkswap /swapfile
+#Enable the new swapfile. Only the swapon command is needed, but with the free command you can clearly see the swap space is made available to the system.
+free -m | grep Swap
+swapon /swapfile
+free -m | grep Swap
+# TO LAZY TO ADD TO BOOT SO JUST DO SWAPON EVERY TIME?
+#+end_src
+
+* object storage
+http://support.rc.nectar.org.au/technical_guides/object_storage.html
+Security Warning: Swift does NOT provide encryption of the data it stores.
+If you have sensitive data that requires encryption you must encrypt the data files before upload. 
 
 * add users
 Primarily you will want to do this from your GIS desktop, using the 'secure passwords using R' section
@@ -341,6 +361,15 @@ We can now start R and install any library. The libraries will be installed to ~
 ** install rstudio
 check out the RSudio versions at: http://rstudio.org/download/server
 #+begin_src sh :session *shell* :exports none :eval yes :results silent
+# on RHEL6 ran into dependencies: libcrypto.so.6()(64bit) is needed by rstudio-server-0.96.331-1.x86_64
+#	libgfortran.so.1()(64bit) is needed by rstudio-server-0.96.331-1.x86_64
+#	libssl.so.6()(64bit) is needed by rstudio-server-0.96.331-1.x86_64
+# http://www.linuxquestions.org/questions/linux-software-2/need-libcrypto-so-6-64bit-and-libssl-so-6-64bit-for-redhat-6-a-873068/
+yum list openssl098e*
+yum install openssl098e.x86_64
+yum list compat-libgfortran*
+yum install compat-libgfortran-41.x86_64 
+
 wget http://download2.rstudio.org/rstudio-server-0.96.331-x86_64.rpm
 sudo rpm -Uvh rstudio-server-0.96.331-x86_64.rpm
 rstudio-server verify-installation
@@ -682,34 +711,34 @@ mv "A66 National (13.09.01).gsb" aust_national_agd66_13.09.01.gsb
 ** test readOGR
 NB only possible once the PostGIS install is complete, see below.
 #+name:readOGR2
-#+begin_src R :session *R* :tangle no :exports none :eval no
-################################################################
-# name:readOGR2
-
-readOGR2 <- function(hostip=NA,user=NA,db=NA, layer=NA, p = NA) {
- # NOTES
- # only works on Linux OS
- # returns uninformative error due to either bad connection or lack of record in geometry column table.  can check if connection problem using a test connect?
- # TODO add a prompt for each connection arg if isna
- if (!require(rgdal)) install.packages('rgdal', repos='http://cran.csiro.au'); require(rgdal)
- if(is.na(p)){ 
- pwd=readline('enter password (ctrl-L will clear the console after): ')
- } else {
- pwd <- p
- }
- shp <- readOGR(sprintf('PG:host=%s
-                         user=%s
-                         dbname=%s
-                         password=%s
-                         port=5432',hostip,user,db,pwd),
-                         layer=layer)
-
- # clean up
- rm(pwd)
- return(shp)
- }
-
-tassla06 <- readOGR2(hostip='115.146.94.209',user='gislibrary',db='pgisdb', layer='tassla06')
+#+begin_src R :session *shell* :tangle no :exports none :eval no
+  ################################################################
+  # name:readOGR2
+  
+  readOGR2 <- function(hostip=NA,user=NA,db=NA, layer=NA, p = NA) {
+   # NOTES
+   # only works on Linux OS
+   # returns uninformative error due to either bad connection or lack of record in geometry column table.  can check if connection problem using a test connect?
+   # TODO add a prompt for each connection arg if isna
+   if (!require(rgdal)) install.packages('rgdal', repos='http://cran.csiro.au'); 
+   if(is.na(p)){ 
+   pwd=readline('enter password (ctrl-L will clear the console after): ')
+   } else {
+   pwd <- p
+   }
+   shp <- readOGR(sprintf('PG:host=%s
+                           user=%s
+                           dbname=%s
+                           password=%s
+                           port=5432',hostip,user,db,pwd),
+                           layer=layer)
+  
+   # clean up
+   rm(pwd)
+   return(shp)
+   }
+  
+  tassla06 <- readOGR2(hostip='115.146.94.209',user='gislibrary',db='pgisdb', layer='tassla06')
 #+end_src
 
 * rgraphviz
@@ -726,6 +755,12 @@ R
 source('http://bioconductor.org/biocLite.R')
 biocLite("Rgraphviz")
 q()
+# might need oracle installed and then
+# on shell
+# . /u01/app/oracle/product/11.2.0/xe/bin/oracle_env.sh
+# export LD_LIBRARY_PATH=/u01/app/oracle/product/11.2.0/xe/lib:$LD_LIBRARY_PATH
+# install.packages('ROracle')
+# require('ROracle')
 ** under ubuntu
 # if on ubuntu kudos2 http://vladinformatics.blogspot.com.au/2012/03/my-experience-with-installing-rgraphviz.html 
 make sure libgraphviz-dev is installed. It is needed for some header files (e.g. gvc.h)
@@ -785,7 +820,7 @@ psql postgres postgres
 alter user postgres with password 'password';
 CREATE ROLE gislibrary LOGIN PASSWORD 'gislibrary';
 #+end_src
-Configure PostgreSQL 9 pg_hba.conf File
+** Configure PostgreSQL 9 pg_hba.conf File
 edit your pg_hba.conf file under /var/lib/pgsql/9.1/data
 I added a super user from my ip address and allowed all the local ip addresses access
 host    all             postgres        my.desk.ip.address/32       md5
@@ -855,10 +890,10 @@ http://www.davidghedini.com/pg/entry/install_postgresql_9_on_centos
 yum install postgis91.x86_64 postgis91-utils.x86_64
 #+end_src
 su - postgres 
-createdb pgisdb
-psql -d pgisdb -f /usr/pgsql-9.1/share/contrib/postgis-1.5/postgis.sql 
-psql -d pgisdb -f /usr/pgsql-9.1/share/contrib/postgis-1.5/spatial_ref_sys.sql
-psql pgisdb postgres
+createdb ewedb
+psql -d ewedb -f /usr/pgsql-9.1/share/contrib/postgis-1.5/postgis.sql 
+psql -d ewedb -f /usr/pgsql-9.1/share/contrib/postgis-1.5/spatial_ref_sys.sql
+psql ewedb postgres
 grant usage on schema public to gislibrary;
 GRANT select ON ALL TABLES IN SCHEMA public TO gislibrary;
 grant execute on all functions in schema public to gislibrary;
@@ -870,13 +905,15 @@ sudo apt-get install postgis
 then let's demo the Tasmanian SLAs:
 *** download the shapefiles
 #+name:tassla01
-#+begin_src R :session *R* :tangle src/tassla01.r :exports none :eval no
+#+begin_src R :session *R* :tangle src/tassla06.r :exports none :eval no
   ################################################################
   # name:tassla06
   # ABS spatial units are available at http://www.abs.gov.au/AUSSTATS/abs@.nsf/DetailsPage/1259.0.30.0022006?OpenDocument
-  dir.create('data')
-  setwd('data')
-  download.file('http://www.abs.gov.au/AUSSTATS/subscriber.nsf/log?openagent&1259030002_sla06aaust_shape.zip&1259.0.30.002&Data%20Cubes&18E90A962EFD4D7ECA25795D00244F5A&0&2006&06.12.2011&Previous',
+setwd('..')
+dir.create('data')
+setwd('data')
+dir.create('abs_sla')
+setwd('abs_sla/') download.file('http://www.abs.gov.au/AUSSTATS/subscriber.nsf/log?openagent&1259030002_sla06aaust_shape.zip&1259.0.30.002&Data%20Cubes&18E90A962EFD4D7ECA25795D00244F5A&0&2006&06.12.2011&Previous',
                 'SLA06.zip', mode = 'wb')
   unzip('SLA06.zip',junkpaths=T)
   
@@ -913,25 +950,117 @@ then let's demo the Tasmanian SLAs:
   
 #+end_src
 
-*** TODO upload the shp2psql
+*** upload the shp2psql
 #+begin_src sh :session *shell* :exports none :eval no
+  # psql -d ewedb -U postgres -h 115.146.94.209
+  # CREATE SCHEMA abs_sla;
+  # grant ALL on schema abs_sla to gislibrary;
   cd data
   shp2pgsql -s 4283 -D tassla06.shp public.tassla06 > tassla06.sql
-  # psql -d pgisdb -U postgres -W -h 115.146.94.209 -f tassla06.sql
+  # psql -d ewedb -U gislibrary -W -h 115.146.94.209 -f tassla06.sql
   # warning terminal not fully functional?  ran from normal terminal
   # now on the remote server run
-  # psql pgisdb postgres
+  # psql ewedb postgres
   # GRANT select ON ALL TABLES IN SCHEMA public TO gislibrary;
 #+end_src
 
-#+RESULTS:
+*** add metadata using df2ddi
+#+name:add_ddi
+#+begin_src R :session *shell* :tangle src/add_ddi.r :exports none :eval no
+  ################################################################
+  # name:add_ddi
+  setwd('~/disentangle')
+  source('src/df2ddi.r')
+  if(!require(rgdal)) install.packages('rgdal'); require(rgdal)
+  if(!require(RJDBC)) install.packages('RJDBC'); require(RJDBC)
+  drv <- JDBC("oracle.jdbc.driver.OracleDriver",
+              '/u01/app/oracle/product/11.2.0/xe/jdbc/lib/ojdbc6.jar')
+  p <- readline('enter password: ')
+  h <- readline('enter target ipaddres: ')
+  d <- readline('enter database name: ')
+  ch <- dbConnect(drv,paste("jdbc:oracle:thin:@",h,":1521",sep=''),d,p)
+  
+  dir.create('metadata')
+  s <- add_stdydscr(ask=T)
+  #write.table(s,'metadata/stdydscr.csv',sep=',',row.names=F)
+  
+  s$PRODDATESTDY=format(as.Date( substr(s$PRODDATESTDY,1,10),'%Y-%m-%d'),"%d/%b/%Y")
+  s$PRODDATEDOC=format(as.Date( substr(s$PRODDATEDOC,1,10),'%Y-%m-%d'),"%d/%b/%Y")
+  
+  dbSendUpdate(ch,
+  # cat(
+  paste('
+  insert into STDYDSCR (',paste(names(s), sep = '', collapse = ', '),')
+  VALUES (',paste("'",paste(gsub("'","",ifelse(is.na(s),'',s)),sep='',collapse="', '"),"'",sep=''),')',sep='')
+  )
+  
+  f <- add_filedscr(fileid = 1, idno = 'ABS_SLA', ask=T)
+  f$FILELOCATION <- 'abs_sla.'
+  f
+  dbSendUpdate(ch,
+  # cat(
+  paste('
+  insert into FILEDSCR (',paste(names(f), sep = '', collapse = ', '),')
+  VALUES (',paste("'",paste(gsub("'","",ifelse(is.na(f),'',f)),sep='',collapse="', '"),"'",sep=''),')',sep='')
+  )
+  setwd('../data')
+  setwd('abs_sla')
+  test <- readOGR(dsn = 'tassla06.shp', layer = 'tassla06')
+  fid <- dbGetQuery(ch,
+  #                  cat(
+                    paste("select FILEID
+                    from filedscr
+                    where filelocation = '",f$FILELOCATION,"'
+                    and filename = '",f$FILENAME,"'",
+                    sep=''))
+  d <- add_datadscr(data_frame = test@data, fileid = fid[1,1], ask=T)
+  
+  
+  for(i in 1:nrow(d)){
+  dbSendUpdate(ch,
+  #i = 1
+  # cat(
+  paste('
+  insert into DATADSCR (',paste(names(d), sep = '', collapse = ', '),')
+  VALUES (',paste("'",paste(gsub("'","",ifelse(is.na(d[i,]),'',d[i,])),sep='',collapse="', '"),"'",sep=''),')',sep='')
+  )
+  }
+  
+  
+  ###################################################
+  # make xml
+  s <- dbGetQuery(ch, "select * from stdydscr where idno = 'ABS_SLA'")
+  s
+  f <- dbGetQuery(ch, "select * from filedscr where idno = 'ABS_SLA'")
+  f
+  for(fi in f){
+  d <- dbGetQuery(ch,
+                  paste("select * from datadscr where FILEID = ",f$FILEID,
+                        sep = '')
+                  )
+  ddixml <- make_xml(s,f,d)
+  }
+  file.copy('abs_sla_3.xml', '/xmldata')
+  setwd('~/disentangle')
+  
+#+end_src
+
 
 * geoserver
 ** TODO install geoserver
 # java
 # yum install java-1.6.0-openjdk-devel
 http://coastalrocket.blogspot.com.au/2012/08/installing-geostack-on-centos-6-64bit.html
-yum -y install tomcat6 tomcat6-webapps tomcat6-admin-webapps
+yum -y install tomcat6 tomcat6-webapps tomcat6-admin-webapps 
+# or
+# http://newpush.com/2011/10/how-to-install-tomcat-6-on-rhel-6-or-centos-6/
+# yum install yum-priorities
+# rpm -Uvh http://apt.sw.be/redhat/el6/en/x86_64/rpmforge/RPMS/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm
+# #rpm -Uvh http://download.fedora.redhat.com/pub/epel/6/x86_64/epel-release-6-5.noarch.rpm
+# rpm -Uvh http://mirrors.dotsrc.org/jpackage/6.0/generic/free/RPMS/jpackage-utils-5.0.0-7.jpp6.noarch.rpm
+# #yum -y install java
+# yum -y install tomcat6 tomcat6-webapps tomcat6-admin-webapps
+
 vi /etc/tomcat6/tomcat-users.xml
 #add a user with roles of admin,manager
 chkconfig tomcat6 on
@@ -949,6 +1078,7 @@ http://localhost:8080/geoserver/web/
 iptables -A INPUT -p tcp --dport 8080 -j ACCEPT
 /sbin/service iptables save
 iptables -F
+cleanaway 62601472
 
 # note used the same iptables as those above
 # also did service tomcat6 start and 
@@ -1030,6 +1160,8 @@ NB is the default memory setting too low?  Ran out of memory pretty quick.
 # publish
 http://docs.geoserver.org/stable/en/user/gettingstarted/postgis-quickstart/index.html
 
+* Oracle XE
+* ddiindex
 * emacs24
 You can install emacs on the server and run this via Xwindows if you like.  This is optional but useful for complex GIS projects.
 ** X server
@@ -1193,9 +1325,26 @@ Firstly logged in as "dave" we need to create .emacs file with the following
   "#+email: ivan.hanigan@anu.edu.au\n"
   "#+LaTeX_CLASS: article\n"
   "#+LaTeX_CLASS_OPTIONS: [a4paper]\n"
+  "#+LATEX: \\tableofcontents\n"
   "-----"
  )
 (global-set-key [C-S-f4] 'org-skeleton)
+
+;; additions to C-c C-e t by http://orgmode.org/worg/org-tutorials/org-beamer/tutorial.html
+
+(define-skeleton beamer-skeleton
+  "Additional header info for a emacs-beamer file."
+  "#+startup: beamer\n"
+  "#+LaTeX_CLASS: beamer\n"
+  "#+LaTeX_CLASS_OPTIONS: [bigger]\n"
+  "#+latex_header: \\mode<beamer>{\\usetheme{Madrid}}\n"
+  "#+latex_header: \\usepackage{verbatim}\n"
+  "#+BEAMER_FRAME_LEVEL: 2\n"
+  "#+COLUMNS: \%40ITEM \%10BEAMER_env(Env) \%9BEAMER_envargs(Env Args) \%4BEAMER_col(Col) \%10BEAMER_extra(Extra)\n"
+  "#+latex_header: \\AtBeginSection[]{\\begin{frame}<beamer>\\frametitle{Topic}\\tableofcontents[currentsection]\\end{frame}}\n"
+ )
+(global-set-key [C-S-f3] 'beamer-skeleton)
+
 
 (define-skeleton newnode-skeleton
   "Info for a newnode chunk."
@@ -1256,6 +1405,7 @@ this file will need to be in each users home directory.
 ** taskjuggl
 * User tests
 ** Invitation
+*** lu draft
 Hi Lu,
 Steve and I have started work on a prototype Rstudio/PostGIS server hosted on the Nectar Research Cloud.  Eventually this could replace the ANU gislibrary server, or provide a basic template for any future GIS projects.
 It is only a pilot study at the moment and I'd be keen to get you to test it for this use case if you are willing to?
@@ -1265,7 +1415,7 @@ The Rstudio link is https://zzz.zzz.zzz.zzz/ (it is secured by a self-signed cer
 I've added you as luciana_porfirio and password is batemanXuv$
 (Steve is also a super user, so there is no point hiding the password from him... if you want to get more security we'd have to set up a specific server for your project, with only you in charge of passwords.)
 
-The postGIS database is called 'pgisdb' and has a user 'gislibrary' with password 'gislibrary'.
+The postGIS database is called 'ewedb' and has a user 'gislibrary' with password 'gislibrary'.
 It is also running geoserver so you can interact with it at http://zzz.zzz.zzz.zzz:8080/geoserver/web/ (go to layer preview - I've added tassla06 to the default set of data).
 
 For your project I'd just use the Rstudio file transfer tool and run that code to see if you get enough memory (it isn't that big, only a 10GB disc with 4GB RAM and 4GB swap space it might do the trick?  if not there are bigger VMs available from Nectar with up to 64GB RAM).
@@ -1274,3 +1424,89 @@ Let us know if you use it and it works?
 
 Cheers,
 Ivan and Steve.
+
+*** ian and Steve
+Hi Ian and Steve,
+The prototype Virtual Lab "Swish-Brawn-And-Brains" service hosted on the Nectar Research Cloud is online. 
+It is only a pilot study at the moment and I'd be keen to get you to test it for this use case if you are willing to?
+
+The main portal is http://swish-climate-impact-assessment.github.com/
+From which you should be able to navigate to the:
+
+    data catalogue (and registry if you are an admin user)
+    geoserver
+    Rstudio server
+    github repositories
+    data management plan
+    case studies/vignettes/tutorials
+
+
+The Rstudio server is only secured by a self-signed certificate at the moment so you'll have to accept the first time -  also note that chrome and firefox are preferred.
+
+I've added most of the security permissions you need and the one password should work for all features (Steve, can you wait till later as I have just finished Ian this arvo).
+
+The postGIS database is called 'ewedb' and has a general user 'gislibrary' with password 'gislibrary'.
+Your user has a dedicated schema for your own work.
+
+Let us know if you use it and it works?
+
+Cheers,
+Ivan 'Swish-Data-Manager' Hanigan.
+*** steve2
+OK I think I have done all the bits:
+
+1 Rstudio https://115.146.93.108
+
+2 oraphi http://115.146.93.108:8080/f?p=102
+
+3 ddiindex http://115.146.93.108:8181/ddiindex
+
+4 ewedb = psql –h 115.146.94.209 –d ewedb –U steven_mceachern
+
+Geoserver is not a priority for analysts and I guess I can just let you be the admin if you wanna publish?
+
+So you can just point QGIS WFS tool at http://115.146.94.209:8181/geoserver/wfs
+
+ 
+
+Don’t put too much data in there as I haven’t attached any storage and there is only about 3 GB spare (I shrank the swapspace against advice).
+
+Also don’t try the RSS feed from http://swish-climate-impact-assessment.github.com yet as I haven’t updated it to the right one yet.
+
+ 
+
+Let’s see… what have I forgotten?
+
+I guess I need you to fill out a Data Management Plan Checklist (attached – just the ANU/ANDS Guidelines bit) and we can enshrine our relationship in a provision agreement?
+
+I’ve set your access period to expire on 31/12/2012, I guess I can offer near-offline storage on CMBE servers for a period and then archived at (you guessed it) the ADA?
+
+ 
+
+ 
+
+Cheers,
+
+Ivan Hanigan
+
+Data Management Officer.
+
+Thursday: PhD Student.
+
+National Centre for Epidemiology and Population Health (NCEPH).
+
+Research School of Population Health.
+
+College of Medicine, Biology and Environment.
+
+Australian National University Canberra, ACT, 0200.
+
+Ph: +61 2 6125 7767.
+
+Fax: +61 2 6125 0740.
+
+Mob: 0428 265 976.
+
+CRICOS provider #00120C.
+
+ 
