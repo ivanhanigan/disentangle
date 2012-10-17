@@ -54,28 +54,28 @@ close(con)
 ###################################################
 ### code chunk number 53: makegraph (eval = FALSE)
 ###################################################
-width = 600
-height = 512
-imgname = "graph.png"
-png(file.path(outdir, imgname), width=width, height=height)
-par(mai=rep(0,4))
-
-lg = agopen(IMCAGraph, name="foo", 
-  attrs = list(graph=list(rankdir="LR", rank=""), node=list(fixedsize=FALSE)), 
-  nodeAttrs = makeNodeAttrs(IMCAGraph), 
-  subGList = IMCAAttrs$subGList)
-plot(lg)    
- 
-con = file(file.path(outdir, "graph.html"), open="wt")
-writeLines("<html><body>\n", con)
-imageMap(lg, con=con,
-         tags=list(HREF=plotFiles,
-           TITLE = nd,
-           TARGET = rep("nodedata", length(nd))),
-         imgname=imgname, width=width, height=height)
-writeLines("</body></html>", con)
-close(con)
-dev.off()
+## width = 600
+## height = 512
+## imgname = "graph.png"
+## png(file.path(outdir, imgname), width=width, height=height)
+## par(mai=rep(0,4))
+## 
+## lg = agopen(IMCAGraph, name="foo", 
+##   attrs = list(graph=list(rankdir="LR", rank=""), node=list(fixedsize=FALSE)), 
+##   nodeAttrs = makeNodeAttrs(IMCAGraph), 
+##   subGList = IMCAAttrs$subGList)
+## plot(lg)    
+##  
+## con = file(file.path(outdir, "graph.html"), open="wt")
+## writeLines("<html><body>\n", con)
+## imageMap(lg, con=con,
+##          tags=list(HREF=plotFiles,
+##            TITLE = nd,
+##            TARGET = rep("nodedata", length(nd))),
+##          imgname=imgname, width=width, height=height)
+## writeLines("</body></html>", con)
+## close(con)
+## dev.off()
 
 
 ###################################################
