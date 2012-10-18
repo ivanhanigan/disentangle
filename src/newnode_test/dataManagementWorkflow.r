@@ -2,12 +2,16 @@
 dir()
 source('../newnode.r')
 nodes <- newnode(name = 'aquire the raw data',
-                 inputs = c('external sources',
+                 inputs = c('plan', 'external sources',
                    'collected by researcher'),
-                 outputs =
-                 c('file server','metadata database','cleaning'),
+                 outputs = 'cleaning',
                  newgraph=T)
 
+nodes <- newnode(name = 'file server',
+                 inputs = 'cleaning'
+                 )
+
+#c('file server','metadata database','cleaning'),
 nodes <- newnode(name = 'database server',
                  inputs = 'file server',
                  outputs = c('metadata database')
@@ -27,9 +31,8 @@ nodes <- newnode(name = 'calculate new data',
                  )
 
 nodes <- newnode(name = 'analyse using stats package',
-                 inputs = c('aquire the raw data',
-                   'database server','simulation',
-                   'file server'),
+                 inputs = c('database server','simulation',
+                   'file server', 'cleaning'),
                  outputs = c('results', 'metadata database',
                    'cleaning', 'technical documentation')
                  )
@@ -58,5 +61,5 @@ nodes <- newnode(name = 'archive at end of project',
 
 #plot(nodes,attrs=list(node=list(label="foo", fillcolor="grey",shape="ellipse", fixedsize=FALSE), edge=list(color="black")))
 #dev.off()
-dev.copy2pdf(file='src/newnode_test/transformations_overview.pdf')
+dev.copy2pdf(file='transformations_overview.pdf')
 dev.off();
