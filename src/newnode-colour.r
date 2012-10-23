@@ -41,9 +41,10 @@ nA$color <- rep("green", nNodes)
 nA$fillcolor <- c('green', rep('grey', nNodes-1))
 nA$shape <- rep("box", nNodes)
 nA$fontcolor <- rep("blue", nNodes)
-nA$fontsize <- rep(14, nNodes)
+nA$fontsize <- rep(25, nNodes)
+#nA$arrowsize <- rep(.1, nNodes)
 nA <- lapply(nA, function(x) { names(x) <- nodes(nodes); x})
-nA
+#nA
 plot(nodes, nodeAttrs=nA)
 nA$fillcolor['final'] <- 'red'
 plot(nodes, nodeAttrs=nA)
