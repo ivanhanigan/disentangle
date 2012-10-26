@@ -136,6 +136,7 @@ wget https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-org-mode/org-p
 wget https://raw.github.com/kjhealy/latex-custom-kjh/master/needs-memoir/memoir-article-styles.sty
 wget http://www.pnas.org/site/misc/PNASTWO.CLS
 mv PNASTWO.CLS pnastwo.cls
+wget http://www.math.harvard.edu/graduate/vitae/revnum.sty
 sudo texhash
 # NB in ivan.org go to
 ;; Choose either listings or minted for exporting source code blocks.
