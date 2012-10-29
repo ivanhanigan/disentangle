@@ -391,6 +391,26 @@ sudo apt-get install postgis
 then you can upload data using
 shp2pgsql -s 4283 -D %1.shp public.%1 > %1.sql 
 psql -d geodb -U geouser -W -h pgis.ip.add.ress -f %1.sql 
+* pgAdmin3
+http://linuxrails.blogspot.com.au/2012/09/install-pgadmin-for-postgresql-92-on.html
+The Ubuntu 12.04 package manager will install pgadmin3 version 1.14 which does not support PostgreSQL 9.2.
+
+Warning:
+The server you are connecting to is not a version that is supported by this release of pgAdmin III.
+pgAdmin III may not function as expected.
+Supported server versions are 8.2 to 9.1.
+
+Remove the current pgAdmin version
+
+sudo apt-get remove pgadmin3
+
+Install pgAdmin version 1.16 using a ppa
+
+sudo apt-add-repository ppa:voronov84/andreyv
+sudo apt-get update
+sudo apt-get install pgadmin3
+
+
 * CISCO VPN
 http://www.humans-enabled.com/2011/06/how-to-connect-ubuntu-linux-to-cisco.html
 sudo apt-get update && sudo apt-get install openconnect && sudo apt-get install network-manager-openconnect
