@@ -280,8 +280,14 @@ added user to etc/group rvm
 ran source /usr/local/rvm/scripts/rvm
 ruby -v
 ** taskjuggler
+#+name:tj3 install
+#+begin_src sh :session *shell* :tangle no :exports none :eval no
+###########################################################################
+# newnode: tj3 install
 gem install taskjuggler
+#+end_src
 use the template in disentangle/src/testtj3.org
+
 ** jekyll
 gem install jekyll
 gem install rdiscount
