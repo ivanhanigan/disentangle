@@ -377,11 +377,11 @@ Complete details here:Installation instructions are here: http://trac.osgeo.org/
 * gdal
 run from shell
 #+name:gdal
-#+begin_src sh :exports none :eval no
-sudo apt-get update
+#+begin_src sh :session *shell* :tangle no :exports none :results silent :eval yes
+#sudo apt-get update
 sudo apt-get install libgdal1-dev libproj-dev
-sudo R
-install.packages("rgdal")
+#sudo R
+#install.packages("rgdal")
 
 #+end_src
 
