@@ -1,3 +1,0 @@
-
-dir()
-system('ifconfig')
