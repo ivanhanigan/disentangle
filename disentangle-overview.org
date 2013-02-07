@@ -91,74 +91,74 @@ newnode<-function(name, inputs=NA, outputs=NA, graph = 'nodes', newgraph=F, note
 *** test-oldnode2orgmode
 #+name:oldnode2orgmode
 #+begin_src R :session *R* :tangle tests/test-oldnode2orgmode.r :exports none :eval no
-  ################################################################
-  # name:oldnode2orgmode
-          project = unlist(strsplit(getwd(),"/"))[length(unlist(strsplit(getwd(),"/")))]
-          title = NA
-          dsc=''
-          ttype=dsc
-          i=NA
-          o=NA
-          notes=''
-          code=NA
-          TASK=NA
-          subsection=T
-          nosectionheading=F
-          dontshow=NA
-          append=T
-          document='sweave'
-          insertgraph=NA
-          doc_code=T
-          end_doc=F
-          dontshow_doc=NA
-          evalCode='FALSE'
-          echoCode='TRUE'
-          inserttable=NA
-          caption=''
-          tablabel='tabx'
-          digits=''
-          align=''
-          tabsideways=F
-          clearpage=F
-          KEYNODE=NA
-  
-  #oldnode2orgmode(
-  dsc = 'Introduction'
-  ,
-  ttype = 'reports'
-  ,
-  title = 'HF data prep'
-  ,
-   dontshow = T
-  ,
-   notes = '
-   This is the workflow diagram for the health forecasting project at NCEPH \\cite{Dear2010} which can be viewed
-   \\href{http://dl.dropbox.com/u/7075452/HF_data/data_transformations.html}{at this link}.
-  
-   The relationship between daily air quality and daily hospital admissions is being examined:
-   \\begin{itemize}
-   \\item Three cities, Brisbane, Melbourne and Sydney
-   \\item Daily for seven years, 1998 - 2004 (2,557 days)
-   \\item Twelve disease clusters; both emergency admissions and all admissions; though for most analyses only emergency admissions were considered
-   \\item By age and sex  (twelve groups)
-   \\item By spatial subunits of each city: statistical local area (SLA) for Melbourne and Sydney and, for Brisbane, larger zones (clusters of SLAs) designed specifically for this project.
-   \\end{itemize}
-   In all there were 0.76 million emergency admissions in Brisbane, 1.66m in Melbourne, and 2.54m in Sydney.
-   '
-  ,
-   append = F
-  ,
-   code = NA
-  )
+################################################################
+# name:oldnode2orgmode
+      # project = unlist(strsplit(getwd(),"/"))[length(unlist(strsplit(getwd(),"/")))]
+      # title = NA
+      # dsc=''
+      # ttype=dsc
+      # i=NA
+      # o=NA
+      # notes=''
+      # code=NA
+      # TASK=NA
+      # subsection=T
+      # nosectionheading=F
+      # dontshow=NA
+      # append=T
+      # document='sweave'
+      # insertgraph=NA
+      # doc_code=T
+      # end_doc=F
+      # dontshow_doc=NA
+      # evalCode='FALSE'
+      # echoCode='TRUE'
+      # inserttable=NA
+      # caption=''
+      # tablabel='tabx'
+      # digits=''
+      # align=''
+      # tabsideways=F
+      # clearpage=F
+      # KEYNODE=NA
+source("R/oldnode2orgmode.r")
+oldnode2orgmode(
+dsc = 'Introduction'
+,
+ttype = 'reports'
+,
+title = 'HF data prep'
+,
+dontshow = T
+,
+notes = '
+This is the workflow diagram for the health forecasting project at NCEPH \\cite{Dear2010} which can be viewed
+\\href{http://dl.dropbox.com/u/7075452/HF_data/data_transformations.html}{at this link}.
+
+The relationship between daily air quality and daily hospital admissions is being examined:
+\\begin{itemize}
+\\item Three cities, Brisbane, Melbourne and Sydney
+\\item Daily for seven years, 1998 - 2004 (2,557 days)
+\\item Twelve disease clusters; both emergency admissions and all admissions; though for most analyses only emergency admissions were considered
+\\item By age and sex  (twelve groups)
+\\item By spatial subunits of each city: statistical local area (SLA) for Melbourne and Sydney and, for Brisbane, larger zones (clusters of SLAs) designed specifically for this project.
+\\end{itemize}
+In all there were 0.76 million emergency admissions in Brisbane, 1.66m in Melbourne, and 2.54m in Sydney.
+'
+,
+append = F
+,
+code = "x <- rnorm(1000,1,2)"
+)
   
 #+end_src
 *** R-oldnode2orgmode
 #+name:oldnode2orgmode
 #+begin_src R :session *R* :tangle R/oldnode2orgmode.r :exports none :eval no
-  ################################################################
-  # name:oldnode2orgmode
-  #maybe args dsc, ttype, title, dontshow, notes, append, code)
-  oldnode2orgmode <- function(project = unlist(strsplit(getwd(),"/"))[length(unlist(strsplit(getwd(),"/")))],
+################################################################
+# name:oldnode2orgmode
+#maybe args dsc, ttype, title, dontshow, notes, append, code)
+oldnode2orgmode <- function(project = unlist(strsplit(getwd(),"/"))[length(unlist(strsplit(getwd(),"/")))],
           title = NA,
           dsc='',ttype=dsc,
           i=NA,
@@ -170,54 +170,77 @@ newnode<-function(name, inputs=NA, outputs=NA, graph = 'nodes', newgraph=F, note
           doc_code=T, end_doc=F,dontshow_doc=NA,evalCode='FALSE',echoCode='TRUE',inserttable=NA,caption='',
           tablabel='tabx',digits='',align='', tabsideways=F, clearpage=F,
           KEYNODE=NA)
-  {
-  if(is.na(ttype)) ttype <- dsc
-  if(is.na(i[1]))
-  {
-    i <- paste(dsc,1,sep = '-')
-  } else {
-    i <- paste(i,sep="", collapse="','")
-  }
-  if(is.na(o[1]))
-  {
-    o <- 'NA'
-  } else {
-    o <- paste(o,sep="", collapse="','")
-  }
-  
-  
-  node <- paste("
-  ,** ",ttype,"-",dsc,"\n",
-  notes,"\n
-  ,*** newnode-",dsc,"\n
-  \\#+name:newnode-",dsc,"
-  \\#+begin_src R :session *R* :tangle transformations_overview.r :exports none :eval no
-  nodes <- newnode(name='",dsc,"',
-   inputs = c('",i ,"'),
-   outputs = c('",o,"')
-   )
-  \\#+end_src
-  ", sep = "")
-  
-  #cat(node)
-  if ( !is.na(code) ) {
-  node <- paste(node,"\n
-  ,*** src-",dsc,"\n
-  \\#+name:src-",dsc,"
-  \\#+begin_src R :session *R* :tangle src/",ttype,"-",dsc,".r :exports none
-  ", code,"
-  \\#+end_src\n"
-  , sep="")
-  }
-  cat(node)
-  ##################################
-  sink(paste(project,'overview-TEST.org', sep = "-"))
-  cat(node)
-  sink()
-  
-  
-  }
-  
+{
+if(is.na(ttype)) ttype <- dsc
+if(is.na(i[1]))
+{
+i <- paste(dsc,1,sep = '-')
+} else {
+i <- paste(i,sep="", collapse="','")
+}
+if(is.na(o[1]))
+{
+o <- 'NA'
+} else {
+o <- paste(o,sep="", collapse="','")
+}
+if (!is.na(dontshow))
+{
+tangle <- "no"
+} else {
+tangle <- "transformations_overview.r"
+}
+if(append)
+{
+  newgraph <- "F"
+} else {
+  newgraph <- "T"
+}
+node <- paste("
+,** ",ttype,"-",dsc,"\n",
+notes,"\n
+,*** newnode-",dsc,"\n
+\\#+name:newnode-",dsc,"
+\\#+begin_src R :session *R* :tangle ",tangle," :exports none :eval no
+nodes <- newnode(name='",dsc,"',
+inputs = c('",i ,"'),
+outputs = c('",o,"'),
+newgraph = ",newgraph,"
+)
+\\#+end_src
+", sep = "")
+
+#cat(node)
+if ( !is.na(code) ) {
+node <- paste(node,"\n
+,*** src-",dsc,"\n
+\\#+name:src-",dsc,"
+\\#+begin_src R :session *R* :tangle src/",ttype,"-",dsc,".r :exports none
+", code,"
+\\#+end_src\n
+", sep="")
+}
+#cat(node)
+
+
+
+##################################
+fout <- paste(project,'overview.org', sep = "-")
+# if the file already exists don't clobber it
+#  if(file.exists(fout)) fout <- gsub('overview','overview-nodes', fout)
+if(append)
+{
+sink(fout, append = T)
+cat(node)
+sink()
+} else {
+sink(fout)
+cat(node)
+sink()
+}
+
+}
+
 #+end_src
 *** man-oldnode2orgmode
 #+name:oldnode2orgmode
