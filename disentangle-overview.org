@@ -109,7 +109,7 @@
   ,** ",ttype,"-",dsc,"\n",
   notes,"\n
   ,*** newnode-",dsc,"\n
-  \\#+name:dsc
+  \\#+name:newnode-",dsc,"
   \\#+begin_src R :session *R* :tangle transformations_overview.r :exports none :eval no
   nodes <- newnode(name='",dsc,"',
    inputs = c('",i ,"'),
@@ -118,8 +118,17 @@
   \\#+end_src
   ", sep = "")
   
-  
-  cat(print(node))
+  #cat(node)
+  if ( !is.na(code) ) {
+  node <- paste(node,"\n
+  ,*** src-",dsc,"\n
+  \\#+name:src-",dsc,"
+  \\#+begin_src R :session *R* :tangle src/",ttype,"-",dsc,".r :exports none
+  ", code,"
+  \\#+end_src\n"
+  , sep="")
+  }
+  cat(node)
   ##################################
   sink(paste(project,'overview-TEST.org', sep = "-"))
   cat(node)
