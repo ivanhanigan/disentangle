@@ -1,3 +1,6 @@
+
+################################################################
+# name:newnode
 newnode<-function(name, inputs=NA, outputs=NA, graph = 'nodes', newgraph=F, notes=F, code=NA, ttype=NA, plot = T){
   # USAGE
   # nodes <- newnode(  # adds to a graph called nodes
