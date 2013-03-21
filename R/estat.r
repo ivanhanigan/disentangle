@@ -1,4 +1,7 @@
 
+# TODO
+# make values numeric where needed
+
 ################################################################
 # name:estat
 # a function to get Akaike's and Schwarz's Bayesian information criteria.
@@ -26,11 +29,3 @@
     # }
     return(aic_table)
   }
-# TODO
-# make values numeric where needed
-  # # we will collect the AIC and BIC to assess the need for a referent *
-  # # town interaction
-  # if(exists('aic_table')) rm(aic_table) # it is created in the function
-  # if(exists('results_out')) rm(results_out) # it is created in the first
-  #                                         # loop iteration
-  # if(file.exists('reports/modelStratifiedByTown.txt')) file.remove('reports/modelStratifiedByTown.txt')
