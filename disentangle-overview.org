@@ -271,20 +271,25 @@ sink()
 #+end_src
 *** R-estat
 #+name:estat
-#+begin_src R :session *R* :tangle R/estat.r :exports none :eval no
+#+begin_src R :session *shell* :tangle R/estat.r :exports none :eval no
   # TODO
   # make values numeric where needed
-  #                 AIC(modGLM), 
-  #                 AIC(modGLM, k = log(nrow(analyte))), 
+  #                 AIC(modGLM)
+  #                 AIC(modGLM, k = log(nrow(analyte)))
   ################################################################
   # name:estat
   # a function to get Akaike's and Schwarz's Bayesian information criteria.
     # named after stata function
-    estat <- function(modGLM,modName,aic_table){
+    estat <- function(modGLM, modName, read_previous_aictable = FALSE){
+           if(read_previous_aictable & file.exists("aictable.csv"))
+             {
+               aictable <- read.csv('aictable.csv')
+             }
+  
         estats <- c(modName,
                     length(coef(modGLM)),
-                    -2 * modGLM$loglik[2] + 2 * length(modGLM$coeff),   
-                    -2 * modGLM$loglik[2] + log(modGLM$n) * length(modGLM$coeff),
+                    -2 * logLik(modGLM)[1] + 2 * length(modGLM$coeff),
+                    -2 * logLik(modGLM)[1] + log(nrow(modGLM$data)) * length(modGLM$coeff),
                     ((modGLM$null.deviance - modGLM$deviance)/
                       modGLM$null.deviance)*100
           )
@@ -295,14 +300,14 @@ sink()
           estats$aic         <-as.numeric(as.character(estats$aic         ))
           estats$bic         <-as.numeric(as.character(estats$bic         ))
           estats$percentChDev<-as.numeric(as.character(estats$percentChDev))
-       if(!exists('aic_table'))
+       if(!exists('aictable'))
           {
-            aic_table <- estats
+            aictable <- estats
           } else {
-            aic_table <- rbind(aic_table,estats)
+            aictable <- rbind(aictable,estats)
           }
-       aic_table <- aic_table[order(aic_table$bic),]
-       return(aic_table)
+       aictable <- aictable[order(aictable$bic),]
+       return(aictable)
     }
   
 #+end_src
