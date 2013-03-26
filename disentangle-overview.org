@@ -288,10 +288,10 @@ sink()
   
         estats <- c(modName,
                     length(coef(modGLM)),
-                    -2 * logLik(modGLM)[1] + 2 * length(modGLM$coeff),
-                    -2 * logLik(modGLM)[1] + log(nrow(modGLM$data)) * length(modGLM$coeff),
-                    ((modGLM$null.deviance - modGLM$deviance)/
-                      modGLM$null.deviance)*100
+                    (-2 * logLik(modGLM)[1] + 2 * length(modGLM$coeff)),
+                    (-2 * logLik(modGLM)[1] + log(nrow(modGLM$data)) * length(modGLM$coeff)),
+                    (((modGLM$null.deviance - modGLM$deviance)/
+                      modGLM$null.deviance)*100)
           )
           estats <- as.data.frame(t(estats))
           names(estats) <- c('model','param','aic','bic','percentChDev')
