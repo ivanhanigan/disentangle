@@ -1,6 +1,15 @@
 
 ################################################################
 # name:combos
+formlas <- combos(yvar = "deaths",
+                  xvars = c("x1", "x2", "x3", "x4")
+                  )
+paste(formlas)
+formlas <- combos(yvar = "deaths",
+                  xvars = c("x1", "x2", "x3", "x4"),
+                  compulsory = c("zone", "ns(time, df = 3)")
+                  )
+paste(formlas)
 
 ################################################################
 # name:combos

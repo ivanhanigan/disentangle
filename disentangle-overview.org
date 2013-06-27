@@ -330,9 +330,17 @@ sink()
 #+begin_src R :session *R* :tangle tests/test-combos.r :exports none :eval no
 ################################################################
 # name:combos
-
+formlas <- combos(yvar = "deaths",
+                  xvars = c("x1", "x2", "x3", "x4")
+                  )
+paste(formlas)
+formlas <- combos(yvar = "deaths",
+                  xvars = c("x1", "x2", "x3", "x4"),
+                  compulsory = c("zone", "ns(time, df = 3)")
+                  )
+paste(formlas)
 #+end_src
-*** R-combos
+*** Crap?
 #+name:combos
 #+begin_src R :session *R* :tangle tests/test-combos.r :exports none :eval no
   ################################################################
@@ -411,6 +419,35 @@ sink()
   
   # expand.grid(..., KEEP.OUT.ATTRS = TRUE, stringsAsFactors = TRUE)
 #+end_src
+*** R-combos
+
+#+name:R-combos
+#+begin_src R :session *R* :tangle R/combos.r :exports none :eval no
+################################################################
+# name:R-combos
+combos  <- function(yvar, xvars, compulsory = NA)
+  {
+    formlas <- NULL
+    for(j in length(xvars):1)
+      {
+        combns <- combn(xvars, j)
+        for(i in 1:ncol(combns))
+          {
+            terms2include <- combns[,i]
+            if(!is.na(compulsory[1]))
+              {
+                terms2include  <- c(terms2include, compulsory)
+              }
+            formla <- reformulate(terms2include,                                  
+                                  response = yvar
+                                  )
+            formlas <- c(formlas,formla)     
+          }
+      }
+    return(formlas)
+  }
+#+end_src
+
 *** man-combos
 #+name:combos
 #+begin_src R :session *R* :tangle no :exports none :eval no
