@@ -1,7 +1,7 @@
 
 ################################################################
 # name:newnode
-newnode<-function(name, inputs=NA, outputs=NA, graph = 'nodes', newgraph=F, notes=F, code=NA, ttype=NA, plot = T){
+newnode<-function(name, inputs=NA, outputs=character(0), graph = 'nodes', newgraph=F, notes=F, code=NA, ttype=NA, plot = T){
   # USAGE
   # nodes <- newnode(  # adds to a graph called nodes
   # name = 'aquire the raw data'  # the name of the node being added 
@@ -39,7 +39,7 @@ newnode<-function(name, inputs=NA, outputs=NA, graph = 'nodes', newgraph=F, note
   }
   nodes <- addEdge(i, dsc, nodes, 1)
   #}
-  if(!is.na(o[1])){
+  if(length(o) > 0){
   if(sum(o %in% nodes@nodes) != length(o)) {
     onew <- o[!o %in% nodes@nodes]
     nodes <- addNode(node=onew,object=nodes)   

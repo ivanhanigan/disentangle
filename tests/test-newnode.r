@@ -2,6 +2,26 @@
 ################################################################
 # name:newnode
 source("R/newnode.r")
+newnode(
+  name = "NAME"
+  ,
+  inputs="INPUT"
+  ,
+  outputs = "OUTPUT"
+  ,
+  graph = 'nodes'
+  ,
+  newgraph=T
+  ,
+  notes=F
+  ,
+  code=NA
+  ,
+  ttype=NA
+  ,
+  plot = T
+  )
+nodes <- newnode("merge", c("d1", "d2", "d3"))
 nodes <- newnode("merge", c("d1", "d2", "d3"), c("EDA"),
                  newgraph =T)
 nodes <- newnode("qc", c("data1", "data2", "data3"), c("d1", "d2", "d3"))
@@ -24,7 +44,9 @@ paper1,report1,"open access repository, data package",
 i <- 1
 nodes <- newnode(name = filesList[i,1],
                  inputs = strsplit(filesList$INPUTS, ",")[[i]],
-                 outputs = strsplit(filesList$OUTPUTS, ",")[[i]],
+                 outputs =
+                 strsplit(filesList$OUTPUTS, ",")[[i]]
+                 ,
                  newgraph=T)
  
 for(i in 2:nrow(filesList))
