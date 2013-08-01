@@ -165,21 +165,18 @@
    
       for(i in 2:nrow(filesList))
       {
-        # i <- 2
-        if(length(strsplit(filesList$OUTPUTS, ",")[[i]]) == 0)
-        {
-          nodes <- newnode(name = filesList[i,1],
-                           inputs = strsplit(filesList$INPUTS, ",")[[i]]
-          )    
-        } else {
-          nodes <- newnode(name = filesList[i,1],
-                           inputs = strsplit(filesList$INPUTS, ",")[[i]],
-                           outputs = strsplit(filesList$OUTPUTS, ",")[[i]]
-          )
-        }
+        ## # i <- 2
+        nodes <- newnode(name = filesList[i,1],
+                         inputs = strsplit(filesList$INPUTS, ",")[[i]],
+                         outputs = strsplit(filesList$OUTPUTS, ",")[[i]]
+        )
       }
       
     }
+  graphNodesFile(filesList)
+  # fails with
+  ## Error in grep(dsc, nodes@nodes) (from newnode.r#34) : 
+  ##   no slot of name "nodes" for this object of class "standardGeneric"
 #+end_src
 *** test-graphNodesFile
 #+name:graphNodesFile
