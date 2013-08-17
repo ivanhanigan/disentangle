@@ -561,3 +561,40 @@ combos  <- function(yvar, xvars, compulsory = NA)
 # name:combos
 
 #+end_src
+** create.admin
+*** R-create.admin
+#+name:create.admin
+#+begin_src R :session *R* :tangle R/create.admin.r :exports none :eval no
+  ################################################################
+  # name:create.admin
+  create.admin <- function(rootdir = getwd())
+  {
+    dir.create(file.path(rootdir, 'admin'))
+    dir.create(file.path(rootdir, 'admin','proposal'))
+    dir.create(file.path(rootdir, 'admin','budget'))
+    dir.create(file.path(rootdir, 'images'))
+    dir.create(file.path(rootdir, 'metadata'))
+    dir.create(file.path(rootdir, 'references'))
+  }
+    
+#+end_src
+*** test-create.admin
+#+name:create.admin
+#+begin_src R :session *R* :tangle tests/test-create.admin.r :exports none :eval no
+  ################################################################
+  # name:create.admin
+  setwd("~/projects")
+  dir()
+  create.admin(
+    rootdir=getwd()
+    )
+#+end_src
+*** man-create.admin
+#+name:create.admin
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:create.admin
+
+#+end_src
+
+
