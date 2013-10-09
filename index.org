@@ -17,5 +17,106 @@ This project is my collection of notes and customised software tools for data ma
   install_github("disentangle", "ivanhanigan")
   require(disentangle)
 #+end_src
+* Data Input
+* Data Operation
+** COMMENT R-data-munging-blog-posts
+*** wickhams-tidy-tools-only-get-you-90-pct-the-way.md
+#+name:wickhams-tidy-tools-only-get-you-90-pct-the-way-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports none :eval no :padline no
+---
+name: wickhams-tidy-tools-only-get-you-90-pct-the-way
+layout: post
+title: wickhams-tidy-tools-only-get-you-90-pct-the-way
+categories:
+- research methods
+---
+
+#### Hadley Wickham's tidy tools
+In this video at 8 mins 50 seconds he says "these four tools do 90% of the job" 
+
+- subset, 
+- transform, 
+- summarise, and 
+- arrange
+- TODO I noticed [at the website for an Rstudio  course](http://www.rstudio.com/training/curriculum/data-manipulation.html) transform has been replaced by mutate as one of the "four basic verbs of data manipulation".
+
+<iframe src="//player.vimeo.com/video/33727555" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="http://vimeo.com/33727555">Tidy Data</a> from <a href="http://vimeo.com/user2150538">Drew Conway</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+
+So I thought what's the other 10?  Here's a few contenders for my work:
+
+- merge
+- reshape::cast and reshape::melt
+- unlist
+- t() transpose
+- sprintf or paste
+
+<p></p>
+#+end_src
+** R-subset
+#+name:R-subset
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports reports :eval no :padline no
+  #### R-subset
+      # Filter rows by criteria
+      subset(airquality, Temp > 90, select = c(Ozone, Temp))
+  
+      ## NB This is a convenience function intended for use interactively.  For
+      ## programming it is better to use the standard subsetting functions like
+      ## ‘[’, and in particular the non-standard evaluation of argument
+      ## ‘subset’ can have unanticipated consequences.
+  
+      with(airquality,
+           airquality[Temp > 90, c("Ozone", "Temp")]
+           )
+  
+      # OR
+  
+      airquality[airquality$Temp > 90,  c("Ozone", "Temp")]
+                                                                                 
+#+end_src
+** R-transform
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports none :eval no :padline no
+  #### R-transform
+      # New columns that are functions of other columns       
+      df <- transform(airquality,
+                      new = -Ozone,
+                      Temp2 = (Temp-32)/1.8
+                      )
+      head(df)
+#+end_src
+** R-summarise
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports none :eval no :padline no
+  #### R-summarise
+      # New data.frame where columns are functions of existing columns
+      require(plyr)    
+      df <- ddply(.data = airquality,
+                  .variables = "Month",
+                  .fun = summarise,
+                  tmax = max(Temp),
+                  tav = mean(Temp),
+                  ndays = length(unique(Day))
+                  )
+      head(df)
+#+end_src
+** R-arrange
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports none :eval no :padline no
+  #### R-arrange
+      # Re-order the rows of a data.frame
+      df <- arrange(airquality, Temp, Ozone)
+      head(df)
+#+end_src
 
 
+* Data Output
+* General Purpose
+* Visualisation
+* Statistics
+* COMMENT TODO later
+** Code Editors
+** Graphical User Interfaces
+** Version Control
+** Latex/Sweave
+** R Packages
+** Project Management
+** Operating Systems
+** Big Data Tips
+** Writing
