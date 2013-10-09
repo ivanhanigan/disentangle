@@ -1,4 +1,4 @@
-#+TITLE:Disentangle 
+#+TITLE:Disentangle Things
 #+AUTHOR: Ivan Hanigan
 #+email: ivan.hanigan@anu.edu.au
 #+LaTeX_CLASS: article
@@ -7,13 +7,12 @@
 -----
 
 * Introduction
+This project is my collection of notes and customised software tools for data management, manipulation and analysis.
 
 #+name:install-tools
 #+begin_src R :session *R* :tangle inst/doc/main.r :eval no
   ################################################################
-  # This is documentation for tools I'm using to analyse survey data
-  # about Transformational Adaptation, and an associated R package I'm
-  # developing to build new tools.
+  # devtools is recommended
   require(devtools)
   install_github("disentangle", "ivanhanigan")
   require(disentangle)
