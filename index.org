@@ -24,9 +24,10 @@ This project is my collection of notes and customised software tools for data ma
 #+name:wickhams-tidy-tools-only-get-you-90-pct-the-way-header
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports none :eval no :padline no
 ---
-name: wickhams-tidy-tools-only-get-you-90-pct-the-way
+name: 2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way
 layout: post
 title: wickhams-tidy-tools-only-get-you-90-pct-the-way
+date: 2013-10-10
 categories:
 - research methods
 ---
@@ -110,6 +111,462 @@ So I thought what's the other 10?  Here's a few contenders for my work:
 * General Purpose
 * Visualisation
 * Statistics
+** Tree-Based Methods
+*** COMMENT To read
+http://r.789695.n4.nabble.com/In-rpart-how-is-quot-improve-quot-calculated-in-the-quot-class-quot-case-td3593770.html
+ Jun 15, 2011; 6:21am
+Re: In rpart, how is "improve" calculated? (in the "class" case)
+Tal Galili
+782 posts
+	
+Hi Ed,
+Thank you for the reply!
+
+Professor Atkinson already gave me that answer by pointing me to the technical
+report of rpart that describes this:
+*http://mayoresearch.mayo.edu/mayo/research/biostat/upload/61.pdf*
+
+However, I was also only able to reproduce the "gini" impurity, and not the
+"information" one.
+I hope either Professor Atkinson or some other member of the list could help
+out with this.
+
+In the meantime, I also found a bug in the code I sent to the mailing list,
+bellow is the fixed code (also more organized):
+
+
+#+name:impurity
+#+begin_src R :session *R* :tangle src/impurity.r :exports none :eval no
+################################################################
+# name:impurity
+
+
+ # creating data
+set.seed(1324)
+y <- sample(c(0,1), 20, T)
+x <- y
+x[1:5] <- 0
+
+# manually making the first split
+obs_L <- y[x<.5]
+obs_R <- y[x>.5]
+n_L <- sum(x<.5)
+n_R <- sum(x>.5)
+n <- length(x)
+
+
+calc.impurity <- function(func = gini)
+{
+impurity_root <- func(prop.table(table(y)))
+ impurity_L <- func(prop.table(table(obs_L)))
+ impurity_R <-func(prop.table(table(obs_R)))
+ imp <- impurity_root - ((n_L/n)*impurity_l + (n_R/n)*impurity_R) # 0.3757
+ imp*n
+}
+
+# for "gini"
+require(rpart)
+fit <- rpart(y~x, method = "class", parms=list(split='gini'))
+fit$split[,3] # 5.384615
+gini <- function(p) {sum(p*(1-p))}
+calc.impurity(gini) # 5.384615 # success!
+
+
+# for "information" I fail...
+
+fit <- rpart(y~x, method = "class", parms=list(split='information'))
+fit$split[,3] # why is improve here 6.84029 ?
+
+entropy <- function(p) {
+if(any(p==1)) return(0) # works for the case when y has only 0 and 1
+categories...
+ -sum(p*log(p))
+ }
+calc.impurity(entropy) # 9.247559 != 6.84029
+
+
+#+end_src
+
+** Misclassification Error Rate for Classification Trees
+
+** Deviance Based Measures of Descriptive Power for Classification Trees
+*** Computing-and-using-deviance-with-classification-trees-Ritschard, G. (2006).
+I'm reading Ritschard, G. (2006). Computing and using the deviance with classification trees. In Compstat 2006 - Proceedings in Computational Statistics 17th Symposium Held in Rome, Italy, 2006. Retrieved from http://link.springer.com/chapter/10.1007%2F978-3-7908-1709-6_5
+
+This is implemented in SPSS code. I'll try to develop R code to do these tests.
+
+First I'll get the data out of their paper and fit the tree in figure 1
+
+*** sample-tree-data
+#+name:tree-deviance
+#+begin_src R :session *R* :tangle inst/doc/tree-data.r :eval no
+  #########################################
+  # func
+  require(rpart)
+  require(partykit) 
+  
+  # load
+  civst_gend_sector  <- read.csv(textConnection(
+      "civil_status gender activity_sector number_of_cases
+           married   male         primary              50
+           married   male       secondary              40
+           married   male        tertiary               6
+           married female         primary               0
+           married female       secondary              14
+           married female        tertiary              10
+            single   male         primary               5
+            single   male       secondary               5
+            single   male        tertiary              12
+            single female         primary              50
+            single female       secondary              30
+            single female        tertiary              18
+  divorced/widowed   male         primary               5
+  divorced/widowed   male       secondary               8
+  divorced/widowed   male        tertiary              10
+  divorced/widowed female         primary               6
+  divorced/widowed female       secondary               2
+  divorced/widowed female        tertiary               2
+  "),sep = "")
+  # save this for use later
+  dir.create("inst/extdata", recursive=T)
+  write.csv(civst_gend_sector, "inst/extdata/civst_gend_sector.csv", row.names = F)
+  # doco
+  require(devtools)
+  install_github("reml", "ropensci")
+  require(reml)
+  eml_write(civst_gend_sector, 
+            title = "reml example",  
+            description = "An example, intended for
+                                illustrative purposes only.",
+            creator = "Ivan Hanigan <ivanhanigan@gmail.com>",
+            file = "reml_example.xml")
+  obj <- eml_read("reml_example.xml")
+  obj 
+  str(dataTable(obj))
+  head(dataTable(obj))
+  
+  # clean
+  str(civst_gend_sector)
+  
+  # do
+  fit <- rpart(civil_status ~ gender + activity_sector,
+               data = civst_gend_sector, weights = number_of_cases,
+               control=rpart.control(minsplit=1))
+  # NB need minsplit to be adjusted for weights.
+  summary(fit)
+    
+  # report
+  plot(fit, margin=.1)
+  text(fit, use.n = TRUE)
+  title("fit")
+  
+  # nicer plots
+  png("images/fit1.png", 1000, 480)
+  plot(as.party(fit))
+  dev.off()  
+#+end_src
+*** COMMENT cuts
+**** COMMENT DEPRECATED get-data-from-pdf-code
+#+name:get-data-from-pdf
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  ################################################################
+  # name:get-data-from-pdf
+  # these data are in a table in the pdf but not that easy to copy and paste.
+  gender <- c("male", 
+  "male", 
+  "male", 
+  "female",
+  "female",
+  "female",
+  "male",
+  "male",
+  "male",
+  "female",
+  "female",
+  "female",
+  "male", 
+  "male", 
+  "male", 
+  "female",
+  "female",
+  "female")
+  
+  civil_status <- c("married", "married", "married", "married", "married", "married",
+  "single", "single", "single", "single", "single", "single",
+  "divorced/widowed", "divorced/widowed", "divorced/widowed", "divorced/widowed",
+  "divorced/widowed", "divorced/widowed")
+  
+  activity_sector <- c("primary",
+  "secondary","tertiary","primary",
+  "secondary","tertiary","primary",
+  "secondary","tertiary","primary",
+  "secondary","tertiary","primary",
+  "secondary","tertiary","primary",
+  "secondary","tertiary")
+  
+  number_of_cases <- c(50, 40, 6, 0,
+  14, 10, 5, 5,
+  12, 50, 30, 18, 5, 8,
+  10, 6, 2, 2)
+  
+  ls()
+  civst_gend_sector <- as.data.frame(cbind(civil_status, gender, activity_sector, number_of_cases))
+  
+  # clean
+  civst_gend_sector[4:6,]
+  civst_gend_sector$number_of_cases <- as.numeric(as.character(civst_gend_sector$number_of_cases))
+  civst_gend_sector  
+  
+  
+#+end_src
+*** Reproduce the figure from the paper
+The figure in the paper can be checked against our results (and also the improved plot from the party package might be used).
+
+[[file:images/fit1.png]]
+*** One row per case or using weights?
+Using the case weights like above is convenient especially when datasets are very large, but caused problems in model fitting for me (tree failed to compute a deviance when done this way but succeeded with a dataset expanded so the data.frame is transformed into one in which each row is an observation.
+#+name:reassurance-re-weights
+#+begin_src R :session *R* :tangle inst/doc/tree-data2.r :eval no
+  ################################################################
+  # name:reassurance-re-weights
+   
+  # just to reasure myself I understand what case weights do, I'll make
+  # this into a survey dataset with one row per respondent
+  df <- as.data.frame(matrix(NA, nrow = 0, ncol = 3))
+  for(i in 1:nrow(civst_gend_sector))
+      {
+      #    i <- 1
+          n <- civst_gend_sector$number_of_cases[i]
+          if(n == 0) next
+          for(j in 1:n)
+              {
+                df <- rbind(df, civst_gend_sector[i,1:3])              
+              }
+   
+      }
+  # save this for use later
+  write.csv(df, "inst/extdata/civst_gend_sector_full.csv", row.names = F)
+  # clean
+  nrow(df)
+  str(df)
+  fit1 <- rpart(civil_status ~ gender + activity_sector, data = df)
+  summary(fit1)
+  
+  # report
+  par(mfrow=c(1,2), xpd = NA) 
+  plot(fit)
+  text(fit, use.n = TRUE)
+  title("fit")
+  plot(fit1)
+  text(fit1, use.n = TRUE)
+  title("fit1")
+  # great these are the same which is what we'd hoped to see
+  
+#+end_src
+
+*** Chisquare test of deviance for Classification trees
+I want to use the deviance as well as the misclassification error rate for measuring the descriptive power of the tree.  Using the tree package we can access the deviance of the fitted Classification tree.  Ripley's tree package is the only one I found to give me deviance for classification trees, the other packages only return this for regression trees.
+
+If we look at the reduction in deviance between the Null model and the fitted tree we can say that the tree explains about XYZ% of the variation. We can also test if this is a statistically significant reduction (based on a chi-squared test), but should also comment about how much explanation this is in practical terms.
+
+*** COMMENT cut
+The attached papers suggest a method to test differences between nested trees ie testing the difference with the root node with a Chi-square statistic (equivalent of the usual method used in logistic regression).
+*** COMMENT reminder-of-method-in-logistic-regression-code
+#+name:reminder-of-method-in-logistic-regression
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  ################################################################
+  # name:reminder-of-method-in-logistic-regression
+  # rewritten from http://data.princeton.edu/r/glms.html
+  require(foreign)
+  require(reshape)
+  require(plyr)
+  
+  cuse <- read.dta("http://data.princeton.edu/wws509/datasets/cuse.dta")                  
+  str(cuse)
+  head(cuse)
+  d2 <- cast(cuse,  age + educ + desire ~ cuse, value = 'n')
+  head(arrange(d2, age, educ))
+  d2
+  lrfit <- glm(cbind(Yes, No) ~ age + educ + desire, data = d2, family = binomial)
+  lrfit
+  
+  ## Recall that R sorts the levels of a factor in alphabetical order. Because <25 comes before 25-29, 30-39, and 40-49, it has been picked as the reference cell for age. Similarly, high is the reference cell for education because high comes before low! Finally, R picked no as the base for wantsMore.
+  
+  ## If you are unhappy about these choices you can (1) use relevel to change the base category, or (2) define your own indicator variables. I will use the latter approach by defining indicators for women with high education and women who want no more children:
+  
+  d2$noMore <- d2$desire == "Wants no more"
+  d2$hiEduc <- d2$educ == "Some"
+  
+  
+  lrfit <- glm(cbind(Yes, No) ~  age + hiEduc + noMore, data = d2, family = binomial)
+  lrfit
+  
+  str(summary(lrfit))
+#+end_src
+
+
+*** TODO Check This: R function to calculate for classification trees
+The Ritschard (2006) paper (with SPSS code) describes a complicated method that includes Needing to retrieve for each case: 
+- leaf number and
+- profile number
+
+I really want to use the deviance as well as the misclassification error rate for measuring the descriptive power of the tree.
+Ripley's tree package is the only one I found to give me deviance for classification trees.
+
+The Ritschard papers suggest nice methods to test differences between nested trees ie testing the difference with the root node with a Chi-square statistic (equivalent of the usual method used in logistic regression).
+
+Is this method employed widely in analysing survey data?
+I haven't turned up many references to Ritschard since he wrote these.
+
+So let's start simple first.  The following code follows the simpler approach:
+- Take the difference in the deviance for the models (less complex model minus more complex model)
+- Take the difference in degrees of freedom for the models
+- difference between less complex and more complex model follows chi-square distribution
+
+*** COMMENT http://www.stat.ufl.edu/~winner/sta6127/chapter15.ppt
+slide 22 
+Two statistics are used to test whether a model is appropriate: the Pearson chi-square statistic and the likelihood ratio (aka Deviance) statistic
+slide 28
+Under hypothesis that less complex (reduced) model is adequate, difference follows chi-square distribution
+*** R-tree.chisq
+*** R code
+#+name:tree.chisq
+#+begin_src R :session *R* :tangle R/tree.chisq.r :eval no
+  ################################################################
+  # name:tree.chisq
+  tree.chisq <- function(null_model, fitted_model)
+  {
+      # TODO check if these are tree model class
+      fit_dev  <- summary(fitted_model)$dev
+      null_dev  <- summary(null_model)$dev    
+      dev  <-  null_dev - fit_dev
+      df  <- summary(fitted_model)$size - summary(null_model)$size
+      sig  <- 1 - pchisq(dev, df)
+      sprintf("Reduction in deviance is %s percent, p-value is %s (based on a chi-squared test)",
+              ((null_dev - fit_dev) / null_dev) * 100,
+              sig)
+  }
+  
+#+end_src
+*** test-tree.chisq
+#+name:tree.chisq
+#+begin_src R :session *R* :tangle tests/test-tree.chisq.r :eval no
+  # func
+  require(tree)
+  require(devtools)
+  install_github("TransformSurveyTools", "ivanhanigan")
+  require(TransformSurveyTools)
+  # load locally
+  # fpath  <- "inst/extdata/civst_gend_sector_full.csv"
+  # or via package
+  fpath <- system.file("extdata", "civst_gend_sector_full.csv", package="TransformSurveyTools")
+  civst_gend_sector  <- read.csv(fpath)
+  
+  # clean
+  str(civst_gend_sector)
+  
+  # do
+  variables  <- names(civst_gend_sector)
+  y_variable  <- variables[1]
+  x_variables  <- variables[-1]
+  
+  # NULL
+  form0  <- reformulate("1",
+                        response = y_variable)
+  form0
+  model0 <- tree(form0, data = civst_gend_sector, method = "class")
+  print(model0)
+  # FIT
+  form1  <- reformulate(x_variables,
+                        response = y_variable)
+  form1
+  model1 <- tree(form1, data = civst_gend_sector, method = "class")
+  print(model1)
+  summary(model1)
+  plot(model1)
+  text(model1,pretty = 0)
+  tree.chisq(null_model = model0, fitted_model = model1)
+    
+#+end_src
+**** COMMENT test- deprecated - broken
+#+begin_src R :session *R* :tangle tests/test-tree.chisq.r :exports none :eval no
+  ################################################################
+  # name:tree.chisq
+  # func
+  require(tree)
+  
+  # load
+  fpath  <- "inst/extdata/civst_gend_sector.csv"
+  # or
+  #fpath <- system.file("extdata", "my_raw_data.csv",
+  # package="my_package")
+  civst_gend_sector  <- read.csv(fpath)
+  
+  # clean
+  str(civst_gend_sector)
+  
+  # do
+  variables  <- names(civst_gend_sector)
+  y_variable  <- variables[1]
+  x_variables  <- variables[-c(1,4)]
+  weight  <- civst_gend_sector[,variables[4]]
+  # NULL
+  form0  <- reformulate("1",
+                        response = y_variable)
+  form0
+  model0 <- tree(form0, data = civst_gend_sector, method = "class", weights = weight)
+  # FIT
+  form1  <- reformulate(x_variables,
+                        response = y_variable)
+  form1
+  model1 <- tree(form1, data = civst_gend_sector, method = "class", weights = weight)
+  # this produces a NaN on node 4!
+  ## > model1 <- tree(form1, data = civst_gend_sector, method = "class", weights = weight)
+  ## > print(model1)
+  ## node), split, n, deviance, yval, (yprob)
+  ##       * denotes terminal node
+  
+  ## 1) root 273 534.00 married ( 0.12088 0.43956 0.43956 )  
+  ##   2) gender: female 132 191.80 single ( 0.07576 0.18182 0.74242 )  
+  ##     4) activity_sector: primary 56    NaN single ( 0.10714 0.00000 0.89286 ) *
+  ##     5) activity_sector: secondary,tertiary 76 123.00 single ( 0.05263 0.31579 0.63158 ) *
+  ##   3) gender: male 141 239.00 married ( 0.16312 0.68085 0.15603 )  
+  ##     6) activity_sector: primary,secondary 113 145.70 married ( 0.11504 0.79646 0.08850 ) *
+  ##     7) activity_sector: tertiary 28  59.41 single ( 0.35714 0.21429 0.42857 ) *
+  model1 <- tree(form1, data = df, method = "class")
+  ## > print(model1)
+  ## node), split, n, deviance, yval, (yprob)
+  ##       * denotes terminal node
+  
+  ## 1) root 273 534.00 married ( 0.12088 0.43956 0.43956 )  
+  ##   2) gender: female 132 191.80 single ( 0.07576 0.18182 0.74242 )  
+  ##     4) activity_sector: primary 56  38.14 single ( 0.10714 0.00000 0.89286 ) *
+  ##     5) activity_sector: secondary,tertiary 76 123.00 single ( 0.05263 0.31579 0.63158 ) *
+  ##   3) gender: male 141 239.00 married ( 0.16312 0.68085 0.15603 )  
+  ##     6) activity_sector: primary,secondary 113 145.70 married ( 0.11504 0.79646 0.08850 ) *
+  ##     7) activity_sector: tertiary 28  59.41 single ( 0.35714 0.21429 0.42857 ) *
+  ## > 
+  model1 <- tree(form1, data = df, method = "class")
+  print(model1)
+  plot(model1)
+  # can't plot if used civst_gender_sector
+  text(model1,pretty = NULL)
+  
+  
+#+end_src
+**** COMMENT man-tree.chisq
+#+name:tree.chisq
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:tree.chisq
+
+#+end_src
+*** main-tree-model
+#+name:tree.chisq
+#+begin_src R :session *R* :tangle inst/doc/main.r :eval no
+source("tests/test-tree.chisq.r")
+#+end_src
+
 * COMMENT TODO later
 ** Code Editors
 ** Graphical User Interfaces
