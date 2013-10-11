@@ -33,7 +33,7 @@ This project is my collection of notes and customised software tools for data ma
 #+end_src
 ** Test Data for Classification Trees
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-test-data-for-classification-trees.md :exports reports :eval no :padline no
-
+  
   #### A fictitious sample dataset
   For discussion, I'll use a fictional example dataset that I'm using to work through some statistical theory related to Classification and Regression Trees (CART).
   In the motivating example use case we are interested in predicting the civil status (married, single, divorced/widowed) of individuals from their sex (male, female) and sector of activity (primary, secondary, tertiary). The data set is composed of 273 cases.
@@ -67,7 +67,7 @@ This project is my collection of notes and customised software tools for data ma
       divorced/widowed female       secondary               2
       divorced/widowed female        tertiary               2
       "),sep = "")
-
+  
       # save this to my personal R utilities package "disentangle" 
       # for use later when I am exploring functions
       dir.create("inst/extdata", recursive=T)
@@ -88,7 +88,7 @@ This project is my collection of notes and customised software tools for data ma
   - Both splits produce a misclassification rate of 0.25, but the second split produces a pure node and is probably preferable.
   
   During the course of my research to try to identify the best available method to implement in my analysis I found a useful series of papers by Ritschard, with a worked example using SPSS.  I hope to translate that to R in the future, but the first thing I did was grab the example data used in several of those papers out of the PDF.  So seeing as this was a public dataset (I use a lot of restricted data) and because I want to be able to use it to demonstrate the use of any R functions I find or write... I thought would publish it properly.  
-
+  
   #### The Tree Model
   So just before we leave Ritschard and the CART method, let's just fit the model.  Let's also install my R utilities package "disentangle", to test that we can access the data from it.
   
@@ -319,7 +319,7 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   <p></p>
   This is the Top-level API function for writing eml.  Help page is a bit sparse.  See [This Link](https://github.com/ropensci/reml) for more.  For eg "for convenience, dat could simply be a data.frame and reml will launch it's metadata wizard to assist in constructing the metadata based on the data.frame provided. While this may be helpful starting out, regular users will find it faster to define the columns and units directly in the format above."
   
-
+  
   Now load up the test data for classification trees I described in [This Post](/2013/10/test-data-for-classification-trees/)
   
   #### Code:
@@ -382,7 +382,7 @@ So I thought what's the other 10?  Here's a few contenders for my work:
                 title = "civst_gend_sector",  
                 description = "An example, fictional dataset for Decision Tree Models",
                 creator = "Ivan Hanigan <ivanhanigan@gmail.com>",
-                file = "civst_gend_sector.xml"
+                file = "inst/extdata/civst_gend_sector_eml.xml"
                 )
       # this created the xml and csv with out asking anything
       # but returned a
@@ -393,21 +393,65 @@ So I thought what's the other 10?  Here's a few contenders for my work:
       # TODO investigate this?
   
       # now we can access the local EML
-      obj <- eml_read("civst_gend_sector.xml")
+      obj <- eml_read("inst/extdata/civst_gend_sector_eml.xml")
       obj 
       str(dataTable(obj))
-      # returns an error
-      ## Error in plyr::compact(lapply(slotNames(from), function(s) if (!isEmpty(slot(from,  (from attribute.R#300) : 
-      ##   subscript out of bounds
+  ##     # returns an error
+  ##     ## Error in plyr::compact(lapply(slotNames(from), function(s) if (!isEmpty(slot(from,  (from attribute.R#300) : 
+  ##     ##   subscript out of bounds
   <p></p>
-
+  
   # Conclusions
   So this looks like a useful tool.  Next steps are to:
-
+  
   - look at sending these data to figshare
   - describe a really really REALLY simple workflow (3 lines? create metadata, eml_write, push to figshare)
     
     
+#+end_src
+** 2013-10-11-reml-and-rfigshare-part-2
+#+name:reml-and-rfigshare-part-2-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_drafts/2013-10-11-reml-and-rfigshare-part-2.md :exports reports :eval no :padline no
+  ---
+  name: reml-and-rfigshare-part-2
+  layout: post
+  title: reml-and-rfigshare-part-2
+  date: 2013-10-11
+  categories:
+  - Data Documentation
+  ---
+  
+  In the last post I explored the functionality of reml.
+  This time I will try to send data to figshare.
+  
+  #### Code:reml-and-rfigshare-part-2
+      # func
+      require(devtools)
+      install_github("reml", "ropensci")
+      require(reml)
+      install_github("rfigshare", "ropensci")
+      require(rfigshare)
+      # load
+      #fpath <- system.file(file.path("extdata","civst_gend_sector_eml.xml"), package = "disentangle")
+      fpath <- "inst/extdata/civst_gend_sector_eml.xml"
+      obj <- eml_read(fpath)
+      # clean
+      obj
+      # do
+      id <- eml_publish(fpath,
+                        description="Example EML",
+                        categories = "Social Science",
+                        tags = "EML",
+                        destination="figshare"
+                        )
+      ## text_content() deprecated. Use parsed_content(x, as = 'parsed')
+      ## Loading required package: rjson
+      ## Your article has been created! Your id number is 820129
+      ## text_content() deprecated. Use parsed_content(x, as = 'parsed')
+      ## text_content() deprecated. Use parsed_content(x, as = 'parsed')
+      ## Error in fs_cat_to_id(category_id) (from fs_add_categories.R#55) : 
+      ##   One or more of your input strings is not a valid category
+  
 #+end_src
 
 
