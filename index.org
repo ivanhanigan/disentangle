@@ -83,7 +83,23 @@ So I thought what's the other 10?  Here's a few contenders for my work:
                       Temp2 = (Temp-32)/1.8
                       )
       head(df)
+  
+
 #+end_src
+** R-mutate
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports none :eval no :padline no
+  #### R-mutate
+      require(plyr)
+      # same thing as transform
+      df <- mutate(airquality, new = -Ozone, Temp = (Temp - 32) / 1.8)    
+      # Things transform can't do
+      df <- mutate(airquality, Temp = (Temp - 32) / 1.8, OzT = Ozone / Temp)
+      
+      # mutate is rather faster than transform
+      system.time(transform(baseball, avg_ab = ab / g))
+      system.time(mutate(baseball, avg_ab = ab / g))
+
+#+end_src       
 ** R-summarise
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports none :eval no :padline no
   #### R-summarise
@@ -108,6 +124,185 @@ So I thought what's the other 10?  Here's a few contenders for my work:
 
 
 * Data Output
+* Data Documentation
+** COMMENT data-documentation-blogposts
+*** two-main-types-of-data-documentation-workflow
+#+name:two-main-types-of-data-documentation-workflow-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_drafts/two-main-types-of-data-documentation-workflow.md :exports none :eval no :padline no
+  ---
+  name: two-main-types-of-data-documentation-workflow
+  layout: post
+  title: two-main-types-of-data-documentation-workflow
+  categories:
+  - Data Documentation
+  ---
+  
+  This post introduces a new series of blog posts in which I want to experiment with a few tools for data documentation, which I'll present as Case Studies.  This series of posts will be pitched to an audience mixture of data librarians and data analysts.
+  
+  Data documentation occurs in a spectrum from simple notes through to elaborate systems.  
+  A key aspect of current approaches is the existence of a centralised data management system.  All the examples I consider include at least a metadata catalogue and some also include a data repository.  An additional feature sometimes exists for managing users permissions.
+  
+  The relationship between users and centralised services is a really complicated space, but essentially consists of the ability for users to create the documentation and push it (perhaps along with the data) to the metadata catalogue  and/or repository.  So given these assumptions I propose the following types of arrangement:
+  
+  - user sends metadata to metadata catalogue
+  - user sends metadata and data to metadata catalogue and data repository 
+  - user sends metadata and data and permissions information to metadata catalogue and data repository and permissions system.
+  
+  I've been working on a conceptual framework about how the actual process can be done in two distinct ways:
+  
+  - Graphical User Interface solutions
+  - Programmatic solutions
+  
+  The Case Studies I've identified that I want to explore are listed below, names follow the format 'client tool'-and-'data repository or metadata catalogue'-and-optionally-'permissions system':
+  
+  #### Programmatic solutions
+  - reml-and-rfigshare
+  - reml-and-knb (when/if this becomes available)
+  - make_ddixml-and-ddiindex-and-orapus
+  - r2ddi-ddiindex
+  - dc-uploader-and-ANU-DataCommons
+  - dc-uploader-and-RDA
+  
+  #### Graphical User Interface solutions
+  - morpho-and-knb-metacat
+  - nesstar-publisher-and-nesstar-and-whatever-Steve-calls-the-ADA-permissions-system
+  - xmet-and-Australian-Spatial-Data-Directory
+  - sdmx-editor-and-sdmx-registry
+  
+  #### A fictitious sample dataset
+  For our discussion, I'll use a fictional example dataset that I'm using to work through some statistical theory related to Classification and Regression Trees (CART).
+  In the motivating example use case we are interested in predicting the civil status (married, single, divorced/widowed) of individuals from their sex (male, female) and sector of activity (primary, secondary, tertiary). The data set is composed of 273 cases.
+  
+  The data (and related statistical theory) come from:
+  
+  - Ritschard, G. (2006). Computing and using the deviance with classification trees. In Compstat 2006 - Proceedings in Computational Statistics 17th Symposium Held in Rome, Italy, 2006. Retrieved from [This Link](http://mephisto.unige.ch/pub/publications/gr/ritschard_compstat06.pdf)
+  
+  - Ritschard, G., Pisetta, V., & Zighed, D. (2008). Inducing and evaluating classification trees with statistical implicative criteria. Statistical Implicative Analysis. Studies in Computational Intelligence Volume 127, pp 397-419. Retrieved from [This Link](http://mephisto.unige.ch/pub/publications/gr/ritsch-pisetta-zighed_bookGras_rev.pdf)
+  
+  #### Code:
+      # copy and paste the data from the PDF (Table 1 in both papers)
+      civst_gend_sector  <- read.csv(textConnection(
+          "civil_status gender activity_sector number_of_cases
+               married   male         primary              50
+               married   male       secondary              40
+               married   male        tertiary               6
+               married female         primary               0
+               married female       secondary              14
+               married female        tertiary              10
+                single   male         primary               5
+                single   male       secondary               5
+                single   male        tertiary              12
+                single female         primary              50
+                single female       secondary              30
+                single female        tertiary              18
+      divorced/widowed   male         primary               5
+      divorced/widowed   male       secondary               8
+      divorced/widowed   male        tertiary              10
+      divorced/widowed female         primary               6
+      divorced/widowed female       secondary               2
+      divorced/widowed female        tertiary               2
+      "),sep = "")
+
+      # save this to my personal R utilities package "disentangle" 
+      # for use later when I am exploring functions
+      dir.create("inst/extdata", recursive=T)
+      write.csv(civst_gend_sector, "inst/extdata/civst_gend_sector.csv", row.names = F)
+  
+  #### Motivating reason for using these data
+  Classification and Regression Tree models (also referred to as Decision Trees) are one of the building blocks of data mining and a great tool for Exploratory Data Analysis.
+  
+  I've mostly used Regression Trees in the past but recently got some work with social science data where Classification Trees were needed.  I wanted to assess the deviance as well as the misclassification error rate for measuring the descriptive power of the tree.  While this is a easy with Regression Trees it became obvious that it was not so easy with Classification Trees.  This is because Classification Trees are most often evaluated by means of the error rate. The problem with the error rate is that it is not that helpful for assessing the descriptive capacity of the tree.
+  
+  For example if we look at the reduction in deviance between the Null model and the fitted tree we can say that the tree explains about XYZ% of the variation. We can also test if this is a statistically significant reduction based on a chi-squared test.
+  
+  Consider this example from page 310 of Hastie, T., Tibshirani, R., & Friedman, J. (2001). The elements of statistical learning. 2nd Edition:
+  
+  - in a two-class problem with 400 observations in each class (denote this by (400, 400))
+  - suppose one split created nodes (300, 100) and (100, 300), 
+  - the other created nodes (200, 400) and (200, 0). 
+  - Both splits produce a misclassification rate of 0.25, but the second split produces a pure node and is probably preferable.
+  
+  During the course of my research to try to identify the best available method to implement in my analysis I found a useful series of papers by Ritschard, with a worked example using SPSS.  I hope to translate that to R in the future, but the first thing I did was grab the example data used in several of those papers out of the PDF.  So seeing as this was a public dataset (I use a lot of restricted data) and because I want to be able to use it to demonstrate the use of any R functions I find or write... I thought would publish it properly.  Hence I am using it for this series of posts.  Make sense now?
+  
+  #### The Tree Model
+  So just before we leave Ritschard and the CART method, let's just fit the model.  Let's also install my R utilities package "disentangle", to test that we can access the data from it.
+  
+  In this analysis the civil status is the outcome (or response or decision or dependent) variable, while sex and activity sector are the predictors (or condition or independent variables). 
+  
+  #### Code: 
+      # func
+      require(rpart)
+      require(partykit) 
+      require(devtools)
+      install_github("ivanhanigan", "disentangle")
+      
+      # load
+      fpath <- system.file(file.path("extdata", "civst_gend_sector_full.csv"),
+                           package = "disentangle"
+                           )
+      civst_gend_sector <- read.csv(fpath)
+  
+      # clean
+      str(civst_gend_sector)
+      
+      # do
+      fit <- rpart(civil_status ~ gender + activity_sector,
+                   data = civst_gend_sector, weights = number_of_cases,
+                   control=rpart.control(minsplit=1))
+      # NB need minsplit to be adjusted for weights.
+      summary(fit)
+        
+      # report
+      png("images/fit1.png", 1000, 480)
+      plot(as.party(fit))
+      dev.off()
+  
+  #### The Result
+
+  ![fit1.png](/images/fit1.png)
+  
+#+end_src
+
+** R-reml-and-rfigshare
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_drafts/data-documentation-case-study-reml-and-rfigshare.md :exports reports :eval no 
+---
+name: two-main-types-of-data-documentation-workflow
+layout: post
+title: two-main-types-of-data-documentation-workflow
+categories:
+- Data Documentation
+---
+
+#### Case Study
+First we will look at the work of the ROpenSci team and the reml
+package.  In the vignette they show how to publish data to figshare
+using rfigshare package.  [figshare](http://figshare.com/) is a site
+where scientists can share datasets/figures/code. The goals are to
+encourage researchers to share negative results and make reproducible
+research efforts user-friendly. It also uses a tagging system for
+scientific research discovery. They give you unlimited public space
+and 1GB of private space.  
+
+
+#### Code:
+    # document
+    require(devtools)
+    install_github("reml", "ropensci")
+    require(reml)
+    eml_write(civst_gend_sector, 
+              title = "reml example",  
+              description = "An example, intended for
+                                  illustrative purposes only.",
+              creator = "Ivan Hanigan <ivanhanigan@gmail.com>",
+              file = "reml_example.xml")
+    obj <- eml_read("reml_example.xml")
+    obj 
+    str(dataTable(obj))
+    head(dataTable(obj))
+  
+#+end_src
+
+
 * General Purpose
 * Visualisation
 * Statistics
@@ -136,7 +331,7 @@ bellow is the fixed code (also more organized):
 
 
 #+name:impurity
-#+begin_src R :session *R* :tangle src/impurity.r :exports none :eval no
+#+begin_src R :session *R* :tangle no :exports none :eval no
 ################################################################
 # name:impurity
 
@@ -190,14 +385,14 @@ calc.impurity(entropy) # 9.247559 != 6.84029
 ** Misclassification Error Rate for Classification Trees
 
 ** Deviance Based Measures of Descriptive Power for Classification Trees
-*** Computing-and-using-deviance-with-classification-trees-Ritschard, G. (2006).
+**** Computing-and-using-deviance-with-classification-trees-Ritschard, G. (2006).
 I'm reading Ritschard, G. (2006). Computing and using the deviance with classification trees. In Compstat 2006 - Proceedings in Computational Statistics 17th Symposium Held in Rome, Italy, 2006. Retrieved from http://link.springer.com/chapter/10.1007%2F978-3-7908-1709-6_5
 
 This is implemented in SPSS code. I'll try to develop R code to do these tests.
 
 First I'll get the data out of their paper and fit the tree in figure 1
 
-*** sample-tree-data
+**** COMMENT DEPRECATED SEE BLOG sample-tree-data
 #+name:tree-deviance
 #+begin_src R :session *R* :tangle inst/doc/tree-data.r :eval no
   #########################################
@@ -205,45 +400,6 @@ First I'll get the data out of their paper and fit the tree in figure 1
   require(rpart)
   require(partykit) 
   
-  # load
-  civst_gend_sector  <- read.csv(textConnection(
-      "civil_status gender activity_sector number_of_cases
-           married   male         primary              50
-           married   male       secondary              40
-           married   male        tertiary               6
-           married female         primary               0
-           married female       secondary              14
-           married female        tertiary              10
-            single   male         primary               5
-            single   male       secondary               5
-            single   male        tertiary              12
-            single female         primary              50
-            single female       secondary              30
-            single female        tertiary              18
-  divorced/widowed   male         primary               5
-  divorced/widowed   male       secondary               8
-  divorced/widowed   male        tertiary              10
-  divorced/widowed female         primary               6
-  divorced/widowed female       secondary               2
-  divorced/widowed female        tertiary               2
-  "),sep = "")
-  # save this for use later
-  dir.create("inst/extdata", recursive=T)
-  write.csv(civst_gend_sector, "inst/extdata/civst_gend_sector.csv", row.names = F)
-  # doco
-  require(devtools)
-  install_github("reml", "ropensci")
-  require(reml)
-  eml_write(civst_gend_sector, 
-            title = "reml example",  
-            description = "An example, intended for
-                                illustrative purposes only.",
-            creator = "Ivan Hanigan <ivanhanigan@gmail.com>",
-            file = "reml_example.xml")
-  obj <- eml_read("reml_example.xml")
-  obj 
-  str(dataTable(obj))
-  head(dataTable(obj))
   
   # clean
   str(civst_gend_sector)
@@ -265,8 +421,8 @@ First I'll get the data out of their paper and fit the tree in figure 1
   plot(as.party(fit))
   dev.off()  
 #+end_src
-*** COMMENT cuts
-**** COMMENT DEPRECATED get-data-from-pdf-code
+**** COMMENT cuts
+***** COMMENT DEPRECATED get-data-from-pdf-code
 #+name:get-data-from-pdf
 #+begin_src R :session *R* :tangle no :exports none :eval no
   ################################################################
@@ -319,11 +475,11 @@ First I'll get the data out of their paper and fit the tree in figure 1
   
   
 #+end_src
-*** Reproduce the figure from the paper
+**** Reproduce the figure from the paper
 The figure in the paper can be checked against our results (and also the improved plot from the party package might be used).
 
 [[file:images/fit1.png]]
-*** One row per case or using weights?
+**** One row per case or using weights?
 Using the case weights like above is convenient especially when datasets are very large, but caused problems in model fitting for me (tree failed to compute a deviance when done this way but succeeded with a dataset expanded so the data.frame is transformed into one in which each row is an observation.
 #+name:reassurance-re-weights
 #+begin_src R :session *R* :tangle inst/doc/tree-data2.r :eval no
@@ -364,14 +520,14 @@ Using the case weights like above is convenient especially when datasets are ver
   
 #+end_src
 
-*** Chisquare test of deviance for Classification trees
+**** COMMENT DEPRECATED, SEE BLOG Chisquare test of deviance for Classification trees
 I want to use the deviance as well as the misclassification error rate for measuring the descriptive power of the tree.  Using the tree package we can access the deviance of the fitted Classification tree.  Ripley's tree package is the only one I found to give me deviance for classification trees, the other packages only return this for regression trees.
 
 If we look at the reduction in deviance between the Null model and the fitted tree we can say that the tree explains about XYZ% of the variation. We can also test if this is a statistically significant reduction (based on a chi-squared test), but should also comment about how much explanation this is in practical terms.
 
-*** COMMENT cut
+**** COMMENT cut
 The attached papers suggest a method to test differences between nested trees ie testing the difference with the root node with a Chi-square statistic (equivalent of the usual method used in logistic regression).
-*** COMMENT reminder-of-method-in-logistic-regression-code
+**** COMMENT reminder-of-method-in-logistic-regression-code
 #+name:reminder-of-method-in-logistic-regression
 #+begin_src R :session *R* :tangle no :exports none :eval no
   ################################################################
@@ -405,7 +561,7 @@ The attached papers suggest a method to test differences between nested trees ie
 #+end_src
 
 
-*** TODO Check This: R function to calculate for classification trees
+**** TODO Check This: R function to calculate for classification trees
 The Ritschard (2006) paper (with SPSS code) describes a complicated method that includes Needing to retrieve for each case: 
 - leaf number and
 - profile number
@@ -423,13 +579,13 @@ So let's start simple first.  The following code follows the simpler approach:
 - Take the difference in degrees of freedom for the models
 - difference between less complex and more complex model follows chi-square distribution
 
-*** COMMENT http://www.stat.ufl.edu/~winner/sta6127/chapter15.ppt
+**** COMMENT http://www.stat.ufl.edu/~winner/sta6127/chapter15.ppt
 slide 22 
 Two statistics are used to test whether a model is appropriate: the Pearson chi-square statistic and the likelihood ratio (aka Deviance) statistic
 slide 28
 Under hypothesis that less complex (reduced) model is adequate, difference follows chi-square distribution
-*** R-tree.chisq
-*** R code
+**** R-tree.chisq
+**** R code
 #+name:tree.chisq
 #+begin_src R :session *R* :tangle R/tree.chisq.r :eval no
   ################################################################
@@ -448,7 +604,7 @@ Under hypothesis that less complex (reduced) model is adequate, difference follo
   }
   
 #+end_src
-*** test-tree.chisq
+**** test-tree.chisq
 #+name:tree.chisq
 #+begin_src R :session *R* :tangle tests/test-tree.chisq.r :eval no
   # func
@@ -488,7 +644,7 @@ Under hypothesis that less complex (reduced) model is adequate, difference follo
   tree.chisq(null_model = model0, fitted_model = model1)
     
 #+end_src
-**** COMMENT test- deprecated - broken
+***** COMMENT test- deprecated - broken
 #+begin_src R :session *R* :tangle tests/test-tree.chisq.r :exports none :eval no
   ################################################################
   # name:tree.chisq
@@ -554,14 +710,14 @@ Under hypothesis that less complex (reduced) model is adequate, difference follo
   
   
 #+end_src
-**** COMMENT man-tree.chisq
+***** COMMENT man-tree.chisq
 #+name:tree.chisq
 #+begin_src R :session *R* :tangle no :exports none :eval no
 ################################################################
 # name:tree.chisq
 
 #+end_src
-*** main-tree-model
+**** main-tree-model
 #+name:tree.chisq
 #+begin_src R :session *R* :tangle inst/doc/main.r :eval no
 source("tests/test-tree.chisq.r")
