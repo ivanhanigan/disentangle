@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="Disentangle Things"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2013-10-11T15:25+1100"/>
+<meta name="generated" content="2013-10-11T22:23+1100"/>
 <meta name="author" content="Ivan Hanigan"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -126,29 +126,34 @@ for the JavaScript code in this tag.
 <div id="text-table-of-contents">
 <ul>
 <li><a href="#sec-1">1 Introduction</a></li>
-<li><a href="#sec-2">2 Data Input</a></li>
-<li><a href="#sec-3">3 Data Operation</a>
+<li><a href="#sec-2">2 Test Data</a>
 <ul>
-<li><a href="#sec-3-1">3.1 R-subset</a></li>
-<li><a href="#sec-3-2">3.2 R-transform</a></li>
-<li><a href="#sec-3-3">3.3 R-mutate</a></li>
-<li><a href="#sec-3-4">3.4 R-summarise</a></li>
-<li><a href="#sec-3-5">3.5 R-arrange</a></li>
+<li><a href="#sec-2-1">2.1 Test Data for Classification Trees</a></li>
 </ul>
 </li>
-<li><a href="#sec-4">4 Data Output</a></li>
-<li><a href="#sec-5">5 Data Documentation</a>
+<li><a href="#sec-3">3 Data Input</a></li>
+<li><a href="#sec-4">4 Data Operation</a>
 <ul>
-<li><a href="#sec-5-1">5.1 R-reml-and-rfigshare</a></li>
+<li><a href="#sec-4-1">4.1 R-subset</a></li>
+<li><a href="#sec-4-2">4.2 R-transform</a></li>
+<li><a href="#sec-4-3">4.3 R-mutate</a></li>
+<li><a href="#sec-4-4">4.4 R-summarise</a></li>
+<li><a href="#sec-4-5">4.5 R-arrange</a></li>
 </ul>
 </li>
-<li><a href="#sec-6">6 General Purpose</a></li>
-<li><a href="#sec-7">7 Visualisation</a></li>
-<li><a href="#sec-8">8 Statistics</a>
+<li><a href="#sec-5">5 Data Output</a></li>
+<li><a href="#sec-6">6 Data Documentation</a>
 <ul>
-<li><a href="#sec-8-1">8.1 Tree-Based Methods</a></li>
-<li><a href="#sec-8-2">8.2 Misclassification Error Rate for Classification Trees</a></li>
-<li><a href="#sec-8-3">8.3 Deviance Based Measures of Descriptive Power for Classification Trees</a></li>
+<li><a href="#sec-6-1">6.1 R-reml-and-rfigshare</a></li>
+</ul>
+</li>
+<li><a href="#sec-7">7 General Purpose</a></li>
+<li><a href="#sec-8">8 Visualisation</a></li>
+<li><a href="#sec-9">9 Statistics</a>
+<ul>
+<li><a href="#sec-9-1">9.1 Tree-Based Methods</a></li>
+<li><a href="#sec-9-2">9.2 Misclassification Error Rate for Classification Trees</a></li>
+<li><a href="#sec-9-3">9.3 Deviance Based Measures of Descriptive Power for Classification Trees</a></li>
 </ul>
 </li>
 </ul>
@@ -176,24 +181,137 @@ install_github(<span style="color: #2aa198;">"disentangle"</span>, <span style="
 </div>
 
 <div id="outline-container-2" class="outline-2">
-<h2 id="sec-2"><span class="section-number-2">2</span> Data Input</h2>
+<h2 id="sec-2"><span class="section-number-2">2</span> Test Data</h2>
 <div class="outline-text-2" id="text-2">
 
+
+
+</div>
+
+<div id="outline-container-2-1" class="outline-3">
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Test Data for Classification Trees</h3>
+<div class="outline-text-3" id="text-2-1">
+
+
+
+
+<pre class="src src-R"><span style="color: #586e75;">#### </span><span style="color: #586e75;">A fictitious sample dataset</span>
+For discussion, I<span style="color: #2aa198;">'ll use a fictional example dataset that I'</span>m using to work through some statistical theory related to Classification and Regression Trees (CART).
+In the motivating example use case we are interested <span style="color: #859900; font-weight: bold;">in</span> predicting the civil status (married, single, divorced/widowed) of individuals from their sex (male, female) and sector of activity (primary, secondary, tertiary). The data set is composed of 273 cases.
+
+The data (and related statistical theory) come from:
+
+- Ritschard, G. (2006). Computing and using the deviance with classification trees. In Compstat 2006 - Proceedings <span style="color: #859900; font-weight: bold;">in</span> Computational Statistics 17th Symposium Held <span style="color: #859900; font-weight: bold;">in</span> Rome, Italy, 2006. Retrieved from [This Link](http://mephisto.unige.ch/pub/publications/gr/ritschard_compstat06.pdf)
+
+- Ritschard, G., Pisetta, V., &amp; Zighed, D. (2008). Inducing and evaluating classification trees with statistical implicative criteria. Statistical Implicative Analysis. Studies <span style="color: #859900; font-weight: bold;">in</span> Computational Intelligence Volume 127, pp 397-419. Retrieved from [This Link](http://mephisto.unige.ch/pub/publications/gr/ritsch-pisetta-zighed_bookGras_rev.pdf)
+
+<span style="color: #586e75;">#### </span><span style="color: #586e75;">Code:</span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">copy and paste the data from the PDF (Table 1 in both papers)</span>
+    civst_gend_sector  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(textConnection(
+        <span style="color: #2aa198;">"civil_status gender activity_sector number_of_cases</span>
+<span style="color: #2aa198;">             married   male         primary              50</span>
+<span style="color: #2aa198;">             married   male       secondary              40</span>
+<span style="color: #2aa198;">             married   male        tertiary               6</span>
+<span style="color: #2aa198;">             married female         primary               0</span>
+<span style="color: #2aa198;">             married female       secondary              14</span>
+<span style="color: #2aa198;">             married female        tertiary              10</span>
+<span style="color: #2aa198;">              single   male         primary               5</span>
+<span style="color: #2aa198;">              single   male       secondary               5</span>
+<span style="color: #2aa198;">              single   male        tertiary              12</span>
+<span style="color: #2aa198;">              single female         primary              50</span>
+<span style="color: #2aa198;">              single female       secondary              30</span>
+<span style="color: #2aa198;">              single female        tertiary              18</span>
+<span style="color: #2aa198;">    divorced/widowed   male         primary               5</span>
+<span style="color: #2aa198;">    divorced/widowed   male       secondary               8</span>
+<span style="color: #2aa198;">    divorced/widowed   male        tertiary              10</span>
+<span style="color: #2aa198;">    divorced/widowed female         primary               6</span>
+<span style="color: #2aa198;">    divorced/widowed female       secondary               2</span>
+<span style="color: #2aa198;">    divorced/widowed female        tertiary               2</span>
+<span style="color: #2aa198;">    "</span>),sep = <span style="color: #2aa198;">""</span>)
+
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">save this to my personal R utilities package "disentangle" </span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">for use later when I am exploring functions</span>
+    dir.create(<span style="color: #2aa198;">"inst/extdata"</span>, recursive=T)
+    write.csv(civst_gend_sector, <span style="color: #2aa198;">"inst/extdata/civst_gend_sector.csv"</span>, row.names = F)
+
+<span style="color: #586e75;">#### </span><span style="color: #586e75;">Motivating reason for using these data</span>
+Classification and Regression Tree models (also referred to as Decision Trees) are one of the building blocks of data mining and a great tool <span style="color: #859900; font-weight: bold;">for</span> Exploratory Data Analysis.
+
+I<span style="color: #2aa198;">'ve mostly used Regression Trees in the past but recently got some work with social science data where Classification Trees were needed.  I wanted to assess the deviance as well as the misclassification error rate for measuring the descriptive power of the tree.  While this is a easy with Regression Trees it became obvious that it was not so easy with Classification Trees.  This is because Classification Trees are most often evaluated by means of the error rate. The problem with the error rate is that it is not that helpful for assessing the descriptive capacity of the tree.</span>
+
+<span style="color: #2aa198;">For example if we look at the reduction in deviance between the Null model and the fitted tree we can say that the tree explains about XYZ% of the variation. We can also test if this is a statistically significant reduction based on a chi-squared test.</span>
+
+<span style="color: #2aa198;">Consider this example from page 310 of Hastie, T., Tibshirani, R., &amp; Friedman, J. (2001). The elements of statistical learning. 2nd Edition:</span>
+
+<span style="color: #2aa198;">- in a two-class problem with 400 observations in each class (denote this by (400, 400))</span>
+<span style="color: #2aa198;">- suppose one split created nodes (300, 100) and (100, 300), </span>
+<span style="color: #2aa198;">- the other created nodes (200, 400) and (200, 0). </span>
+<span style="color: #2aa198;">- Both splits produce a misclassification rate of 0.25, but the second split produces a pure node and is probably preferable.</span>
+
+<span style="color: #2aa198;">During the course of my research to try to identify the best available method to implement in my analysis I found a useful series of papers by Ritschard, with a worked example using SPSS.  I hope to translate that to R in the future, but the first thing I did was grab the example data used in several of those papers out of the PDF.  So seeing as this was a public dataset (I use a lot of restricted data) and because I want to be able to use it to demonstrate the use of any R functions I find or write... I thought would publish it properly.  </span>
+
+<span style="color: #2aa198;">#### The Tree Model</span>
+<span style="color: #2aa198;">So just before we leave Ritschard and the CART method, let'</span>s just fit the model.  Let<span style="color: #2aa198;">'s also install my R utilities package "disentangle", to test that we can access the data from it.</span>
+
+<span style="color: #2aa198;">In this analysis the civil status is the outcome (or response or decision or dependent) variable, while sex and activity sector are the predictors (or condition or independent variables). </span>
+
+<span style="color: #2aa198;">#### Code: </span>
+<span style="color: #2aa198;">    # func</span>
+<span style="color: #2aa198;">    require(rpart)</span>
+<span style="color: #2aa198;">    require(partykit) </span>
+<span style="color: #2aa198;">    require(devtools)</span>
+<span style="color: #2aa198;">    install_github("disentangle", "ivanhanigan")</span>
+<span style="color: #2aa198;">    </span>
+<span style="color: #2aa198;">    # load</span>
+<span style="color: #2aa198;">    fpath &lt;- system.file(file.path("extdata", "civst_gend_sector.csv"),</span>
+<span style="color: #2aa198;">                         package = "disentangle"</span>
+<span style="color: #2aa198;">                         )</span>
+<span style="color: #2aa198;">    civst_gend_sector &lt;- read.csv(fpath)</span>
+
+<span style="color: #2aa198;">    # clean</span>
+<span style="color: #2aa198;">    str(civst_gend_sector)</span>
+<span style="color: #2aa198;">    </span>
+<span style="color: #2aa198;">    # do</span>
+<span style="color: #2aa198;">    fit &lt;- rpart(civil_status ~ gender + activity_sector,</span>
+<span style="color: #2aa198;">                 data = civst_gend_sector, weights = number_of_cases,</span>
+<span style="color: #2aa198;">                 control=rpart.control(minsplit=1))</span>
+<span style="color: #2aa198;">    # NB need minsplit to be adjusted for weights.</span>
+<span style="color: #2aa198;">    summary(fit)</span>
+<span style="color: #2aa198;">      </span>
+<span style="color: #2aa198;">    # report</span>
+<span style="color: #2aa198;">    dir.create("images")</span>
+<span style="color: #2aa198;">    png("images/fit1.png", 1000, 480)</span>
+<span style="color: #2aa198;">    plot(as.party(fit))</span>
+<span style="color: #2aa198;">    dev.off()</span>
+
+<span style="color: #2aa198;">#### The Result</span>
+</pre>
+
+
+</div>
 </div>
 
 </div>
 
 <div id="outline-container-3" class="outline-2">
-<h2 id="sec-3"><span class="section-number-2">3</span> Data Operation</h2>
+<h2 id="sec-3"><span class="section-number-2">3</span> Data Input</h2>
 <div class="outline-text-2" id="text-3">
+
+</div>
+
+</div>
+
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Data Operation</h2>
+<div class="outline-text-2" id="text-4">
 
 
 
 </div>
 
-<div id="outline-container-3-1" class="outline-3">
-<h3 id="sec-3-1"><span class="section-number-3">3.1</span> R-subset</h3>
-<div class="outline-text-3" id="text-3-1">
+<div id="outline-container-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> R-subset</h3>
+<div class="outline-text-3" id="text-4-1">
 
 
 
@@ -221,78 +339,79 @@ install_github(<span style="color: #2aa198;">"disentangle"</span>, <span style="
 
 </div>
 
-<div id="outline-container-3-2" class="outline-3">
-<h3 id="sec-3-2"><span class="section-number-3">3.2</span> R-transform</h3>
-<div class="outline-text-3" id="text-3-2">
+<div id="outline-container-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> R-transform</h3>
+<div class="outline-text-3" id="text-4-2">
 
 
 </div>
 
 </div>
 
-<div id="outline-container-3-3" class="outline-3">
-<h3 id="sec-3-3"><span class="section-number-3">3.3</span> R-mutate</h3>
-<div class="outline-text-3" id="text-3-3">
+<div id="outline-container-4-3" class="outline-3">
+<h3 id="sec-4-3"><span class="section-number-3">4.3</span> R-mutate</h3>
+<div class="outline-text-3" id="text-4-3">
 
 
 </div>
 
 </div>
 
-<div id="outline-container-3-4" class="outline-3">
-<h3 id="sec-3-4"><span class="section-number-3">3.4</span> R-summarise</h3>
-<div class="outline-text-3" id="text-3-4">
+<div id="outline-container-4-4" class="outline-3">
+<h3 id="sec-4-4"><span class="section-number-3">4.4</span> R-summarise</h3>
+<div class="outline-text-3" id="text-4-4">
 
 
 </div>
 
 </div>
 
-<div id="outline-container-3-5" class="outline-3">
-<h3 id="sec-3-5"><span class="section-number-3">3.5</span> R-arrange</h3>
-<div class="outline-text-3" id="text-3-5">
+<div id="outline-container-4-5" class="outline-3">
+<h3 id="sec-4-5"><span class="section-number-3">4.5</span> R-arrange</h3>
+<div class="outline-text-3" id="text-4-5">
 
 
 
 
 </div>
-</div>
-
-</div>
-
-<div id="outline-container-4" class="outline-2">
-<h2 id="sec-4"><span class="section-number-2">4</span> Data Output</h2>
-<div class="outline-text-2" id="text-4">
-
 </div>
 
 </div>
 
 <div id="outline-container-5" class="outline-2">
-<h2 id="sec-5"><span class="section-number-2">5</span> Data Documentation</h2>
+<h2 id="sec-5"><span class="section-number-2">5</span> Data Output</h2>
 <div class="outline-text-2" id="text-5">
+
+</div>
+
+</div>
+
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Data Documentation</h2>
+<div class="outline-text-2" id="text-6">
 
 
 
 
 </div>
 
-<div id="outline-container-5-1" class="outline-3">
-<h3 id="sec-5-1"><span class="section-number-3">5.1</span> R-reml-and-rfigshare</h3>
-<div class="outline-text-3" id="text-5-1">
+<div id="outline-container-6-1" class="outline-3">
+<h3 id="sec-6-1"><span class="section-number-3">6.1</span> R-reml-and-rfigshare</h3>
+<div class="outline-text-3" id="text-6-1">
 
 
 
 
 <pre class="src src-R">---
-name: two-main-types-of-data-documentation-workflow
+name: data-documentation-case-study-reml-and-rfigshare
 layout: post
-title: two-main-types-of-data-documentation-workflow
+title: data-documentation-case-study-reml-and-rfigshare
+date: 2013-10-12
 categories:
 - Data Documentation
 ---
 
-<span style="color: #586e75;">#### </span><span style="color: #586e75;">Case Study</span>
+<span style="color: #586e75;">#### </span><span style="color: #586e75;">Case Study: reml-and-rfigshare</span>
 First we will look at the work of the ROpenSci team and the reml
 package.  In the vignette they show how to publish data to figshare
 using rfigshare package.  [figshare](http://figshare.com/) is a site
@@ -302,22 +421,105 @@ research efforts user-friendly. It also uses a tagging system <span style="color
 scientific research discovery. They give you unlimited public space
 and 1GB of private space.  
 
+Start by getting the reml package.
 
 <span style="color: #586e75;">#### </span><span style="color: #586e75;">Code:</span>
-    <span style="color: #586e75;"># </span><span style="color: #586e75;">document</span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">func</span>
     <span style="color: #268bd2; font-weight: bold;">require</span>(devtools)
     install_github(<span style="color: #2aa198;">"reml"</span>, <span style="color: #2aa198;">"ropensci"</span>)
     <span style="color: #268bd2; font-weight: bold;">require</span>(reml)
-    eml_write(civst_gend_sector, 
-              title = <span style="color: #2aa198;">"reml example"</span>,  
-              description = <span style="color: #2aa198;">"An example, intended for</span>
-<span style="color: #2aa198;">                                  illustrative purposes only."</span>,
+    ?eml_write
+&lt;p&gt;&lt;/p&gt;
+This is the Top-level API <span style="color: #859900; font-weight: bold;">function</span> <span style="color: #859900; font-weight: bold;">for</span> writing eml.  Help page is a bit sparse.  See [This Link](https://github.com/ropensci/reml) <span style="color: #859900; font-weight: bold;">for</span> more.  For eg <span style="color: #2aa198;">"for convenience, dat could simply be a data.frame and reml will launch it's metadata wizard to assist in constructing the metadata based on the data.frame provided. While this may be helpful starting out, regular users will find it faster to define the columns and units directly in the format above."</span>
+
+
+Now load up the test data <span style="color: #859900; font-weight: bold;">for</span> classification trees I described <span style="color: #859900; font-weight: bold;">in</span> [This Post](/2013/10/test-data-<span style="color: #859900; font-weight: bold;">for</span>-classification-trees/)
+
+<span style="color: #586e75;">#### </span><span style="color: #586e75;">Code:</span>
+    install_github(<span style="color: #2aa198;">"disentangle"</span>, <span style="color: #2aa198;">"ivanhanigan"</span>) <span style="color: #586e75;"># </span><span style="color: #586e75;">for the data</span>
+                                                 <span style="color: #586e75;"># </span><span style="color: #586e75;">described in prev post</span>
+
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">load</span>
+    fpath <span style="color: #268bd2; font-weight: bold;">&lt;-</span> system.file(file.path(<span style="color: #2aa198;">"extdata"</span>, <span style="color: #2aa198;">"civst_gend_sector.csv"</span>),
+                         package = <span style="color: #2aa198;">"disentangle"</span>
+                         )
+    civst_gend_sector <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(fpath)
+
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">clean</span>
+    str(civst_gend_sector)
+
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">do</span>
+    eml_write(civst_gend_sector,
+              creator = <span style="color: #2aa198;">"Ivan Hanigan <a href="mailto:ivanhanigan%40gmail.com">&lt;ivanhanigan@gmail.com&gt;</a>"</span>)
+
+
+              
+
+
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">Starts up the wizard, a section is shown below.  The wizard</span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">prompts in the console and the user writes the answer.</span>
+
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">Enter description for column 'civil_status':</span>
+    <span style="color: #586e75;">#  </span><span style="color: #586e75;">marriage status</span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">column civil_status appears to contain categorical data.</span>
+    <span style="color: #586e75;">#  </span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">Categories are divorced/widowed, married, single</span>
+    <span style="color: #586e75;">#  </span><span style="color: #586e75;">Please define each of the categories at the prompt</span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">define 'divorced/widowed':</span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">was once married</span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">define 'married':</span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">still married</span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">define 'single':</span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">never married</span>
+
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">TODO I don't really know what activity_sector is.  I assumed</span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">school because Categories are primary, secondary, tertiary.</span>
+
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">this created "metadata.xml" and "metadata.csv"</span>
+    file.remove(c(<span style="color: #2aa198;">"metadata.xml"</span>,<span style="color: #2aa198;">"metadata.csv"</span>))
+&lt;p&gt;&lt;/p&gt;  
+This was a very minimal data documentation effort.  A bit more detail would be better.  Because I would now need to re-write all that <span style="color: #859900; font-weight: bold;">in</span> the wizard I will take the advice of the help file that <span style="color: #2aa198;">"regular users will find it faster to define the columns and units directly in the format"</span>
+
+<span style="color: #586e75;">#### </span><span style="color: #586e75;">Code:</span>
+    ds <span style="color: #268bd2; font-weight: bold;">&lt;-</span> data.set(civst_gend_sector,
+                   col.defs = c(<span style="color: #2aa198;">"Marriage status"</span>, <span style="color: #2aa198;">"sex"</span>, <span style="color: #2aa198;">"education"</span>, <span style="color: #2aa198;">"counts"</span>),
+                   unit.defs = list(c(<span style="color: #2aa198;">"was once married"</span>,<span style="color: #2aa198;">"still married"</span>,<span style="color: #2aa198;">"never married"</span>),
+                       c(<span style="color: #2aa198;">"women"</span>, <span style="color: #2aa198;">"men"</span>),
+                       c(<span style="color: #2aa198;">"primary school"</span>,<span style="color: #2aa198;">"secondary school"</span>,<span style="color: #2aa198;">"tertiary school"</span>),
+                       c(<span style="color: #2aa198;">"persons"</span>))
+                   )
+    ds
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">this prints the dataset and the metadata</span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">now run the EML function</span>
+    eml_write(ds, 
+              title = <span style="color: #2aa198;">"civst_gend_sector"</span>,  
+              description = <span style="color: #2aa198;">"An example, fictional dataset for Decision Tree Models"</span>,
               creator = <span style="color: #2aa198;">"Ivan Hanigan <a href="mailto:ivanhanigan%40gmail.com">&lt;ivanhanigan@gmail.com&gt;</a>"</span>,
-              file = <span style="color: #2aa198;">"reml_example.xml"</span>)
-    obj <span style="color: #268bd2; font-weight: bold;">&lt;-</span> eml_read(<span style="color: #2aa198;">"reml_example.xml"</span>)
+              file = <span style="color: #2aa198;">"civst_gend_sector.xml"</span>
+              )
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">this created the xml and csv with out asking anything</span>
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">but returned a</span>
+    <span style="color: #586e75;">## </span><span style="color: #586e75;">Warning message:</span>
+    <span style="color: #586e75;">## </span><span style="color: #586e75;">In `[&lt;-.data.frame`(`*tmp*`, , value = list(civil_status = c(2L,  :</span>
+    <span style="color: #586e75;">##   </span><span style="color: #586e75;">Setting class(x) to NULL;   result will no longer be an S4 object</span>
+
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">TODO investigate this?</span>
+
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">now we can access the local EML</span>
+    obj <span style="color: #268bd2; font-weight: bold;">&lt;-</span> eml_read(<span style="color: #2aa198;">"civst_gend_sector.xml"</span>)
     obj 
     str(dataTable(obj))
-    head(dataTable(obj))
+    <span style="color: #586e75;"># </span><span style="color: #586e75;">returns an error</span>
+    <span style="color: #586e75;">## </span><span style="color: #586e75;">Error in plyr::compact(lapply(slotNames(from), function(s) if (!isEmpty(slot(from,  (from attribute.R#300) : </span>
+    <span style="color: #586e75;">##   </span><span style="color: #586e75;">subscript out of bounds</span>
+&lt;p&gt;&lt;/p&gt;
+
+<span style="color: #586e75;"># </span><span style="color: #586e75;">Conclusions</span>
+So this looks like a useful tool.  Next steps are to:
+
+- look at sending these data to figshare
+- describe a really really REALLY simple workflow (3 lines? create metadata, eml_write, push to figshare)
+  
   
 </pre>
 
@@ -328,16 +530,8 @@ and 1GB of private space.
 
 </div>
 
-<div id="outline-container-6" class="outline-2">
-<h2 id="sec-6"><span class="section-number-2">6</span> General Purpose</h2>
-<div class="outline-text-2" id="text-6">
-
-</div>
-
-</div>
-
 <div id="outline-container-7" class="outline-2">
-<h2 id="sec-7"><span class="section-number-2">7</span> Visualisation</h2>
+<h2 id="sec-7"><span class="section-number-2">7</span> General Purpose</h2>
 <div class="outline-text-2" id="text-7">
 
 </div>
@@ -345,37 +539,45 @@ and 1GB of private space.
 </div>
 
 <div id="outline-container-8" class="outline-2">
-<h2 id="sec-8"><span class="section-number-2">8</span> Statistics</h2>
+<h2 id="sec-8"><span class="section-number-2">8</span> Visualisation</h2>
 <div class="outline-text-2" id="text-8">
 
-
-</div>
-
-<div id="outline-container-8-1" class="outline-3">
-<h3 id="sec-8-1"><span class="section-number-3">8.1</span> Tree-Based Methods</h3>
-<div class="outline-text-3" id="text-8-1">
-
-
-
 </div>
 
 </div>
 
-<div id="outline-container-8-2" class="outline-3">
-<h3 id="sec-8-2"><span class="section-number-3">8.2</span> Misclassification Error Rate for Classification Trees</h3>
-<div class="outline-text-3" id="text-8-2">
+<div id="outline-container-9" class="outline-2">
+<h2 id="sec-9"><span class="section-number-2">9</span> Statistics</h2>
+<div class="outline-text-2" id="text-9">
+
+
+</div>
+
+<div id="outline-container-9-1" class="outline-3">
+<h3 id="sec-9-1"><span class="section-number-3">9.1</span> Tree-Based Methods</h3>
+<div class="outline-text-3" id="text-9-1">
+
 
 
 </div>
 
 </div>
 
-<div id="outline-container-8-3" class="outline-3">
-<h3 id="sec-8-3"><span class="section-number-3">8.3</span> Deviance Based Measures of Descriptive Power for Classification Trees</h3>
-<div class="outline-text-3" id="text-8-3">
+<div id="outline-container-9-2" class="outline-3">
+<h3 id="sec-9-2"><span class="section-number-3">9.2</span> Misclassification Error Rate for Classification Trees</h3>
+<div class="outline-text-3" id="text-9-2">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-9-3" class="outline-3">
+<h3 id="sec-9-3"><span class="section-number-3">9.3</span> Deviance Based Measures of Descriptive Power for Classification Trees</h3>
+<div class="outline-text-3" id="text-9-3">
 
 <ul>
-<li id="sec-8-3-1">Computing-and-using-deviance-with-classification-trees-Ritschard, G. (2006).<br/>
+<li id="sec-9-3-1">Computing-and-using-deviance-with-classification-trees-Ritschard, G. (2006).<br/>
 I'm reading Ritschard, G. (2006). Computing and using the deviance with classification trees. In Compstat 2006 - Proceedings in Computational Statistics 17th Symposium Held in Rome, Italy, 2006. Retrieved from <a href="http://link.springer.com/chapter/10.1007/978-3-7908-1709-6_5">http://link.springer.com/chapter/10.1007%2F978-3-7908-1709-6_5</a>
 
 <p>
@@ -389,7 +591,7 @@ First I'll get the data out of their paper and fit the tree in figure 1
 </li>
 </ul>
 <ul>
-<li id="sec-8-3-2">Reproduce the figure from the paper<br/>
+<li id="sec-9-3-2">Reproduce the figure from the paper<br/>
 The figure in the paper can be checked against our results (and also the improved plot from the party package might be used).
 
 <p>
@@ -397,7 +599,7 @@ The figure in the paper can be checked against our results (and also the improve
 </p></li>
 </ul>
 <ul>
-<li id="sec-8-3-3">One row per case or using weights?<br/>
+<li id="sec-9-3-3">One row per case or using weights?<br/>
 Using the case weights like above is convenient especially when datasets are very large, but caused problems in model fitting for me (tree failed to compute a deviance when done this way but succeeded with a dataset expanded so the data.frame is transformed into one in which each row is an observation.
 
 
@@ -448,7 +650,7 @@ title(<span style="color: #2aa198;">"fit1"</span>)
 </li>
 </ul>
 <ul>
-<li id="sec-8-3-4"><span class="todo TODO">TODO</span> Check This: R function to calculate for classification trees<br/>
+<li id="sec-9-3-4"><span class="todo TODO">TODO</span> Check This: R function to calculate for classification trees<br/>
 The Ritschard (2006) paper (with SPSS code) describes a complicated method that includes Needing to retrieve for each case: 
 <ul>
 <li>leaf number and
@@ -485,11 +687,11 @@ So let's start simple first.  The following code follows the simpler approach:
 </li>
 </ul>
 <ul>
-<li id="sec-8-3-5">R-tree.chisq<br/>
+<li id="sec-9-3-5">R-tree.chisq<br/>
 </li>
 </ul>
 <ul>
-<li id="sec-8-3-6">R code<br/>
+<li id="sec-9-3-6">R code<br/>
 
 
 
@@ -513,7 +715,7 @@ So let's start simple first.  The following code follows the simpler approach:
 </li>
 </ul>
 <ul>
-<li id="sec-8-3-7">test-tree.chisq<br/>
+<li id="sec-9-3-7">test-tree.chisq<br/>
 
 
 
@@ -560,7 +762,7 @@ tree.chisq(null_model = model0, fitted_model = model1)
 </li>
 </ul>
 <ul>
-<li id="sec-8-3-8">main-tree-model<br/>
+<li id="sec-9-3-8">main-tree-model<br/>
 
 
 
