@@ -433,12 +433,12 @@ So I thought what's the other 10?  Here's a few contenders for my work:
       require(reml)
       install_github("rfigshare", "ropensci")
       require(rfigshare)
+      install_github("disentangle", "ivanhanigan")
+      require(disentangle)
       # load
-      #fpath <- system.file(file.path("extdata","civst_gend_sector_eml.xml"), package = "disentangle")
-      fpath <- "inst/extdata"
-      fname <- "civst_gend_sector_eml.xml"
-      setwd(fpath)
-      obj <- eml_read(fname)
+      fpath <- system.file(file.path("extdata","civst_gend_sector_eml.xml"), package = "disentangle")
+      setwd(dirname(fpath))
+      obj <- eml_read(fpath)
       # clean
       obj
       # do
@@ -477,6 +477,115 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   
 #+end_src
 
+** dc-uploader-and-ANU-DataCommons
+#+name:dc-uploader-and-ANU-DataCommons-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_drafts/2013-10-13-dc-uploader-and-ANU-DataCommons.md :exports none :eval no :padline no
+  ---
+  name: dc-uploader-and-ANU-DataCommons
+  layout: post
+  title: dc-uploader-and-ANU-DataCommons
+  date: 2013-10-13
+  categories:
+  - Data Documentation
+  ---
+  
+  In this post I use the tool produced at the ANU by the DataCommons team.  This requires Python3.
+  
+  #### Code:dc-uploader-and-ANU-DataCommons
+      # func
+      require(devtools)
+      install_github("disentangle", "ivanhanigan")
+      require(disentangle)
+      # load
+      fpath <- system.file(
+          file.path("extdata",
+                    "civst_gend_sector.csv"
+                    ),
+          package = "disentangle"
+          )
+      df <- read.csv(fpath)
+      # clean
+      str(df)
+  
+  # Create the metadata.txt
+  You need to get the python scripts and conf file from the ANU DataCommons team.  Store these somewhere handy and move to that directory.
+  
+  change the anudc.conf: to test out the scripts by creating some sample records, please uncomment the “host” field in the file that points to dc7-dev2.anu.edu.au:8443 , and comment out the one that points to datacommons.anu.edu.au:8443
+  
+  #### Code:
+      setwd("~/tools/dcupload")
+      sink("metadata.txt")
+      cat("
+      # This file, referred to as a collection parameter file, consists of
+      # data in key=value pairs. This data is sent to the ANU Data Commons
+      # to create a collection, establish relations with other records,
+      # and/or upload files to those collections.
+       
+      # The metadata section consists of metadata for use in creation (not
+      # for modification) of record metadata in ANU Data Commons. The
+      # following fields are required for the creation of a record. The file
+      # Keys.txt contains the full list of values that can be specified in
+      # this file. Based on this information below, a collection record of
+      # type databaset with the title "Test Collection 6/05/2013" will be
+      # created owned by Meteorology and Health group.
+      [metadata]
+      type = Collection
+      subType = dataset
+      ownerGroup = 6
+      name = Test Dataset 12/10/2013
+      email = ivan.hanigan@anu.edu.au
+      anzforSubject = 1601
+       
+      # The relations section allows you to specify the relation this record
+      # has with other records in the system.  Currently relations with NLA
+      # identifiers is not supported.
+      [relations]
+      isOutputOf = anudc:123
+       
+      # This section contains a line of the form 'pid = anudc:123' once a
+      # record has been created so executing the uploader script with the
+      # same collection parameter file doesnt create a new record with the
+      # same metadata.
+      [pid]
+      ")
+      sink()
+  
+      # run the dcload
+      system("python3 dcuploader.py -c metadata.txt")
+  
+  <p></p>
+  # go to the website
+  Go to [the dev site](https://dc7-dev2.anu.edu.au:8443/DataCommons/) or if using the production server go to [This Link](https://datacommons.anu.edu.au:8443/DataCommons)
+  This has created a new record in our account.
+  
+  Looking at metadata.txt it has been modified with the new pid.
+  
+  # Error encountered on dev environment
+       
+      ## Creating record at dc7-dev2.anu.edu.au:8443/DataCommons/rest/display/new?layout=def:display&tmplt=tmplt:1 ...
+      ## DEBUG:root:type: Collection
+      ## DEBUG:root:subType: dataset
+      ## DEBUG:root:ownerGroup: 6
+      ## DEBUG:root:name: Test Dataset 12/10/2013
+      ## DEBUG:root:email: ivan.hanigan@anu.edu.au
+      ## DEBUG:root:anzforSubject: 1601
+      ## Status: 302, (Found)
+      ## Body: 
+      ## Traceback (most recent call last):
+      ##   File "dcuploader.py", line 103, in <module>
+      ##     main()
+      ##   File "dcuploader.py", line 66, in main
+      ##     pid = anudc.create_record(metadatafile)
+      ##   File "/home/ivan_hanigan/tools/dcupload/anudclib.py", line 100, in create_record
+      ##     raise Exception("Unable to create record")
+      ## Exception: Unable to create record
+      ## > 
+       
+       
+       
+  
+  
+#+end_src
 
 * General Purpose
 * Visualisation
