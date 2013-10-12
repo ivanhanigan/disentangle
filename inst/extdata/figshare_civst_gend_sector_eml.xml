@@ -1,0 +1,89 @@
+<?xml version="1.0"?>
+<eml:eml xmlns:eml="eml://ecoinformatics.org/eml-2.1.1" xmlns:ds="eml://ecoinformatics.org/dataset-2.1.1" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:stmml="http://www.xml-cml.org/schema/stmml-1.1" packageId="urn:uuid:861adb45-df1d-4fcd-9f81-f4afa385196f" system="uuid">
+  <dataset>
+    <title>civst_gend_sector</title>
+    <creator>
+      <individualName>
+        <givenName>Ivan</givenName>
+        <surName>Hanigan</surName>
+      </individualName>
+      <electronicMailAddress>ivanhanigan@gmail.com</electronicMailAddress>
+    </creator>
+    <pubDate>2013-10-11</pubDate>
+    <intellectualRights>&lt;a rel='license' property='http://creativecommons.org/ns#license' href='http://creativecommons.org/publicdomain/zero/1.0/'&gt;CC0&lt;/a&gt;</intellectualRights>
+    <contact>
+      <individualName>
+        <givenName>Ivan</givenName>
+        <surName>Hanigan</surName>
+      </individualName>
+      <electronicMailAddress>ivanhanigan@gmail.com</electronicMailAddress>
+    </contact>
+    <dataTable>
+      <entityName>civst_gend_sector</entityName>
+      <entityDescription>An example, fictional dataset for Decision Tree Models</entityDescription>
+      <physical>
+        <objectName>civst_gend_sector.csv</objectName>
+        <size>3144</size>
+        <characterEncoding>en_AU.UTF-8</characterEncoding>
+        <dataFormat>
+          <textFormat>
+            <numHeaderLines>1</numHeaderLines>
+            <numFooterLines>0</numFooterLines>
+            <recordDelimiter>\r\n</recordDelimiter>
+            <attributeOrientation>column</attributeOrientation>
+            <simpleDelimited>
+              <fieldDelimiter>,</fieldDelimiter>
+            </simpleDelimited>
+          </textFormat>
+        </dataFormat>
+        <distribution>
+          <online>
+            <url function="download">http://files.figshare.com/1233197/civst_gend_sector.csv</url>
+          </online>
+        </distribution>
+      </physical>
+      <attributeList>
+        <attribute>
+          <attributeName>civil_status</attributeName>
+          <attributeDefinition>Marriage status</attributeDefinition>
+        </attribute>
+        <attribute>
+          <attributeName>gender</attributeName>
+          <attributeDefinition>sex</attributeDefinition>
+        </attribute>
+        <attribute>
+          <attributeName>activity_sector</attributeName>
+          <attributeDefinition>education</attributeDefinition>
+        </attribute>
+        <attribute>
+          <attributeName>number_of_cases</attributeName>
+          <attributeDefinition>counts</attributeDefinition>
+          <measurementScale>
+            <ratio>
+              <unit>
+                <standardUnit>persons</standardUnit>
+              </unit>
+              <numericDomain>
+                <numberType>real</numberType>
+              </numericDomain>
+            </ratio>
+          </measurementScale>
+        </attribute>
+      </attributeList>
+      <caseSensitive>yes</caseSensitive>
+      <numberOfRecords>18</numberOfRecords>
+    </dataTable>
+    <additionalMetadata id="figshare">
+      <metadata>
+        <keywordSet>
+          <keywordThesaurus>figshare Tags</keywordThesaurus>
+          <keyword>EML</keyword>
+        </keywordSet>
+        <keywordSet>
+          <keywordThesaurus>figshare Categories</keywordThesaurus>
+          <keyword>Survey results</keyword>
+        </keywordSet>
+      </metadata>
+    </additionalMetadata>
+  </dataset>
+</eml:eml>

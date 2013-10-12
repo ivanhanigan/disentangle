@@ -396,9 +396,9 @@ So I thought what's the other 10?  Here's a few contenders for my work:
       obj <- eml_read("inst/extdata/civst_gend_sector_eml.xml")
       obj 
       str(dataTable(obj))
-  ##     # returns an error
-  ##     ## Error in plyr::compact(lapply(slotNames(from), function(s) if (!isEmpty(slot(from,  (from attribute.R#300) : 
-  ##     ##   subscript out of bounds
+      # returns an error
+      ## Error in plyr::compact(lapply(slotNames(from), function(s) if (!isEmpty(slot(from,  (from attribute.R#300) : 
+      ##   subscript out of bounds
   <p></p>
   
   # Conclusions
@@ -409,20 +409,22 @@ So I thought what's the other 10?  Here's a few contenders for my work:
     
     
 #+end_src
-** 2013-10-11-reml-and-rfigshare-part-2
+** R-reml-and-rfigshare-part-2
 #+name:reml-and-rfigshare-part-2-header
-#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_drafts/2013-10-11-reml-and-rfigshare-part-2.md :exports reports :eval no :padline no
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-12-reml-and-rfigshare-part-2.md :exports reports :eval no :padline no
   ---
   name: reml-and-rfigshare-part-2
   layout: post
   title: reml-and-rfigshare-part-2
-  date: 2013-10-11
+  date: 2013-10-12
   categories:
   - Data Documentation
   ---
   
   In the last post I explored the functionality of reml.
   This time I will try to send data to figshare.
+  
+  - First follow [These Instructions](https://github.com/ropensci/rfigshare) to get rfigshare set up.  In particular store your figshare credentials in ~/.Rprofile
   
   #### Code:reml-and-rfigshare-part-2
       # func
@@ -433,24 +435,45 @@ So I thought what's the other 10?  Here's a few contenders for my work:
       require(rfigshare)
       # load
       #fpath <- system.file(file.path("extdata","civst_gend_sector_eml.xml"), package = "disentangle")
-      fpath <- "inst/extdata/civst_gend_sector_eml.xml"
-      obj <- eml_read(fpath)
+      fpath <- "inst/extdata"
+      fname <- "civst_gend_sector_eml.xml"
+      setwd(fpath)
+      obj <- eml_read(fname)
       # clean
       obj
       # do
-      id <- eml_publish(fpath,
-                        description="Example EML",
-                        categories = "Social Science",
+  
+      ## STEP 1: find one of the preset categories
+      # available. We can ask the API for
+      # a list of all the categories:
+      list <- fs_category_list()
+      list[grep("Survey", list)]
+  
+      ## STEP 2: PUBLISH TO FIGSHARE
+      id <- eml_publish(fname,
+                        description="Example EML
+                          A fictional dataset",
+                        categories = "Survey results",
                         tags = "EML",
                         destination="figshare"
                         )
-      ## text_content() deprecated. Use parsed_content(x, as = 'parsed')
-      ## Loading required package: rjson
-      ## Your article has been created! Your id number is 820129
-      ## text_content() deprecated. Use parsed_content(x, as = 'parsed')
-      ## text_content() deprecated. Use parsed_content(x, as = 'parsed')
-      ## Error in fs_cat_to_id(category_id) (from fs_add_categories.R#55) : 
-      ##   One or more of your input strings is not a valid category
+      # there are several warnings
+      # but go to figshare and it has sent the metadata and data OK
+  
+      # make public using either the figshare web interface, the
+      # rfigshare package (using fs_make_public(id)) or just by adding
+      # the argument visibility = TRUE to the above eml_publish
+      fs_make_public(id)
+  
+      
+  <p></p>
+  # Now these data are on figshare
+  
+  Now I have published the data they are visible and have a DOI
+  
+  
+  <iframe src="http://wl.figshare.com/articles/820158/embed?show_title=1" width="568" height="157" frameborder="0"></iframe>
+  
   
 #+end_src
 
