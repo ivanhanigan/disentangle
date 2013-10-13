@@ -287,6 +287,30 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   
 #+end_src
 
+*** getting the test data
+#+name:get-test-data
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:get-test-data
+  
+  #### Code:dc-uploader-and-ANU-DataCommons
+      # func
+      require(devtools)
+      install_github("disentangle", "ivanhanigan")
+      require(disentangle)
+      # load
+      fpath <- system.file(
+          file.path("extdata",
+                    "civst_gend_sector.csv"
+                    ),
+          package = "disentangle"
+          )
+      df <- read.csv(fpath)
+      # clean
+      str(df)
+
+#+end_src
+
 ** R-reml-and-rfigshare
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-12-data-documentation-case-study-reml-and-rfigshare.md :exports reports :eval no :padline no
   ---
@@ -479,7 +503,7 @@ So I thought what's the other 10?  Here's a few contenders for my work:
 
 ** dc-uploader-and-ANU-DataCommons
 #+name:dc-uploader-and-ANU-DataCommons-header
-#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_drafts/2013-10-13-dc-uploader-and-ANU-DataCommons.md :exports none :eval no :padline no
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-13-dc-uploader-and-ANU-DataCommons.md :exports none :eval no :padline no
   ---
   name: dc-uploader-and-ANU-DataCommons
   layout: post
@@ -491,26 +515,11 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   
   In this post I use the tool produced at the ANU by the DataCommons team.  This requires Python3.
   
-  #### Code:dc-uploader-and-ANU-DataCommons
-      # func
-      require(devtools)
-      install_github("disentangle", "ivanhanigan")
-      require(disentangle)
-      # load
-      fpath <- system.file(
-          file.path("extdata",
-                    "civst_gend_sector.csv"
-                    ),
-          package = "disentangle"
-          )
-      df <- read.csv(fpath)
-      # clean
-      str(df)
-  
   # Create the metadata.txt
+
   You need to get the python scripts and conf file from the ANU DataCommons team.  Store these somewhere handy and move to that directory.
   
-  change the anudc.conf: to test out the scripts by creating some sample records, please uncomment the “host” field in the file that points to dc7-dev2.anu.edu.au:8443 , and comment out the one that points to datacommons.anu.edu.au:8443
+  change the anudc.conf: to test out the scripts by creating some sample records, please uncomment the “host” field in the file that points to dc7-dev2.anu.edu.au:8443 , and comment out the one that points to datacommons.anu.edu.au:8443  (NOTE THAT I COULDNT CREATE RECORDS IN THE DEV SERVER)
   
   #### Code:
       setwd("~/tools/dcupload")
@@ -555,13 +564,14 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   
   <p></p>
   # go to the website
-  Go to [the dev site](https://dc7-dev2.anu.edu.au:8443/DataCommons/) or if using the production server go to [This Link](https://datacommons.anu.edu.au:8443/DataCommons)
+  Go to the production server at [This Link](https://datacommons.anu.edu.au:8443/DataCommons)
   This has created a new record in our account.
   
   Looking at metadata.txt it has been modified with the new pid.
   
-  # Error encountered on dev environment
-       
+  # Errors encountered on dev environment
+  When I tried using [the dev site](https://dc7-dev2.anu.edu.au:8443/DataCommons/) I got the following errors:
+
       ## Creating record at dc7-dev2.anu.edu.au:8443/DataCommons/rest/display/new?layout=def:display&tmplt=tmplt:1 ...
       ## DEBUG:root:type: Collection
       ## DEBUG:root:subType: dataset
@@ -579,8 +589,33 @@ So I thought what's the other 10?  Here's a few contenders for my work:
       ##   File "/home/ivan_hanigan/tools/dcupload/anudclib.py", line 100, in create_record
       ##     raise Exception("Unable to create record")
       ## Exception: Unable to create record
-      ## > 
-       
+      ## >
+      ####################################################################
+      # AND if I try comment out token and add u number and password (ps
+      # I dont like hard coded passwords in scripts
+      # tried u12344 and pwd, also [u12344] and "u12344" and 12344 etc etc
+  
+      ##     Traceback (most recent call last):
+      ##   File "dcuploader.py", line 103, in <module>
+      ##     main()
+      ##   File "dcuploader.py", line 66, in main
+      ##     pid = anudc.create_record(metadatafile)
+      ##   File "/home/ivan_hanigan/tools/dcupload/anudclib.py", line 82, in create_record
+      ##     self.__add_auth_header(headers)
+      ##   File "/home/ivan_hanigan/tools/dcupload/anudclib.py", line 38, in __add_auth_header
+      ##     username_password = base64.encodestring("%s:%s" % (username, password)).replace('\n', '')
+      ##   File "/usr/lib/python3.2/base64.py", line 353, in encodestring
+      ##     return encodebytes(s)
+      ##   File "/usr/lib/python3.2/base64.py", line 341, in encodebytes
+      ##     raise TypeError("expected bytes, not %s" % s.__class__.__name__)
+      ## TypeError: expected bytes, not str
+  <p></p>  
+  # Notes
+
+  - I need to get the Keys.txt file that contains the full list of values that can be specified in this metadata.txt file.     
+  - Dev server not working?  I tried from public, ncephgis VPN and nceph local IP addresses.
+  - Hardcoded password is bad idea
+  - how does dataset get sent?  
        
        
   
