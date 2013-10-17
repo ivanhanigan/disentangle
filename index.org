@@ -652,6 +652,42 @@ So I thought what's the other 10?  Here's a few contenders for my work:
       
 #+end_src
 
+** R-spss-variable-labels-code
+#+name:R-spss-variable-labels
+#+begin_src R :session *R* :tangle no :exports reports :eval no
+  ################################################################
+  # name:R-spss-variable-labels
+  # func
+  require(xtable)
+  
+  # load
+  analyte  <- read.spss(filename, to.data.frame=T)
+  
+  # clean
+  names(analyte)
+  varslist <- as.data.frame(attributes(analyte)$variable.labels)
+  write.csv(varslist, "variable_labels.csv", row.names = T)
+  x <- read.csv('variable_labels.csv')
+  head(x)
+  names(x)  <- c("variable", "label")
+  
+  # do
+  x.big <- xtable(x,label='tab:table1',caption='Variable Names and Descriptions')
+  align(x.big) <-  c( 'l', 'p{1in}', 'p{4in}')
+    
+  sink('tab1.tex')
+  
+  print(x.big,tabular.environment='longtable',
+          floating=FALSE, caption.placement = "top",
+          hline.after = c(-1,nrow(x.big)), 
+          add.to.row = list(pos = list(0),command = "\\hline \\endhead "),
+          include.rownames=F)
+  
+  sink()
+  
+  
+#+end_src
+
 * General Purpose
 * Visualisation
 * Statistics
