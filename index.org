@@ -227,6 +227,35 @@ So I thought what's the other 10?  Here's a few contenders for my work:
                   ndays = length(unique(Day))
                   )
       head(df)
+  
+  #### Passing variables to ddply for summary
+      # Notice how the name of the variable Temp doesn't need quotes?
+      # this means that you need to hard code the names
+      # But if you want to pass variables to this inside a function we need a
+      # different approach.
+  
+      summarise_df  <- function(x, by, var1, var2, var3)
+        {
+          data_out <- ddply(x,
+                            by,
+                            function(df) return(
+                              c(
+                                tmax = max(df[,var1]),
+                                tav = mean(df[,var2]),
+                                ndays = length(unique(df[,var3]))
+                                )
+                              )
+                            )
+          return(data_out)
+        }
+       
+      df2 <- summarise_df(airquality, "Month",
+                         "Temp", "Temp", "Day"
+                         )
+  
+      head(df2)
+      all.equal(df,df2)
+      # TRUE
 #+end_src
 ** R-arrange
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports none :eval no :padline no
