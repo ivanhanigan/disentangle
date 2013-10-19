@@ -848,6 +848,69 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   
 #+end_src
 
+** R-get.var.labels
+*** R-get.var.labels
+#+name:get.var.labels
+#+begin_src R :session *R* :tangle R/get.var.labels.r :exports none :eval no
+  ################################################################
+  # name:get.var.labels
+  # from http://stackoverflow.com/a/10261534
+  get.var.labels = function(data) {
+    if(!require(Hmisc)) install.packages('Hmisc', dependencies = TRUE); require(Hmisc)
+    a = do.call(llist, data)
+    tempout = vector("list", length(a))
+  
+    for (i in 1:length(a)) {
+      tempout[[i]] = label(a[[i]])
+    }
+    b = unlist(tempout)
+    structure(c(b), .Names = names(data))
+  }
+  
+#+end_src
+*** test-get.var.labels
+#+name:get.var.labels
+#+begin_src R :session *R* :tangle no :exports reports :eval no
+  ################################################################
+  # name:R-variable-labels-create
+  # func
+  require(disentangle)
+  
+  # load
+  fpath <- system.file(file.path("extdata", "civst_gend_sector.csv"),
+                       package = "disentangle"
+                       )
+  civst_gend_sector <- read.csv(fpath)
+    
+  # clean
+  str(civst_gend_sector)
+    
+  # do
+  label(civst_gend_sector) <- "Fictional data for Classification Trees"
+  label(civst_gend_sector$civil_status) <- "married"
+  label(civst_gend_sector$gender) <- "gender"
+  label(civst_gend_sector$activity_sector) <- "level of school"
+  label(civst_gend_sector$number_of_cases) <- "persons"
+  
+  attributes(civst_gend_sector)$variable.labels = get.var.labels(civst_gend_sector)
+  
+  # report
+  str(civst_gend_sector)
+  as.data.frame(
+    attributes(civst_gend_sector)$variable.labels
+    )
+    
+  
+#+end_src
+
+*** man-get.var.labels
+#+name:get.var.labels
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:get.var.labels
+
+#+end_src
+
 ** R-spss-variable-labels-read
 #+name:R-spss-variable-labels
 #+begin_src R :session *R* :tangle no :exports reports :eval no

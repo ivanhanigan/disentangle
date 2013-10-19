@@ -1,7 +1,20 @@
 
 ################################################################
 # name:newnode
-source("R/newnode.r")
+# REQUIRES GRAPHVIZ, AND TO INSTALL RGRAPHVIZ
+# source('http://bioconductor.org/biocLite.R')
+# biocLite("Rgraphviz")
+# or may be needed for eg under ubuntu
+# biocLite("Rgraphviz", configure.args=c("--with-graphviz=/usr"))
+# FURTHER INFO
+# see the Rgraphviz examples
+# example(layoutGraph)
+# require(biocGraph) # for imageMap
+
+# source("R/newnode.r")
+require(devtools)
+install_github("disentangle", "ivanhanigan")
+require(disentangle)
 newnode(
   name = "NAME"
   ,
@@ -21,7 +34,7 @@ newnode(
   ,
   plot = T
   )
-nodes <- newnode("merge", c("d1", "d2", "d3"))
+
 nodes <- newnode("merge", c("d1", "d2", "d3"), c("EDA"),
                  newgraph =T)
 nodes <- newnode("qc", c("data1", "data2", "data3"), c("d1", "d2", "d3"))
@@ -29,7 +42,7 @@ nodes <- newnode("modelling", "EDA")
 nodes <- newnode("model checking", "modelling", c("data checking", "reporting"))
 #require(disentangle)
 # either edit a spreadsheet with filenames, inputs and outputs 
-filesList <- read.csv("exampleFilesList.csv", stringsAsFactors = F)
+# filesList <- read.csv("exampleFilesList.csv", stringsAsFactors = F)
 # or 
 filesList <- read.csv(textConnection(
 'FILE,INPUTS,OUTPUTS,DESCRIPTION
