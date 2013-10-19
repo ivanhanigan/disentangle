@@ -750,8 +750,105 @@ So I thought what's the other 10?  Here's a few contenders for my work:
       
 #+end_src
 
-* Exploratory Data Analysis
-** R-spss-variable-labels-code
+** COMMENT TODO R-spss-variable-labels-create
+#+name:R-spss-variable-labels
+#+begin_src R :session *R* :tangle no :exports reports :eval no
+  ################################################################
+  # name:R-spss-variable-labels
+  # from http://stackoverflow.com/q/10181730
+  # First I create a dummy dataset
+  df <- data.frame(id = c(1:6), p.code = c(1, 5, 4, NA, 0, 5),  
+                   p.label = c('Optometrists', 'Nurses', 'Financial analysts',
+                   '<NA>', '0', 'Nurses'), foo = LETTERS[1:6])
+  
+  # Second, I add some variable labels using label from the Hmisc package
+  # install.packages('Hmisc', dependencies = TRUE)
+  library(Hmisc)
+  label(df) <- "Sweet sweet data"
+  label(df$id) <- "id !@#$%^" 
+  label(df$p.label) <- "Profession with human readable information"
+  label(df$p.code) <- "Profession code"
+  label(df$foo) <- "Variable label for variable x.var"
+  # modify the name of one varibes, just to see what happens when exported.
+  names(df)[4] <- "New crazy name for 'foo'"
+  
+  attributes(df)$variable.labels
+  
+  # Third I export the data with write.foreign from the foreign package
+  # install.packages('foreign', dependencies = TRUE)
+  setwd('inst/extdata')
+  library(foreign)
+  write.foreign(df,"df.wf.txt","df.wf.sps",  package="SPSS")
+  
+  list.files()
+  # [1] "df.wf.sps" "df.wf.txt"
+  
+  # from http://stackoverflow.com/a/10261534
+  # Step 1: Make a backup of your data, just in case
+  df.orig = df
+  # Step 2: Load the following function
+  get.var.labels = function(data) {
+    a = do.call(llist, data)
+    tempout = vector("list", length(a))
+  
+    for (i in 1:length(a)) {
+      tempout[[i]] = label(a[[i]])
+    }
+    b = unlist(tempout)
+    structure(c(b), .Names = names(data))
+  }
+  # Step 3: Apply the variable.label attributes
+  attributes(df)$variable.labels = get.var.labels(df)
+  # Step 4: Load the write.SPSS function available from
+  # https://stat.ethz.ch/pipermail/r-help/2006-January/085941.html
+  
+  write.SPSS <- function (df, datafile, codefile, varnames = NULL)
+    {
+      adQuote <- function(x){paste("\"", x, "\"", sep = "")}
+       dfn <- lapply(df, function(x) if (is.factor(x))
+           as.numeric(x)
+       else x)
+       write.table(dfn, file = datafile, row = FALSE, col = FALSE)
+       if(is.null(attributes(df)$variable.labels)) varlabels <- names(df) else varlabels <- attributes(df)$variable.labels
+       if (is.null(varnames)) {
+           varnames <- abbreviate(names(df), 8)
+           if (any(sapply(varnames, nchar) > 8))
+               stop("I cannot abbreviate the variable names to eight or fewer letters")
+           if (any(varnames != names(df)))
+               warning("some variable names were abbreviated")
+       }
+       cat("DATA LIST FILE=", dQuote(datafile), " free\n", file = codefile)
+       cat("/", varnames, " .\n\n", file = codefile, append = TRUE)
+       cat("VARIABLE LABELS\n", file = codefile, append = TRUE)
+       cat(paste(varnames, adQuote(varlabels), "\n"), ".\n", file = codefile,
+           append = TRUE)
+       factors <- sapply(df, is.factor)
+       if (any(factors)) {
+           cat("\nVALUE LABELS\n", file = codefile, append = TRUE)
+           for (v in which(factors)) {
+               cat("/\n", file = codefile, append = TRUE)
+               cat(varnames[v], " \n", file = codefile, append = TRUE)
+               levs <- levels(df[[v]])
+               cat(paste(1:length(levs), adQuote(levs), "\n", sep = " "),
+                   file = codefile, append = TRUE)
+           }
+           cat(".\n", file = codefile, append = TRUE)
+       }
+       cat("\nEXECUTE.\n", file = codefile, append = TRUE)
+    }
+  
+  # Step 5: Write your SPSS datafile and codefile
+  write.SPSS(df, "df.sav", "df.sps")
+  
+  ## analyte  <- read.spss("df.sav", to.data.frame = T)
+  ## Error in read.spss("df.sav", to.data.frame = T) : 
+  ##   file 'df.sav' is not in any supported SPSS format
+  
+  
+  
+#+end_src
+
+** R-spss-variable-labels-read
 #+name:R-spss-variable-labels
 #+begin_src R :session *R* :tangle no :exports reports :eval no
   ################################################################
@@ -787,6 +884,8 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   
 #+end_src
 
+
+* Exploratory Data Analysis
 * General Purpose
 * Visualisation
 * Statistical Modelling

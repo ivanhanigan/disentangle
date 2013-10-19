@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="Disentangle Things"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2013-10-19T13:34+1100"/>
+<meta name="generated" content="2013-10-19T20:36+1100"/>
 <meta name="author" content="Ivan Hanigan"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -170,13 +170,10 @@ for the JavaScript code in this tag.
 <li><a href="#sec-7-2">7.2 R-reml-and-rfigshare-part-2</a></li>
 <li><a href="#sec-7-3">7.3 dc-uploader-and-ANU-DataCommons</a></li>
 <li><a href="#sec-7-4">7.4 morpho-and-rfigshare</a></li>
+<li><a href="#sec-7-5">7.5 R-spss-variable-labels-read</a></li>
 </ul>
 </li>
-<li><a href="#sec-8">8 Exploratory Data Analysis</a>
-<ul>
-<li><a href="#sec-8-1">8.1 R-spss-variable-labels-code</a></li>
-</ul>
-</li>
+<li><a href="#sec-8">8 Exploratory Data Analysis</a></li>
 <li><a href="#sec-9">9 General Purpose</a></li>
 <li><a href="#sec-10">10 Visualisation</a></li>
 <li><a href="#sec-11">11 Statistical Modelling</a>
@@ -216,11 +213,11 @@ for the JavaScript code in this tag.
 
 
 
-<pre class="src src-R"><span style="color: #93a1a1;">################################################################</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">devtools is recommended</span>
-<span style="color: #268bd2; font-weight: bold;">require</span>(devtools)
-install_github(<span style="color: #2aa198;">"disentangle"</span>, <span style="color: #2aa198;">"ivanhanigan"</span>)
-<span style="color: #268bd2; font-weight: bold;">require</span>(disentangle)
+<pre class="src src-R"><span style="color: #7f9f7f;">################################################################</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">devtools is recommended</span>
+<span style="color: #bfebbf; font-weight: bold;">require</span>(devtools)
+install_github(<span style="color: #cc9393;">"disentangle"</span>, <span style="color: #cc9393;">"ivanhanigan"</span>)
+<span style="color: #bfebbf; font-weight: bold;">require</span>(disentangle)
 </pre>
 
 </div>
@@ -242,96 +239,96 @@ install_github(<span style="color: #2aa198;">"disentangle"</span>, <span style="
 
 
 
-<pre class="src src-R"><span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">A fictitious sample dataset</span>
-For discussion, I<span style="color: #2aa198;">'ll use a fictional example dataset that I'</span>m using to work through some statistical theory related to Classification and Regression Trees (CART).
-In the motivating example use case we are interested <span style="color: #859900; font-weight: bold;">in</span> predicting the civil status (married, single, divorced/widowed) of individuals from their sex (male, female) and sector of activity (primary, secondary, tertiary). The data set is composed of 273 cases.
+<pre class="src src-R"><span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">A fictitious sample dataset</span>
+For discussion, I<span style="color: #cc9393;">'ll use a fictional example dataset that I'</span>m using to work through some statistical theory related to Classification and Regression Trees (CART).
+In the motivating example use case we are interested <span style="color: #f0dfaf; font-weight: bold;">in</span> predicting the civil status (married, single, divorced/widowed) of individuals from their sex (male, female) and sector of activity (primary, secondary, tertiary). The data set is composed of 273 cases.
 
 The data (and related statistical theory) come from:
 
-- Ritschard, G. (2006). Computing and using the deviance with classification trees. In Compstat 2006 - Proceedings <span style="color: #859900; font-weight: bold;">in</span> Computational Statistics 17th Symposium Held <span style="color: #859900; font-weight: bold;">in</span> Rome, Italy, 2006. Retrieved from [This Link](http://mephisto.unige.ch/pub/publications/gr/ritschard_compstat06.pdf)
+- Ritschard, G. (2006). Computing and using the deviance with classification trees. In Compstat 2006 - Proceedings <span style="color: #f0dfaf; font-weight: bold;">in</span> Computational Statistics 17th Symposium Held <span style="color: #f0dfaf; font-weight: bold;">in</span> Rome, Italy, 2006. Retrieved from [This Link](http://mephisto.unige.ch/pub/publications/gr/ritschard_compstat06.pdf)
 
-- Ritschard, G., Pisetta, V., &amp; Zighed, D. (2008). Inducing and evaluating classification trees with statistical implicative criteria. Statistical Implicative Analysis. Studies <span style="color: #859900; font-weight: bold;">in</span> Computational Intelligence Volume 127, pp 397-419. Retrieved from [This Link](http://mephisto.unige.ch/pub/publications/gr/ritsch-pisetta-zighed_bookGras_rev.pdf)
+- Ritschard, G., Pisetta, V., &amp; Zighed, D. (2008). Inducing and evaluating classification trees with statistical implicative criteria. Statistical Implicative Analysis. Studies <span style="color: #f0dfaf; font-weight: bold;">in</span> Computational Intelligence Volume 127, pp 397-419. Retrieved from [This Link](http://mephisto.unige.ch/pub/publications/gr/ritsch-pisetta-zighed_bookGras_rev.pdf)
 
-<span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">Code:</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">copy and paste the data from the PDF (Table 1 in both papers)</span>
-    civst_gend_sector  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(textConnection(
-        <span style="color: #2aa198;">"civil_status gender activity_sector number_of_cases</span>
-<span style="color: #2aa198;">             married   male         primary              50</span>
-<span style="color: #2aa198;">             married   male       secondary              40</span>
-<span style="color: #2aa198;">             married   male        tertiary               6</span>
-<span style="color: #2aa198;">             married female         primary               0</span>
-<span style="color: #2aa198;">             married female       secondary              14</span>
-<span style="color: #2aa198;">             married female        tertiary              10</span>
-<span style="color: #2aa198;">              single   male         primary               5</span>
-<span style="color: #2aa198;">              single   male       secondary               5</span>
-<span style="color: #2aa198;">              single   male        tertiary              12</span>
-<span style="color: #2aa198;">              single female         primary              50</span>
-<span style="color: #2aa198;">              single female       secondary              30</span>
-<span style="color: #2aa198;">              single female        tertiary              18</span>
-<span style="color: #2aa198;">    divorced/widowed   male         primary               5</span>
-<span style="color: #2aa198;">    divorced/widowed   male       secondary               8</span>
-<span style="color: #2aa198;">    divorced/widowed   male        tertiary              10</span>
-<span style="color: #2aa198;">    divorced/widowed female         primary               6</span>
-<span style="color: #2aa198;">    divorced/widowed female       secondary               2</span>
-<span style="color: #2aa198;">    divorced/widowed female        tertiary               2</span>
-<span style="color: #2aa198;">    "</span>),sep = <span style="color: #2aa198;">""</span>)
+<span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">Code:</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">copy and paste the data from the PDF (Table 1 in both papers)</span>
+    civst_gend_sector  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> read.csv(textConnection(
+        <span style="color: #cc9393;">"civil_status gender activity_sector number_of_cases</span>
+<span style="color: #cc9393;">             married   male         primary              50</span>
+<span style="color: #cc9393;">             married   male       secondary              40</span>
+<span style="color: #cc9393;">             married   male        tertiary               6</span>
+<span style="color: #cc9393;">             married female         primary               0</span>
+<span style="color: #cc9393;">             married female       secondary              14</span>
+<span style="color: #cc9393;">             married female        tertiary              10</span>
+<span style="color: #cc9393;">              single   male         primary               5</span>
+<span style="color: #cc9393;">              single   male       secondary               5</span>
+<span style="color: #cc9393;">              single   male        tertiary              12</span>
+<span style="color: #cc9393;">              single female         primary              50</span>
+<span style="color: #cc9393;">              single female       secondary              30</span>
+<span style="color: #cc9393;">              single female        tertiary              18</span>
+<span style="color: #cc9393;">    divorced/widowed   male         primary               5</span>
+<span style="color: #cc9393;">    divorced/widowed   male       secondary               8</span>
+<span style="color: #cc9393;">    divorced/widowed   male        tertiary              10</span>
+<span style="color: #cc9393;">    divorced/widowed female         primary               6</span>
+<span style="color: #cc9393;">    divorced/widowed female       secondary               2</span>
+<span style="color: #cc9393;">    divorced/widowed female        tertiary               2</span>
+<span style="color: #cc9393;">    "</span>),sep = <span style="color: #cc9393;">""</span>)
 
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">save this to my personal R utilities package "disentangle" </span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">for use later when I am exploring functions</span>
-    dir.create(<span style="color: #2aa198;">"inst/extdata"</span>, recursive=T)
-    write.csv(civst_gend_sector, <span style="color: #2aa198;">"inst/extdata/civst_gend_sector.csv"</span>, row.names = F)
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">save this to my personal R utilities package "disentangle" </span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">for use later when I am exploring functions</span>
+    dir.create(<span style="color: #cc9393;">"inst/extdata"</span>, recursive=T)
+    write.csv(civst_gend_sector, <span style="color: #cc9393;">"inst/extdata/civst_gend_sector.csv"</span>, row.names = F)
 
-<span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">Motivating reason for using these data</span>
-Classification and Regression Tree models (also referred to as Decision Trees) are one of the building blocks of data mining and a great tool <span style="color: #859900; font-weight: bold;">for</span> Exploratory Data Analysis.
+<span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">Motivating reason for using these data</span>
+Classification and Regression Tree models (also referred to as Decision Trees) are one of the building blocks of data mining and a great tool <span style="color: #f0dfaf; font-weight: bold;">for</span> Exploratory Data Analysis.
 
-I<span style="color: #2aa198;">'ve mostly used Regression Trees in the past but recently got some work with social science data where Classification Trees were needed.  I wanted to assess the deviance as well as the misclassification error rate for measuring the descriptive power of the tree.  While this is a easy with Regression Trees it became obvious that it was not so easy with Classification Trees.  This is because Classification Trees are most often evaluated by means of the error rate. The problem with the error rate is that it is not that helpful for assessing the descriptive capacity of the tree.</span>
+I<span style="color: #cc9393;">'ve mostly used Regression Trees in the past but recently got some work with social science data where Classification Trees were needed.  I wanted to assess the deviance as well as the misclassification error rate for measuring the descriptive power of the tree.  While this is a easy with Regression Trees it became obvious that it was not so easy with Classification Trees.  This is because Classification Trees are most often evaluated by means of the error rate. The problem with the error rate is that it is not that helpful for assessing the descriptive capacity of the tree.</span>
 
-<span style="color: #2aa198;">For example if we look at the reduction in deviance between the Null model and the fitted tree we can say that the tree explains about XYZ% of the variation. We can also test if this is a statistically significant reduction based on a chi-squared test.</span>
+<span style="color: #cc9393;">For example if we look at the reduction in deviance between the Null model and the fitted tree we can say that the tree explains about XYZ% of the variation. We can also test if this is a statistically significant reduction based on a chi-squared test.</span>
 
-<span style="color: #2aa198;">Consider this example from page 310 of Hastie, T., Tibshirani, R., &amp; Friedman, J. (2001). The elements of statistical learning. 2nd Edition:</span>
+<span style="color: #cc9393;">Consider this example from page 310 of Hastie, T., Tibshirani, R., &amp; Friedman, J. (2001). The elements of statistical learning. 2nd Edition:</span>
 
-<span style="color: #2aa198;">- in a two-class problem with 400 observations in each class (denote this by (400, 400))</span>
-<span style="color: #2aa198;">- suppose one split created nodes (300, 100) and (100, 300), </span>
-<span style="color: #2aa198;">- the other created nodes (200, 400) and (200, 0). </span>
-<span style="color: #2aa198;">- Both splits produce a misclassification rate of 0.25, but the second split produces a pure node and is probably preferable.</span>
+<span style="color: #cc9393;">- in a two-class problem with 400 observations in each class (denote this by (400, 400))</span>
+<span style="color: #cc9393;">- suppose one split created nodes (300, 100) and (100, 300), </span>
+<span style="color: #cc9393;">- the other created nodes (200, 400) and (200, 0). </span>
+<span style="color: #cc9393;">- Both splits produce a misclassification rate of 0.25, but the second split produces a pure node and is probably preferable.</span>
 
-<span style="color: #2aa198;">During the course of my research to try to identify the best available method to implement in my analysis I found a useful series of papers by Ritschard, with a worked example using SPSS.  I hope to translate that to R in the future, but the first thing I did was grab the example data used in several of those papers out of the PDF.  So seeing as this was a public dataset (I use a lot of restricted data) and because I want to be able to use it to demonstrate the use of any R functions I find or write... I thought would publish it properly.  </span>
+<span style="color: #cc9393;">During the course of my research to try to identify the best available method to implement in my analysis I found a useful series of papers by Ritschard, with a worked example using SPSS.  I hope to translate that to R in the future, but the first thing I did was grab the example data used in several of those papers out of the PDF.  So seeing as this was a public dataset (I use a lot of restricted data) and because I want to be able to use it to demonstrate the use of any R functions I find or write... I thought would publish it properly.  </span>
 
-<span style="color: #2aa198;">#### The Tree Model</span>
-<span style="color: #2aa198;">So just before we leave Ritschard and the CART method, let'</span>s just fit the model.  Let<span style="color: #2aa198;">'s also install my R utilities package "disentangle", to test that we can access the data from it.</span>
+<span style="color: #cc9393;">#### The Tree Model</span>
+<span style="color: #cc9393;">So just before we leave Ritschard and the CART method, let'</span>s just fit the model.  Let<span style="color: #cc9393;">'s also install my R utilities package "disentangle", to test that we can access the data from it.</span>
 
-<span style="color: #2aa198;">In this analysis the civil status is the outcome (or response or decision or dependent) variable, while sex and activity sector are the predictors (or condition or independent variables). </span>
+<span style="color: #cc9393;">In this analysis the civil status is the outcome (or response or decision or dependent) variable, while sex and activity sector are the predictors (or condition or independent variables). </span>
 
-<span style="color: #2aa198;">#### Code: </span>
-<span style="color: #2aa198;">    # func</span>
-<span style="color: #2aa198;">    require(rpart)</span>
-<span style="color: #2aa198;">    require(partykit) </span>
-<span style="color: #2aa198;">    require(devtools)</span>
-<span style="color: #2aa198;">    install_github("disentangle", "ivanhanigan")</span>
-<span style="color: #2aa198;">    </span>
-<span style="color: #2aa198;">    # load</span>
-<span style="color: #2aa198;">    fpath &lt;- system.file(file.path("extdata", "civst_gend_sector.csv"),</span>
-<span style="color: #2aa198;">                         package = "disentangle"</span>
-<span style="color: #2aa198;">                         )</span>
-<span style="color: #2aa198;">    civst_gend_sector &lt;- read.csv(fpath)</span>
+<span style="color: #cc9393;">#### Code: </span>
+<span style="color: #cc9393;">    # func</span>
+<span style="color: #cc9393;">    require(rpart)</span>
+<span style="color: #cc9393;">    require(partykit) </span>
+<span style="color: #cc9393;">    require(devtools)</span>
+<span style="color: #cc9393;">    install_github("disentangle", "ivanhanigan")</span>
+<span style="color: #cc9393;">    </span>
+<span style="color: #cc9393;">    # load</span>
+<span style="color: #cc9393;">    fpath &lt;- system.file(file.path("extdata", "civst_gend_sector.csv"),</span>
+<span style="color: #cc9393;">                         package = "disentangle"</span>
+<span style="color: #cc9393;">                         )</span>
+<span style="color: #cc9393;">    civst_gend_sector &lt;- read.csv(fpath)</span>
 
-<span style="color: #2aa198;">    # clean</span>
-<span style="color: #2aa198;">    str(civst_gend_sector)</span>
-<span style="color: #2aa198;">    </span>
-<span style="color: #2aa198;">    # do</span>
-<span style="color: #2aa198;">    fit &lt;- rpart(civil_status ~ gender + activity_sector,</span>
-<span style="color: #2aa198;">                 data = civst_gend_sector, weights = number_of_cases,</span>
-<span style="color: #2aa198;">                 control=rpart.control(minsplit=1))</span>
-<span style="color: #2aa198;">    # NB need minsplit to be adjusted for weights.</span>
-<span style="color: #2aa198;">    summary(fit)</span>
-<span style="color: #2aa198;">      </span>
-<span style="color: #2aa198;">    # report</span>
-<span style="color: #2aa198;">    dir.create("images")</span>
-<span style="color: #2aa198;">    png("images/fit1.png", 1000, 480)</span>
-<span style="color: #2aa198;">    plot(as.party(fit))</span>
-<span style="color: #2aa198;">    dev.off()</span>
+<span style="color: #cc9393;">    # clean</span>
+<span style="color: #cc9393;">    str(civst_gend_sector)</span>
+<span style="color: #cc9393;">    </span>
+<span style="color: #cc9393;">    # do</span>
+<span style="color: #cc9393;">    fit &lt;- rpart(civil_status ~ gender + activity_sector,</span>
+<span style="color: #cc9393;">                 data = civst_gend_sector, weights = number_of_cases,</span>
+<span style="color: #cc9393;">                 control=rpart.control(minsplit=1))</span>
+<span style="color: #cc9393;">    # NB need minsplit to be adjusted for weights.</span>
+<span style="color: #cc9393;">    summary(fit)</span>
+<span style="color: #cc9393;">      </span>
+<span style="color: #cc9393;">    # report</span>
+<span style="color: #cc9393;">    dir.create("images")</span>
+<span style="color: #cc9393;">    png("images/fit1.png", 1000, 480)</span>
+<span style="color: #cc9393;">    plot(as.party(fit))</span>
+<span style="color: #cc9393;">    dev.off()</span>
 
-<span style="color: #2aa198;">#### The Result</span>
+<span style="color: #cc9393;">#### The Result</span>
 </pre>
 
 
@@ -393,26 +390,26 @@ I<span style="color: #2aa198;">'ve mostly used Regression Trees in the past but 
 
 
 
-<pre class="src src-sh"><span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">name:psql-dump-restore</span>
-<span style="color: #2aa198;">"C:\Program Files\pgAdmin III\1.8\pg_dump.exe"</span> -h ip_address -p 5432 -U user_name -F t -v -i -f <span style="color: #2aa198;">"z:pathtobackup_file.backup"</span> -t <span style="color: #2aa198;">\"</span>public<span style="color: #2aa198;">\"</span>.<span style="color: #2aa198;">\"</span>table<span style="color: #2aa198;">\"</span> databaseName
+<pre class="src src-sh"><span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">name:psql-dump-restore</span>
+<span style="color: #cc9393;">"C:\Program Files\pgAdmin III\1.8\pg_dump.exe"</span> -h ip_address -p 5432 -U user_name -F t -v -i -f <span style="color: #cc9393;">"z:pathtobackup_file.backup"</span> -t <span style="color: #cc9393;">\"</span>public<span style="color: #cc9393;">\"</span>.<span style="color: #cc9393;">\"</span>table<span style="color: #cc9393;">\"</span> databaseName
 
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Or for an entire schema</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">Or for an entire schema</span>
 
-<span style="color: #2aa198;">"C:\Program Files\pgAdmin III\1.8\pg_dump.exe"</span> -h ip_address -p 5432 -U user_name -F t -v -i -f <span style="color: #2aa198;">"z:\path\to\backup_file.backup"</span> -n <span style="color: #2aa198;">\"</span>public<span style="color: #2aa198;">\"</span> databaseName
+<span style="color: #cc9393;">"C:\Program Files\pgAdmin III\1.8\pg_dump.exe"</span> -h ip_address -p 5432 -U user_name -F t -v -i -f <span style="color: #cc9393;">"z:\path\to\backup_file.backup"</span> -n <span style="color: #cc9393;">\"</span>public<span style="color: #cc9393;">\"</span> databaseName
 
-<span style="color: #93a1a1;">#</span><span style="color: #93a1a1;">You can dump and restore in a single line directly to your local postgres server</span>
+<span style="color: #7f9f7f;">#</span><span style="color: #7f9f7f;">You can dump and restore in a single line directly to your local postgres server</span>
 
 pg_dump -h ip_address -U username -i -t schema.table weather | psql -h localhost postgis
 
-<span style="color: #93a1a1;">#</span><span style="color: #93a1a1;">You can dump and restore in a single line between databases</span>
+<span style="color: #7f9f7f;">#</span><span style="color: #7f9f7f;">You can dump and restore in a single line between databases</span>
 
-<span style="color: #2aa198;">"C:\Program Files\PostgreSQL\8.3\bin\pg_dump"</span> -h ip_address -U username -i -t schema.table database | <span style="color: #2aa198;">"C:\Program Files\PostgreSQL\8.3\bin\psql"</span> -h ipaddress -U username database
+<span style="color: #cc9393;">"C:\Program Files\PostgreSQL\8.3\bin\pg_dump"</span> -h ip_address -U username -i -t schema.table database | <span style="color: #cc9393;">"C:\Program Files\PostgreSQL\8.3\bin\psql"</span> -h ipaddress -U username database
 
-<span style="color: #93a1a1;">#</span><span style="color: #93a1a1;">To copy to a CSV file</span>
+<span style="color: #7f9f7f;">#</span><span style="color: #7f9f7f;">To copy to a CSV file</span>
 
-<span style="color: #2aa198;">"C:\Program Files\PostgreSQL\8.3\bin\psql"</span> -h ip_address -d weather -U username -c <span style="color: #2aa198;">"COPY \"schema\".\"table\" TO STDOUT WITH CSV HEADER;"</span> &gt; <span style="color: #2aa198;">"J:\workdir\filename.csv"</span>
+<span style="color: #cc9393;">"C:\Program Files\PostgreSQL\8.3\bin\psql"</span> -h ip_address -d weather -U username -c <span style="color: #cc9393;">"COPY \"schema\".\"table\" TO STDOUT WITH CSV HEADER;"</span> &gt; <span style="color: #cc9393;">"J:\workdir\filename.csv"</span>
 
-<span style="color: #2aa198;">"C:\Program Files\PostgreSQL\8.3\bin\psql"</span> -h ip_address -d weather -U username -c <span style="color: #2aa198;">"COPY (select * from schema.table where var = X) TO STDOUT WITH CSV HEADER;"</span> &gt; <span style="color: #2aa198;">"J:\workdir\filename.csv"</span>
+<span style="color: #cc9393;">"C:\Program Files\PostgreSQL\8.3\bin\psql"</span> -h ip_address -d weather -U username -c <span style="color: #cc9393;">"COPY (select * from schema.table where var = X) TO STDOUT WITH CSV HEADER;"</span> &gt; <span style="color: #cc9393;">"J:\workdir\filename.csv"</span>
 </pre>
 
 </div>
@@ -442,12 +439,12 @@ pg_dump -h ip_address -U username -i -t schema.table weather | psql -h localhost
 
 
 
-<pre class="src src-R"><span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">use method = curl</span>
-download.file(<span style="color: #2aa198;">'https://alliance.anu.edu.au/access/content/group/4e0f55f1-b540-456a-000a-24730b59fccb/R%20Resources/Intro%20to%20R/timedata.csv'</span>,
-              <span style="color: #2aa198;">'~/timedata.csv'</span>,
-              method =<span style="color: #2aa198;">'curl'</span>
+<pre class="src src-R"><span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">use method = curl</span>
+download.file(<span style="color: #cc9393;">'https://alliance.anu.edu.au/access/content/group/4e0f55f1-b540-456a-000a-24730b59fccb/R%20Resources/Intro%20to%20R/timedata.csv'</span>,
+              <span style="color: #cc9393;">'~/timedata.csv'</span>,
+              method =<span style="color: #cc9393;">'curl'</span>
               )
-timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(<span style="color: #2aa198;">'~/timedata.csv'</span>)
+timedata <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> read.csv(<span style="color: #cc9393;">'~/timedata.csv'</span>)
 </pre>
 
 
@@ -472,22 +469,22 @@ timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(
 
 
 
-<pre class="src src-R"><span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">R-subset</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Filter rows by criteria</span>
+<pre class="src src-R"><span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">R-subset</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">Filter rows by criteria</span>
     subset(airquality, Temp &gt; 90, select = c(Ozone, Temp))
 
-    <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">NB This is a convenience function intended for use interactively.  For</span>
-    <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">programming it is better to use the standard subsetting functions like</span>
-    <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">&#8216;[&#8217;, and in particular the non-standard evaluation of argument</span>
-    <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">&#8216;subset&#8217; can have unanticipated consequences.</span>
+    <span style="color: #7f9f7f;">## </span><span style="color: #7f9f7f;">NB This is a convenience function intended for use interactively.  For</span>
+    <span style="color: #7f9f7f;">## </span><span style="color: #7f9f7f;">programming it is better to use the standard subsetting functions like</span>
+    <span style="color: #7f9f7f;">## </span><span style="color: #7f9f7f;">&#8216;[&#8217;, and in particular the non-standard evaluation of argument</span>
+    <span style="color: #7f9f7f;">## </span><span style="color: #7f9f7f;">&#8216;subset&#8217; can have unanticipated consequences.</span>
 
     with(airquality,
-         airquality[Temp &gt; 90, c(<span style="color: #2aa198;">"Ozone"</span>, <span style="color: #2aa198;">"Temp"</span>)]
+         airquality[Temp &gt; 90, c(<span style="color: #cc9393;">"Ozone"</span>, <span style="color: #cc9393;">"Temp"</span>)]
          )
 
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">OR</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">OR</span>
 
-    airquality[airquality$Temp &gt; 90,  c(<span style="color: #2aa198;">"Ozone"</span>, <span style="color: #2aa198;">"Temp"</span>)]
+    airquality[airquality$Temp &gt; 90,  c(<span style="color: #cc9393;">"Ozone"</span>, <span style="color: #cc9393;">"Temp"</span>)]
                                                                                
 </pre>
 
@@ -502,9 +499,9 @@ timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(
 
 
 
-<pre class="src src-R"><span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">R-transform</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">New columns that are functions of other columns       </span>
-    df <span style="color: #268bd2; font-weight: bold;">&lt;-</span> transform(airquality,
+<pre class="src src-R"><span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">R-transform</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">New columns that are functions of other columns       </span>
+    df <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> transform(airquality,
                     new = -Ozone,
                     Temp2 = (Temp-32)/1.8
                     )
@@ -524,14 +521,14 @@ timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(
 
 
 
-<pre class="src src-R"><span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">R-mutate</span>
-    <span style="color: #268bd2; font-weight: bold;">require</span>(plyr)
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">same thing as transform</span>
-    df <span style="color: #268bd2; font-weight: bold;">&lt;-</span> mutate(airquality, new = -Ozone, Temp = (Temp - 32) / 1.8)    
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Things transform can't do</span>
-    df <span style="color: #268bd2; font-weight: bold;">&lt;-</span> mutate(airquality, Temp = (Temp - 32) / 1.8, OzT = Ozone / Temp)
+<pre class="src src-R"><span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">R-mutate</span>
+    <span style="color: #bfebbf; font-weight: bold;">require</span>(plyr)
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">same thing as transform</span>
+    df <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> mutate(airquality, new = -Ozone, Temp = (Temp - 32) / 1.8)    
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">Things transform can't do</span>
+    df <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> mutate(airquality, Temp = (Temp - 32) / 1.8, OzT = Ozone / Temp)
     
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">mutate is rather faster than transform</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">mutate is rather faster than transform</span>
     system.time(transform(baseball, avg_ab = ab / g))
     system.time(mutate(baseball, avg_ab = ab / g))
 
@@ -548,11 +545,11 @@ timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(
 
 
 
-<pre class="src src-R"><span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">R-summarise</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">New data.frame where columns are functions of existing columns</span>
-    <span style="color: #268bd2; font-weight: bold;">require</span>(plyr)    
-    df <span style="color: #268bd2; font-weight: bold;">&lt;-</span> ddply(.data = airquality,
-                .variables = <span style="color: #2aa198;">"Month"</span>,
+<pre class="src src-R"><span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">R-summarise</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">New data.frame where columns are functions of existing columns</span>
+    <span style="color: #bfebbf; font-weight: bold;">require</span>(plyr)    
+    df <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> ddply(.data = airquality,
+                .variables = <span style="color: #cc9393;">"Month"</span>,
                 .fun = summarise,
                 tmax = max(Temp),
                 tav = mean(Temp),
@@ -560,17 +557,17 @@ timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(
                 )
     head(df)
 
-<span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">Passing variables to ddply for summary</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Notice how the name of the variable Temp doesn't need quotes?</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">this means that you need to hard code the names</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">But if you want to pass variables to this inside a function we need a</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">different approach.</span>
+<span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">Passing variables to ddply for summary</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">Notice how the name of the variable Temp doesn't need quotes?</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">this means that you need to hard code the names</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">But if you want to pass variables to this inside a function we need a</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">different approach.</span>
 
-    <span style="color: #268bd2;">summarise_df</span>  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #859900; font-weight: bold;">function</span>(x, by, var1, var2, var3)
+    <span style="color: #8cd0d3;">summarise_df</span>  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> <span style="color: #f0dfaf; font-weight: bold;">function</span>(x, by, var1, var2, var3)
       {
-        data_out <span style="color: #268bd2; font-weight: bold;">&lt;-</span> ddply(x,
+        data_out <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> ddply(x,
                           by,
-                          <span style="color: #859900; font-weight: bold;">function</span>(df) <span style="color: #859900; font-weight: bold;">return</span>(
+                          <span style="color: #f0dfaf; font-weight: bold;">function</span>(df) <span style="color: #f0dfaf; font-weight: bold;">return</span>(
                             c(
                               tmax = max(df[,var1]),
                               tav = mean(df[,var2]),
@@ -578,43 +575,43 @@ timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(
                               )
                             )
                           )
-        <span style="color: #859900; font-weight: bold;">return</span>(data_out)
+        <span style="color: #f0dfaf; font-weight: bold;">return</span>(data_out)
       }
 
-    df2 <span style="color: #268bd2; font-weight: bold;">&lt;-</span> summarise_df(x = airquality, by = <span style="color: #2aa198;">"Month"</span>,
-                       var1 = <span style="color: #2aa198;">"Temp"</span>, var2 = <span style="color: #2aa198;">"Temp"</span>, var3 = <span style="color: #2aa198;">"Day"</span>
+    df2 <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> summarise_df(x = airquality, by = <span style="color: #cc9393;">"Month"</span>,
+                       var1 = <span style="color: #cc9393;">"Temp"</span>, var2 = <span style="color: #cc9393;">"Temp"</span>, var3 = <span style="color: #cc9393;">"Day"</span>
                        )
     
     head(df2)
     all.equal(df,df2)
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">TRUE</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">TRUE</span>
 
-<span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">Another alternative, if we want to pass the dataset as string too</span>
-    <span style="color: #268bd2;">summarise_df2</span>  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #859900; font-weight: bold;">function</span>(x, by, var1, var2, var3)
+<span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">Another alternative, if we want to pass the dataset as string too</span>
+    <span style="color: #8cd0d3;">summarise_df2</span>  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> <span style="color: #f0dfaf; font-weight: bold;">function</span>(x, by, var1, var2, var3)
       {
-        data_out <span style="color: #268bd2; font-weight: bold;">&lt;-</span> eval(
+        data_out <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> eval(
           parse(
             text =
             sprintf(
-              <span style="color: #2aa198;">"ddply(.data = %s,</span>
-<span style="color: #2aa198;">                .variables = '%s',</span>
-<span style="color: #2aa198;">                .fun = summarise,</span>
-<span style="color: #2aa198;">                tmax = max(%s),</span>
-<span style="color: #2aa198;">                tav = mean(%s),</span>
-<span style="color: #2aa198;">                ndays = length(unique(%s))</span>
-<span style="color: #2aa198;">                )"</span>, x, by, var1, var2, var3
+              <span style="color: #cc9393;">"ddply(.data = %s,</span>
+<span style="color: #cc9393;">                .variables = '%s',</span>
+<span style="color: #cc9393;">                .fun = summarise,</span>
+<span style="color: #cc9393;">                tmax = max(%s),</span>
+<span style="color: #cc9393;">                tav = mean(%s),</span>
+<span style="color: #cc9393;">                ndays = length(unique(%s))</span>
+<span style="color: #cc9393;">                )"</span>, x, by, var1, var2, var3
               )
             )
           )
-        <span style="color: #859900; font-weight: bold;">return</span>(data_out)
+        <span style="color: #f0dfaf; font-weight: bold;">return</span>(data_out)
       }
 
-    df3 <span style="color: #268bd2; font-weight: bold;">&lt;-</span> summarise_df2(x = <span style="color: #2aa198;">"airquality"</span>, by = <span style="color: #2aa198;">"Month"</span>,
-                         var1 = <span style="color: #2aa198;">"Temp"</span>, var2 = <span style="color: #2aa198;">"Temp"</span>, var3 = <span style="color: #2aa198;">"Day"</span>
+    df3 <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> summarise_df2(x = <span style="color: #cc9393;">"airquality"</span>, by = <span style="color: #cc9393;">"Month"</span>,
+                         var1 = <span style="color: #cc9393;">"Temp"</span>, var2 = <span style="color: #cc9393;">"Temp"</span>, var3 = <span style="color: #cc9393;">"Day"</span>
                          )
     head(df3)
     all.equal(df, df3)
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">TRUE</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">TRUE</span>
 </pre>
 
 </div>
@@ -628,9 +625,9 @@ timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(
 
 
 
-<pre class="src src-R"><span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">R-arrange</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Re-order the rows of a data.frame</span>
-    df <span style="color: #268bd2; font-weight: bold;">&lt;-</span> arrange(airquality, Temp, Ozone)
+<pre class="src src-R"><span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">R-arrange</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">Re-order the rows of a data.frame</span>
+    df <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> arrange(airquality, Temp, Ozone)
     head(df)
 </pre>
 
@@ -674,110 +671,110 @@ categories:
 - Data Documentation
 ---
 
-<span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">Case Study: reml-and-rfigshare</span>
+<span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">Case Study: reml-and-rfigshare</span>
 First we will look at the work of the ROpenSci team and the reml
 package.  In the vignette they show how to publish data to figshare
 using rfigshare package.  [figshare](http://figshare.com/) is a site
 where scientists can share datasets/figures/code. The goals are to
 encourage researchers to share negative results and make reproducible
-research efforts user-friendly. It also uses a tagging system <span style="color: #859900; font-weight: bold;">for</span>
+research efforts user-friendly. It also uses a tagging system <span style="color: #f0dfaf; font-weight: bold;">for</span>
 scientific research discovery. They give you unlimited public space
 and 1GB of private space.  
 
 Start by getting the reml package.
 
-<span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">Code:</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">func</span>
-    <span style="color: #268bd2; font-weight: bold;">require</span>(devtools)
-    install_github(<span style="color: #2aa198;">"reml"</span>, <span style="color: #2aa198;">"ropensci"</span>)
-    <span style="color: #268bd2; font-weight: bold;">require</span>(reml)
+<span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">Code:</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">func</span>
+    <span style="color: #bfebbf; font-weight: bold;">require</span>(devtools)
+    install_github(<span style="color: #cc9393;">"reml"</span>, <span style="color: #cc9393;">"ropensci"</span>)
+    <span style="color: #bfebbf; font-weight: bold;">require</span>(reml)
     ?eml_write
 &lt;p&gt;&lt;/p&gt;
-This is the Top-level API <span style="color: #859900; font-weight: bold;">function</span> <span style="color: #859900; font-weight: bold;">for</span> writing eml.  Help page is a bit sparse.  See [This Link](https://github.com/ropensci/reml) <span style="color: #859900; font-weight: bold;">for</span> more.  For eg <span style="color: #2aa198;">"for convenience, dat could simply be a data.frame and reml will launch it's metadata wizard to assist in constructing the metadata based on the data.frame provided. While this may be helpful starting out, regular users will find it faster to define the columns and units directly in the format above."</span>
+This is the Top-level API <span style="color: #f0dfaf; font-weight: bold;">function</span> <span style="color: #f0dfaf; font-weight: bold;">for</span> writing eml.  Help page is a bit sparse.  See [This Link](https://github.com/ropensci/reml) <span style="color: #f0dfaf; font-weight: bold;">for</span> more.  For eg <span style="color: #cc9393;">"for convenience, dat could simply be a data.frame and reml will launch it's metadata wizard to assist in constructing the metadata based on the data.frame provided. While this may be helpful starting out, regular users will find it faster to define the columns and units directly in the format above."</span>
 
 
-Now load up the test data <span style="color: #859900; font-weight: bold;">for</span> classification trees I described <span style="color: #859900; font-weight: bold;">in</span> [This Post](/2013/10/test-data-<span style="color: #859900; font-weight: bold;">for</span>-classification-trees/)
+Now load up the test data <span style="color: #f0dfaf; font-weight: bold;">for</span> classification trees I described <span style="color: #f0dfaf; font-weight: bold;">in</span> [This Post](/2013/10/test-data-<span style="color: #f0dfaf; font-weight: bold;">for</span>-classification-trees/)
 
-<span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">Code:</span>
-    install_github(<span style="color: #2aa198;">"disentangle"</span>, <span style="color: #2aa198;">"ivanhanigan"</span>) <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">for the data</span>
-                                                 <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">described in prev post</span>
+<span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">Code:</span>
+    install_github(<span style="color: #cc9393;">"disentangle"</span>, <span style="color: #cc9393;">"ivanhanigan"</span>) <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">for the data</span>
+                                                 <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">described in prev post</span>
 
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">load</span>
-    fpath <span style="color: #268bd2; font-weight: bold;">&lt;-</span> system.file(file.path(<span style="color: #2aa198;">"extdata"</span>, <span style="color: #2aa198;">"civst_gend_sector.csv"</span>),
-                         package = <span style="color: #2aa198;">"disentangle"</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">load</span>
+    fpath <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> system.file(file.path(<span style="color: #cc9393;">"extdata"</span>, <span style="color: #cc9393;">"civst_gend_sector.csv"</span>),
+                         package = <span style="color: #cc9393;">"disentangle"</span>
                          )
-    civst_gend_sector <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(fpath)
+    civst_gend_sector <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> read.csv(fpath)
 
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">clean</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">clean</span>
     str(civst_gend_sector)
 
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">do</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">do</span>
     eml_write(civst_gend_sector,
-              creator = <span style="color: #2aa198;">"Ivan Hanigan <a href="mailto:ivanhanigan%40gmail.com">&lt;ivanhanigan@gmail.com&gt;</a>"</span>)
+              creator = <span style="color: #cc9393;">"Ivan Hanigan <a href="mailto:ivanhanigan%40gmail.com">&lt;ivanhanigan@gmail.com&gt;</a>"</span>)
 
 
               
 
 
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Starts up the wizard, a section is shown below.  The wizard</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">prompts in the console and the user writes the answer.</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">Starts up the wizard, a section is shown below.  The wizard</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">prompts in the console and the user writes the answer.</span>
 
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Enter description for column 'civil_status':</span>
-    <span style="color: #93a1a1;">#  </span><span style="color: #93a1a1;">marriage status</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">column civil_status appears to contain categorical data.</span>
-    <span style="color: #93a1a1;">#  </span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Categories are divorced/widowed, married, single</span>
-    <span style="color: #93a1a1;">#  </span><span style="color: #93a1a1;">Please define each of the categories at the prompt</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">define 'divorced/widowed':</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">was once married</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">define 'married':</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">still married</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">define 'single':</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">never married</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">Enter description for column 'civil_status':</span>
+    <span style="color: #7f9f7f;">#  </span><span style="color: #7f9f7f;">marriage status</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">column civil_status appears to contain categorical data.</span>
+    <span style="color: #7f9f7f;">#  </span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">Categories are divorced/widowed, married, single</span>
+    <span style="color: #7f9f7f;">#  </span><span style="color: #7f9f7f;">Please define each of the categories at the prompt</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">define 'divorced/widowed':</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">was once married</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">define 'married':</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">still married</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">define 'single':</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">never married</span>
 
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">TODO I don't really know what activity_sector is.  I assumed</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">school because Categories are primary, secondary, tertiary.</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">TODO I don't really know what activity_sector is.  I assumed</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">school because Categories are primary, secondary, tertiary.</span>
 
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">this created "metadata.xml" and "metadata.csv"</span>
-    file.remove(c(<span style="color: #2aa198;">"metadata.xml"</span>,<span style="color: #2aa198;">"metadata.csv"</span>))
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">this created "metadata.xml" and "metadata.csv"</span>
+    file.remove(c(<span style="color: #cc9393;">"metadata.xml"</span>,<span style="color: #cc9393;">"metadata.csv"</span>))
 &lt;p&gt;&lt;/p&gt;  
-This was a very minimal data documentation effort.  A bit more detail would be better.  Because I would now need to re-write all that <span style="color: #859900; font-weight: bold;">in</span> the wizard I will take the advice of the help file that <span style="color: #2aa198;">"regular users will find it faster to define the columns and units directly in the format"</span>
+This was a very minimal data documentation effort.  A bit more detail would be better.  Because I would now need to re-write all that <span style="color: #f0dfaf; font-weight: bold;">in</span> the wizard I will take the advice of the help file that <span style="color: #cc9393;">"regular users will find it faster to define the columns and units directly in the format"</span>
 
-<span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">Code:</span>
-    ds <span style="color: #268bd2; font-weight: bold;">&lt;-</span> data.set(civst_gend_sector,
-                   col.defs = c(<span style="color: #2aa198;">"Marriage status"</span>, <span style="color: #2aa198;">"sex"</span>, <span style="color: #2aa198;">"education"</span>, <span style="color: #2aa198;">"counts"</span>),
-                   unit.defs = list(c(<span style="color: #2aa198;">"was once married"</span>,<span style="color: #2aa198;">"still married"</span>,<span style="color: #2aa198;">"never married"</span>),
-                       c(<span style="color: #2aa198;">"women"</span>, <span style="color: #2aa198;">"men"</span>),
-                       c(<span style="color: #2aa198;">"primary school"</span>,<span style="color: #2aa198;">"secondary school"</span>,<span style="color: #2aa198;">"tertiary school"</span>),
-                       c(<span style="color: #2aa198;">"persons"</span>))
+<span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">Code:</span>
+    ds <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> data.set(civst_gend_sector,
+                   col.defs = c(<span style="color: #cc9393;">"Marriage status"</span>, <span style="color: #cc9393;">"sex"</span>, <span style="color: #cc9393;">"education"</span>, <span style="color: #cc9393;">"counts"</span>),
+                   unit.defs = list(c(<span style="color: #cc9393;">"was once married"</span>,<span style="color: #cc9393;">"still married"</span>,<span style="color: #cc9393;">"never married"</span>),
+                       c(<span style="color: #cc9393;">"women"</span>, <span style="color: #cc9393;">"men"</span>),
+                       c(<span style="color: #cc9393;">"primary school"</span>,<span style="color: #cc9393;">"secondary school"</span>,<span style="color: #cc9393;">"tertiary school"</span>),
+                       c(<span style="color: #cc9393;">"persons"</span>))
                    )
     ds
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">this prints the dataset and the metadata</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">now run the EML function</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">this prints the dataset and the metadata</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">now run the EML function</span>
     eml_write(ds, 
-              title = <span style="color: #2aa198;">"civst_gend_sector"</span>,  
-              description = <span style="color: #2aa198;">"An example, fictional dataset for Decision Tree Models"</span>,
-              creator = <span style="color: #2aa198;">"Ivan Hanigan <a href="mailto:ivanhanigan%40gmail.com">&lt;ivanhanigan@gmail.com&gt;</a>"</span>,
-              file = <span style="color: #2aa198;">"inst/extdata/civst_gend_sector_eml.xml"</span>
+              title = <span style="color: #cc9393;">"civst_gend_sector"</span>,  
+              description = <span style="color: #cc9393;">"An example, fictional dataset for Decision Tree Models"</span>,
+              creator = <span style="color: #cc9393;">"Ivan Hanigan <a href="mailto:ivanhanigan%40gmail.com">&lt;ivanhanigan@gmail.com&gt;</a>"</span>,
+              file = <span style="color: #cc9393;">"inst/extdata/civst_gend_sector_eml.xml"</span>
               )
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">this created the xml and csv with out asking anything</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">but returned a</span>
-    <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">Warning message:</span>
-    <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">In `[&lt;-.data.frame`(`*tmp*`, , value = list(civil_status = c(2L,  :</span>
-    <span style="color: #93a1a1;">##   </span><span style="color: #93a1a1;">Setting class(x) to NULL;   result will no longer be an S4 object</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">this created the xml and csv with out asking anything</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">but returned a</span>
+    <span style="color: #7f9f7f;">## </span><span style="color: #7f9f7f;">Warning message:</span>
+    <span style="color: #7f9f7f;">## </span><span style="color: #7f9f7f;">In `[&lt;-.data.frame`(`*tmp*`, , value = list(civil_status = c(2L,  :</span>
+    <span style="color: #7f9f7f;">##   </span><span style="color: #7f9f7f;">Setting class(x) to NULL;   result will no longer be an S4 object</span>
 
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">TODO investigate this?</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">TODO investigate this?</span>
 
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">now we can access the local EML</span>
-    obj <span style="color: #268bd2; font-weight: bold;">&lt;-</span> eml_read(<span style="color: #2aa198;">"inst/extdata/civst_gend_sector_eml.xml"</span>)
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">now we can access the local EML</span>
+    obj <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> eml_read(<span style="color: #cc9393;">"inst/extdata/civst_gend_sector_eml.xml"</span>)
     obj 
     str(dataTable(obj))
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">returns an error</span>
-    <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">Error in plyr::compact(lapply(slotNames(from), function(s) if (!isEmpty(slot(from,  (from attribute.R#300) : </span>
-    <span style="color: #93a1a1;">##   </span><span style="color: #93a1a1;">subscript out of bounds</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">returns an error</span>
+    <span style="color: #7f9f7f;">## </span><span style="color: #7f9f7f;">Error in plyr::compact(lapply(slotNames(from), function(s) if (!isEmpty(slot(from,  (from attribute.R#300) : </span>
+    <span style="color: #7f9f7f;">##   </span><span style="color: #7f9f7f;">subscript out of bounds</span>
 &lt;p&gt;&lt;/p&gt;
 
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Conclusions</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">Conclusions</span>
 So this looks like a useful tool.  Next steps are to:
 
 - look at sending these data to figshare
@@ -809,55 +806,55 @@ categories:
 In the last post I explored the functionality of reml.
 This time I will try to send data to figshare.
 
-- First follow [These Instructions](https://github.com/ropensci/rfigshare) to get rfigshare set up.  In particular store your figshare credentials <span style="color: #859900; font-weight: bold;">in</span> ~/.Rprofile
+- First follow [These Instructions](https://github.com/ropensci/rfigshare) to get rfigshare set up.  In particular store your figshare credentials <span style="color: #f0dfaf; font-weight: bold;">in</span> ~/.Rprofile
 
-<span style="color: #93a1a1;">#### </span><span style="color: #93a1a1;">Code:reml-and-rfigshare-part-2</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">func</span>
-    <span style="color: #268bd2; font-weight: bold;">require</span>(devtools)
-    install_github(<span style="color: #2aa198;">"reml"</span>, <span style="color: #2aa198;">"ropensci"</span>)
-    <span style="color: #268bd2; font-weight: bold;">require</span>(reml)
-    install_github(<span style="color: #2aa198;">"rfigshare"</span>, <span style="color: #2aa198;">"ropensci"</span>)
-    <span style="color: #268bd2; font-weight: bold;">require</span>(rfigshare)
-    install_github(<span style="color: #2aa198;">"disentangle"</span>, <span style="color: #2aa198;">"ivanhanigan"</span>)
-    <span style="color: #268bd2; font-weight: bold;">require</span>(disentangle)
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">load</span>
-    fpath <span style="color: #268bd2; font-weight: bold;">&lt;-</span> system.file(file.path(<span style="color: #2aa198;">"extdata"</span>,<span style="color: #2aa198;">"civst_gend_sector_eml.xml"</span>), package = <span style="color: #2aa198;">"disentangle"</span>)
+<span style="color: #7f9f7f;">#### </span><span style="color: #7f9f7f;">Code:reml-and-rfigshare-part-2</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">func</span>
+    <span style="color: #bfebbf; font-weight: bold;">require</span>(devtools)
+    install_github(<span style="color: #cc9393;">"reml"</span>, <span style="color: #cc9393;">"ropensci"</span>)
+    <span style="color: #bfebbf; font-weight: bold;">require</span>(reml)
+    install_github(<span style="color: #cc9393;">"rfigshare"</span>, <span style="color: #cc9393;">"ropensci"</span>)
+    <span style="color: #bfebbf; font-weight: bold;">require</span>(rfigshare)
+    install_github(<span style="color: #cc9393;">"disentangle"</span>, <span style="color: #cc9393;">"ivanhanigan"</span>)
+    <span style="color: #bfebbf; font-weight: bold;">require</span>(disentangle)
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">load</span>
+    fpath <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> system.file(file.path(<span style="color: #cc9393;">"extdata"</span>,<span style="color: #cc9393;">"civst_gend_sector_eml.xml"</span>), package = <span style="color: #cc9393;">"disentangle"</span>)
     setwd(dirname(fpath))
-    obj <span style="color: #268bd2; font-weight: bold;">&lt;-</span> eml_read(fpath)
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">clean</span>
+    obj <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> eml_read(fpath)
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">clean</span>
     obj
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">do</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">do</span>
 
-    <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">STEP 1: find one of the preset categories</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">available. We can ask the API for</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">a list of all the categories:</span>
-    list <span style="color: #268bd2; font-weight: bold;">&lt;-</span> fs_category_list()
-    list[grep(<span style="color: #2aa198;">"Survey"</span>, list)]
+    <span style="color: #7f9f7f;">## </span><span style="color: #7f9f7f;">STEP 1: find one of the preset categories</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">available. We can ask the API for</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">a list of all the categories:</span>
+    list <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> fs_category_list()
+    list[grep(<span style="color: #cc9393;">"Survey"</span>, list)]
 
-    <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">STEP 2: PUBLISH TO FIGSHARE</span>
-    id <span style="color: #268bd2; font-weight: bold;">&lt;-</span> eml_publish(fname,
-                      description=<span style="color: #2aa198;">"Example EML</span>
-<span style="color: #2aa198;">                        A fictional dataset"</span>,
-                      categories = <span style="color: #2aa198;">"Survey results"</span>,
-                      tags = <span style="color: #2aa198;">"EML"</span>,
-                      destination=<span style="color: #2aa198;">"figshare"</span>
+    <span style="color: #7f9f7f;">## </span><span style="color: #7f9f7f;">STEP 2: PUBLISH TO FIGSHARE</span>
+    id <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> eml_publish(fname,
+                      description=<span style="color: #cc9393;">"Example EML</span>
+<span style="color: #cc9393;">                        A fictional dataset"</span>,
+                      categories = <span style="color: #cc9393;">"Survey results"</span>,
+                      tags = <span style="color: #cc9393;">"EML"</span>,
+                      destination=<span style="color: #cc9393;">"figshare"</span>
                       )
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">there are several warnings</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">but go to figshare and it has sent the metadata and data OK</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">there are several warnings</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">but go to figshare and it has sent the metadata and data OK</span>
 
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">make public using either the figshare web interface, the</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">rfigshare package (using fs_make_public(id)) or just by adding</span>
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">the argument visibility = TRUE to the above eml_publish</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">make public using either the figshare web interface, the</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">rfigshare package (using fs_make_public(id)) or just by adding</span>
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">the argument visibility = TRUE to the above eml_publish</span>
     fs_make_public(id)
 
     
 &lt;p&gt;&lt;/p&gt;
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">Now these data are on figshare</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">Now these data are on figshare</span>
 
 Now I have published the data they are visible and have a DOI
 
 
-&lt;iframe src=<span style="color: #2aa198;">"http://wl.figshare.com/articles/820158/embed?show_title=1"</span> width=<span style="color: #2aa198;">"568"</span> height=<span style="color: #2aa198;">"157"</span> frameborder=<span style="color: #2aa198;">"0"</span>&gt;&lt;/iframe&gt;
+&lt;iframe src=<span style="color: #cc9393;">"http://wl.figshare.com/articles/820158/embed?show_title=1"</span> width=<span style="color: #cc9393;">"568"</span> height=<span style="color: #cc9393;">"157"</span> frameborder=<span style="color: #cc9393;">"0"</span>&gt;&lt;/iframe&gt;
 
 
 </pre>
@@ -883,6 +880,54 @@ Now I have published the data they are visible and have a DOI
 
 
 
+
+
+</div>
+
+</div>
+
+<div id="outline-container-7-5" class="outline-3">
+<h3 id="sec-7-5"><span class="section-number-3">7.5</span> R-spss-variable-labels-read</h3>
+<div class="outline-text-3" id="text-7-5">
+
+
+
+
+<pre class="src src-R"><span style="color: #7f9f7f;">################################################################</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">name:R-spss-variable-labels</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">func</span>
+<span style="color: #bfebbf; font-weight: bold;">require</span>(xtable)
+
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">load</span>
+analyte  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> read.spss(filename, to.data.frame=T)
+
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">clean</span>
+names(analyte)
+varslist <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> as.data.frame(attributes(analyte)$variable.labels)
+write.csv(varslist, <span style="color: #cc9393;">"variable_labels.csv"</span>, row.names = T)
+x <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> read.csv(<span style="color: #cc9393;">'variable_labels.csv'</span>)
+head(x)
+names(x)  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> c(<span style="color: #cc9393;">"variable"</span>, <span style="color: #cc9393;">"label"</span>)
+
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">do</span>
+x.big <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> xtable(x,label=<span style="color: #cc9393;">'tab:table1'</span>,caption=<span style="color: #cc9393;">'Variable Names and Descriptions'</span>)
+align(x.big) <span style="color: #bfebbf; font-weight: bold;">&lt;-</span>  c( <span style="color: #cc9393;">'l'</span>, <span style="color: #cc9393;">'p{1in}'</span>, <span style="color: #cc9393;">'p{4in}'</span>)
+  
+sink(<span style="color: #cc9393;">'tab1.tex'</span>)
+
+print(x.big,tabular.environment=<span style="color: #cc9393;">'longtable'</span>,
+        floating=<span style="color: #7cb8bb;">FALSE</span>, caption.placement = <span style="color: #cc9393;">"top"</span>,
+        hline.after = c(-1,nrow(x.big)), 
+        add.to.row = list(pos = list(0),command = <span style="color: #cc9393;">"\\hline \\endhead "</span>),
+        include.rownames=F)
+
+sink()
+
+
+</pre>
+
+
+
 </div>
 </div>
 
@@ -892,51 +937,6 @@ Now I have published the data they are visible and have a DOI
 <h2 id="sec-8"><span class="section-number-2">8</span> Exploratory Data Analysis</h2>
 <div class="outline-text-2" id="text-8">
 
-
-</div>
-
-<div id="outline-container-8-1" class="outline-3">
-<h3 id="sec-8-1"><span class="section-number-3">8.1</span> R-spss-variable-labels-code</h3>
-<div class="outline-text-3" id="text-8-1">
-
-
-
-
-<pre class="src src-R"><span style="color: #93a1a1;">################################################################</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">name:R-spss-variable-labels</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">func</span>
-<span style="color: #268bd2; font-weight: bold;">require</span>(xtable)
-
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">load</span>
-analyte  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.spss(filename, to.data.frame=T)
-
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">clean</span>
-names(analyte)
-varslist <span style="color: #268bd2; font-weight: bold;">&lt;-</span> as.data.frame(attributes(analyte)$variable.labels)
-write.csv(varslist, <span style="color: #2aa198;">"variable_labels.csv"</span>, row.names = T)
-x <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(<span style="color: #2aa198;">'variable_labels.csv'</span>)
-head(x)
-names(x)  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> c(<span style="color: #2aa198;">"variable"</span>, <span style="color: #2aa198;">"label"</span>)
-
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">do</span>
-x.big <span style="color: #268bd2; font-weight: bold;">&lt;-</span> xtable(x,label=<span style="color: #2aa198;">'tab:table1'</span>,caption=<span style="color: #2aa198;">'Variable Names and Descriptions'</span>)
-align(x.big) <span style="color: #268bd2; font-weight: bold;">&lt;-</span>  c( <span style="color: #2aa198;">'l'</span>, <span style="color: #2aa198;">'p{1in}'</span>, <span style="color: #2aa198;">'p{4in}'</span>)
-  
-sink(<span style="color: #2aa198;">'tab1.tex'</span>)
-
-print(x.big,tabular.environment=<span style="color: #2aa198;">'longtable'</span>,
-        floating=<span style="color: #b58900;">FALSE</span>, caption.placement = <span style="color: #2aa198;">"top"</span>,
-        hline.after = c(-1,nrow(x.big)), 
-        add.to.row = list(pos = list(0),command = <span style="color: #2aa198;">"\\hline \\endhead "</span>),
-        include.rownames=F)
-
-sink()
-
-
-</pre>
-
-
-</div>
 </div>
 
 </div>
@@ -1017,40 +1017,40 @@ Using the case weights like above is convenient especially when datasets are ver
 
 
 
-<pre class="src src-R"><span style="color: #93a1a1;">################################################################</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">name:reassurance-re-weights</span>
+<pre class="src src-R"><span style="color: #7f9f7f;">################################################################</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">name:reassurance-re-weights</span>
 
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">just to reasure myself I understand what case weights do, I'll make</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">this into a survey dataset with one row per respondent</span>
-df <span style="color: #268bd2; font-weight: bold;">&lt;-</span> as.data.frame(matrix(<span style="color: #b58900;">NA</span>, nrow = 0, ncol = 3))
-<span style="color: #859900; font-weight: bold;">for</span>(i <span style="color: #859900; font-weight: bold;">in</span> 1:nrow(civst_gend_sector))
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">just to reasure myself I understand what case weights do, I'll make</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">this into a survey dataset with one row per respondent</span>
+df <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> as.data.frame(matrix(<span style="color: #7cb8bb;">NA</span>, nrow = 0, ncol = 3))
+<span style="color: #f0dfaf; font-weight: bold;">for</span>(i <span style="color: #f0dfaf; font-weight: bold;">in</span> 1:nrow(civst_gend_sector))
     {
-    <span style="color: #93a1a1;">#    </span><span style="color: #93a1a1;">i &lt;- 1</span>
-        n <span style="color: #268bd2; font-weight: bold;">&lt;-</span> civst_gend_sector$number_of_cases[i]
-        <span style="color: #859900; font-weight: bold;">if</span>(n == 0) <span style="color: #859900; font-weight: bold;">next</span>
-        <span style="color: #859900; font-weight: bold;">for</span>(j <span style="color: #859900; font-weight: bold;">in</span> 1:n)
+    <span style="color: #7f9f7f;">#    </span><span style="color: #7f9f7f;">i &lt;- 1</span>
+        n <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> civst_gend_sector$number_of_cases[i]
+        <span style="color: #f0dfaf; font-weight: bold;">if</span>(n == 0) <span style="color: #f0dfaf; font-weight: bold;">next</span>
+        <span style="color: #f0dfaf; font-weight: bold;">for</span>(j <span style="color: #f0dfaf; font-weight: bold;">in</span> 1:n)
             {
-              df <span style="color: #268bd2; font-weight: bold;">&lt;-</span> rbind(df, civst_gend_sector[i,1:3])              
+              df <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> rbind(df, civst_gend_sector[i,1:3])              
             }
 
     }
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">save this for use later</span>
-write.csv(df, <span style="color: #2aa198;">"inst/extdata/civst_gend_sector_full.csv"</span>, row.names = F)
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">clean</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">save this for use later</span>
+write.csv(df, <span style="color: #cc9393;">"inst/extdata/civst_gend_sector_full.csv"</span>, row.names = F)
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">clean</span>
 nrow(df)
 str(df)
-fit1 <span style="color: #268bd2; font-weight: bold;">&lt;-</span> rpart(civil_status ~ gender + activity_sector, data = df)
+fit1 <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> rpart(civil_status ~ gender + activity_sector, data = df)
 summary(fit1)
 
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">report</span>
-par(mfrow=c(1,2), xpd = <span style="color: #b58900;">NA</span>) 
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">report</span>
+par(mfrow=c(1,2), xpd = <span style="color: #7cb8bb;">NA</span>) 
 plot(fit)
-text(fit, use.n = <span style="color: #b58900;">TRUE</span>)
-title(<span style="color: #2aa198;">"fit"</span>)
+text(fit, use.n = <span style="color: #7cb8bb;">TRUE</span>)
+title(<span style="color: #cc9393;">"fit"</span>)
 plot(fit1)
-text(fit1, use.n = <span style="color: #b58900;">TRUE</span>)
-title(<span style="color: #2aa198;">"fit1"</span>)
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">great these are the same which is what we'd hoped to see</span>
+text(fit1, use.n = <span style="color: #7cb8bb;">TRUE</span>)
+title(<span style="color: #cc9393;">"fit1"</span>)
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">great these are the same which is what we'd hoped to see</span>
 
 </pre>
 
@@ -1108,17 +1108,17 @@ So let's start simple first.  The following code follows the simpler approach:
 
 
 
-<pre class="src src-R"><span style="color: #93a1a1;">################################################################</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">name:tree.chisq</span>
-<span style="color: #268bd2;">tree.chisq</span> <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #859900; font-weight: bold;">function</span>(null_model, fitted_model)
+<pre class="src src-R"><span style="color: #7f9f7f;">################################################################</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">name:tree.chisq</span>
+<span style="color: #8cd0d3;">tree.chisq</span> <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> <span style="color: #f0dfaf; font-weight: bold;">function</span>(null_model, fitted_model)
 {
-    <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">TODO check if these are tree model class</span>
-    fit_dev  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> summary(fitted_model)$dev
-    null_dev  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> summary(null_model)$dev    
-    dev  <span style="color: #268bd2; font-weight: bold;">&lt;-</span>  null_dev - fit_dev
-    df  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> summary(fitted_model)$size - summary(null_model)$size
-    sig  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> 1 - pchisq(dev, df)
-    sprintf(<span style="color: #2aa198;">"Reduction in deviance is %s percent, p-value is %s (based on a chi-squared test)"</span>,
+    <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">TODO check if these are tree model class</span>
+    fit_dev  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> summary(fitted_model)$dev
+    null_dev  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> summary(null_model)$dev    
+    dev  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span>  null_dev - fit_dev
+    df  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> summary(fitted_model)$size - summary(null_model)$size
+    sig  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> 1 - pchisq(dev, df)
+    sprintf(<span style="color: #cc9393;">"Reduction in deviance is %s percent, p-value is %s (based on a chi-squared test)"</span>,
             ((null_dev - fit_dev) / null_dev) * 100,
             sig)
 }
@@ -1132,36 +1132,36 @@ So let's start simple first.  The following code follows the simpler approach:
 
 
 
-<pre class="src src-R"><span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">func</span>
-<span style="color: #268bd2; font-weight: bold;">require</span>(tree)
-<span style="color: #268bd2; font-weight: bold;">require</span>(devtools)
-install_github(<span style="color: #2aa198;">"TransformSurveyTools"</span>, <span style="color: #2aa198;">"ivanhanigan"</span>)
-<span style="color: #268bd2; font-weight: bold;">require</span>(TransformSurveyTools)
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">load locally</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">fpath  &lt;- "inst/extdata/civst_gend_sector_full.csv"</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">or via package</span>
-fpath <span style="color: #268bd2; font-weight: bold;">&lt;-</span> system.file(<span style="color: #2aa198;">"extdata"</span>, <span style="color: #2aa198;">"civst_gend_sector_full.csv"</span>, package=<span style="color: #2aa198;">"TransformSurveyTools"</span>)
-civst_gend_sector  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(fpath)
+<pre class="src src-R"><span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">func</span>
+<span style="color: #bfebbf; font-weight: bold;">require</span>(tree)
+<span style="color: #bfebbf; font-weight: bold;">require</span>(devtools)
+install_github(<span style="color: #cc9393;">"TransformSurveyTools"</span>, <span style="color: #cc9393;">"ivanhanigan"</span>)
+<span style="color: #bfebbf; font-weight: bold;">require</span>(TransformSurveyTools)
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">load locally</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">fpath  &lt;- "inst/extdata/civst_gend_sector_full.csv"</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">or via package</span>
+fpath <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> system.file(<span style="color: #cc9393;">"extdata"</span>, <span style="color: #cc9393;">"civst_gend_sector_full.csv"</span>, package=<span style="color: #cc9393;">"TransformSurveyTools"</span>)
+civst_gend_sector  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> read.csv(fpath)
 
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">clean</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">clean</span>
 str(civst_gend_sector)
 
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">do</span>
-variables  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> names(civst_gend_sector)
-y_variable  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> variables[1]
-x_variables  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> variables[-1]
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">do</span>
+variables  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> names(civst_gend_sector)
+y_variable  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> variables[1]
+x_variables  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> variables[-1]
 
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">NULL</span>
-form0  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> reformulate(<span style="color: #2aa198;">"1"</span>,
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">NULL</span>
+form0  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> reformulate(<span style="color: #cc9393;">"1"</span>,
                       response = y_variable)
 form0
-model0 <span style="color: #268bd2; font-weight: bold;">&lt;-</span> tree(form0, data = civst_gend_sector, method = <span style="color: #2aa198;">"class"</span>)
+model0 <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> tree(form0, data = civst_gend_sector, method = <span style="color: #cc9393;">"class"</span>)
 print(model0)
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">FIT</span>
-form1  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> reformulate(x_variables,
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">FIT</span>
+form1  <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> reformulate(x_variables,
                       response = y_variable)
 form1
-model1 <span style="color: #268bd2; font-weight: bold;">&lt;-</span> tree(form1, data = civst_gend_sector, method = <span style="color: #2aa198;">"class"</span>)
+model1 <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> tree(form1, data = civst_gend_sector, method = <span style="color: #cc9393;">"class"</span>)
 print(model1)
 summary(model1)
 plot(model1)
@@ -1179,7 +1179,7 @@ tree.chisq(null_model = model0, fitted_model = model1)
 
 
 
-<pre class="src src-R"><span style="color: #268bd2; font-weight: bold;">source</span>(<span style="color: #2aa198;">"tests/test-tree.chisq.r"</span>)
+<pre class="src src-R"><span style="color: #bfebbf; font-weight: bold;">source</span>(<span style="color: #cc9393;">"tests/test-tree.chisq.r"</span>)
 </pre>
 
 
@@ -1220,87 +1220,87 @@ tree.chisq(null_model = model0, fitted_model = model1)
 
 
 
-<pre class="src src-R"><span style="color: #93a1a1;">################################################################</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">name:newnode</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">REQUIRES GRAPHVIZ, AND TO INSTALL RGRAPHVIZ</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">source('http://bioconductor.org/biocLite.R')</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">biocLite("Rgraphviz")</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">or may be needed for eg under ubuntu</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">biocLite("Rgraphviz", configure.args=c("--with-graphviz=/usr"))</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">FURTHER INFO</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">see the Rgraphviz examples</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">example(layoutGraph)</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">require(biocGraph) # for imageMap</span>
+<pre class="src src-R"><span style="color: #7f9f7f;">################################################################</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">name:newnode</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">REQUIRES GRAPHVIZ, AND TO INSTALL RGRAPHVIZ</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">source('http://bioconductor.org/biocLite.R')</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">biocLite("Rgraphviz")</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">or may be needed for eg under ubuntu</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">biocLite("Rgraphviz", configure.args=c("--with-graphviz=/usr"))</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">FURTHER INFO</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">see the Rgraphviz examples</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">example(layoutGraph)</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">require(biocGraph) # for imageMap</span>
 
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">source("R/newnode.r")</span>
-<span style="color: #268bd2; font-weight: bold;">require</span>(devtools)
-install_github(<span style="color: #2aa198;">"disentangle"</span>, <span style="color: #2aa198;">"ivanhanigan"</span>)
-<span style="color: #268bd2; font-weight: bold;">require</span>(disentangle)
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">source("R/newnode.r")</span>
+<span style="color: #bfebbf; font-weight: bold;">require</span>(devtools)
+install_github(<span style="color: #cc9393;">"disentangle"</span>, <span style="color: #cc9393;">"ivanhanigan"</span>)
+<span style="color: #bfebbf; font-weight: bold;">require</span>(disentangle)
 newnode(
-  name = <span style="color: #2aa198;">"NAME"</span>
+  name = <span style="color: #cc9393;">"NAME"</span>
   ,
-  inputs=<span style="color: #2aa198;">"INPUT"</span>
+  inputs=<span style="color: #cc9393;">"INPUT"</span>
   ,
-  outputs = <span style="color: #2aa198;">"OUTPUT"</span>
+  outputs = <span style="color: #cc9393;">"OUTPUT"</span>
   ,
-  graph = <span style="color: #2aa198;">'nodes'</span>
+  graph = <span style="color: #cc9393;">'nodes'</span>
   ,
   newgraph=T
   ,
   notes=F
   ,
-  code=<span style="color: #b58900;">NA</span>
+  code=<span style="color: #7cb8bb;">NA</span>
   ,
-  ttype=<span style="color: #b58900;">NA</span>
+  ttype=<span style="color: #7cb8bb;">NA</span>
   ,
   plot = T
   )
 
-nodes <span style="color: #268bd2; font-weight: bold;">&lt;-</span> newnode(<span style="color: #2aa198;">"merge"</span>, c(<span style="color: #2aa198;">"d1"</span>, <span style="color: #2aa198;">"d2"</span>, <span style="color: #2aa198;">"d3"</span>), c(<span style="color: #2aa198;">"EDA"</span>),
+nodes <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> newnode(<span style="color: #cc9393;">"merge"</span>, c(<span style="color: #cc9393;">"d1"</span>, <span style="color: #cc9393;">"d2"</span>, <span style="color: #cc9393;">"d3"</span>), c(<span style="color: #cc9393;">"EDA"</span>),
                  newgraph =T)
-nodes <span style="color: #268bd2; font-weight: bold;">&lt;-</span> newnode(<span style="color: #2aa198;">"qc"</span>, c(<span style="color: #2aa198;">"data1"</span>, <span style="color: #2aa198;">"data2"</span>, <span style="color: #2aa198;">"data3"</span>), c(<span style="color: #2aa198;">"d1"</span>, <span style="color: #2aa198;">"d2"</span>, <span style="color: #2aa198;">"d3"</span>))
-nodes <span style="color: #268bd2; font-weight: bold;">&lt;-</span> newnode(<span style="color: #2aa198;">"modelling"</span>, <span style="color: #2aa198;">"EDA"</span>)
-nodes <span style="color: #268bd2; font-weight: bold;">&lt;-</span> newnode(<span style="color: #2aa198;">"model checking"</span>, <span style="color: #2aa198;">"modelling"</span>, c(<span style="color: #2aa198;">"data checking"</span>, <span style="color: #2aa198;">"reporting"</span>))
-<span style="color: #93a1a1;">#</span><span style="color: #93a1a1;">require(disentangle)</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">either edit a spreadsheet with filenames, inputs and outputs </span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">filesList &lt;- read.csv("exampleFilesList.csv", stringsAsFactors = F)</span>
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">or </span>
-filesList <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(textConnection(
-<span style="color: #2aa198;">'FILE,INPUTS,OUTPUTS,DESCRIPTION</span>
-<span style="color: #2aa198;">siteIDs,GPS,,latitude and longitude of sites</span>
-<span style="color: #2aa198;">weather,BoM,,weather data from BoM</span>
-<span style="color: #2aa198;">trapped,siteIDs,,counts of species caught in trap</span>
-<span style="color: #2aa198;">biomass,siteIDs,,</span>
-<span style="color: #2aa198;">corralations,"weather,trapped,biomass",report1,A study we published</span>
-<span style="color: #2aa198;">paper1,report1,"open access repository, data package",</span>
-<span style="color: #2aa198;">'</span>), stringsAsFactors = F)
-<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">start the graph</span>
-i <span style="color: #268bd2; font-weight: bold;">&lt;-</span> 1
-nodes <span style="color: #268bd2; font-weight: bold;">&lt;-</span> newnode(name = filesList[i,1],
-                 inputs = strsplit(filesList$INPUTS, <span style="color: #2aa198;">","</span>)[[i]],
+nodes <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> newnode(<span style="color: #cc9393;">"qc"</span>, c(<span style="color: #cc9393;">"data1"</span>, <span style="color: #cc9393;">"data2"</span>, <span style="color: #cc9393;">"data3"</span>), c(<span style="color: #cc9393;">"d1"</span>, <span style="color: #cc9393;">"d2"</span>, <span style="color: #cc9393;">"d3"</span>))
+nodes <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> newnode(<span style="color: #cc9393;">"modelling"</span>, <span style="color: #cc9393;">"EDA"</span>)
+nodes <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> newnode(<span style="color: #cc9393;">"model checking"</span>, <span style="color: #cc9393;">"modelling"</span>, c(<span style="color: #cc9393;">"data checking"</span>, <span style="color: #cc9393;">"reporting"</span>))
+<span style="color: #7f9f7f;">#</span><span style="color: #7f9f7f;">require(disentangle)</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">either edit a spreadsheet with filenames, inputs and outputs </span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">filesList &lt;- read.csv("exampleFilesList.csv", stringsAsFactors = F)</span>
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">or </span>
+filesList <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> read.csv(textConnection(
+<span style="color: #cc9393;">'FILE,INPUTS,OUTPUTS,DESCRIPTION</span>
+<span style="color: #cc9393;">siteIDs,GPS,,latitude and longitude of sites</span>
+<span style="color: #cc9393;">weather,BoM,,weather data from BoM</span>
+<span style="color: #cc9393;">trapped,siteIDs,,counts of species caught in trap</span>
+<span style="color: #cc9393;">biomass,siteIDs,,</span>
+<span style="color: #cc9393;">corralations,"weather,trapped,biomass",report1,A study we published</span>
+<span style="color: #cc9393;">paper1,report1,"open access repository, data package",</span>
+<span style="color: #cc9393;">'</span>), stringsAsFactors = F)
+<span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">start the graph</span>
+i <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> 1
+nodes <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> newnode(name = filesList[i,1],
+                 inputs = strsplit(filesList$INPUTS, <span style="color: #cc9393;">","</span>)[[i]],
                  outputs =
-                 strsplit(filesList$OUTPUTS, <span style="color: #2aa198;">","</span>)[[i]]
+                 strsplit(filesList$OUTPUTS, <span style="color: #cc9393;">","</span>)[[i]]
                  ,
                  newgraph=T)
  
-<span style="color: #859900; font-weight: bold;">for</span>(i <span style="color: #859900; font-weight: bold;">in</span> 2:nrow(filesList))
+<span style="color: #f0dfaf; font-weight: bold;">for</span>(i <span style="color: #f0dfaf; font-weight: bold;">in</span> 2:nrow(filesList))
 {
-  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">i &lt;- 2</span>
-  <span style="color: #859900; font-weight: bold;">if</span>(length(strsplit(filesList$OUTPUTS, <span style="color: #2aa198;">","</span>)[[i]]) == 0)
+  <span style="color: #7f9f7f;"># </span><span style="color: #7f9f7f;">i &lt;- 2</span>
+  <span style="color: #f0dfaf; font-weight: bold;">if</span>(length(strsplit(filesList$OUTPUTS, <span style="color: #cc9393;">","</span>)[[i]]) == 0)
   {
-    nodes <span style="color: #268bd2; font-weight: bold;">&lt;-</span> newnode(name = filesList[i,1],
-                     inputs = strsplit(filesList$INPUTS, <span style="color: #2aa198;">","</span>)[[i]]
+    nodes <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> newnode(name = filesList[i,1],
+                     inputs = strsplit(filesList$INPUTS, <span style="color: #cc9393;">","</span>)[[i]]
     )    
-  } <span style="color: #859900; font-weight: bold;">else</span> {
-    nodes <span style="color: #268bd2; font-weight: bold;">&lt;-</span> newnode(name = filesList[i,1],
-                     inputs = strsplit(filesList$INPUTS, <span style="color: #2aa198;">","</span>)[[i]],
-                     outputs = strsplit(filesList$OUTPUTS, <span style="color: #2aa198;">","</span>)[[i]]
+  } <span style="color: #f0dfaf; font-weight: bold;">else</span> {
+    nodes <span style="color: #bfebbf; font-weight: bold;">&lt;-</span> newnode(name = filesList[i,1],
+                     inputs = strsplit(filesList$INPUTS, <span style="color: #cc9393;">","</span>)[[i]],
+                     outputs = strsplit(filesList$OUTPUTS, <span style="color: #cc9393;">","</span>)[[i]]
     )
   }
 }
  
-<span style="color: #93a1a1;">#</span><span style="color: #93a1a1;">dev.copy2pdf(file='fileTransformations.pdf')</span>
-<span style="color: #93a1a1;">#</span><span style="color: #93a1a1;">dev.off();</span>
+<span style="color: #7f9f7f;">#</span><span style="color: #7f9f7f;">dev.copy2pdf(file='fileTransformations.pdf')</span>
+<span style="color: #7f9f7f;">#</span><span style="color: #7f9f7f;">dev.off();</span>
  
 </pre>
 
