@@ -7,7 +7,7 @@
 -----
 * Introduction
 * func
-** newnode
+** COMMENT newnode moved to index.org
 *** R-newnode
 #+name:newnode
 #+begin_src R :session *R* :tangle R/newnode.r :exports none :eval no
