@@ -849,7 +849,7 @@ So I thought what's the other 10?  Here's a few contenders for my work:
 #+end_src
 
 ** R-get.var.labels
-*** R-get.var.labels
+*** COMMENT R-get.var.labels
 #+name:get.var.labels
 #+begin_src R :session *R* :tangle R/get.var.labels.r :exports none :eval no
   ################################################################
@@ -874,6 +874,8 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   ################################################################
   # name:R-variable-labels-create
   # func
+  require(devtools)
+  install_github("disentangle", "ivanhanigan")
   require(disentangle)
   
   # load
@@ -888,11 +890,11 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   # do
   label(civst_gend_sector) <- "Fictional data for Classification Trees"
   label(civst_gend_sector$civil_status) <- "married"
-  label(civst_gend_sector$gender) <- "gender"
+  label(civst_gend_sector$gender) <- "sex"
   label(civst_gend_sector$activity_sector) <- "level of school"
   label(civst_gend_sector$number_of_cases) <- "persons"
   
-  attributes(civst_gend_sector)$variable.labels = get.var.labels(civst_gend_sector)
+  attributes(civst_gend_sector)$variable.labels  <- get.var.labels(civst_gend_sector)
   
   # report
   str(civst_gend_sector)
@@ -903,7 +905,7 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   
 #+end_src
 
-*** man-get.var.labels
+*** COMMENT man-get.var.labels
 #+name:get.var.labels
 #+begin_src R :session *R* :tangle no :exports none :eval no
 ################################################################
