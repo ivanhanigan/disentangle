@@ -878,6 +878,7 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   require(devtools)
   install_github("disentangle", "ivanhanigan")
   require(disentangle)
+  require(Hmisc)
   
   # load
   fpath <- system.file(file.path("extdata", "civst_gend_sector.csv"),
