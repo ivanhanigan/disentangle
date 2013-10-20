@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="Disentangle Things"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2013-10-20T22:13+1100"/>
+<meta name="generated" content="2013-10-21T10:33+1100"/>
 <meta name="author" content="Ivan Hanigan"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -176,6 +176,7 @@ for the JavaScript code in this tag.
 </ul>
 </li>
 <li><a href="#sec-7-6">7.6 R-spss-variable-labels-read</a></li>
+<li><a href="#sec-7-7">7.7 test-spss-variable-labels-read-code</a></li>
 </ul>
 </li>
 <li><a href="#sec-8">8 Exploratory Data Analysis</a></li>
@@ -926,7 +927,7 @@ str(civst_gend_sector)
 <span style="color: #586e75;"># </span><span style="color: #586e75;">do</span>
 label(civst_gend_sector) <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #2aa198;">"Fictional data for Classification Trees"</span>
 label(civst_gend_sector$civil_status) <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #2aa198;">"married"</span>
-label(civst_gend_sector$gender) <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #2aa198;">"sex"</span>
+label(civst_gend_sector$gender) <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #2aa198;">"sex of person"</span>
 label(civst_gend_sector$activity_sector) <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #2aa198;">"level of school"</span>
 label(civst_gend_sector$number_of_cases) <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #2aa198;">"persons"</span>
 
@@ -957,7 +958,48 @@ as.data.frame(
 
 
 <pre class="src src-R"><span style="color: #586e75;">################################################################</span>
-<span style="color: #586e75;"># </span><span style="color: #586e75;">name:R-spss-variable-labels</span>
+<span style="color: #586e75;"># </span><span style="color: #586e75;">name:R-spss-variable-labels-read</span>
+<span style="color: #268bd2;">spss_variable_labels_read</span>  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #859900; font-weight: bold;">function</span>(x, filter, case_sensitive = <span style="color: #b58900;">FALSE</span>)
+{
+  <span style="color: #859900; font-weight: bold;">if</span>(case_sensitive)
+    {
+      col_index  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> grep(filter, attributes(x)$variable.labels)      
+    } <span style="color: #859900; font-weight: bold;">else</span> {
+      col_index  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> grep(tolower(filter), tolower(attributes(x)$variable.labels))      
+    }
+  names_returned <span style="color: #268bd2; font-weight: bold;">&lt;-</span> attributes(x)$variable.labels[col_index]
+  names_returned <span style="color: #268bd2; font-weight: bold;">&lt;-</span> paste(names_returned, sep = <span style="color: #2aa198;">""</span>, collapse = <span style="color: #2aa198;">"', '"</span>)
+  cat(sprintf(<span style="color: #2aa198;">"returning the columns '%s'"</span>, names_returned))
+  data_out <span style="color: #268bd2; font-weight: bold;">&lt;-</span> x[,col_index]
+  <span style="color: #859900; font-weight: bold;">return</span>(data_out)
+}
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-7-7" class="outline-3">
+<h3 id="sec-7-7"><span class="section-number-3">7.7</span> test-spss-variable-labels-read-code</h3>
+<div class="outline-text-3" id="text-7-7">
+
+
+
+
+<pre class="src src-R"><span style="color: #586e75;">################################################################</span>
+<span style="color: #586e75;"># </span><span style="color: #586e75;">name:test-spss_variable_labels_read</span>
+<span style="color: #268bd2; font-weight: bold;">require</span>(disentangle)   
+<span style="color: #586e75;"># </span><span style="color: #586e75;">test</span>
+qc <span style="color: #268bd2; font-weight: bold;">&lt;-</span> spss_variable_labels_read(
+x = civst_gend_sector
+,
+filter = <span style="color: #2aa198;">"person"</span>
+,
+case_sensitive  = <span style="color: #b58900;">TRUE</span>
+)
+str(qc)
+
+<span style="color: #586e75;"># </span><span style="color: #586e75;">now summarise in a tex table</span>
 <span style="color: #586e75;"># </span><span style="color: #586e75;">func</span>
 <span style="color: #268bd2; font-weight: bold;">require</span>(xtable)
 

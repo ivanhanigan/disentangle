@@ -892,7 +892,7 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   # do
   label(civst_gend_sector) <- "Fictional data for Classification Trees"
   label(civst_gend_sector$civil_status) <- "married"
-  label(civst_gend_sector$gender) <- "sex"
+  label(civst_gend_sector$gender) <- "sex of person"
   label(civst_gend_sector$activity_sector) <- "level of school"
   label(civst_gend_sector$number_of_cases) <- "persons"
   
@@ -916,10 +916,43 @@ So I thought what's the other 10?  Here's a few contenders for my work:
 #+end_src
 
 ** R-spss-variable-labels-read
-#+name:R-spss-variable-labels
+*** R-spss-variable-labels-read
+#+name:R-spss-variable-labels-read
+#+begin_src R :session *R* :tangle R/spss_variable_labels_read.r :exports reports :eval no
+  ################################################################
+  # name:R-spss-variable-labels-read
+  spss_variable_labels_read  <- function(x, filter, case_sensitive = FALSE)
+  {
+    if(case_sensitive)
+      {
+        col_index  <- grep(filter, attributes(x)$variable.labels)      
+      } else {
+        col_index  <- grep(tolower(filter), tolower(attributes(x)$variable.labels))      
+      }
+    names_returned <- attributes(x)$variable.labels[col_index]
+    names_returned <- paste(names_returned, sep = "", collapse = "', '")
+    cat(sprintf("returning the columns '%s'", names_returned))
+    data_out <- x[,col_index]
+    return(data_out)
+  }
+#+end_src
+*** test-spss-variable-labels-read-code
+#+name:test-spss_variable_labels_read
 #+begin_src R :session *R* :tangle no :exports reports :eval no
   ################################################################
-  # name:R-spss-variable-labels
+  # name:test-spss_variable_labels_read
+  require(disentangle)   
+  # test
+  qc <- spss_variable_labels_read(
+  x = civst_gend_sector
+  ,
+  filter = "person"
+  ,
+  case_sensitive  = TRUE
+  )
+  str(qc)
+  
+  # now summarise in a tex table
   # func
   require(xtable)
   
