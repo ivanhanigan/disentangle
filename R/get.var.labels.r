@@ -2,6 +2,7 @@
 ################################################################
 # name:get.var.labels
 # from http://stackoverflow.com/a/10261534
+# this creates the $variable.labels attribute
 get.var.labels = function(data) {
   if(!require(Hmisc)) install.packages('Hmisc', dependencies = TRUE); require(Hmisc)
   a = do.call(llist, data)
