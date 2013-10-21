@@ -932,7 +932,9 @@ So I thought what's the other 10?  Here's a few contenders for my work:
     names_returned <- attributes(x)$variable.labels[col_index]
     col_names  <- names(names_returned)
     col_refs  <-  as.data.frame(cbind(col_names, names_returned))
-
+    col_refs[,1]  <-  as.character(col_refs[,1])
+    col_refs[,2]  <-  as.character(col_refs[,2])
+    row.names(col_refs)  <- NULL
     if(return_df)
       {
         names_returned <- paste(names_returned, sep = "", collapse = "', '")
@@ -964,7 +966,7 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   str(qc)
   qc
 #+end_src
-*** R-summary-table-code
+** R-spss-variable-summary-table-code
 #+name:R-summary-table
 #+begin_src R :session *R* :tangle no :exports reports :eval no
   ################################################################
