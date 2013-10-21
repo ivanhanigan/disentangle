@@ -963,7 +963,13 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   
   str(qc)
   qc
-  
+#+end_src
+*** R-summary-table-code
+#+name:R-summary-table
+#+begin_src R :session *R* :tangle no :exports reports :eval no
+  ################################################################
+  # name:R-summary-table
+   
   # now summarise in a tex table
   # func
   require(xtable)
