@@ -2,3 +2,5 @@
 .Rhistory
 .RData
 _site
+.Rbuildignore
+disentangle.Rproj
