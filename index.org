@@ -1723,5 +1723,15 @@ source("tests/test-tree.chisq.r")
 * R Packages
 * Project Management
 * Operating Systems
+* Linux - Ubuntu 
+*** COMMENT TODO bash profile-code
+#+name:bash profile
+#+begin_src R :session *R* :tangle no :exports none :eval no
+# put in ~/.bash_profile
+# then source ~/.bash_profile
+alias build_r="cd ~/tools/disentangle;git add .;git commit -m 'storage';git checkout master;git checkout gh-pages -- R/*;git add .;git commit -am 'Latest build.';git push;git checkout gh-pages"
+alias br="build_r"
+#+end_src
+
 * Big Data Tips
 * Writing
