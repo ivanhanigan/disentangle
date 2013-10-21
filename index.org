@@ -921,7 +921,7 @@ So I thought what's the other 10?  Here's a few contenders for my work:
 #+begin_src R :session *R* :tangle R/spss_variable_labels_read.r :exports reports :eval no
   ################################################################
   # name:R-spss-variable-labels-read
-  spss_variable_labels_read  <- function(x, filter, case_sensitive = FALSE)
+  spss_variable_labels_read  <- function(x, filter, case_sensitive = FALSE, return_df = FALSE)
   {
     if(case_sensitive)
       {
@@ -930,10 +930,18 @@ So I thought what's the other 10?  Here's a few contenders for my work:
         col_index  <- grep(tolower(filter), tolower(attributes(x)$variable.labels))      
       }
     names_returned <- attributes(x)$variable.labels[col_index]
-    names_returned <- paste(names_returned, sep = "", collapse = "', '")
-    cat(sprintf("returning the columns '%s'", names_returned))
-    data_out <- x[,col_index]
-    return(data_out)
+    col_names  <- names(names_returned)
+    col_refs  <-  as.data.frame(cbind(col_names, names_returned))
+    #col_refs
+    if(return_df)
+      {
+        names_returned <- paste(names_returned, sep = "", collapse = "', '")
+        cat(sprintf("returning the columns '%s'", names_returned))
+        data_out <- x[,col_index]
+        return(data_out)
+      } else {
+        return(col_refs)
+      }   
   }
 #+end_src
 *** test-spss-variable-labels-read-code
@@ -944,13 +952,17 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   require(disentangle)   
   # test
   qc <- spss_variable_labels_read(
-  x = civst_gend_sector
-  ,
-  filter = "person"
-  ,
-  case_sensitive  = TRUE
+    x = civst_gend_sector
+    ,
+    filter = "person"
+    ,
+    case_sensitive  = TRUE
+    ,
+    return_df = T
   )
+  
   str(qc)
+  qc
   
   # now summarise in a tex table
   # func
