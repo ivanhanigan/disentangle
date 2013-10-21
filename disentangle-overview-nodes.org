@@ -1,0 +1,34 @@
+
+** reports-Introduction
+
+ This is the workflow diagram for the health forecasting project at NCEPH \cite{Dear2010} which can be viewed
+ \href{http://dl.dropbox.com/u/7075452/HF_data/data_transformations.html}{at this link}.
+ The relationship between daily air quality and daily hospital admissions is being examined:
+ \begin{itemize}
+ \item Three cities, Brisbane, Melbourne and Sydney
+ \item Daily for seven years, 1998 - 2004 (2,557 days)
+ \item Twelve disease clusters; both emergency admissions and all admissions; though for most analyses only emergency admissions were considered
+ \item By age and sex  (twelve groups)
+ \item By spatial subunits of each city: statistical local area (SLA) for Melbourne and Sydney and, for Brisbane, larger zones (clusters of SLAs) designed specifically for this project.
+ \end{itemize}
+ In all there were 0.76 million emergency admissions in Brisbane, 1.66m in Melbourne, and 2.54m in Sydney.
+ 
+
+*** newnode-Introduction
+
+\#+name:newnode-Introduction
+\#+begin_src R :session *R* :tangle no :exports none :eval no
+nodes <- newnode(name='Introduction',
+ inputs = c('Introduction-1'),
+ outputs = c('NA')
+ )
+\#+end_src
+
+
+*** src-Introduction
+
+\#+name:src-Introduction
+\#+begin_src R :session *R* :tangle src/reports-Introduction.r :exports none
+x <- rnorm(1000,1,2)
+\#+end_src
+
