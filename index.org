@@ -1651,7 +1651,7 @@ source("tests/test-tree.chisq.r")
 #+end_src
 *** COMMENT rpart_deviance_explained-test-code
 #+name:rpart_deviance_explained-test
-#+begin_src R :session *R* :tangle src/rpart_deviance_explained-test.r :exports none :eval no
+#+begin_src R :session *R* :tangle no :exports none :eval no
   ################################################################
   # name:rpart_deviance_explained-test
   
