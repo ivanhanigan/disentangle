@@ -1636,14 +1636,19 @@ source("tests/test-tree.chisq.r")
 *** COMMENT rpart_deviance_explained-code
 #+name:rpart_deviance_explained
 #+begin_src R :session *R* :tangle src/rpart_deviance_explained.r :exports none :eval no
-################################################################
-# name:rpart_deviance_explained
-# explanatory power
-  
+  ################################################################
+  # name:rpart_deviance_explained
+  # explanatory power
+  require(devtools)
+  install_github("disentangle", "ivanhanigan")
+  require(disentangle)
+  # load
+  fpath <- system.file(file.path("extdata", "civst_gend_sector_full.csv"), package = "disentangle")
+  fpath
   estat <- print(fit)$frame[,c("var","n","dev","yval")]
   str(estat)
   (estat[1,"dev"] - sum(subset(estat, var == "<leaf>")$dev)) / estat[1,"dev"]
-  
+    
 #+end_src
 
 * Code Editors
