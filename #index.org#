@@ -1,0 +1,1822 @@
+#+TITLE:Disentangle Things
+#+AUTHOR: Ivan Hanigan
+#+email: ivan.hanigan@anu.edu.au
+#+LaTeX_CLASS: article
+#+LaTeX_CLASS_OPTIONS: [a4paper]
+#+LATEX: \tableofcontents
+-----
+
+* Introduction
+This project is my collection of notes and customised software tools for data management, manipulation and analysis.
+
+#+name:install-tools
+#+begin_src R :session *R* :tangle inst/doc/main.r :eval no
+  ################################################################
+  # devtools is recommended
+  require(devtools)
+  install_github("disentangle", "ivanhanigan")
+  require(disentangle)
+#+end_src
+* Test Data
+** COMMENT blog-test-data-for-classification-trees
+#+name:test-data-for-classification
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-test-data-for-classification-trees.md :exports none :eval no :padline no
+  ---
+  name: test-data-for-classification-trees
+  layout: post
+  title: test-data-for-classification-trees
+  date: 2013-10-10
+  categories:
+  - Data Documentation
+  - Tree-Based Methods
+  ---
+#+end_src
+** Test Data for Classification Trees
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-test-data-for-classification-trees.md :exports reports :eval no :padline no
+  
+  #### A fictitious sample dataset
+  For discussion, I'll use a fictional example dataset that I'm using to work through some statistical theory related to Classification and Regression Trees (CART).
+  In the motivating example use case we are interested in predicting the civil status (married, single, divorced/widowed) of individuals from their sex (male, female) and sector of activity (primary, secondary, tertiary). The data set is composed of 273 cases.
+  
+  The data (and related statistical theory) come from:
+  
+  - Ritschard, G. (2006). Computing and using the deviance with classification trees. In Compstat 2006 - Proceedings in Computational Statistics 17th Symposium Held in Rome, Italy, 2006. Retrieved from [This Link](http://mephisto.unige.ch/pub/publications/gr/ritschard_compstat06.pdf)
+  
+  - Ritschard, G., Pisetta, V., & Zighed, D. (2008). Inducing and evaluating classification trees with statistical implicative criteria. Statistical Implicative Analysis. Studies in Computational Intelligence Volume 127, pp 397-419. Retrieved from [This Link](http://mephisto.unige.ch/pub/publications/gr/ritsch-pisetta-zighed_bookGras_rev.pdf)
+  
+  #### Code:
+      # copy and paste the data from the PDF (Table 1 in both papers)
+      civst_gend_sector  <- read.csv(textConnection(
+          "civil_status gender activity_sector number_of_cases
+               married   male         primary              50
+               married   male       secondary              40
+               married   male        tertiary               6
+               married female         primary               0
+               married female       secondary              14
+               married female        tertiary              10
+                single   male         primary               5
+                single   male       secondary               5
+                single   male        tertiary              12
+                single female         primary              50
+                single female       secondary              30
+                single female        tertiary              18
+      divorced/widowed   male         primary               5
+      divorced/widowed   male       secondary               8
+      divorced/widowed   male        tertiary              10
+      divorced/widowed female         primary               6
+      divorced/widowed female       secondary               2
+      divorced/widowed female        tertiary               2
+      "),sep = "")
+  
+      # save this to my personal R utilities package "disentangle" 
+      # for use later when I am exploring functions
+      dir.create("inst/extdata", recursive=T)
+      write.csv(civst_gend_sector, "inst/extdata/civst_gend_sector.csv", row.names = F)
+  
+  #### Motivating reason for using these data
+  Classification and Regression Tree models (also referred to as Decision Trees) are one of the building blocks of data mining and a great tool for Exploratory Data Analysis.
+  
+  I've mostly used Regression Trees in the past but recently got some work with social science data where Classification Trees were needed.  I wanted to assess the deviance as well as the misclassification error rate for measuring the descriptive power of the tree.  While this is a easy with Regression Trees it became obvious that it was not so easy with Classification Trees.  This is because Classification Trees are most often evaluated by means of the error rate. The problem with the error rate is that it is not that helpful for assessing the descriptive capacity of the tree.
+  
+  For example if we look at the reduction in deviance between the Null model and the fitted tree we can say that the tree explains about XYZ% of the variation. We can also test if this is a statistically significant reduction based on a chi-squared test.
+  
+  Consider this example from page 310 of Hastie, T., Tibshirani, R., & Friedman, J. (2001). The elements of statistical learning. 2nd Edition:
+  
+  - in a two-class problem with 400 observations in each class (denote this by (400, 400))
+  - suppose one split created nodes (300, 100) and (100, 300), 
+  - the other created nodes (200, 400) and (200, 0). 
+  - Both splits produce a misclassification rate of 0.25, but the second split produces a pure node and is probably preferable.
+  
+  During the course of my research to try to identify the best available method to implement in my analysis I found a useful series of papers by Ritschard, with a worked example using SPSS.  I hope to translate that to R in the future, but the first thing I did was grab the example data used in several of those papers out of the PDF.  So seeing as this was a public dataset (I use a lot of restricted data) and because I want to be able to use it to demonstrate the use of any R functions I find or write... I thought would publish it properly.  
+  
+  #### The Tree Model
+  So just before we leave Ritschard and the CART method, let's just fit the model.  Let's also install my R utilities package "disentangle", to test that we can access the data from it.
+  
+  In this analysis the civil status is the outcome (or response or decision or dependent) variable, while sex and activity sector are the predictors (or condition or independent variables). 
+  
+  #### Code: 
+      # func
+      require(rpart)
+      require(partykit) 
+      require(devtools)
+      install_github("disentangle", "ivanhanigan")
+      
+      # load
+      fpath <- system.file(file.path("extdata", "civst_gend_sector.csv"),
+                           package = "disentangle"
+                           )
+      civst_gend_sector <- read.csv(fpath)
+  
+      # clean
+      str(civst_gend_sector)
+      
+      # do
+      fit <- rpart(civil_status ~ gender + activity_sector,
+                   data = civst_gend_sector, weights = number_of_cases,
+                   control=rpart.control(minsplit=1))
+      # NB need minsplit to be adjusted for weights.
+      summary(fit)
+        
+      # report
+      dir.create("images")
+      png("images/fit1.png", 1000, 480)
+      plot(as.party(fit))
+      dev.off()
+  
+  #### The Result
+#+end_src
+** COMMENT tail
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-test-data-for-classification-trees.md :exports none :eval no :padline no
+
+  ![fit1.png](/images/fit1.png)
+
+#+end_src
+* Data Input - Remote
+** Database Connection
+*** TODO connect2postgres
+*** TODO connect2oracle
+** Database Input
+*** TODO readOGR2
+*** PSQL dump and restore
+#+name:psql-dump-restore
+#+begin_src sh :tangle no :exports reports :eval no
+# name:psql-dump-restore
+"C:\Program Files\pgAdmin III\1.8\pg_dump.exe" -h ip_address -p 5432 -U user_name -F t -v -i -f "z:pathtobackup_file.backup" -t \"public\".\"table\" databaseName
+
+# Or for an entire schema
+
+"C:\Program Files\pgAdmin III\1.8\pg_dump.exe" -h ip_address -p 5432 -U user_name -F t -v -i -f "z:\path\to\backup_file.backup" -n \"public\" databaseName
+
+#You can dump and restore in a single line directly to your local postgres server
+
+pg_dump -h ip_address -U username -i -t schema.table weather | psql -h localhost postgis
+
+#You can dump and restore in a single line between databases
+
+"C:\Program Files\PostgreSQL\8.3\bin\pg_dump" -h ip_address -U username -i -t schema.table database | "C:\Program Files\PostgreSQL\8.3\bin\psql" -h ipaddress -U username database
+
+#To copy to a CSV file
+
+"C:\Program Files\PostgreSQL\8.3\bin\psql" -h ip_address -d weather -U username -c "COPY \"schema\".\"table\" TO STDOUT WITH CSV HEADER;" > "J:\workdir\filename.csv"
+
+"C:\Program Files\PostgreSQL\8.3\bin\psql" -h ip_address -d weather -U username -c "COPY (select * from schema.table where var = X) TO STDOUT WITH CSV HEADER;" > "J:\workdir\filename.csv"
+#+end_src
+* Data Input - Local
+** Download File from HTTPS
+*** download-file-https-code
+#+name:download-file-https
+#+begin_src R :session *R* :tangle no :exports reports :eval no
+  # use method = curl
+  download.file('https://alliance.anu.edu.au/access/content/group/4e0f55f1-b540-456a-000a-24730b59fccb/R%20Resources/Intro%20to%20R/timedata.csv',
+                '~/timedata.csv',
+                method ='curl'
+                )
+  timedata <- read.csv('~/timedata.csv')
+#+end_src
+
+* Data Operation
+** COMMENT R-data-munging-blog-posts
+*** wickhams-tidy-tools-only-get-you-90-pct-the-way.md
+#+name:wickhams-tidy-tools-only-get-you-90-pct-the-way-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports none :eval no :padline no
+---
+name: 2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way
+layout: post
+title: wickhams-tidy-tools-only-get-you-90-pct-the-way
+date: 2013-10-10
+categories:
+- research methods
+---
+
+#### Hadley Wickham's tidy tools
+In this video at 8 mins 50 seconds he says "these four tools do 90% of the job" 
+
+- subset, 
+- transform, 
+- summarise, and 
+- arrange
+- TODO I noticed [at the website for an Rstudio  course](http://www.rstudio.com/training/curriculum/data-manipulation.html) transform has been replaced by mutate as one of the "four basic verbs of data manipulation".
+
+<iframe src="//player.vimeo.com/video/33727555" width="500" height="281" frameborder="0" webkitallowfullscreen mozallowfullscreen allowfullscreen></iframe> <p><a href="http://vimeo.com/33727555">Tidy Data</a> from <a href="http://vimeo.com/user2150538">Drew Conway</a> on <a href="https://vimeo.com">Vimeo</a>.</p>
+
+So I thought what's the other 10?  Here's a few contenders for my work:
+
+- merge
+- reshape::cast and reshape::melt
+- unlist
+- t() transpose
+- sprintf or paste
+
+<p></p>
+#+end_src
+** R-subset
+#+name:R-subset
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports reports :eval no :padline no
+  #### R-subset
+      # Filter rows by criteria
+      subset(airquality, Temp > 90, select = c(Ozone, Temp))
+  
+      ## NB This is a convenience function intended for use interactively.  For
+      ## programming it is better to use the standard subsetting functions like
+      ## ‘[’, and in particular the non-standard evaluation of argument
+      ## ‘subset’ can have unanticipated consequences.
+  
+      with(airquality,
+           airquality[Temp > 90, c("Ozone", "Temp")]
+           )
+  
+      # OR
+  
+      airquality[airquality$Temp > 90,  c("Ozone", "Temp")]
+                                                                                 
+#+end_src
+** R-transform
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports reports :eval no :padline no
+  #### R-transform
+      # New columns that are functions of other columns       
+      df <- transform(airquality,
+                      new = -Ozone,
+                      Temp2 = (Temp-32)/1.8
+                      )
+      head(df)
+  
+
+#+end_src
+** R-mutate
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports reports :eval no :padline no
+  #### R-mutate
+      require(plyr)
+      # same thing as transform
+      df <- mutate(airquality, new = -Ozone, Temp = (Temp - 32) / 1.8)    
+      # Things transform can't do
+      df <- mutate(airquality, Temp = (Temp - 32) / 1.8, OzT = Ozone / Temp)
+      
+      # mutate is rather faster than transform
+      system.time(transform(baseball, avg_ab = ab / g))
+      system.time(mutate(baseball, avg_ab = ab / g))
+
+#+end_src       
+** R-summarise
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports reports :eval no :padline no
+  #### R-summarise
+      # New data.frame where columns are functions of existing columns
+      require(plyr)    
+      df <- ddply(.data = airquality,
+                  .variables = "Month",
+                  .fun = summarise,
+                  tmax = max(Temp),
+                  tav = mean(Temp),
+                  ndays = length(unique(Day))
+                  )
+      head(df)
+  
+  #### Passing variables to ddply for summary
+      # Notice how the name of the variable Temp doesn't need quotes?
+      # this means that you need to hard code the names
+      # But if you want to pass variables to this inside a function we need a
+      # different approach.
+  
+      summarise_df  <- function(x, by, var1, var2, var3)
+        {
+          data_out <- ddply(x,
+                            by,
+                            function(df) return(
+                              c(
+                                tmax = max(df[,var1]),
+                                tav = mean(df[,var2]),
+                                ndays = length(unique(df[,var3]))
+                                )
+                              )
+                            )
+          return(data_out)
+        }
+  
+      df2 <- summarise_df(x = airquality, by = "Month",
+                         var1 = "Temp", var2 = "Temp", var3 = "Day"
+                         )
+      
+      head(df2)
+      all.equal(df,df2)
+      # TRUE
+  
+  #### Another alternative, if we want to pass the dataset as string too
+      summarise_df2  <- function(x, by, var1, var2, var3)
+        {
+          data_out <- eval(
+            parse(
+              text =
+              sprintf(
+                "ddply(.data = %s,
+                  .variables = '%s',
+                  .fun = summarise,
+                  tmax = max(%s),
+                  tav = mean(%s),
+                  ndays = length(unique(%s))
+                  )", x, by, var1, var2, var3
+                )
+              )
+            )
+          return(data_out)
+        }
+  
+      df3 <- summarise_df2(x = "airquality", by = "Month",
+                           var1 = "Temp", var2 = "Temp", var3 = "Day"
+                           )
+      head(df3)
+      all.equal(df, df3)
+      # TRUE
+#+end_src
+** R-arrange
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-10-wickhams-tidy-tools-only-get-you-90-pct-the-way.md :exports reports :eval no :padline no
+  #### R-arrange
+      # Re-order the rows of a data.frame
+      df <- arrange(airquality, Temp, Ozone)
+      head(df)
+#+end_src
+
+
+* Data Output
+* Data Documentation
+** COMMENT data-documentation-blogposts
+*** 2013-10-11-two-main-types-of-data-documentation-workflow
+#+name:two-main-types-of-data-documentation-workflow-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-11-two-main-types-of-data-documentation-workflow.md :exports none :eval no :padline no
+  ---
+  name: two-main-types-of-data-documentation-workflow
+  layout: post
+  title: two-main-types-of-data-documentation-workflow
+  date: 2013-10-11
+  categories:
+  - Data Documentation
+  ---
+  
+  This post introduces a new series of blog posts in which I want to experiment with a few tools for data documentation, which I'll present as Case Studies.  This series of posts will be pitched to an audience mixture of data librarians and data analysts.
+    
+  Data documentation occurs in a spectrum from simple notes through to elaborate systems.  I've been working on a conceptual framework about how the actual process can be done in two distinct ways:
+  
+  - Graphical User Interface (GUI) solutions
+  - Programmatic (Scripted/Automagic) solutions
+   
+  I think the GUI tools are in general pretty user friendly and useful
+  for simple projects with only a small number of datasets, but have a
+  major drawback for the challenge of heterogeneous data integration.  I
+  think the problem is expressed nicely [In This Post By Carl Boettiger](http://carlboettiger.info/2013/06/23/notes-on-leveraging-the-ecological-markup-language.html)  in reference to Morpho:
+  
+  - "looks like a rather useful if tedious tool for generating EML
+  files. Unfortunately, without the ability to script inputs or
+  automatically detect existing data structures, we are forced through
+  the rather arduous process of adding all metadata annotation each
+  time...."
+  - "...A package could also provide utilities to generate EML from R objects, leveraging the metadata implicit in R objects that is not present in a CSV (in which there is no built-in notion of whether  a column is numeric or character string, what missing value characters it uses, or really if it is consistent at all. Avoiding manual specification of these things makes the metadata annotation less tedious as well."
+    
+  # Centralised Repository, Distributed Users
+  A key aspect of current approaches is the existence of a centralised data management system.  All the examples I consider include at least a metadata catalogue and some also include a data repository.  An additional feature sometimes exists for managing users permissions.
+  
+  The relationship between users and centralised services is a really complicated space, but essentially consists of the ability for users to create the documentation and push it (perhaps along with the data) to the metadata catalogue  and/or repository.  So given these assumptions I propose the following types of arrangement:
+  
+  - user sends metadata to metadata catalogue
+  - user sends metadata and data to metadata catalogue and data repository 
+  - user sends metadata and data and permissions information to metadata catalogue and data repository and permissions system.
+    
+  The Case Studies I've identified that I want to explore are listed below, names follow the format 'client tool'-and-'data repository or metadata catalogue'-and-optionally-'permissions system':
+  
+  #### Programmatic solutions
+  - reml-and-rfigshare
+  - reml-and-knb (when/if this becomes available)
+  - make_ddixml-and-ddiindex-and-orapus
+  - r2ddi-ddiindex
+  - dc-uploader-and-ANU-DataCommons
+  - dc-uploader-and-RDA
+  
+  #### Graphical User Interface solutions
+  - morpho-and-knb-metacat
+  - nesstar-publisher-and-nesstar-and-whatever-Steve-calls-the-ADA-permissions-system
+  - xmet-and-Australian-Spatial-Data-Directory
+  - sdmx-editor-and-sdmx-registry
+  
+  
+#+end_src
+
+*** COMMENT getting the test data
+#+name:get-test-data
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:get-test-data
+  
+  #### Code:dc-uploader-and-ANU-DataCommons
+      # func
+      require(devtools)
+      install_github("disentangle", "ivanhanigan")
+      require(disentangle)
+      # load
+      fpath <- system.file(
+          file.path("extdata",
+                    "civst_gend_sector.csv"
+                    ),
+          package = "disentangle"
+          )
+      df <- read.csv(fpath)
+      # clean
+      str(df)
+
+#+end_src
+
+** R-reml-and-rfigshare
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-12-data-documentation-case-study-reml-and-rfigshare.md :exports reports :eval no :padline no
+  ---
+  name: data-documentation-case-study-reml-and-rfigshare
+  layout: post
+  title: data-documentation-case-study-reml-and-rfigshare
+  date: 2013-10-12
+  categories:
+  - Data Documentation
+  ---
+  
+  #### Case Study: reml-and-rfigshare
+  First we will look at the work of the ROpenSci team and the reml
+  package.  In the vignette they show how to publish data to figshare
+  using rfigshare package.  [figshare](http://figshare.com/) is a site
+  where scientists can share datasets/figures/code. The goals are to
+  encourage researchers to share negative results and make reproducible
+  research efforts user-friendly. It also uses a tagging system for
+  scientific research discovery. They give you unlimited public space
+  and 1GB of private space.  
+  
+  Start by getting the reml package.
+  
+  #### Code:
+      # func
+      require(devtools)
+      install_github("reml", "ropensci")
+      require(reml)
+      ?eml_write
+  <p></p>
+  This is the Top-level API function for writing eml.  Help page is a bit sparse.  See [This Link](https://github.com/ropensci/reml) for more.  For eg "for convenience, dat could simply be a data.frame and reml will launch it's metadata wizard to assist in constructing the metadata based on the data.frame provided. While this may be helpful starting out, regular users will find it faster to define the columns and units directly in the format above."
+  
+  
+  Now load up the test data for classification trees I described in [This Post](/2013/10/test-data-for-classification-trees/)
+  
+  #### Code:
+      install_github("disentangle", "ivanhanigan") # for the data
+                                                   # described in prev post
+  
+      # load
+      fpath <- system.file(file.path("extdata", "civst_gend_sector.csv"),
+                           package = "disentangle"
+                           )
+      civst_gend_sector <- read.csv(fpath)
+  
+      # clean
+      str(civst_gend_sector)
+  
+      # do
+      eml_write(civst_gend_sector,
+                creator = "Ivan Hanigan <ivanhanigan@gmail.com>")
+  
+  
+                
+  
+  
+      # Starts up the wizard, a section is shown below.  The wizard
+      # prompts in the console and the user writes the answer.
+  
+      # Enter description for column 'civil_status':
+      #  marriage status
+      # column civil_status appears to contain categorical data.
+      #  
+      # Categories are divorced/widowed, married, single
+      #  Please define each of the categories at the prompt
+      # define 'divorced/widowed':
+      # was once married
+      # define 'married':
+      # still married
+      # define 'single':
+      # never married
+  
+      # TODO I don't really know what activity_sector is.  I assumed
+      # school because Categories are primary, secondary, tertiary.
+  
+      # this created "metadata.xml" and "metadata.csv"
+      file.remove(c("metadata.xml","metadata.csv"))
+  <p></p>  
+  This was a very minimal data documentation effort.  A bit more detail would be better.  Because I would now need to re-write all that in the wizard I will take the advice of the help file that "regular users will find it faster to define the columns and units directly in the format"
+  
+  #### Code:
+      ds <- data.set(civst_gend_sector,
+                     col.defs = c("Marriage status", "sex", "education", "counts"),
+                     unit.defs = list(c("was once married","still married","never married"),
+                         c("women", "men"),
+                         c("primary school","secondary school","tertiary school"),
+                         c("persons"))
+                     )
+      ds
+      # this prints the dataset and the metadata
+      # now run the EML function
+      eml_write(ds, 
+                title = "civst_gend_sector",  
+                description = "An example, fictional dataset for Decision Tree Models",
+                creator = "Ivan Hanigan <ivanhanigan@gmail.com>",
+                file = "inst/extdata/civst_gend_sector_eml.xml"
+                )
+      # this created the xml and csv with out asking anything
+      # but returned a
+      ## Warning message:
+      ## In `[<-.data.frame`(`*tmp*`, , value = list(civil_status = c(2L,  :
+      ##   Setting class(x) to NULL;   result will no longer be an S4 object
+  
+      # TODO investigate this?
+  
+      # now we can access the local EML
+      obj <- eml_read("inst/extdata/civst_gend_sector_eml.xml")
+      obj 
+      str(dataTable(obj))
+      # returns an error
+      ## Error in plyr::compact(lapply(slotNames(from), function(s) if (!isEmpty(slot(from,  (from attribute.R#300) : 
+      ##   subscript out of bounds
+  <p></p>
+  
+  # Conclusions
+  So this looks like a useful tool.  Next steps are to:
+  
+  - look at sending these data to figshare
+  - describe a really really REALLY simple workflow (3 lines? create metadata, eml_write, push to figshare)
+    
+    
+#+end_src
+** R-reml-and-rfigshare-part-2
+#+name:reml-and-rfigshare-part-2-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-12-reml-and-rfigshare-part-2.md :exports reports :eval no :padline no
+  ---
+  name: reml-and-rfigshare-part-2
+  layout: post
+  title: reml-and-rfigshare-part-2
+  date: 2013-10-12
+  categories:
+  - Data Documentation
+  ---
+  
+  In the last post I explored the functionality of reml.
+  This time I will try to send data to figshare.
+  
+  - First follow [These Instructions](https://github.com/ropensci/rfigshare) to get rfigshare set up.  In particular store your figshare credentials in ~/.Rprofile
+  
+  #### Code:reml-and-rfigshare-part-2
+      # func
+      require(devtools)
+      install_github("reml", "ropensci")
+      require(reml)
+      install_github("rfigshare", "ropensci")
+      require(rfigshare)
+      install_github("disentangle", "ivanhanigan")
+      require(disentangle)
+      # load
+      fpath <- system.file(file.path("extdata","civst_gend_sector_eml.xml"), package = "disentangle")
+      setwd(dirname(fpath))
+      obj <- eml_read(fpath)
+      # clean
+      obj
+      # do
+  
+      ## STEP 1: find one of the preset categories
+      # available. We can ask the API for
+      # a list of all the categories:
+      list <- fs_category_list()
+      list[grep("Survey", list)]
+  
+      ## STEP 2: PUBLISH TO FIGSHARE
+      id <- eml_publish(fname,
+                        description="Example EML
+                          A fictional dataset",
+                        categories = "Survey results",
+                        tags = "EML",
+                        destination="figshare"
+                        )
+      # there are several warnings
+      # but go to figshare and it has sent the metadata and data OK
+  
+      # make public using either the figshare web interface, the
+      # rfigshare package (using fs_make_public(id)) or just by adding
+      # the argument visibility = TRUE to the above eml_publish
+      fs_make_public(id)
+  
+      
+  <p></p>
+  # Now these data are on figshare
+  
+  Now I have published the data they are visible and have a DOI
+  
+  
+  <iframe src="http://wl.figshare.com/articles/820158/embed?show_title=1" width="568" height="157" frameborder="0"></iframe>
+  
+  
+#+end_src
+
+** dc-uploader-and-ANU-DataCommons
+#+name:dc-uploader-and-ANU-DataCommons-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-13-dc-uploader-and-ANU-DataCommons.md :exports none :eval no :padline no
+  ---
+  name: dc-uploader-and-ANU-DataCommons
+  layout: post
+  title: dc-uploader-and-ANU-DataCommons
+  date: 2013-10-13
+  categories:
+  - Data Documentation
+  ---
+  
+  In this post I use the tool produced at the ANU by the DataCommons team.  This requires Python3.
+  
+  # What does it do?
+  The script only creates new collection records. The functionality to edit records didn’t make it into the script as the expectation is that automated ingests will only require creation of new datasets to which files will be uploaded. 
+  
+  Users can feel free to tweak the collection parameter file to their liking in the development environment until happy with the results.
+  
+  # Create the metadata.txt
+  
+  You need to get the python scripts and conf file from the ANU DataCommons team.  Store these somewhere handy and move to that directory.
+  
+  change the anudc.conf: to test out the scripts by creating some sample records, please uncomment the “host” field in the file that points to dc7-dev2.anu.edu.au:8443 , and comment out the one that points to datacommons.anu.edu.au:8443.
+  
+  Also you get a different token in dev and prod servers for security reasons you cannot use the same token. Also, storing your username and password in plain text is not recommended and is to be used only for debugging purposes. Also, in my case I had to change the owner group to ‘5’ when creating records in dev. In prod, it’s 6.
+  
+  You can look int the "Keys.txt" file that contains the full list of values that can be specified in this metadata.txt file.     
+  
+  #### Code:
+      setwd("~/tools/dcupload")
+      sink("metadata.txt")
+      cat("
+      # This file, referred to as a collection parameter file, consists of
+      # data in key=value pairs. This data is sent to the ANU Data Commons
+      # to create a collection, establish relations with other records,
+      # and/or upload files to those collections.
+       
+      # The metadata section consists of metadata for use in creation (not
+      # for modification) of record metadata in ANU Data Commons. The
+      # following fields are required for the creation of a record. The file
+      # Keys.txt contains the full list of values that can be specified in
+      # this file. Based on this information below, a collection record of
+      # type databaset with the title "Test Collection 6/05/2013" will be
+      # created owned by Meteorology and Health group.
+      [metadata]
+      type = Collection
+      subType = dataset
+      ownerGroup = 5
+      # 6 on production, 5 on dev
+      name = Civil Status, Gender and Activity Sector
+      briefDesc = An example, fictional dataset for Decision Tree Models
+      citationCreator = Ritschard, G. (2006). Computing and using the deviance with classification trees. In Compstat 2006 - Proceedings in Computational Statistics 17th Symposium Held in Rome, Italy, 2006.
+      email = ivan.hanigan@anu.edu.au
+      anzforSubject = 1601
+       
+      # The relations section allows you to specify the relation this record
+      # has with other records in the system.  Currently relations with NLA
+      # identifiers is not supported.
+      [relations]
+      isOutputOf = anudc:123
+       
+      # This section contains a line of the form 'pid = anudc:123' once a
+      # record has been created so executing the uploader script with the
+      # same collection parameter file doesnt create a new record with the
+      # same metadata.
+      [pid]
+      ")
+      sink()
+  
+      # run the dcload
+      system("python3 dcuploader.py -c metadata.txt")
+  
+  <p></p>
+  # What happened?
+  
+  - Looking in the metadata.txt file it now has a pid like "pid = test:3527"        
+  - And we have created a new record in our account on the DataCommons server.
+  
+      
+  # go to the website
+  Now go to [the dev site](https://dc7-dev2.anu.edu.au:8443/DataCommons/) and you can continue editing the record manually in the browser.
+      
+  Or if we have ironed out the wrinkles you could go straight to the production server at [This Link](https://datacommons.anu.edu.au:8443/DataCommons)
+  
+  
+  # Uploading the data
+  The dataset gets sent using a Java applet in the browser while you are manually editing the record using the browser.
+  
+  # Notes
+  
+  - After the records get created, the script tries to relate the record to other records as you’ve specified in the collection parameter file in the relations section. If you’re creating a record in dev2, you cannot relate it to a record in production because that record doesn’t exist in dev2. Remember that IDs for records in dev environments have the prefix “test:” while those in production have “anudc:”.
+   
+  - Also, when you ran the script against production the created records were linked with the record with the ID anudc:123. I have now removed those relations. You might want to change that value in your metadata.txt file so the links are established to records that created records actually can be related to. Or for testing purposes, simply delete the entire [relations] section.     
+       
+  
+  
+#+end_src
+
+** morpho-and-rfigshare
+#+name:morpho-and-rfigshare-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-14-morpho-and-rfigshare.md :exports none :eval no :padline no
+  ---
+  name: morpho-and-rfigshare
+  layout: post
+  title: morpho-and-rfigshare
+  date: 2013-10-14
+  categories:
+  - Data Documentation
+  ---
+  
+  In this Case Study I will use Morpho to compare directly with reml.
+  
+  # Step one: Set up morpho
+  
+  - Follow the instructions at the ASN SuperSite website and install Morpho 1.8 rather than latest version because it has technical issues that stop it from setting permissions.    
+  - [Configure morpho](http://www.tern-supersites.net.au/index.php/data/repository-tutorial).  (I will follow the ASN SuperSite instructions as a future Case Study will be to use their KNB Metacat service).
+  - Do not configure to connect to the Metacat repository, will need a password to be assigned by ASN data manager.
+  
+  # Step 2: Look at the REML created metadata using Morpho
+  
+  - Morpho offers to open existing sets for modification.
+  
+  #### Code: get location of my example dataset
+      require(disentangle)
+      fpath <- system.file(file.path("extdata", "civst_gend_sector.csv"), package="disentangle")
+      fpath
+      dirname(fpath)
+      # [1] "/home/ivan_hanigan/Rlibs/disentangle/extdata"
+  
+  - Morpho > File > import = civst_gend_sector_eml.xml
+  - (not the figshare_civst_gend_sector_eml.xml that was created when sending to figshare)
+  - Error encountered.  could not open metadata, open empty data package.  Offered to upgrade (unable to edit > accepted)
+  - unable to display data, empty data package will be shown
+  - top menu > Documentation > Add/Edit ion
+  # Step 3: Create new datasets with Morpho
+      
+#+end_src
+
+** COMMENT TODO R-spss-variable-labels-create
+#+name:R-spss-variable-labels
+#+begin_src R :session *R* :tangle no :exports reports :eval no
+  ################################################################
+  # name:R-spss-variable-labels
+  # from http://stackoverflow.com/q/10181730
+  # First I create a dummy dataset
+  df <- data.frame(id = c(1:6), p.code = c(1, 5, 4, NA, 0, 5),  
+                   p.label = c('Optometrists', 'Nurses', 'Financial analysts',
+                   '<NA>', '0', 'Nurses'), foo = LETTERS[1:6])
+  
+  # Second, I add some variable labels using label from the Hmisc package
+  # install.packages('Hmisc', dependencies = TRUE)
+  library(Hmisc)
+  label(df) <- "Sweet sweet data"
+  label(df$id) <- "id !@#$%^" 
+  label(df$p.label) <- "Profession with human readable information"
+  label(df$p.code) <- "Profession code"
+  label(df$foo) <- "Variable label for variable x.var"
+  # modify the name of one varibes, just to see what happens when exported.
+  names(df)[4] <- "New crazy name for 'foo'"
+  
+  attributes(df)$variable.labels
+  
+  # Third I export the data with write.foreign from the foreign package
+  # install.packages('foreign', dependencies = TRUE)
+  setwd('inst/extdata')
+  library(foreign)
+  write.foreign(df,"df.wf.txt","df.wf.sps",  package="SPSS")
+  
+  list.files()
+  # [1] "df.wf.sps" "df.wf.txt"
+  
+  # from http://stackoverflow.com/a/10261534
+  # Step 1: Make a backup of your data, just in case
+  df.orig = df
+  # Step 2: Load the following function
+  get.var.labels = function(data) {
+    a = do.call(llist, data)
+    tempout = vector("list", length(a))
+  
+    for (i in 1:length(a)) {
+      tempout[[i]] = label(a[[i]])
+    }
+    b = unlist(tempout)
+    structure(c(b), .Names = names(data))
+  }
+  # Step 3: Apply the variable.label attributes
+  attributes(df)$variable.labels = get.var.labels(df)
+  # Step 4: Load the write.SPSS function available from
+  # https://stat.ethz.ch/pipermail/r-help/2006-January/085941.html
+  
+  write.SPSS <- function (df, datafile, codefile, varnames = NULL)
+    {
+      adQuote <- function(x){paste("\"", x, "\"", sep = "")}
+       dfn <- lapply(df, function(x) if (is.factor(x))
+           as.numeric(x)
+       else x)
+       write.table(dfn, file = datafile, row = FALSE, col = FALSE)
+       if(is.null(attributes(df)$variable.labels)) varlabels <- names(df) else varlabels <- attributes(df)$variable.labels
+       if (is.null(varnames)) {
+           varnames <- abbreviate(names(df), 8)
+           if (any(sapply(varnames, nchar) > 8))
+               stop("I cannot abbreviate the variable names to eight or fewer letters")
+           if (any(varnames != names(df)))
+               warning("some variable names were abbreviated")
+       }
+       cat("DATA LIST FILE=", dQuote(datafile), " free\n", file = codefile)
+       cat("/", varnames, " .\n\n", file = codefile, append = TRUE)
+       cat("VARIABLE LABELS\n", file = codefile, append = TRUE)
+       cat(paste(varnames, adQuote(varlabels), "\n"), ".\n", file = codefile,
+           append = TRUE)
+       factors <- sapply(df, is.factor)
+       if (any(factors)) {
+           cat("\nVALUE LABELS\n", file = codefile, append = TRUE)
+           for (v in which(factors)) {
+               cat("/\n", file = codefile, append = TRUE)
+               cat(varnames[v], " \n", file = codefile, append = TRUE)
+               levs <- levels(df[[v]])
+               cat(paste(1:length(levs), adQuote(levs), "\n", sep = " "),
+                   file = codefile, append = TRUE)
+           }
+           cat(".\n", file = codefile, append = TRUE)
+       }
+       cat("\nEXECUTE.\n", file = codefile, append = TRUE)
+    }
+  
+  # Step 5: Write your SPSS datafile and codefile
+  write.SPSS(df, "df.sav", "df.sps")
+  
+  ## analyte  <- read.spss("df.sav", to.data.frame = T)
+  ## Error in read.spss("df.sav", to.data.frame = T) : 
+  ##   file 'df.sav' is not in any supported SPSS format
+  
+  
+  
+#+end_src
+
+** R-get.var.labels
+*** COMMENT R-get.var.labels
+#+name:get.var.labels
+#+begin_src R :session *R* :tangle R/get.var.labels.r :exports none :eval no
+  ################################################################
+  # name:get.var.labels
+  # from http://stackoverflow.com/a/10261534
+  # this creates the $variable.labels attribute
+  get.var.labels = function(data) {
+    if(!require(Hmisc)) install.packages('Hmisc', dependencies = TRUE); require(Hmisc)
+    a = do.call(llist, data)
+    tempout = vector("list", length(a))
+  
+    for (i in 1:length(a)) {
+      tempout[[i]] = label(a[[i]])
+    }
+    b = unlist(tempout)
+    structure(c(b), .Names = names(data))
+  }
+  
+#+end_src
+*** test-get.var.labels
+#+name:get.var.labels
+#+begin_src R :session *R* :tangle no :exports reports :eval no
+  ################################################################
+  # name:R-variable-labels-create
+  # func
+  require(devtools)
+  install_github("disentangle", "ivanhanigan")
+  require(disentangle)
+  require(Hmisc)
+  
+  # load
+  fpath <- system.file(file.path("extdata", "civst_gend_sector.csv"),
+                       package = "disentangle"
+                       )
+  civst_gend_sector <- read.csv(fpath)
+    
+  # clean
+  str(civst_gend_sector)
+    
+  # do
+  label(civst_gend_sector) <- "Fictional data for Classification Trees"
+  label(civst_gend_sector$civil_status) <- "married"
+  label(civst_gend_sector$gender) <- "sex of person"
+  label(civst_gend_sector$activity_sector) <- "level of school"
+  label(civst_gend_sector$number_of_cases) <- "persons"
+  
+  attributes(civst_gend_sector)$variable.labels  <- get.var.labels(civst_gend_sector)
+  
+  # report
+  str(civst_gend_sector)
+  as.data.frame(
+    attributes(civst_gend_sector)$variable.labels
+    )
+    
+  
+#+end_src
+
+*** COMMENT man-get.var.labels
+#+name:get.var.labels
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:get.var.labels
+
+#+end_src
+
+** R-spss-variable-labels-read
+*** R-spss-variable-labels-read
+#+name:R-spss-variable-labels-read
+#+begin_src R :session *R* :tangle R/spss_variable_labels_read.r :exports reports :eval no
+  ################################################################
+  # name:R-spss-variable-labels-read
+  spss_variable_labels_read  <- function(x, filter, case_sensitive = FALSE, return_df = FALSE)
+  {
+    if(case_sensitive)
+      {
+        col_index  <- grep(filter, attributes(x)$variable.labels)      
+      } else {
+        col_index  <- grep(tolower(filter), tolower(attributes(x)$variable.labels))      
+      }
+    names_returned <- attributes(x)$variable.labels[col_index]
+    col_names  <- names(names_returned)
+    col_refs  <-  as.data.frame(cbind(col_names, names_returned))
+    col_refs[,1]  <-  as.character(col_refs[,1])
+    col_refs[,2]  <-  as.character(col_refs[,2])
+    row.names(col_refs)  <- NULL
+    if(return_df)
+      {
+        names_returned <- paste(names_returned, sep = "", collapse = "', '")
+        cat(sprintf("returning the columns '%s'", names_returned))
+        data_out <- x[,col_index]
+        return(data_out)
+      } else {
+        return(col_refs)
+      }   
+  }
+#+end_src
+*** test-spss-variable-labels-read-code
+#+name:test-spss_variable_labels_read
+#+begin_src R :session *R* :tangle no :exports reports :eval no
+  ################################################################
+  # name:test-spss_variable_labels_read
+  require(disentangle)   
+  # test
+  qc <- spss_variable_labels_read(
+    x = civst_gend_sector
+    ,
+    filter = "person"
+    ,
+    case_sensitive  = TRUE
+    ,
+    return_df = T
+  )
+  
+  str(qc)
+  qc
+#+end_src
+** R-spss-variable-summary-table-code
+#+name:R-summary-table
+#+begin_src R :session *R* :tangle no :exports reports :eval no
+  ################################################################
+  # name:R-summary-table
+   
+  # now summarise in a tex table
+  # func
+  require(xtable)
+  
+  # load
+  analyte  <- read.spss(filename, to.data.frame=T)
+  
+  # clean
+  names(analyte)
+  varslist <- as.data.frame(attributes(analyte)$variable.labels)
+  write.csv(varslist, "variable_labels.csv", row.names = T)
+  x <- read.csv('variable_labels.csv')
+  head(x)
+  names(x)  <- c("variable", "label")
+  
+  # do
+  x.big <- xtable(x,label='tab:table1',caption='Variable Names and Descriptions')
+  align(x.big) <-  c( 'l', 'p{1in}', 'p{4in}')
+    
+  sink('tab1.tex')
+  
+  print(x.big,tabular.environment='longtable',
+          floating=FALSE, caption.placement = "top",
+          hline.after = c(-1,nrow(x.big)), 
+          add.to.row = list(pos = list(0),command = "\\hline \\endhead "),
+          include.rownames=F)
+  
+  sink()
+  
+  
+#+end_src
+
+** R-reporttools-variable-summary-table
+#+name:tableCode
+#+begin_src R :session *R* :tangle no :eval yes
+  ################################################################
+  # func
+  if(!require(reporttools)) install.packages("reporttools"); require(reporttools)
+  require(devtools)
+  install_github("disentangle", "ivanhanigan")
+  require(disentangle)
+  # load
+  fpath <- system.file(file.path("extdata", "civst_gend_sector.csv"), package = "disentangle")
+  civst_gend_sector <- read.csv(fpath)
+    df <- as.data.frame(matrix(NA, nrow = 0, ncol = 3))
+    for(i in 1:nrow(civst_gend_sector))
+        {
+        #    i <- 1
+            n <- civst_gend_sector$number_of_cases[i]
+            if(n == 0) next
+            for(j in 1:n)
+                {
+                  df <- rbind(df, civst_gend_sector[i,1:3])              
+                }
+     
+        }
+    # TODO save this for use later
+    write.csv(df, "inst/extdata/civst_gend_sector_full.csv", row.names = F)
+  analyte  <- df
+  analyte$random <- rnorm(nrow(analyte), 0 , 1)
+  #analyte
+  # create a large number of randome variables
+  for(i in 1:75)
+    {
+      analyte[,ncol(analyte) + 1] <- rnorm(nrow(analyte), 10 , 20)    
+    }
+  names(analyte)
+  str(analyte)
+  data_continuous <- numeric(0) 
+  for(i in 1:length(names(analyte)))
+    {
+      if(is.numeric(analyte[,i]))
+          {
+              data_continuous <- c(data_continuous, i)
+          }
+    }
+  # clean        
+  str(analyte[,data_continuous])
+  str(analyte[,-data_continuous])
+  # do
+  sink('inst/doc/tabContinuous.tex')
+  tableContinuous(vars = analyte[,data_continuous],
+                  stats = c("n", "min", "mean", "median",
+                    "max", "iqr", "na"),
+                  cap = "Table of continuous variables.", lab = "tab:table4",
+                  caption.placement = "top",
+                  longtable = TRUE, add.to.row = list(pos = list(0), 
+                  command = "\\hline \\endhead "))
+  sink()
+  
+  x.big <- analyte[,-data_continuous]
+  sink('inst/doc/tabNominal.tex')
+  tableNominal(vars = x.big, cap = "Table of nominal variables",
+               vertical = FALSE,
+               lab = "tab:table5", longtable = TRUE,
+               caption.placement = "top")
+  
+  sink()
+     
+#+end_src
+
+#+RESULTS: tableCode
+
+
+* Exploratory Data Analysis
+* General Purpose
+* Visualisation
+* Statistical Modelling
+** COMMENT Logistic Regression
+*** COMMENT a-great-intro-2-logistic-regression
+#+name:challenger-logistic-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-18-challenger-logistic.md :exports none :eval no :padline no
+  ---
+  name: a-great-intro-2-logistic-regression
+  layout: post
+  title: A Great Intro 2 Logistic Regression 
+  date: 2013-10-18
+  categories:
+  - research methods
+  ---
+  
+  This is a great example of logistic regression,  because it is pretty simple but covers good ground.  I got it from Peter Caley;s R tutorial workbook from Charles Darwin School of Environmental Research.  
+  
+  It is also a tragic example of the impact weather can have on health.  
+  The colder it is the more likely the shuttle is to explode. 
+  
+  The problem was with the failure rate (and number of) O-rings that failed (n.fail) related to the temperature (temp).   
+  
+  #### R Code:
+      #Load the data
+      #The following R code will construct the dataset
+      n.fail <- c(2, 0, 0, 1, 0, 0, 1, 0, 0, 1, 2, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0)
+      temp <- c(53, 66, 68, 70, 75, 78, 57, 67, 69, 70, 75, 79, 58, 67, 70, 72, 76, 81, 63, 67, 70, 73, 76)
+      # there were 6 o rings for each of 23 attempts
+      total <- rep(6,23)
+      # probability of fail
+      p.fail <- n.fail/total
+      # Response = resp column bind them together  
+      resp <- cbind(n.fail, total-n.fail)
+       
+      ###########################################################################
+      # we can write text files easily once the data frame or matrix is in shape
+      data <- as.data.frame(cbind(resp,temp))
+      names(data) <- c('nfail','totalMinusNfail', 'temp')
+      # write.csv(data, 'learnR-logistic-data.csv', row.names=F)
+       
+      ###########################################################################
+      # and read it in again 
+      # data2 <- read.csv('learnR-logistic-data.csv')
+       
+      ################################################################
+      # name:learnR-logistic
+      png('images/pfail.png')
+      plot(temp, p.fail, pch=16, xlim=c(40,100), ylim=c(0,0.4))
+      title('A plot of the proportion failed by temperature')
+      dev.off()
+  
+  <p></p>
+  
+  ![pfail.png](/images/pfail.png)
+       
+  #### R Code:
+      ###########################################################################
+      # newnode: linear
+      linear <- glm(resp ~ 1 + temp, family=binomial(link=logit))
+      summary(linear)
+      linearoutput <- summary(linear)
+      linearoutput$coeff
+       
+      ###########################################################################
+      # newnode: learnR-logistic
+      cf <- linearoutput$coeff
+      signif(cf[which(row.names(cf) == 'temp'),'Estimate'],2)
+       
+      ###########################################################################
+      # newnode: learnR-logistic
+      # write.csv(linearoutput$coeff,"challengerOfails.csv")
+       
+      ###########################################################################
+      # newnode: learnR-logistic
+       png('images/challengerLogistic.png')
+       par(mfrow=c(2,2))
+       plot(linear)
+       dev.off()
+       
+  <p></p>
+  
+  ![challengerLogistic.png](/images/challengerLogistic.png)
+  
+  
+  #### R Code:
+      ####################################################################
+      # newnode: learnR-logistic
+      dummy <- data.frame(temp=seq(20,100,1))
+      pred.prob <- predict.glm(linear, newdata=dummy, type="resp")
+      png('images/pfailfit.png')
+      plot(temp, p.fail, xlab="Launch Temperature (F)",
+       ylab="Proportion Failing", pch=16, xlim=c(20,100), ylim=c(0,1.0))
+      lines(dummy$temp, pred.prob)
+      dev.off()
+       
+  <p></p>
+  
+  ![pfailfit.png](/images/pfailfit.png)
+  
+  #### R Code:
+      ####################################################################
+      resp <- as.data.frame(resp)
+      resp$fail <- ifelse(resp$n.fail > 0, 1, 0)
+      resp$temp <- temp
+       
+      png('images/fail.png')
+      with(resp, plot(temp, fail, xlab="Launch Temperature (F)",ylab="Joint damage", pch=16, xlim=c(50,80), ylim=c(0,1.0))
+           )
+      dev.off()
+  <p></p>
+  
+  ![fail.png](/images/fail.png)
+  
+  #### R Code:
+       
+      chal.logit <- glm(fail~temp,family=binomial, data = resp)
+      summary(chal.logit)$coeff
+       
+      png('images/pfailfit2.png')
+      cx <- c(50:80/1)
+      cyhat <- coefficients(chal.logit)[c(1)] +
+      coefficients(chal.logit)[c(2)]*cx
+      cpihat <- exp(cyhat)/(1+exp(cyhat))
+      with(resp,plot(temp,fail,xlab="Temperature",ylab="Damage",
+      main="Incidence of Booster Field Joint Damage vs. Temperature", xlim = c(50,80))
+           )
+      lines(cx,cpihat)
+      dev.off()
+  
+  <p></p>
+  
+  ![pfailfit2.png](/images/pfailfit2.png)
+  
+  
+  
+#+end_src
+
+** Tree-Based Methods
+*** COMMENT To read
+http://r.789695.n4.nabble.com/In-rpart-how-is-quot-improve-quot-calculated-in-the-quot-class-quot-case-td3593770.html
+ Jun 15, 2011; 6:21am
+Re: In rpart, how is "improve" calculated? (in the "class" case)
+Tal Galili
+782 posts
+	
+Hi Ed,
+Thank you for the reply!
+
+Professor Atkinson already gave me that answer by pointing me to the technical
+report of rpart that describes this:
+*http://mayoresearch.mayo.edu/mayo/research/biostat/upload/61.pdf*
+
+However, I was also only able to reproduce the "gini" impurity, and not the
+"information" one.
+I hope either Professor Atkinson or some other member of the list could help
+out with this.
+
+In the meantime, I also found a bug in the code I sent to the mailing list,
+bellow is the fixed code (also more organized):
+
+
+#+name:impurity
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:impurity
+
+
+ # creating data
+set.seed(1324)
+y <- sample(c(0,1), 20, T)
+x <- y
+x[1:5] <- 0
+
+# manually making the first split
+obs_L <- y[x<.5]
+obs_R <- y[x>.5]
+n_L <- sum(x<.5)
+n_R <- sum(x>.5)
+n <- length(x)
+
+
+calc.impurity <- function(func = gini)
+{
+impurity_root <- func(prop.table(table(y)))
+ impurity_L <- func(prop.table(table(obs_L)))
+ impurity_R <-func(prop.table(table(obs_R)))
+ imp <- impurity_root - ((n_L/n)*impurity_l + (n_R/n)*impurity_R) # 0.3757
+ imp*n
+}
+
+# for "gini"
+require(rpart)
+fit <- rpart(y~x, method = "class", parms=list(split='gini'))
+fit$split[,3] # 5.384615
+gini <- function(p) {sum(p*(1-p))}
+calc.impurity(gini) # 5.384615 # success!
+
+
+# for "information" I fail...
+
+fit <- rpart(y~x, method = "class", parms=list(split='information'))
+fit$split[,3] # why is improve here 6.84029 ?
+
+entropy <- function(p) {
+if(any(p==1)) return(0) # works for the case when y has only 0 and 1
+categories...
+ -sum(p*log(p))
+ }
+calc.impurity(entropy) # 9.247559 != 6.84029
+
+
+#+end_src
+
+** Misclassification Error Rate for Classification Trees
+
+** Deviance Based Measures of Descriptive Power for Classification Trees
+**** Computing-and-using-deviance-with-classification-trees-Ritschard, G. (2006).
+I'm reading Ritschard, G. (2006). Computing and using the deviance with classification trees. In Compstat 2006 - Proceedings in Computational Statistics 17th Symposium Held in Rome, Italy, 2006. Retrieved from http://link.springer.com/chapter/10.1007%2F978-3-7908-1709-6_5
+
+This is implemented in SPSS code. I'll try to develop R code to do these tests.
+
+First I'll get the data out of their paper and fit the tree in figure 1
+
+**** COMMENT DEPRECATED SEE BLOG sample-tree-data
+#+name:tree-deviance
+#+begin_src R :session *R* :tangle inst/doc/tree-data.r :eval no
+  #########################################
+  # func
+  require(rpart)
+  require(partykit) 
+  
+  
+  # clean
+  str(civst_gend_sector)
+  
+  # do
+  fit <- rpart(civil_status ~ gender + activity_sector,
+               data = civst_gend_sector, weights = number_of_cases,
+               control=rpart.control(minsplit=1))
+  # NB need minsplit to be adjusted for weights.
+  summary(fit)
+    
+  # report
+  plot(fit, margin=.1)
+  text(fit, use.n = TRUE)
+  title("fit")
+  
+  # nicer plots
+  png("images/fit1.png", 1000, 480)
+  plot(as.party(fit))
+  dev.off()  
+#+end_src
+**** COMMENT cuts
+***** COMMENT DEPRECATED get-data-from-pdf-code
+#+name:get-data-from-pdf
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  ################################################################
+  # name:get-data-from-pdf
+  # these data are in a table in the pdf but not that easy to copy and paste.
+  gender <- c("male", 
+  "male", 
+  "male", 
+  "female",
+  "female",
+  "female",
+  "male",
+  "male",
+  "male",
+  "female",
+  "female",
+  "female",
+  "male", 
+  "male", 
+  "male", 
+  "female",
+  "female",
+  "female")
+  
+  civil_status <- c("married", "married", "married", "married", "married", "married",
+  "single", "single", "single", "single", "single", "single",
+  "divorced/widowed", "divorced/widowed", "divorced/widowed", "divorced/widowed",
+  "divorced/widowed", "divorced/widowed")
+  
+  activity_sector <- c("primary",
+  "secondary","tertiary","primary",
+  "secondary","tertiary","primary",
+  "secondary","tertiary","primary",
+  "secondary","tertiary","primary",
+  "secondary","tertiary","primary",
+  "secondary","tertiary")
+  
+  number_of_cases <- c(50, 40, 6, 0,
+  14, 10, 5, 5,
+  12, 50, 30, 18, 5, 8,
+  10, 6, 2, 2)
+  
+  ls()
+  civst_gend_sector <- as.data.frame(cbind(civil_status, gender, activity_sector, number_of_cases))
+  
+  # clean
+  civst_gend_sector[4:6,]
+  civst_gend_sector$number_of_cases <- as.numeric(as.character(civst_gend_sector$number_of_cases))
+  civst_gend_sector  
+  
+  
+#+end_src
+**** Reproduce the figure from the paper
+The figure in the paper can be checked against our results (and also the improved plot from the party package might be used).
+
+[[file:images/fit1.png]]
+**** One row per case or using weights?
+Using the case weights like above is convenient especially when datasets are very large, but caused problems in model fitting for me (tree failed to compute a deviance when done this way but succeeded with a dataset expanded so the data.frame is transformed into one in which each row is an observation.
+#+name:reassurance-re-weights
+#+begin_src R :session *R* :tangle inst/doc/tree-data2.r :eval no
+  ################################################################
+  # name:reassurance-re-weights
+   
+  # just to reasure myself I understand what case weights do, I'll make
+  # this into a survey dataset with one row per respondent
+  df <- as.data.frame(matrix(NA, nrow = 0, ncol = 3))
+  for(i in 1:nrow(civst_gend_sector))
+      {
+      #    i <- 1
+          n <- civst_gend_sector$number_of_cases[i]
+          if(n == 0) next
+          for(j in 1:n)
+              {
+                df <- rbind(df, civst_gend_sector[i,1:3])              
+              }
+   
+      }
+  # save this for use later
+  write.csv(df, "inst/extdata/civst_gend_sector_full.csv", row.names = F)
+  # clean
+  nrow(df)
+  str(df)
+  fit1 <- rpart(civil_status ~ gender + activity_sector, data = df)
+  summary(fit1)
+  
+  # report
+  par(mfrow=c(1,2), xpd = NA) 
+  plot(fit)
+  text(fit, use.n = TRUE)
+  title("fit")
+  plot(fit1)
+  text(fit1, use.n = TRUE)
+  title("fit1")
+  # great these are the same which is what we'd hoped to see
+  
+#+end_src
+
+**** COMMENT DEPRECATED, SEE BLOG Chisquare test of deviance for Classification trees
+I want to use the deviance as well as the misclassification error rate for measuring the descriptive power of the tree.  Using the tree package we can access the deviance of the fitted Classification tree.  Ripley's tree package is the only one I found to give me deviance for classification trees, the other packages only return this for regression trees.
+
+If we look at the reduction in deviance between the Null model and the fitted tree we can say that the tree explains about XYZ% of the variation. We can also test if this is a statistically significant reduction (based on a chi-squared test), but should also comment about how much explanation this is in practical terms.
+
+**** COMMENT cut
+The attached papers suggest a method to test differences between nested trees ie testing the difference with the root node with a Chi-square statistic (equivalent of the usual method used in logistic regression).
+**** COMMENT reminder-of-method-in-logistic-regression-code
+#+name:reminder-of-method-in-logistic-regression
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  ################################################################
+  # name:reminder-of-method-in-logistic-regression
+  # rewritten from http://data.princeton.edu/r/glms.html
+  require(foreign)
+  require(reshape)
+  require(plyr)
+  
+  cuse <- read.dta("http://data.princeton.edu/wws509/datasets/cuse.dta")                  
+  str(cuse)
+  head(cuse)
+  d2 <- cast(cuse,  age + educ + desire ~ cuse, value = 'n')
+  head(arrange(d2, age, educ))
+  d2
+  lrfit <- glm(cbind(Yes, No) ~ age + educ + desire, data = d2, family = binomial)
+  lrfit
+  
+  ## Recall that R sorts the levels of a factor in alphabetical order. Because <25 comes before 25-29, 30-39, and 40-49, it has been picked as the reference cell for age. Similarly, high is the reference cell for education because high comes before low! Finally, R picked no as the base for wantsMore.
+  
+  ## If you are unhappy about these choices you can (1) use relevel to change the base category, or (2) define your own indicator variables. I will use the latter approach by defining indicators for women with high education and women who want no more children:
+  
+  d2$noMore <- d2$desire == "Wants no more"
+  d2$hiEduc <- d2$educ == "Some"
+  
+  
+  lrfit <- glm(cbind(Yes, No) ~  age + hiEduc + noMore, data = d2, family = binomial)
+  lrfit
+  
+  str(summary(lrfit))
+#+end_src
+
+
+**** TODO Check This: R function to calculate for classification trees
+The Ritschard (2006) paper (with SPSS code) describes a complicated method that includes Needing to retrieve for each case: 
+- leaf number and
+- profile number
+
+I really want to use the deviance as well as the misclassification error rate for measuring the descriptive power of the tree.
+Ripley's tree package is the only one I found to give me deviance for classification trees.
+
+The Ritschard papers suggest nice methods to test differences between nested trees ie testing the difference with the root node with a Chi-square statistic (equivalent of the usual method used in logistic regression).
+
+Is this method employed widely in analysing survey data?
+I haven't turned up many references to Ritschard since he wrote these.
+
+So let's start simple first.  The following code follows the simpler approach:
+- Take the difference in the deviance for the models (less complex model minus more complex model)
+- Take the difference in degrees of freedom for the models
+- difference between less complex and more complex model follows chi-square distribution
+
+**** COMMENT http://www.stat.ufl.edu/~winner/sta6127/chapter15.ppt
+slide 22 
+Two statistics are used to test whether a model is appropriate: the Pearson chi-square statistic and the likelihood ratio (aka Deviance) statistic
+slide 28
+Under hypothesis that less complex (reduced) model is adequate, difference follows chi-square distribution
+**** R-tree.chisq
+**** R code
+#+name:tree.chisq
+#+begin_src R :session *R* :tangle R/tree.chisq.r :eval no
+  ################################################################
+  # name:tree.chisq
+  tree.chisq <- function(null_model, fitted_model)
+  {
+      # TODO check if these are tree model class
+      fit_dev  <- summary(fitted_model)$dev
+      null_dev  <- summary(null_model)$dev    
+      dev  <-  null_dev - fit_dev
+      df  <- summary(fitted_model)$size - summary(null_model)$size
+      sig  <- 1 - pchisq(dev, df)
+      sprintf("Reduction in deviance is %s percent, p-value is %s (based on a chi-squared test)",
+              ((null_dev - fit_dev) / null_dev) * 100,
+              sig)
+  }
+  
+#+end_src
+**** test-tree.chisq
+#+name:tree.chisq
+#+begin_src R :session *R* :tangle tests/test-tree.chisq.r :eval no
+  # func
+  require(tree)
+  require(devtools)
+  install_github("TransformSurveyTools", "ivanhanigan")
+  require(TransformSurveyTools)
+  # load locally
+  # fpath  <- "inst/extdata/civst_gend_sector_full.csv"
+  # or via package
+  fpath <- system.file("extdata", "civst_gend_sector_full.csv", package="TransformSurveyTools")
+  civst_gend_sector  <- read.csv(fpath)
+  
+  # clean
+  str(civst_gend_sector)
+  
+  # do
+  variables  <- names(civst_gend_sector)
+  y_variable  <- variables[1]
+  x_variables  <- variables[-1]
+  
+  # NULL
+  form0  <- reformulate("1",
+                        response = y_variable)
+  form0
+  model0 <- tree(form0, data = civst_gend_sector, method = "class")
+  print(model0)
+  # FIT
+  form1  <- reformulate(x_variables,
+                        response = y_variable)
+  form1
+  model1 <- tree(form1, data = civst_gend_sector, method = "class")
+  print(model1)
+  summary(model1)
+  plot(model1)
+  text(model1,pretty = 0)
+  tree.chisq(null_model = model0, fitted_model = model1)
+    
+#+end_src
+***** COMMENT test- deprecated - broken
+#+begin_src R :session *R* :tangle tests/test-tree.chisq.r :exports none :eval no
+  ################################################################
+  # name:tree.chisq
+  # func
+  require(tree)
+  
+  # load
+  fpath  <- "inst/extdata/civst_gend_sector.csv"
+  # or
+  #fpath <- system.file("extdata", "my_raw_data.csv",
+  # package="my_package")
+  civst_gend_sector  <- read.csv(fpath)
+  
+  # clean
+  str(civst_gend_sector)
+  
+  # do
+  variables  <- names(civst_gend_sector)
+  y_variable  <- variables[1]
+  x_variables  <- variables[-c(1,4)]
+  weight  <- civst_gend_sector[,variables[4]]
+  # NULL
+  form0  <- reformulate("1",
+                        response = y_variable)
+  form0
+  model0 <- tree(form0, data = civst_gend_sector, method = "class", weights = weight)
+  # FIT
+  form1  <- reformulate(x_variables,
+                        response = y_variable)
+  form1
+  model1 <- tree(form1, data = civst_gend_sector, method = "class", weights = weight)
+  # this produces a NaN on node 4!
+  ## > model1 <- tree(form1, data = civst_gend_sector, method = "class", weights = weight)
+  ## > print(model1)
+  ## node), split, n, deviance, yval, (yprob)
+  ##       * denotes terminal node
+  
+  ## 1) root 273 534.00 married ( 0.12088 0.43956 0.43956 )  
+  ##   2) gender: female 132 191.80 single ( 0.07576 0.18182 0.74242 )  
+  ##     4) activity_sector: primary 56    NaN single ( 0.10714 0.00000 0.89286 ) *
+  ##     5) activity_sector: secondary,tertiary 76 123.00 single ( 0.05263 0.31579 0.63158 ) *
+  ##   3) gender: male 141 239.00 married ( 0.16312 0.68085 0.15603 )  
+  ##     6) activity_sector: primary,secondary 113 145.70 married ( 0.11504 0.79646 0.08850 ) *
+  ##     7) activity_sector: tertiary 28  59.41 single ( 0.35714 0.21429 0.42857 ) *
+  model1 <- tree(form1, data = df, method = "class")
+  ## > print(model1)
+  ## node), split, n, deviance, yval, (yprob)
+  ##       * denotes terminal node
+  
+  ## 1) root 273 534.00 married ( 0.12088 0.43956 0.43956 )  
+  ##   2) gender: female 132 191.80 single ( 0.07576 0.18182 0.74242 )  
+  ##     4) activity_sector: primary 56  38.14 single ( 0.10714 0.00000 0.89286 ) *
+  ##     5) activity_sector: secondary,tertiary 76 123.00 single ( 0.05263 0.31579 0.63158 ) *
+  ##   3) gender: male 141 239.00 married ( 0.16312 0.68085 0.15603 )  
+  ##     6) activity_sector: primary,secondary 113 145.70 married ( 0.11504 0.79646 0.08850 ) *
+  ##     7) activity_sector: tertiary 28  59.41 single ( 0.35714 0.21429 0.42857 ) *
+  ## > 
+  model1 <- tree(form1, data = df, method = "class")
+  print(model1)
+  plot(model1)
+  # can't plot if used civst_gender_sector
+  text(model1,pretty = NULL)
+  
+  
+#+end_src
+***** COMMENT man-tree.chisq
+#+name:tree.chisq
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:tree.chisq
+
+#+end_src
+**** main-tree-model
+#+name:tree.chisq
+#+begin_src R :session *R* :tangle inst/doc/main.r :eval no
+source("tests/test-tree.chisq.r")
+#+end_src
+
+** Deviance Measures and Descriptive Power for Regression Trees
+*** COMMENT rpart_deviance_explained-code
+#+name:rpart_deviance_explained
+#+begin_src R :session *R* :tangle src/rpart_deviance_explained.r :exports none :eval no
+################################################################
+# name:rpart_deviance_explained
+# explanatory power
+  
+  estat <- print(fit)$frame[,c("var","n","dev","yval")]
+  str(estat)
+  (estat[1,"dev"] - sum(subset(estat, var == "<leaf>")$dev)) / estat[1,"dev"]
+  
+#+end_src
+
+* Code Editors
+* Workflow Tools
+** R-newnode
+*** COMMENT R-newnode
+#+name:newnode
+#+begin_src R :session *R* :tangle R/newnode.r :exports none :eval no
+  ################################################################
+  # name:newnode
+  newnode<-function(name, inputs=NA, outputs=character(0), graph = 'nodes', newgraph=F, notes=F, code=NA, ttype=NA, plot = T){
+    # USAGE
+    # nodes <- newnode(  # adds to a graph called nodes
+    # name = 'aquire the raw data'  # the name of the node being added 
+    # inputs = REQUIRED c('external sources','collected by researcher') # single or multiple inputs to it
+    # outputs = OPTIONAL c('file server','metadata','cleaning') # single or multiple outputs from it
+    # append=F # append to existing graph?  if False remove old graph of that name and start new
+    # TODO 
+    # nodes <- addEdge(from='analyse using stats package',
+    # to='new data in database server',graph=nodes,weights=1)
+    # INIT
+    # source('http://bioconductor.org/biocLite.R')
+    # biocLite("Rgraphviz")
+    # or may be needed for eg under ubuntu
+    # biocLite("Rgraphviz", configure.args=c("--with-graphviz=/usr"))
+    require(Rgraphviz)
+    # FURTHER INFO
+    # see the Rgraphviz examples
+    # example(layoutGraph)
+    # require(biocGraph) # for imageMap
+    # TODO change names in following
+    dsc <- name
+    i <- inputs
+    o <- outputs
+    #   if(!exists('nodes')) {
+    if(newgraph==T) {    
+      nodes <- new("graphNEL", nodes=c(dsc),
+                 edgemode="directed")
+      # nodes <- addEdge(from=i, to=dsc, graph=nodes, 1)    
+    } else {
+      if(length(grep(dsc,nodes@nodes)) == 0) nodes <- addNode(node=dsc,object=nodes)
+    }  
+    if(sum(i %in% nodes@nodes) != length(i)) {
+      inew <- i[!i %in% nodes@nodes]
+      nodes <- addNode(node=inew,object=nodes)   
+    }
+    nodes <- addEdge(i, dsc, nodes, 1)
+    #}
+    if(length(o) > 0){
+    if(sum(o %in% nodes@nodes) != length(o)) {
+      onew <- o[!o %in% nodes@nodes]
+      nodes <- addNode(node=onew,object=nodes)   
+    }
+    nodes <- addEdge(from=dsc, to=o, graph=nodes, 1)  
+    }
+    if(plot == T){
+      try(silent=T,dev.off())
+      plot(nodes,attrs=list(node=list(label="foo", fillcolor="grey",shape="ellipse", fixedsize=FALSE), edge=list(color="black")))
+    }
+    return(nodes)
+  }
+  
+#+end_src
+*** test-newnode
+#+name:newnode
+#+begin_src R :session *R* :tangle tests/test-newnode.r :exports reports :eval no
+  ################################################################
+  # name:newnode
+  # REQUIRES GRAPHVIZ, AND TO INSTALL RGRAPHVIZ
+  # source('http://bioconductor.org/biocLite.R')
+  # biocLite("Rgraphviz")
+  # or may be needed for eg under ubuntu
+  # biocLite("Rgraphviz", configure.args=c("--with-graphviz=/usr"))
+  # FURTHER INFO
+  # see the Rgraphviz examples
+  # example(layoutGraph)
+  # require(biocGraph) # for imageMap
+  
+  # source("R/newnode.r")
+  require(devtools)
+  install_github("disentangle", "ivanhanigan")
+  require(disentangle)
+  newnode(
+    name = "NAME"
+    ,
+    inputs="INPUT"
+    ,
+    outputs = "OUTPUT"
+    ,
+    graph = 'nodes'
+    ,
+    newgraph=T
+    ,
+    notes=F
+    ,
+    code=NA
+    ,
+    ttype=NA
+    ,
+    plot = T
+    )
+  
+  nodes <- newnode("merge", c("d1", "d2", "d3"), c("EDA"),
+                   newgraph =T)
+  nodes <- newnode("qc", c("data1", "data2", "data3"), c("d1", "d2", "d3"))
+  nodes <- newnode("modelling", "EDA")
+  nodes <- newnode("model checking", "modelling", c("data checking", "reporting"))
+  #require(disentangle)
+  # either edit a spreadsheet with filenames, inputs and outputs 
+  # filesList <- read.csv("exampleFilesList.csv", stringsAsFactors = F)
+  # or 
+  filesList <- read.csv(textConnection(
+  'FILE,INPUTS,OUTPUTS,DESCRIPTION
+  siteIDs,GPS,,latitude and longitude of sites
+  weather,BoM,,weather data from BoM
+  trapped,siteIDs,,counts of species caught in trap
+  biomass,siteIDs,,
+  corralations,"weather,trapped,biomass",report1,A study we published
+  paper1,report1,"open access repository, data package",
+  '), stringsAsFactors = F)
+  # start the graph
+  i <- 1
+  nodes <- newnode(name = filesList[i,1],
+                   inputs = strsplit(filesList$INPUTS, ",")[[i]],
+                   outputs =
+                   strsplit(filesList$OUTPUTS, ",")[[i]]
+                   ,
+                   newgraph=T)
+   
+  for(i in 2:nrow(filesList))
+  {
+    # i <- 2
+    if(length(strsplit(filesList$OUTPUTS, ",")[[i]]) == 0)
+    {
+      nodes <- newnode(name = filesList[i,1],
+                       inputs = strsplit(filesList$INPUTS, ",")[[i]]
+      )    
+    } else {
+      nodes <- newnode(name = filesList[i,1],
+                       inputs = strsplit(filesList$INPUTS, ",")[[i]],
+                       outputs = strsplit(filesList$OUTPUTS, ",")[[i]]
+      )
+    }
+  }
+   
+  #dev.copy2pdf(file='fileTransformations.pdf')
+  #dev.off();
+   
+#+end_src
+*** COMMENT TODO man-newnode
+#+name:newnode
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:newnode
+
+#+end_src
+
+
+* Graphical User Interfaces
+* Version Control
+* Latex/Sweave
+* R Packages
+* Project Management
+* Operating Systems
+* Linux - Ubuntu 
+*** COMMENT TODO bash profile-code
+#+name:bash profile
+#+begin_src R :session *R* :tangle no :exports none :eval no
+# put in ~/.bash_profile
+# then source ~/.bash_profile
+alias build_r="cd ~/tools/disentangle;git add .;git commit -m 'storage';git checkout master;git checkout gh-pages -- R/*;git add .;git commit -am 'Latest build.';git push;git checkout gh-pages"
+alias br="build_r"
+#+end_src
+
+* Big Data Tips
+* Writing
