@@ -1006,7 +1006,7 @@ So I thought what's the other 10?  Here's a few contenders for my work:
 
 ** R-reporttools-variable-summary-table
 #+name:tableCode
-#+begin_src R :session *R* :tangle no :eval yes
+#+begin_src R :session *R* :tangle no :eval no
   ################################################################
   # func
   if(!require(reporttools)) install.packages("reporttools"); require(reporttools)
@@ -1633,9 +1633,9 @@ source("tests/test-tree.chisq.r")
 #+end_src
 
 ** Deviance Measures and Descriptive Power for Regression Trees
-*** COMMENT rpart_deviance_explained-code
+*** rpart-deviance-explained-code
 #+name:rpart_deviance_explained
-#+begin_src R :session *R* :tangle R/rpart_deviance_explained.r :exports none :eval no
+#+begin_src R :session *R* :tangle R/rpart_deviance_explained.r :exports reports :eval no
   ################################################################
   # name:rpart_deviance_explained
   rpart_deviance_explained <- function(model_fit)
@@ -1649,13 +1649,13 @@ source("tests/test-tree.chisq.r")
   }
   
 #+end_src
-*** COMMENT rpart_deviance_explained-test-code
+*** rpart-deviance-explained-test
 #+name:rpart_deviance_explained-test
-#+begin_src R :session *R* :tangle no :exports none :eval no
+#+begin_src R :session *R* :tangle no :exports reports :eval no
   ################################################################
   # name:rpart_deviance_explained-test
   
-
+  
   
     # explanatory power
     require(rpart)
@@ -1682,11 +1682,23 @@ source("tests/test-tree.chisq.r")
     rpart_deviance_explained(fit)
     
     # compare with http://plantecology.syr.edu/fridley/bio793/cart.html
-    #Output of the fitted model shows the partition structure.  The root level (no splits) shows the total number of observations (1039), the associated deviance (at the root equal to the null deviance, or the response variable sum of squares (SSY):
+    #Output of the fitted model shows the partition structure.  The root
+    #level (no splits) shows the total number of observations (1039),
+    #the associated deviance (at the root equal to the null deviance, or
+    #the response variable sum of squares (SSY): 
     ndev <- sum(sapply(analyte$income,function(x)(x-mean(analyte$income))^2))
     
-    #followed by the mean response value for that subset (for the root, this is the overall mean).  Subsequent splits refer to these statistics for the associated data subsets, with final nodes (leaves) indicated by asterisks.  The summary function associated with tree lists the formula, the number of terminal nodes (or leaves), the residual mean deviance (along with the total residual deviance and N-#nodes), and the 5-stat summary of the residuals.  The total residual deviance is the residual sum of squares:
-    rdev <- sum(sapply(resid(fit),function(x)(x-mean(resid(fit)))^2))
+    ## #followed by the mean response value for that subset (for the root,
+    ## this is the overall mean).  Subsequent splits refer to these
+    ## statistics for the associated data subsets, with final nodes
+    ## (leaves) indicated by asterisks.  The summary function associated
+    ## with tree lists the formula, the number of terminal nodes (or
+    ## leaves), the residual mean deviance (along with the total residual
+    ## deviance and N-nodes), and the 5-stat summary of the residuals.
+    ## The total residual deviance is the residual sum of squares: 
+  
+    rdev <- sum(sapply(resid(fit),function(x)(x-mean(resid(fit)))^2)) 
+
     (ndev - rdev)/ndev
     
      

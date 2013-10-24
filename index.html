@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="Disentangle Things"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2013-10-24T11:23+1100"/>
+<meta name="generated" content="2013-10-24T12:30+1100"/>
 <meta name="author" content="Ivan Hanigan"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -193,7 +193,11 @@ for the JavaScript code in this tag.
 <li><a href="#sec-11-1">11.1 Tree-Based Methods</a></li>
 <li><a href="#sec-11-2">11.2 Misclassification Error Rate for Classification Trees</a></li>
 <li><a href="#sec-11-3">11.3 Deviance Based Measures of Descriptive Power for Classification Trees</a></li>
-<li><a href="#sec-11-4">11.4 Deviance Measures and Descriptive Power for Regression Trees</a></li>
+<li><a href="#sec-11-4">11.4 Deviance Measures and Descriptive Power for Regression Trees</a>
+<ul>
+<li><a href="#sec-11-4-1">11.4.1 rpart-deviance-explained-code</a></li>
+<li><a href="#sec-11-4-2">11.4.2 rpart-deviance-explained-test</a></li>
+</ul></li>
 </ul>
 </li>
 <li><a href="#sec-12">12 Code Editors</a></li>
@@ -1110,7 +1114,7 @@ civst_gend_sector <span style="color: #268bd2; font-weight: bold;">&lt;-</span> 
 
       }
   <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">TODO save this for use later</span>
-  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">write.csv(df, "inst/extdata/civst_gend_sector_full.csv", row.names = F)</span>
+  write.csv(df, <span style="color: #2aa198;">"inst/extdata/civst_gend_sector_full.csv"</span>, row.names = F)
 analyte  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> df
 analyte$random <span style="color: #268bd2; font-weight: bold;">&lt;-</span> rnorm(nrow(analyte), 0 , 1)
 <span style="color: #93a1a1;">#</span><span style="color: #93a1a1;">analyte</span>
@@ -1422,7 +1426,94 @@ tree.chisq(null_model = model0, fitted_model = model1)
 <div class="outline-text-3" id="text-11-4">
 
 
+</div>
 
+<div id="outline-container-11-4-1" class="outline-4">
+<h4 id="sec-11-4-1"><span class="section-number-4">11.4.1</span> rpart-deviance-explained-code</h4>
+<div class="outline-text-4" id="text-11-4-1">
+
+
+
+
+<pre class="src src-R"><span style="color: #93a1a1;">################################################################</span>
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">name:rpart_deviance_explained</span>
+<span style="color: #268bd2;">rpart_deviance_explained</span> <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #859900; font-weight: bold;">function</span>(model_fit)
+{
+  estat <span style="color: #268bd2; font-weight: bold;">&lt;-</span> print(model_fit)$frame[,c(<span style="color: #2aa198;">"var"</span>,<span style="color: #2aa198;">"n"</span>,<span style="color: #2aa198;">"dev"</span>,<span style="color: #2aa198;">"yval"</span>)]
+  null_deviance  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> estat[1,<span style="color: #2aa198;">"dev"</span>]
+  residual_deviance  <span style="color: #268bd2; font-weight: bold;">&lt;-</span>  sum(subset(estat, var == <span style="color: #2aa198;">"&lt;leaf&gt;"</span>)$dev)
+
+  dev_explained  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> (null_deviance - residual_deviance) / null_deviance
+  <span style="color: #859900; font-weight: bold;">return</span>(dev_explained)
+}
+
+</pre>
+
+</div>
+
+</div>
+
+<div id="outline-container-11-4-2" class="outline-4">
+<h4 id="sec-11-4-2"><span class="section-number-4">11.4.2</span> rpart-deviance-explained-test</h4>
+<div class="outline-text-4" id="text-11-4-2">
+
+
+
+
+<pre class="src src-R"><span style="color: #93a1a1;">################################################################</span>
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">name:rpart_deviance_explained-test</span>
+
+
+
+  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">explanatory power</span>
+  <span style="color: #268bd2; font-weight: bold;">require</span>(rpart)
+  <span style="color: #268bd2; font-weight: bold;">require</span>(tree)
+  <span style="color: #268bd2; font-weight: bold;">require</span>(partykit)
+  <span style="color: #268bd2; font-weight: bold;">require</span>(devtools)
+  install_github(<span style="color: #2aa198;">"disentangle"</span>, <span style="color: #2aa198;">"ivanhanigan"</span>)
+  <span style="color: #268bd2; font-weight: bold;">require</span>(disentangle)
+  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">load</span>
+  fpath <span style="color: #268bd2; font-weight: bold;">&lt;-</span> system.file(file.path(<span style="color: #2aa198;">"extdata"</span>, <span style="color: #2aa198;">"civst_gend_sector_full.csv"</span>), package = <span style="color: #2aa198;">"disentangle"</span>)
+  fpath
+  analyte  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(fpath)
+  str(analyte)
+  analyte$income  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> rnorm(nrow(analyte), 1000,200)
+  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">secondary men earn less</span>
+  analyte$income[analyte$gender == <span style="color: #2aa198;">"male"</span> &amp; analyte$activity == <span style="color: #2aa198;">"secondary"</span>]  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> analyte$income[analyte$gender == <span style="color: #2aa198;">"male"</span> &amp; analyte$activity == <span style="color: #2aa198;">"secondary"</span>] - 500
+  str(analyte)
+  fit  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> rpart(income ~ ., data = analyte)
+  print(fit)
+  par(xpd=T)
+  plot(fit);text(fit)
+  plot(as.party(fit))
+  
+  rpart_deviance_explained(fit)
+  
+  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">compare with http://plantecology.syr.edu/fridley/bio793/cart.html</span>
+  <span style="color: #93a1a1;">#</span><span style="color: #93a1a1;">Output of the fitted model shows the partition structure.  The root</span>
+  <span style="color: #93a1a1;">#</span><span style="color: #93a1a1;">level (no splits) shows the total number of observations (1039),</span>
+  <span style="color: #93a1a1;">#</span><span style="color: #93a1a1;">the associated deviance (at the root equal to the null deviance, or</span>
+  <span style="color: #93a1a1;">#</span><span style="color: #93a1a1;">the response variable sum of squares (SSY): </span>
+  ndev <span style="color: #268bd2; font-weight: bold;">&lt;-</span> sum(sapply(analyte$income,<span style="color: #859900; font-weight: bold;">function</span>(x)(x-mean(analyte$income))^2))
+  
+  <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">#followed by the mean response value for that subset (for the root,</span>
+  <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">this is the overall mean).  Subsequent splits refer to these</span>
+  <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">statistics for the associated data subsets, with final nodes</span>
+  <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">(leaves) indicated by asterisks.  The summary function associated</span>
+  <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">with tree lists the formula, the number of terminal nodes (or</span>
+  <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">leaves), the residual mean deviance (along with the total residual</span>
+  <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">deviance and N-nodes), and the 5-stat summary of the residuals.</span>
+  <span style="color: #93a1a1;">## </span><span style="color: #93a1a1;">The total residual deviance is the residual sum of squares: </span>
+
+  rdev <span style="color: #268bd2; font-weight: bold;">&lt;-</span> sum(sapply(resid(fit),<span style="color: #859900; font-weight: bold;">function</span>(x)(x-mean(resid(fit)))^2)) 
+
+  (ndev - rdev)/ndev
+  
+   
+</pre>
+
+
+</div>
 </div>
 </div>
 
