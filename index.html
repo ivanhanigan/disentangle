@@ -7,7 +7,7 @@
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
 <meta name="title" content="Disentangle Things"/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2013-10-21T14:52+1100"/>
+<meta name="generated" content="2013-10-24T11:23+1100"/>
 <meta name="author" content="Ivan Hanigan"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -179,8 +179,10 @@ for the JavaScript code in this tag.
 <ul>
 <li><a href="#sec-7-6-1">7.6.1 R-spss-variable-labels-read</a></li>
 <li><a href="#sec-7-6-2">7.6.2 test-spss-variable-labels-read-code</a></li>
-<li><a href="#sec-7-6-3">7.6.3 R-summary-table-code</a></li>
-</ul></li>
+</ul>
+</li>
+<li><a href="#sec-7-7">7.7 R-spss-variable-summary-table-code</a></li>
+<li><a href="#sec-7-8">7.8 R-reporttools-variable-summary-table</a></li>
 </ul>
 </li>
 <li><a href="#sec-8">8 Exploratory Data Analysis</a></li>
@@ -191,6 +193,7 @@ for the JavaScript code in this tag.
 <li><a href="#sec-11-1">11.1 Tree-Based Methods</a></li>
 <li><a href="#sec-11-2">11.2 Misclassification Error Rate for Classification Trees</a></li>
 <li><a href="#sec-11-3">11.3 Deviance Based Measures of Descriptive Power for Classification Trees</a></li>
+<li><a href="#sec-11-4">11.4 Deviance Measures and Descriptive Power for Regression Trees</a></li>
 </ul>
 </li>
 <li><a href="#sec-12">12 Code Editors</a></li>
@@ -208,8 +211,9 @@ for the JavaScript code in this tag.
 <li><a href="#sec-17">17 R Packages</a></li>
 <li><a href="#sec-18">18 Project Management</a></li>
 <li><a href="#sec-19">19 Operating Systems</a></li>
-<li><a href="#sec-20">20 Big Data Tips</a></li>
-<li><a href="#sec-21">21 Writing</a></li>
+<li><a href="#sec-20">20 Linux - Ubuntu</a></li>
+<li><a href="#sec-21">21 Big Data Tips</a></li>
+<li><a href="#sec-22">22 Writing</a></li>
 </ul>
 </div>
 </div>
@@ -720,7 +724,7 @@ Now load up the test data <span style="color: #859900; font-weight: bold;">for</
 
     <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">do</span>
     eml_write(civst_gend_sector,
-              creator = <span style="color: #2aa198;">"Ivan Hanigan <a href="mailto:ivanhanigan%40gmail.com">&lt;ivanhanigan@gmail.com&gt;</a>"</span>)
+              creator = <span style="color: #2aa198;">"Ivan Hanigan &lt;<a href="mailto:ivanhanigan&#64;gmail.com">ivanhanigan&#64;gmail.com</a>&gt;"</span>)
 
 
               
@@ -764,7 +768,7 @@ This was a very minimal data documentation effort.  A bit more detail would be b
     eml_write(ds, 
               title = <span style="color: #2aa198;">"civst_gend_sector"</span>,  
               description = <span style="color: #2aa198;">"An example, fictional dataset for Decision Tree Models"</span>,
-              creator = <span style="color: #2aa198;">"Ivan Hanigan <a href="mailto:ivanhanigan%40gmail.com">&lt;ivanhanigan@gmail.com&gt;</a>"</span>,
+              creator = <span style="color: #2aa198;">"Ivan Hanigan &lt;<a href="mailto:ivanhanigan&#64;gmail.com">ivanhanigan&#64;gmail.com</a>&gt;"</span>,
               file = <span style="color: #2aa198;">"inst/extdata/civst_gend_sector_eml.xml"</span>
               )
     <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">this created the xml and csv with out asking anything</span>
@@ -981,7 +985,9 @@ as.data.frame(
   names_returned <span style="color: #268bd2; font-weight: bold;">&lt;-</span> attributes(x)$variable.labels[col_index]
   col_names  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> names(names_returned)
   col_refs  <span style="color: #268bd2; font-weight: bold;">&lt;-</span>  as.data.frame(cbind(col_names, names_returned))
-
+  col_refs[,1]  <span style="color: #268bd2; font-weight: bold;">&lt;-</span>  as.character(col_refs[,1])
+  col_refs[,2]  <span style="color: #268bd2; font-weight: bold;">&lt;-</span>  as.character(col_refs[,2])
+  row.names(col_refs)  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #b58900;">NULL</span>
   <span style="color: #859900; font-weight: bold;">if</span>(return_df)
     {
       names_returned <span style="color: #268bd2; font-weight: bold;">&lt;-</span> paste(names_returned, sep = <span style="color: #2aa198;">""</span>, collapse = <span style="color: #2aa198;">"', '"</span>)
@@ -1024,12 +1030,13 @@ qc
 </pre>
 
 </div>
+</div>
 
 </div>
 
-<div id="outline-container-7-6-3" class="outline-4">
-<h4 id="sec-7-6-3"><span class="section-number-4">7.6.3</span> R-summary-table-code</h4>
-<div class="outline-text-4" id="text-7-6-3">
+<div id="outline-container-7-7" class="outline-3">
+<h3 id="sec-7-7"><span class="section-number-3">7.7</span> R-spss-variable-summary-table-code</h3>
+<div class="outline-text-3" id="text-7-7">
 
 
 
@@ -1070,8 +1077,85 @@ sink()
 </pre>
 
 
+</div>
 
 </div>
+
+<div id="outline-container-7-8" class="outline-3">
+<h3 id="sec-7-8"><span class="section-number-3">7.8</span> R-reporttools-variable-summary-table</h3>
+<div class="outline-text-3" id="text-7-8">
+
+
+
+
+<pre class="src src-R"><span style="color: #93a1a1;">################################################################</span>
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">func</span>
+<span style="color: #859900; font-weight: bold;">if</span>(!<span style="color: #268bd2; font-weight: bold;">require</span>(reporttools)) install.packages(<span style="color: #2aa198;">"reporttools"</span>); <span style="color: #268bd2; font-weight: bold;">require</span>(reporttools)
+<span style="color: #268bd2; font-weight: bold;">require</span>(devtools)
+install_github(<span style="color: #2aa198;">"disentangle"</span>, <span style="color: #2aa198;">"ivanhanigan"</span>)
+<span style="color: #268bd2; font-weight: bold;">require</span>(disentangle)
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">load</span>
+fpath <span style="color: #268bd2; font-weight: bold;">&lt;-</span> system.file(file.path(<span style="color: #2aa198;">"extdata"</span>, <span style="color: #2aa198;">"civst_gend_sector.csv"</span>), package = <span style="color: #2aa198;">"disentangle"</span>)
+civst_gend_sector <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(fpath)
+  df <span style="color: #268bd2; font-weight: bold;">&lt;-</span> as.data.frame(matrix(<span style="color: #b58900;">NA</span>, nrow = 0, ncol = 3))
+  <span style="color: #859900; font-weight: bold;">for</span>(i <span style="color: #859900; font-weight: bold;">in</span> 1:nrow(civst_gend_sector))
+      {
+      <span style="color: #93a1a1;">#    </span><span style="color: #93a1a1;">i &lt;- 1</span>
+          n <span style="color: #268bd2; font-weight: bold;">&lt;-</span> civst_gend_sector$number_of_cases[i]
+          <span style="color: #859900; font-weight: bold;">if</span>(n == 0) <span style="color: #859900; font-weight: bold;">next</span>
+          <span style="color: #859900; font-weight: bold;">for</span>(j <span style="color: #859900; font-weight: bold;">in</span> 1:n)
+              {
+                df <span style="color: #268bd2; font-weight: bold;">&lt;-</span> rbind(df, civst_gend_sector[i,1:3])              
+              }
+
+      }
+  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">TODO save this for use later</span>
+  <span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">write.csv(df, "inst/extdata/civst_gend_sector_full.csv", row.names = F)</span>
+analyte  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> df
+analyte$random <span style="color: #268bd2; font-weight: bold;">&lt;-</span> rnorm(nrow(analyte), 0 , 1)
+<span style="color: #93a1a1;">#</span><span style="color: #93a1a1;">analyte</span>
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">create a large number of randome variables</span>
+<span style="color: #859900; font-weight: bold;">for</span>(i <span style="color: #859900; font-weight: bold;">in</span> 1:75)
+  {
+    analyte[,ncol(analyte) + 1] <span style="color: #268bd2; font-weight: bold;">&lt;-</span> rnorm(nrow(analyte), 10 , 20)    
+  }
+names(analyte)
+str(analyte)
+data_continuous <span style="color: #268bd2; font-weight: bold;">&lt;-</span> numeric(0) 
+<span style="color: #859900; font-weight: bold;">for</span>(i <span style="color: #859900; font-weight: bold;">in</span> 1:length(names(analyte)))
+  {
+    <span style="color: #859900; font-weight: bold;">if</span>(is.numeric(analyte[,i]))
+        {
+            data_continuous <span style="color: #268bd2; font-weight: bold;">&lt;-</span> c(data_continuous, i)
+        }
+  }
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">clean        </span>
+str(analyte[,data_continuous])
+str(analyte[,-data_continuous])
+<span style="color: #93a1a1;"># </span><span style="color: #93a1a1;">do</span>
+sink(<span style="color: #2aa198;">'inst/doc/tabContinuous.tex'</span>)
+tableContinuous(vars = analyte[,data_continuous],
+                stats = c(<span style="color: #2aa198;">"n"</span>, <span style="color: #2aa198;">"min"</span>, <span style="color: #2aa198;">"mean"</span>, <span style="color: #2aa198;">"median"</span>,
+                  <span style="color: #2aa198;">"max"</span>, <span style="color: #2aa198;">"iqr"</span>, <span style="color: #2aa198;">"na"</span>),
+                cap = <span style="color: #2aa198;">"Table of continuous variables."</span>, lab = <span style="color: #2aa198;">"tab:table4"</span>,
+                caption.placement = <span style="color: #2aa198;">"top"</span>,
+                longtable = <span style="color: #b58900;">TRUE</span>, add.to.row = list(pos = list(0), 
+                command = <span style="color: #2aa198;">"\\hline \\endhead "</span>))
+sink()
+
+x.big <span style="color: #268bd2; font-weight: bold;">&lt;-</span> analyte[,-data_continuous]
+sink(<span style="color: #2aa198;">'inst/doc/tabNominal.tex'</span>)
+tableNominal(vars = x.big, cap = <span style="color: #2aa198;">"Table of nominal variables"</span>,
+             vertical = <span style="color: #b58900;">FALSE</span>,
+             lab = <span style="color: #2aa198;">"tab:table5"</span>, longtable = <span style="color: #b58900;">TRUE</span>,
+             caption.placement = <span style="color: #2aa198;">"top"</span>)
+
+sink()
+
+</pre>
+
+
+
 </div>
 </div>
 
@@ -1330,6 +1414,16 @@ tree.chisq(null_model = model0, fitted_model = model1)
 </li>
 </ul>
 </div>
+
+</div>
+
+<div id="outline-container-11-4" class="outline-3">
+<h3 id="sec-11-4"><span class="section-number-3">11.4</span> Deviance Measures and Descriptive Power for Regression Trees</h3>
+<div class="outline-text-3" id="text-11-4">
+
+
+
+</div>
 </div>
 
 </div>
@@ -1505,16 +1599,26 @@ nodes <span style="color: #268bd2; font-weight: bold;">&lt;-</span> newnode(name
 </div>
 
 <div id="outline-container-20" class="outline-2">
-<h2 id="sec-20"><span class="section-number-2">20</span> Big Data Tips</h2>
+<h2 id="sec-20"><span class="section-number-2">20</span> Linux - Ubuntu</h2>
 <div class="outline-text-2" id="text-20">
+
+
 
 </div>
 
 </div>
 
 <div id="outline-container-21" class="outline-2">
-<h2 id="sec-21"><span class="section-number-2">21</span> Writing</h2>
+<h2 id="sec-21"><span class="section-number-2">21</span> Big Data Tips</h2>
 <div class="outline-text-2" id="text-21">
+
+</div>
+
+</div>
+
+<div id="outline-container-22" class="outline-2">
+<h2 id="sec-22"><span class="section-number-2">22</span> Writing</h2>
+<div class="outline-text-2" id="text-22">
 
 </div>
 </div>

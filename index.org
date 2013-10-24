@@ -1004,6 +1004,77 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   
 #+end_src
 
+** R-reporttools-variable-summary-table
+#+name:tableCode
+#+begin_src R :session *R* :tangle no :eval yes
+  ################################################################
+  # func
+  if(!require(reporttools)) install.packages("reporttools"); require(reporttools)
+  require(devtools)
+  install_github("disentangle", "ivanhanigan")
+  require(disentangle)
+  # load
+  fpath <- system.file(file.path("extdata", "civst_gend_sector.csv"), package = "disentangle")
+  civst_gend_sector <- read.csv(fpath)
+    df <- as.data.frame(matrix(NA, nrow = 0, ncol = 3))
+    for(i in 1:nrow(civst_gend_sector))
+        {
+        #    i <- 1
+            n <- civst_gend_sector$number_of_cases[i]
+            if(n == 0) next
+            for(j in 1:n)
+                {
+                  df <- rbind(df, civst_gend_sector[i,1:3])              
+                }
+     
+        }
+    # TODO save this for use later
+    write.csv(df, "inst/extdata/civst_gend_sector_full.csv", row.names = F)
+  analyte  <- df
+  analyte$random <- rnorm(nrow(analyte), 0 , 1)
+  #analyte
+  # create a large number of randome variables
+  for(i in 1:75)
+    {
+      analyte[,ncol(analyte) + 1] <- rnorm(nrow(analyte), 10 , 20)    
+    }
+  names(analyte)
+  str(analyte)
+  data_continuous <- numeric(0) 
+  for(i in 1:length(names(analyte)))
+    {
+      if(is.numeric(analyte[,i]))
+          {
+              data_continuous <- c(data_continuous, i)
+          }
+    }
+  # clean        
+  str(analyte[,data_continuous])
+  str(analyte[,-data_continuous])
+  # do
+  sink('inst/doc/tabContinuous.tex')
+  tableContinuous(vars = analyte[,data_continuous],
+                  stats = c("n", "min", "mean", "median",
+                    "max", "iqr", "na"),
+                  cap = "Table of continuous variables.", lab = "tab:table4",
+                  caption.placement = "top",
+                  longtable = TRUE, add.to.row = list(pos = list(0), 
+                  command = "\\hline \\endhead "))
+  sink()
+  
+  x.big <- analyte[,-data_continuous]
+  sink('inst/doc/tabNominal.tex')
+  tableNominal(vars = x.big, cap = "Table of nominal variables",
+               vertical = FALSE,
+               lab = "tab:table5", longtable = TRUE,
+               caption.placement = "top")
+  
+  sink()
+     
+#+end_src
+
+#+RESULTS: tableCode
+
 
 * Exploratory Data Analysis
 * General Purpose
@@ -1559,6 +1630,20 @@ Under hypothesis that less complex (reduced) model is adequate, difference follo
 #+name:tree.chisq
 #+begin_src R :session *R* :tangle inst/doc/main.r :eval no
 source("tests/test-tree.chisq.r")
+#+end_src
+
+** Deviance Measures and Descriptive Power for Regression Trees
+*** COMMENT rpart_deviance_explained-code
+#+name:rpart_deviance_explained
+#+begin_src R :session *R* :tangle src/rpart_deviance_explained.r :exports none :eval no
+################################################################
+# name:rpart_deviance_explained
+# explanatory power
+  
+  estat <- print(fit)$frame[,c("var","n","dev","yval")]
+  str(estat)
+  (estat[1,"dev"] - sum(subset(estat, var == "<leaf>")$dev)) / estat[1,"dev"]
+  
 #+end_src
 
 * Code Editors
