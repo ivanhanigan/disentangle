@@ -852,8 +852,8 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   
   #### Code:
       # func
-      #require(devtools)
-      #install_github("reml", "ropensci")
+      require(devtools)
+      install_github("reml", "ropensci")
       require(reml)
       # we can get the col names easily
       col_defs <- names(data_set)
@@ -875,11 +875,25 @@ So I thought what's the other 10?  Here's a few contenders for my work:
                      col.defs = col_defs,
                      unit.defs = unit_defs
                      )
+      str(ds)
       setwd("~/tests")
-      eml_write(ds, 
+      metadata  <- metadata(ds)
+      # no good, needs names
+      for(i in 1:ncol(data_set))
+        {
+          # i = 4
+          if(is.numeric(data_set[,i])){
+            names(metadata[[i]][[3]]) <- "number"
+          } else {
+            names(metadata[[i]][[3]]) <- metadata[[i]][[3]]
+          }
+        }
+      # metadata
+  
+      eml_write(data_set, metadata,
                 title = "sweet sweet data",  
                 description = "An example, fictional dataset",
-                file = "sweet_output_eml.xml",
+                file = "sweet_output_eml5.xml",
                 creator = "Ivan Hanigan <ivanhanigan@gmail.com>"
                 )
   
