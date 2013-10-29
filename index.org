@@ -800,6 +800,90 @@ So I thought what's the other 10?  Here's a few contenders for my work:
       
 #+end_src
 
+** morpho-and-reml-streamline-the-process-of-metadata-entry
+*** step 1
+#+name:morpho-and-reml-streamline-the-process-of-metadata-entry-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-29-morpho-and-reml-streamline-the-process-of-metadata-entry.md :exports none :eval no :padline no
+  ---
+  name: morpho-and-reml-streamline-the-process-of-metadata-entry
+  layout: post
+  title: morpho-and-reml-streamline-the-process-of-metadata-entry
+  date: 2013-10-29
+  categories:
+  - data documentation
+  ---
+  
+  ### First load the example dataset
+#+end_src
+
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-29-morpho-and-reml-streamline-the-process-of-metadata-entry.md :eval yes :padline no
+      
+    #### Code:morpho-and-reml-streamline-the-process-of-metadata-entry
+        # func
+        #require(devtools)
+        #install_github("disentangle", "ivanhanigan")
+        #require(disentangle)
+        # load
+        fpath <- system.file(
+            file.path("extdata", "civst_gend_sector_full.csv"),
+            package = "disentangle"
+            )
+        data_set <- read.csv(fpath)
+        summary(data_set)
+  
+  
+  
+  
+  ## | divorced/widowed: 33 | female:132 | primary  :116 | Min.   : 128.9 |
+  ## | married         :120 | male  :141 | secondary: 99 | 1st Qu.: 768.3 |
+  ## | single          :120 | nil        | tertiary : 58 | Median : 922.8 |
+  ## | nil                  | nil        | nil           | Mean   : 908.4 |
+  ## | nil                  | nil        | nil           | 3rd Qu.:1079.1 |
+  ## | nil                  | nil        | nil           | Max.   :1479.4 |
+  
+#+end_src
+
+
+
+*** step 2
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-29-morpho-and-reml-streamline-the-process-of-metadata-entry.md :exports none :eval no :padline no
+  
+  ### Second create a metadata object
+  
+  #### Code:
+      # func
+      require(devtools)
+      install_github("reml", "ropensci")
+      require(reml)
+      # we can get the col names easily
+      col_defs <- names(data_set)
+      # next create a list from the data
+      unit_defs <- list()
+  
+      for(i in 1:ncol(data_set))
+        {
+          # i = 4
+          if(is.numeric(data_set[,i])){
+            unit_defs[[i]] <- "continuous"
+          } else {
+            unit_defs[[i]] <- names(table(data_set[,i]))          
+          }
+        }
+      # unit_defs
+      
+      ds <- data.set(data_set,
+                     col.defs = col_defs,
+                     unit.defs = unit_defs
+                     )
+      eml_write(ds, 
+                title = "sweet sweet data",  
+                description = "An example, fictional dataset",
+                file = "sweet_output_eml.xml"
+                )
+  
+  
+#+end_src
+
 ** COMMENT TODO R-spss-variable-labels-create
 #+name:R-spss-variable-labels
 #+begin_src R :session *R* :tangle no :exports reports :eval no
@@ -1064,11 +1148,11 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   install_github("disentangle", "ivanhanigan")
   require(disentangle)
   # load
-  fpath <- system.file(file.path("extdata", "civst_gend_sector.csv"), package = "disentangle")
-  civst_gend_sector <- read.csv(fpath)
-  analyte  <- df
+  fpath <- system.file(file.path("extdata", "civst_gend_sector_full.csv"), package = "disentangle")
+  
+  analyte  <- read.csv(fpath)
   analyte$random <- rnorm(nrow(analyte), 0 , 1)
-  #analyte
+  summary(analyte)
   # create a large number of randome variables
   for(i in 1:75)
     {
@@ -1688,55 +1772,55 @@ source("tests/test-tree.chisq.r")
 *** rpart-deviance-explained-test
 #+name:rpart_deviance_explained-test
 #+begin_src R :session *R* :tangle no :exports reports :eval no
-    ################################################################
-    # name:rpart_deviance_explained-test
-  
-  
-  
-    # explanatory power
-    require(rpart)
-    require(tree)
-    require(partykit)
-    require(devtools)
-    install_github("disentangle", "ivanhanigan")
-    require(disentangle)
-
-    # load
-    fpath <- system.file(file.path("extdata", "civst_gend_sector_full.csv"), package = "disentangle")
-    fpath
-    analyte  <- read.csv(fpath)
-    str(analyte)
-
-    # do
-    fit  <- rpart(income ~ ., data = analyte)
-    print(fit)
-    par(xpd=T)
-    plot(fit);text(fit)
-    plot(as.party(fit))
+  ################################################################
+  # name:rpart_deviance_explained-test
     
-    rpart_deviance_explained(fit)
     
-    # compare with http://plantecology.syr.edu/fridley/bio793/cart.html
-    #Output of the fitted model shows the partition structure.  The root
-    #level (no splits) shows the total number of observations (1039),
-    #the associated deviance (at the root equal to the null deviance, or
-    #the response variable sum of squares (SSY): 
-    ndev <- sum(sapply(analyte$income,function(x)(x-mean(analyte$income))^2))
     
-    ## #followed by the mean response value for that subset (for the root,
-    ## this is the overall mean).  Subsequent splits refer to these
-    ## statistics for the associated data subsets, with final nodes
-    ## (leaves) indicated by asterisks.  The summary function associated
-    ## with tree lists the formula, the number of terminal nodes (or
-    ## leaves), the residual mean deviance (along with the total residual
-    ## deviance and N-nodes), and the 5-stat summary of the residuals.
-    ## The total residual deviance is the residual sum of squares: 
+  # explanatory power
+  require(rpart)
+  require(tree)
+  require(partykit)
+  require(devtools)
+  install_github("disentangle", "ivanhanigan")
+  require(disentangle)
   
-    rdev <- sum(sapply(resid(fit),function(x)(x-mean(resid(fit)))^2)) 
-
-    (ndev - rdev)/ndev
+  # load
+  fpath <- system.file(file.path("extdata", "civst_gend_sector_full.csv"), package = "disentangle")
+  fpath
+  analyte  <- read.csv(fpath)
+  str(analyte)
+  
+  # do
+  fit  <- rpart(income ~ ., data = analyte)
+  print(fit)
+  par(xpd=T)
+  plot(fit);text(fit)
+  plot(as.party(fit))
+  
+  rpart_deviance_explained(fit)
+  
+  # compare with http://plantecology.syr.edu/fridley/bio793/cart.html
+  #Output of the fitted model shows the partition structure.  The root
+  #level (no splits) shows the total number of observations (1039),
+  #the associated deviance (at the root equal to the null deviance, or
+  #the response variable sum of squares (SSY): 
+  ndev <- sum(sapply(analyte$income,function(x)(x-mean(analyte$income))^2))
+  
+  ## #followed by the mean response value for that subset (for the root,
+  ## this is the overall mean).  Subsequent splits refer to these
+  ## statistics for the associated data subsets, with final nodes
+  ## (leaves) indicated by asterisks.  The summary function associated
+  ## with tree lists the formula, the number of terminal nodes (or
+  ## leaves), the residual mean deviance (along with the total residual
+  ## deviance and N-nodes), and the 5-stat summary of the residuals.
+  ## The total residual deviance is the residual sum of squares: 
     
-     
+  rdev <- sum(sapply(resid(fit),function(x)(x-mean(resid(fit)))^2)) 
+  
+  (ndev - rdev)/ndev
+  
+   
 #+end_src
 
 * Code Editors
