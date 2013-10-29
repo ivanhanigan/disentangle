@@ -820,9 +820,9 @@ So I thought what's the other 10?  Here's a few contenders for my work:
       
     #### Code:morpho-and-reml-streamline-the-process-of-metadata-entry
         # func
-        #require(devtools)
-        #install_github("disentangle", "ivanhanigan")
-        #require(disentangle)
+        require(devtools)
+        install_github("disentangle", "ivanhanigan")
+        require(disentangle)
         # load
         fpath <- system.file(
             file.path("extdata", "civst_gend_sector_full.csv"),
@@ -852,8 +852,8 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   
   #### Code:
       # func
-      require(devtools)
-      install_github("reml", "ropensci")
+      #require(devtools)
+      #install_github("reml", "ropensci")
       require(reml)
       # we can get the col names easily
       col_defs <- names(data_set)
@@ -869,19 +869,21 @@ So I thought what's the other 10?  Here's a few contenders for my work:
             unit_defs[[i]] <- names(table(data_set[,i]))          
           }
         }
-      # unit_defs
+      unit_defs
       
       ds <- data.set(data_set,
                      col.defs = col_defs,
                      unit.defs = unit_defs
                      )
+      setwd("~/tests")
       eml_write(ds, 
                 title = "sweet sweet data",  
                 description = "An example, fictional dataset",
-                file = "sweet_output_eml.xml"
+                file = "sweet_output_eml.xml",
+                creator = "Ivan Hanigan <ivanhanigan@gmail.com>"
                 )
   
-  
+  dir()
 #+end_src
 
 ** COMMENT TODO R-spss-variable-labels-create
