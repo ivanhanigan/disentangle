@@ -804,20 +804,64 @@ So I thought what's the other 10?  Here's a few contenders for my work:
 *** step 1
 #+name:morpho-and-reml-streamline-the-process-of-metadata-entry-header
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-29-morpho-and-reml-streamline-the-process-of-metadata-entry.md :exports none :eval no :padline no
-  ---
-  name: morpho-and-reml-streamline-the-process-of-metadata-entry
-  layout: post
-  title: morpho-and-reml-streamline-the-process-of-metadata-entry
-  date: 2013-10-29
-  categories:
-  - data documentation
-  ---
+    ---
+    name: morpho-and-reml-streamline-the-process-of-metadata-entry
+    layout: post
+    title: morpho-and-reml-streamline-the-process-of-metadata-entry
+    date: 2013-10-29
+    categories:
+    - data documentation
+    ---
+    
+    ### Background
+        
+    - The Morpho/Metacat system is great for a data repository
+    - Morpho also claims to be suitable for Ecologists to document their data
+    - But in my experience it leaves a little to be desired in ease of use for both purposes
+    - Specifically the speed that documentation can be entered into Morpho is slow
+    
+    ### Speed and Rigour
+    As I noted in a previous post, there are two types of data documentation workflow
+    
+    - 1) Data Analysts
+    - 2) Data Librarians
+    
+    In my view the Analysts group of users need a tool that will very rapidly document their data and workflow steps and can live with a bit less rigour in the quality of documentation.  Obviously this is not ideal but seems an inevitable trade-off needed to enable analysts to keep up the momentum of the data processing and modelling without getting distracted by tedious (and potentially unnecessary) data documentation tasks.
+    
+    On the other hand the role of the Librarian group is to produce documentation to the best level possible (given time and resource constraints) the datasets and methodologies that lead to the creation of the datasets.  For that group Rigour will take precedence and there will be a trade-off in terms of the amount of time needed to produce the documentation.
+    
+    As an example of the two different groups, an analyst working with weather data in Australia may want to specify that their variable "temperature" is the average of the daily maxima and minima, but might not need to specify that the observations were taken inside a Stevenson Screen, or even if they are in Celsius, Farenhiet or Kelvin.  They will be very keen to start the analysis to identify any associations between weather variables and the response variable they are investigating.   The data librarian on the other hand will be more likely to need to include this information so that the users of the temperature data do not mis-interpret it.
+    
+  ### Embracing Inaccuracy and Incompleteness
+    
+  - I got referred to this document by Ben Davies at the ANUSF
+  [http://thedailywtf.com/Articles/Documentation-Done-Right.aspx](http://thedailywtf.com/Articles/Documentation-Done-Right.aspx)
+  - It has this bit:
+      
+      Embracing Inaccuracy and Incompleteness 
+          
+      The immediate answer to what’s the right way to do documentation is
+      clear: produce the least amount of documentation needed to facilitate
+      the most understanding, and be very explicit about which documentation
+      is to be maintained and which is to be archived (i.e., read-only and
+      left to rot).
   
+  
+  - Roughly speaking, a full EML document produced by Morpho is a bit like a whole bunch of cruft that isnt needed and gets in the way (and is more confusing)
+  - Whereas a minimal version Im thinking of covers almost all the generic entries providing the "minimum amount of stuff to make it work right".
+    
+  ### Aim
+    
+  - This experiment aims to speed up the creation of a minimal "skeleton" of metadata to a level that both the groups above can be comfortable with AS A FIRST STEP.
+  - It is assumed that additional steps will then need to be taken to complete the documentation, but the automation of the first part of the process should shave off enough time to suit the purposes of both groups
+  - It is an imperative that the quick-start creation of the metadata does not end up costing the documentor more time later on down the track if they need to go back to many of the elements for additional editing.
+    
   ### First load the example dataset
 #+end_src
 
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-29-morpho-and-reml-streamline-the-process-of-metadata-entry.md :eval yes :padline no
-      
+    I've been using a fictitious dataset from a Statistics Methodology paper by Ritschard 2006.  It will do as a first cut.
+  
     #### Code:morpho-and-reml-streamline-the-process-of-metadata-entry
         # func
         require(devtools)
@@ -850,11 +894,17 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   
   ### Second create a metadata object
   
+  - the package REML will create a EML metadata document quite easily
+  - I will assume that a lot of the data elements are self explanatory and take column names and factor levels as the descriptions
+  
+  
   #### Code:
       # func
       require(devtools)
       install_github("reml", "ropensci")
       require(reml)
+  
+      reml_boilerplate <- (data_set) 
       # we can get the col names easily
       col_defs <- names(data_set)
       # next create a list from the data
