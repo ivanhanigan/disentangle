@@ -876,7 +876,7 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
         data_set <- read.csv(fpath)
         summary(data_set)
         # store it in the current project workspace
-        write.csv(data_set, "data/civst_gend_sector_full.csv")
+        write.csv(data_set, "data/civst_gend_sector_full.csv", row.names = F)
         
   
   
@@ -899,21 +899,19 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
 *** reml_boilerplate-code
 #+name:reml_boilerplate
 #+begin_src R :session *R* :tangle R/reml_boilerplate.r :exports reports :eval no
-################################################################
-# name:reml_boilerplate
+  ################################################################
+  # name:reml_boilerplate
    
-  #### R Code:
-      # func
-      require(devtools)
-      install_github("reml", "ropensci")
-      require(reml)
+  # func
+  require(devtools)
+  install_github("reml", "ropensci")
+  require(reml)
   
-  reml_boilerplate <- (data_set, metadata_creator = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA,
-                       desc = "")
+  reml_boilerplate <- (data_set, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA, desc = "")
   {
   
     # essential
-    if(is.na(titl)) stop print("must specify title")
+    if(is.na(titl)) stop(print("must specify title"))
     # we can get the col names easily
     col_defs <- names(data_set)
     # next create a list from the data
@@ -947,13 +945,15 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
         }
       }
     # metadata
-    
+    oldwd <- getwd()
+    setwd(data_dir)
     eml_write(data_set, metadata,
               title = titl,  
               description = desc,
               creator = created_by
               )
-    sprintf("your metadata has been created in the %s directory", data_dir)
+    setwd(oldwd)
+    sprintf("your metadata has been created in the '%s' directory", data_dir)
     }
 #+end_src  
 *** reml_boilerplate-test-code
@@ -961,13 +961,7 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
 #+begin_src R :session *R* :tangle no :exports reports :eval no
   ################################################################
   # name:reml_boilerplate-test
-    
   
-  
-  
-  ### TEST
-  
-  #### R Code:
   analyte <- read.csv("data/civst_gend_sector_full.csv")
   reml_boilerplate(
     data_set = analyte
@@ -976,7 +970,7 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
     ,
     data_dir = "data"
     ,
-    titl = NA
+    titl = "civst_gend_sector_full"
     ,
     desc = "An example, fictional dataset"
     )
@@ -987,7 +981,7 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
 - This needs testing
 - A failure would be that even if it is quicker to get started if it takes a long time and is difficult to fix up it might increase the risk of misunderstandings.
 
-** blog-morpho-and-reml-boilerplate-streamline-the-process-of-metadata-entry
+** COMMENT blog-morpho-and-reml-boilerplate-streamline-the-process-of-metadata-entry
 #+name:morpho-and-reml-streamline-the-process-of-metadata-entry-header
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-29-morpho-and-reml-streamline-the-process-of-metadata-entry.md :exports none :eval no :padline no
 ---
