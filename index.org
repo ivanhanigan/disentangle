@@ -903,11 +903,13 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
   # name:reml_boilerplate
    
   # func
-  require(devtools)
-  install_github("reml", "ropensci")
+  if(!require(reml)) {
+    require(devtools)
+    install_github("reml", "ropensci")
+    } 
   require(reml)
   
-  reml_boilerplate <- (data_set, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA, desc = "")
+  reml_boilerplate <- function(data_set, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA, desc = "")
   {
   
     # essential
