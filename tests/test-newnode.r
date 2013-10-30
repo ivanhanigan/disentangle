@@ -78,5 +78,5 @@ for(i in 2:nrow(filesList))
   }
 }
  
-dev.copy2pdf(file='tests/fileTransformations.pdf')
-dev.off();
+#dev.copy2pdf(file='fileTransformations.pdf')
+#dev.off();
