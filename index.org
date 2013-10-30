@@ -966,19 +966,23 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
   
   analyte <- read.csv("data/civst_gend_sector_full.csv")
   reml_boilerplate(
-    data_set = analyte
-    ,
-    metadata_creator = "Ivan Hanigan <ivanhanigan@gmail.com>"
-    ,
-    data_dir = "data"
-    ,
-    titl = "civst_gend_sector_full"
-    ,
+    data_set = analyte,
+    created_by = "Ivan Hanigan <ivanhanigan@gmail.com>",
+    data_dir = "data",
+    titl = "civst_gend_sector_full",
     desc = "An example, fictional dataset"
     )
   
   dir("data")
 #+end_src
+*** Results: This loads into Morpho with some errors
+- Notably unable to import the data file
+
+![morpho-reml-boilerplate.png](/images/morpho-reml-boilerplate.png)
+
+- Also "the saved document is not valid for some reason"
+
+![morpho-reml-boilerplate.png](/images/morpho-reml-boilerplate.png)
 *** Conclusions
 - This needs testing
 - A failure would be that even if it is quicker to get started if it takes a long time and is difficult to fix up it might increase the risk of misunderstandings.
@@ -994,6 +998,8 @@ date: 2013-10-29
 categories:
 - data documentation
 ---
+
+
 <body>
 
 <div id="preamble">
@@ -1021,7 +1027,8 @@ categories:
 <li><a href="#sec-1-9">1.9 Step 2 create a function to deliver the minimal metadata object</a></li>
 <li><a href="#sec-1-10">1.10 reml<sub>boilerplate</sub>-code</a></li>
 <li><a href="#sec-1-11">1.11 reml<sub>boilerplate</sub>-test-code</a></li>
-<li><a href="#sec-1-12">1.12 Conclusions</a></li>
+<li><a href="#sec-1-12">1.12 Results: This loads into Morpho with some errors</a></li>
+<li><a href="#sec-1-13">1.13 Conclusions</a></li>
 </ul>
 </li>
 </ul>
@@ -1204,7 +1211,7 @@ left to rot).
       data_set <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(fpath)
       summary(data_set)
       <span style="color: #586e75;"># </span><span style="color: #586e75;">store it in the current project workspace</span>
-      write.csv(data_set, <span style="color: #2aa198;">"data/civst_gend_sector_full.csv"</span>)
+      write.csv(data_set, <span style="color: #2aa198;">"data/civst_gend_sector_full.csv"</span>, row.names = F)
       
 
 
@@ -1250,60 +1257,62 @@ left to rot).
 
 <pre class="src src-R"><span style="color: #586e75;">################################################################</span>
 <span style="color: #586e75;"># </span><span style="color: #586e75;">name:reml_boilerplate</span>
-   
-  <span style="color: #586e75;">#### </span><span style="color: #586e75;">R Code:</span>
-      <span style="color: #586e75;"># </span><span style="color: #586e75;">func</span>
-      <span style="color: #268bd2; font-weight: bold;">require</span>(devtools)
-      install_github(<span style="color: #2aa198;">"reml"</span>, <span style="color: #2aa198;">"ropensci"</span>)
-      <span style="color: #268bd2; font-weight: bold;">require</span>(reml)
-  
-  reml_boilerplate <span style="color: #268bd2; font-weight: bold;">&lt;-</span> (data_set, metadata_creator = <span style="color: #2aa198;">"Ivan Hanigan &lt;<a href="mailto:ivanhanigan&#64;gmail.com">ivanhanigan&#64;gmail.com</a>&gt;"</span>, data_dir = getwd(), titl = <span style="color: #b58900;">NA</span>,
-                       desc = <span style="color: #2aa198;">""</span>)
-  {
-  
-    <span style="color: #586e75;"># </span><span style="color: #586e75;">essential</span>
-    <span style="color: #859900; font-weight: bold;">if</span>(is.na(titl)) <span style="color: #859900; font-weight: bold;">stop</span> print(<span style="color: #2aa198;">"must specify title"</span>)
-    <span style="color: #586e75;"># </span><span style="color: #586e75;">we can get the col names easily</span>
-    col_defs <span style="color: #268bd2; font-weight: bold;">&lt;-</span> names(data_set)
-    <span style="color: #586e75;"># </span><span style="color: #586e75;">next create a list from the data</span>
-    unit_defs <span style="color: #268bd2; font-weight: bold;">&lt;-</span> list()
-    <span style="color: #859900; font-weight: bold;">for</span>(i <span style="color: #859900; font-weight: bold;">in</span> 1:ncol(data_set))
-      {
-        <span style="color: #586e75;"># </span><span style="color: #586e75;">i = 4</span>
-        <span style="color: #859900; font-weight: bold;">if</span>(is.numeric(data_set[,i])){
-          unit_defs[[i]] <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #2aa198;">"numeric"</span>
-        } <span style="color: #859900; font-weight: bold;">else</span> {
-          unit_defs[[i]] <span style="color: #268bd2; font-weight: bold;">&lt;-</span> names(table(data_set[,i]))          
-        }
+ 
+<span style="color: #586e75;"># </span><span style="color: #586e75;">func</span>
+<span style="color: #859900; font-weight: bold;">if</span>(!<span style="color: #268bd2; font-weight: bold;">require</span>(reml)) {
+  <span style="color: #268bd2; font-weight: bold;">require</span>(devtools)
+  install_github(<span style="color: #2aa198;">"reml"</span>, <span style="color: #2aa198;">"ropensci"</span>)
+  } 
+<span style="color: #268bd2; font-weight: bold;">require</span>(reml)
+
+<span style="color: #268bd2;">reml_boilerplate</span> <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #859900; font-weight: bold;">function</span>(data_set, created_by = <span style="color: #2aa198;">"Ivan Hanigan &lt;<a href="mailto:ivanhanigan&#64;gmail.com">ivanhanigan&#64;gmail.com</a>&gt;"</span>, data_dir = getwd(), titl = <span style="color: #b58900;">NA</span>, desc = <span style="color: #2aa198;">""</span>)
+{
+
+  <span style="color: #586e75;"># </span><span style="color: #586e75;">essential</span>
+  <span style="color: #859900; font-weight: bold;">if</span>(is.na(titl)) <span style="color: #859900; font-weight: bold;">stop</span>(print(<span style="color: #2aa198;">"must specify title"</span>))
+  <span style="color: #586e75;"># </span><span style="color: #586e75;">we can get the col names easily</span>
+  col_defs <span style="color: #268bd2; font-weight: bold;">&lt;-</span> names(data_set)
+  <span style="color: #586e75;"># </span><span style="color: #586e75;">next create a list from the data</span>
+  unit_defs <span style="color: #268bd2; font-weight: bold;">&lt;-</span> list()
+  <span style="color: #859900; font-weight: bold;">for</span>(i <span style="color: #859900; font-weight: bold;">in</span> 1:ncol(data_set))
+    {
+      <span style="color: #586e75;"># </span><span style="color: #586e75;">i = 4</span>
+      <span style="color: #859900; font-weight: bold;">if</span>(is.numeric(data_set[,i])){
+        unit_defs[[i]] <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #2aa198;">"numeric"</span>
+      } <span style="color: #859900; font-weight: bold;">else</span> {
+        unit_defs[[i]] <span style="color: #268bd2; font-weight: bold;">&lt;-</span> names(table(data_set[,i]))          
       }
-    <span style="color: #586e75;"># </span><span style="color: #586e75;">unit_defs</span>
-    
-    ds <span style="color: #268bd2; font-weight: bold;">&lt;-</span> data.set(data_set,
-                   col.defs = col_defs,
-                   unit.defs = unit_defs
-                   )
-    <span style="color: #586e75;">#</span><span style="color: #586e75;">str(ds)</span>
-  
-    metadata  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> metadata(ds)
-    <span style="color: #586e75;"># </span><span style="color: #586e75;">needs names</span>
-    <span style="color: #859900; font-weight: bold;">for</span>(i <span style="color: #859900; font-weight: bold;">in</span> 1:ncol(data_set))
-      {
-        <span style="color: #586e75;"># </span><span style="color: #586e75;">i = 4</span>
-        <span style="color: #859900; font-weight: bold;">if</span>(is.numeric(data_set[,i])){
-          names(metadata[[i]][[3]]) <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #2aa198;">"number"</span>
-        } <span style="color: #859900; font-weight: bold;">else</span> {
-          names(metadata[[i]][[3]]) <span style="color: #268bd2; font-weight: bold;">&lt;-</span> metadata[[i]][[3]]
-        }
-      }
-    <span style="color: #586e75;"># </span><span style="color: #586e75;">metadata</span>
-    
-    eml_write(data_set, metadata,
-              title = titl,  
-              description = desc,
-              creator = created_by
-              )
-    sprintf(<span style="color: #2aa198;">"your metadata has been created in the %s directory"</span>, data_dir)
     }
+  <span style="color: #586e75;"># </span><span style="color: #586e75;">unit_defs</span>
+  
+  ds <span style="color: #268bd2; font-weight: bold;">&lt;-</span> data.set(data_set,
+                 col.defs = col_defs,
+                 unit.defs = unit_defs
+                 )
+  <span style="color: #586e75;">#</span><span style="color: #586e75;">str(ds)</span>
+
+  metadata  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> metadata(ds)
+  <span style="color: #586e75;"># </span><span style="color: #586e75;">needs names</span>
+  <span style="color: #859900; font-weight: bold;">for</span>(i <span style="color: #859900; font-weight: bold;">in</span> 1:ncol(data_set))
+    {
+      <span style="color: #586e75;"># </span><span style="color: #586e75;">i = 4</span>
+      <span style="color: #859900; font-weight: bold;">if</span>(is.numeric(data_set[,i])){
+        names(metadata[[i]][[3]]) <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #2aa198;">"number"</span>
+      } <span style="color: #859900; font-weight: bold;">else</span> {
+        names(metadata[[i]][[3]]) <span style="color: #268bd2; font-weight: bold;">&lt;-</span> metadata[[i]][[3]]
+      }
+    }
+  <span style="color: #586e75;"># </span><span style="color: #586e75;">metadata</span>
+  oldwd <span style="color: #268bd2; font-weight: bold;">&lt;-</span> getwd()
+  setwd(data_dir)
+  eml_write(data_set, metadata,
+            title = titl,  
+            description = desc,
+            creator = created_by
+            )
+  setwd(oldwd)
+  sprintf(<span style="color: #2aa198;">"your metadata has been created in the '%s' directory"</span>, data_dir)
+  }
 </pre>
 
 </div>
@@ -1319,23 +1328,13 @@ left to rot).
 
 <pre class="src src-R"><span style="color: #586e75;">################################################################</span>
 <span style="color: #586e75;"># </span><span style="color: #586e75;">name:reml_boilerplate-test</span>
-  
 
-
-
-<span style="color: #586e75;">### </span><span style="color: #586e75;">TEST</span>
-
-<span style="color: #586e75;">#### </span><span style="color: #586e75;">R Code:</span>
 analyte <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(<span style="color: #2aa198;">"data/civst_gend_sector_full.csv"</span>)
 reml_boilerplate(
-  data_set = analyte
-  ,
-  metadata_creator = <span style="color: #2aa198;">"Ivan Hanigan &lt;<a href="mailto:ivanhanigan&#64;gmail.com">ivanhanigan&#64;gmail.com</a>&gt;"</span>
-  ,
-  data_dir = <span style="color: #2aa198;">"data"</span>
-  ,
-  titl = <span style="color: #b58900;">NA</span>
-  ,
+  data_set = analyte,
+  created_by = <span style="color: #2aa198;">"Ivan Hanigan &lt;<a href="mailto:ivanhanigan&#64;gmail.com">ivanhanigan&#64;gmail.com</a>&gt;"</span>,
+  data_dir = <span style="color: #2aa198;">"data"</span>,
+  titl = <span style="color: #2aa198;">"civst_gend_sector_full"</span>,
   desc = <span style="color: #2aa198;">"An example, fictional dataset"</span>
   )
 
@@ -1347,13 +1346,42 @@ dir(<span style="color: #2aa198;">"data"</span>)
 </div>
 
 <div id="outline-container-1-12" class="outline-4">
-<h4 id="sec-1-12"><span class="section-number-4">1.12</span> Conclusions</h4>
+<h4 id="sec-1-12"><span class="section-number-4">1.12</span> Results: This loads into Morpho with some errors</h4>
 <div class="outline-text-4" id="text-1-12">
+
+<ul>
+<li>Notably unable to import the data file
+</li>
+</ul>
+
+
+<p>
+<img src="/images/morpho-reml-boilerplate.png" alt = "morpho-reml-boilerplate.png">
+</p>
+<ul>
+<li>Also "the saved document is not valid for some reason"
+</li>
+</ul>
+
+
+<p>
+<img src="/images/morpho-reml-boilerplate2.png" alt = "morpho-reml-boilerplate2.png">
+</p></div>
+
+</div>
+
+<div id="outline-container-1-13" class="outline-4">
+<h4 id="sec-1-13"><span class="section-number-4">1.13</span> Conclusions</h4>
+<div class="outline-text-4" id="text-1-13">
 
 <ul>
 <li>This needs testing
 </li>
-<li>A failure would be that even if it is quicker to get started if it takes a long time and is difficult to fix up it might increase the risk of misunderstandings.
+<li>A real deal breaker is if the EML is not valid 
+</li>
+<li>In some cases not having the data table included will be a deal breaker (ie KNB repositories designed for downloading complete data packs
+</li>
+<li>A definite failure would be that even if it is quicker to get started if it takes a long time and is difficult to fix up it might increase the risk of misunderstandings.
 </li>
 </ul>
 
