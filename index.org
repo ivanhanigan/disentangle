@@ -801,7 +801,198 @@ So I thought what's the other 10?  Here's a few contenders for my work:
 #+end_src
 
 ** morpho-and-reml-streamline-the-process-of-metadata-entry
-*** step 1
+*** Background
+### Background
+    
+- The Morpho/Metacat system is great for a data repository
+- Morpho also claims to be suitable for Ecologists to document their data
+- But in my experience it leaves a little to be desired in ease of use for both purposes
+- Specifically the speed that documentation can be entered into Morpho is slow
+
+### Speed and Rigour
+As I noted in a previous post, there are [two types of data documentation workflow](http://ivanhanigan.github.io/2013/10/two-main-types-of-data-documentation-workflow/).  
+  
+- GUI
+- Programatic
+  
+I also think there are two types of users with different motivations and constraints:
+
+- 1) Data Analysts
+- 2) Data Librarians
+
+### Analysts can often trade-off completeness of documentation for speed
+In my view the Analysts group of users need a tool that will very rapidly document their data and workflow steps and can live with a bit less rigour in the quality of documentation.  Obviously this is not ideal but seems an inevitable trade-off needed to enable analysts to keep up the momentum of the data processing and modelling without getting distracted by tedious (and potentially unnecessary) data documentation tasks.
+
+### Librarians produce gold plated documentation and can take longer to produce this
+On the other hand the role of the Librarian group is to produce documentation to the best level possible (given time and resource constraints) the datasets and methodologies that lead to the creation of the datasets.  For that group Rigour will take precedence and there will be a trade-off in terms of the amount of time needed to produce the documentation.
+
+### An example
+As an example of the two different groups, an analyst working with weather data in Australia may want to specify that their variable "temperature" is the average of the daily maxima and minima, but might not need to specify that the observations were taken inside a Stevenson Screen, or even if they are in Celsius, Farenhiet or Kelvin.  They will be very keen to start the analysis to identify any associations between weather variables and the response variable they are investigating.   The data librarian on the other hand will be more likely to need to include this information so that the users of the temperature data do not mis-interpret it.
+
+*** Embracing Inaccuracy and Incompleteness
+  
+- I've been talking about this for a while got referred to this document by Ben Davies at the ANUSF
+[http://thedailywtf.com/Articles/Documentation-Done-Right.aspx](http://thedailywtf.com/Articles/Documentation-Done-Right.aspx)
+- It has this bit:
+#+begin_src R :session *R* :tangle no :exports reports :eval no :padline no  
+  
+   
+    Embracing Inaccuracy and Incompleteness 
+        
+    The immediate answer to what’s the right way to do documentation is
+    clear: produce the least amount of documentation needed to facilitate
+    the most understanding, and be very explicit about which documentation
+    is to be maintained and which is to be archived (i.e., read-only and
+    left to rot).
+#+end_src 
+ 
+- Roughly speaking, a full EML document produced by Morpho is a bit like a whole bunch of cruft that isnt needed and gets in the way (and is more confusing)
+- Whereas a minimal version Im thinking of covers almost all the generic entries providing the "minimum amount of stuff to make it work right".
+  
+*** Aim
+  
+- This experiment aims to speed up the creation of a minimal "skeleton" of metadata to a level that both the groups above can be comfortable with AS A FIRST STEP.
+- It is assumed that additional steps will then need to be taken to complete the documentation, but the automation of the first part of the process should shave off enough time to suit the purposes of both groups
+- It is an imperative that the quick-start creation of the metadata does not end up costing the documentor more time later on down the track if they need to go back to many of the elements for additional editing.
+  
+  
+
+
+*** Step 1: load a simple example dataset
+I've been using a [fictitious dataset from a Statistics Methodology paper by Ritschard 2006](http://ivanhanigan.github.io/2013/10/test-data-for-classification-trees/).  It will do as a first cut but when it comes to actually test this out it would be good to have something that would take a bit longer (so that the frustrations of using Morpho become very apparent).
+
+#+begin_src R :session *R* :tangle :eval no :exports reports :padline no
+  
+    #### R Code:
+        # func
+        require(devtools)
+        install_github("disentangle", "ivanhanigan")
+        require(disentangle)
+        # load
+        fpath <- system.file(
+            file.path("extdata", "civst_gend_sector_full.csv"),
+            package = "disentangle"
+            )
+        data_set <- read.csv(fpath)
+        summary(data_set)
+        # store it in the current project workspace
+        write.csv(data_set, "data/civst_gend_sector_full.csv")
+        
+  
+  
+  
+  ## | divorced/widowed: 33 | female:132 | primary  :116 | Min.   : 128.9 |
+  ## | married         :120 | male  :141 | secondary: 99 | 1st Qu.: 768.3 |
+  ## | single          :120 | nil        | tertiary : 58 | Median : 922.8 |
+  ## | nil                  | nil        | nil           | Mean   : 908.4 |
+  ## | nil                  | nil        | nil           | 3rd Qu.:1079.1 |
+  ## | nil                  | nil        | nil           | Max.   :1479.4 |
+  
+#+end_src
+
+
+
+*** step 2
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-29-morpho-and-reml-streamline-the-process-of-metadata-entry.md :exports none :eval no :padline no
+  
+  ### Second create a function to deliver the minimal metadata object
+  
+  - the package REML will create a EML metadata document quite easily
+  - I will assume that a lot of the data elements are self explanatory and take column names and factor levels as the descriptions
+#+end_src  
+*** COMMENT reml_boilerplate-code
+#+name:reml_boilerplate
+#+begin_src R :session *R* :tangle R/reml_boilerplate.r :exports none :eval no
+################################################################
+# name:reml_boilerplate
+   
+  #### R Code:
+      # func
+      require(devtools)
+      install_github("reml", "ropensci")
+      require(reml)
+  
+  reml_boilerplate <- (data_set, metadata_creator = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA,
+                       desc = "")
+  {
+  
+    # essential
+    if(is.na(titl)) stop print("must specify title")
+    # we can get the col names easily
+    col_defs <- names(data_set)
+    # next create a list from the data
+    unit_defs <- list()
+    for(i in 1:ncol(data_set))
+      {
+        # i = 4
+        if(is.numeric(data_set[,i])){
+          unit_defs[[i]] <- "numeric"
+        } else {
+          unit_defs[[i]] <- names(table(data_set[,i]))          
+        }
+      }
+    # unit_defs
+    
+    ds <- data.set(data_set,
+                   col.defs = col_defs,
+                   unit.defs = unit_defs
+                   )
+    #str(ds)
+  
+    metadata  <- metadata(ds)
+    # needs names
+    for(i in 1:ncol(data_set))
+      {
+        # i = 4
+        if(is.numeric(data_set[,i])){
+          names(metadata[[i]][[3]]) <- "number"
+        } else {
+          names(metadata[[i]][[3]]) <- metadata[[i]][[3]]
+        }
+      }
+    # metadata
+    
+    eml_write(data_set, metadata,
+              title = titl,  
+              description = desc,
+              creator = created_by
+              )
+    sprintf("your metadata has been created in the %s directory", data_dir)
+    }
+#+end_src  
+*** reml_boilerplate-test-code
+#+name:reml_boilerplate-test
+#+begin_src R :session *R* :tangle no :exports reports :eval no
+  ################################################################
+  # name:reml_boilerplate-test
+    
+  
+  
+  
+  ### TEST
+  
+  #### R Code:
+  analyte <- read.csv("data/civst_gend_sector_full.csv")
+  reml_boilerplate(
+    data_set = analyte
+    ,
+    metadata_creator = "Ivan Hanigan <ivanhanigan@gmail.com>"
+    ,
+    data_dir = "data"
+    ,
+    titl = NA
+    ,
+    desc = "An example, fictional dataset"
+    )
+  
+  dir("data")
+#+end_src
+*** Conclusions
+- This needs testing
+- A failure would be that even if it is quicker to get started if it takes a long time and is difficult to fix up it might increase the risk of misunderstandings.
+
+*** Markdown version for blog
+**** Background
 #+name:morpho-and-reml-streamline-the-process-of-metadata-entry-header
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-29-morpho-and-reml-streamline-the-process-of-metadata-entry.md :exports none :eval no :padline no
     ---
@@ -821,20 +1012,28 @@ So I thought what's the other 10?  Here's a few contenders for my work:
     - Specifically the speed that documentation can be entered into Morpho is slow
     
     ### Speed and Rigour
-    As I noted in a previous post, there are two types of data documentation workflow
+    As I noted in a previous post, there are [two types of data documentation workflow](http://ivanhanigan.github.io/2013/10/two-main-types-of-data-documentation-workflow/).  
+
+    - GUI
+    - Programatic
+
+    I also think there are two types of users with different motivations and constraints:
     
     - 1) Data Analysts
     - 2) Data Librarians
     
+    ### Analysts can often trade-off completeness of documentation for speed
     In my view the Analysts group of users need a tool that will very rapidly document their data and workflow steps and can live with a bit less rigour in the quality of documentation.  Obviously this is not ideal but seems an inevitable trade-off needed to enable analysts to keep up the momentum of the data processing and modelling without getting distracted by tedious (and potentially unnecessary) data documentation tasks.
     
+    ### Librarians produce gold plated documentation and can take longer to produce this
     On the other hand the role of the Librarian group is to produce documentation to the best level possible (given time and resource constraints) the datasets and methodologies that lead to the creation of the datasets.  For that group Rigour will take precedence and there will be a trade-off in terms of the amount of time needed to produce the documentation.
     
+    ### An example
     As an example of the two different groups, an analyst working with weather data in Australia may want to specify that their variable "temperature" is the average of the daily maxima and minima, but might not need to specify that the observations were taken inside a Stevenson Screen, or even if they are in Celsius, Farenhiet or Kelvin.  They will be very keen to start the analysis to identify any associations between weather variables and the response variable they are investigating.   The data librarian on the other hand will be more likely to need to include this information so that the users of the temperature data do not mis-interpret it.
     
   ### Embracing Inaccuracy and Incompleteness
     
-  - I got referred to this document by Ben Davies at the ANUSF
+  - I've been talking about this for a while got referred to this document by Ben Davies at the ANUSF
   [http://thedailywtf.com/Articles/Documentation-Done-Right.aspx](http://thedailywtf.com/Articles/Documentation-Done-Right.aspx)
   - It has this bit:
       
@@ -856,98 +1055,7 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   - It is assumed that additional steps will then need to be taken to complete the documentation, but the automation of the first part of the process should shave off enough time to suit the purposes of both groups
   - It is an imperative that the quick-start creation of the metadata does not end up costing the documentor more time later on down the track if they need to go back to many of the elements for additional editing.
     
-  ### First load the example dataset
-#+end_src
 
-#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-29-morpho-and-reml-streamline-the-process-of-metadata-entry.md :eval yes :padline no
-    I've been using a fictitious dataset from a Statistics Methodology paper by Ritschard 2006.  It will do as a first cut.
-  
-    #### Code:morpho-and-reml-streamline-the-process-of-metadata-entry
-        # func
-        require(devtools)
-        install_github("disentangle", "ivanhanigan")
-        require(disentangle)
-        # load
-        fpath <- system.file(
-            file.path("extdata", "civst_gend_sector_full.csv"),
-            package = "disentangle"
-            )
-        data_set <- read.csv(fpath)
-        summary(data_set)
-  
-  
-  
-  
-  ## | divorced/widowed: 33 | female:132 | primary  :116 | Min.   : 128.9 |
-  ## | married         :120 | male  :141 | secondary: 99 | 1st Qu.: 768.3 |
-  ## | single          :120 | nil        | tertiary : 58 | Median : 922.8 |
-  ## | nil                  | nil        | nil           | Mean   : 908.4 |
-  ## | nil                  | nil        | nil           | 3rd Qu.:1079.1 |
-  ## | nil                  | nil        | nil           | Max.   :1479.4 |
-  
-#+end_src
-
-
-
-*** step 2
-#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-29-morpho-and-reml-streamline-the-process-of-metadata-entry.md :exports none :eval no :padline no
-  
-  ### Second create a metadata object
-  
-  - the package REML will create a EML metadata document quite easily
-  - I will assume that a lot of the data elements are self explanatory and take column names and factor levels as the descriptions
-  
-  
-  #### Code:
-      # func
-      require(devtools)
-      install_github("reml", "ropensci")
-      require(reml)
-  
-      reml_boilerplate <- (data_set) 
-      # we can get the col names easily
-      col_defs <- names(data_set)
-      # next create a list from the data
-      unit_defs <- list()
-  
-      for(i in 1:ncol(data_set))
-        {
-          # i = 4
-          if(is.numeric(data_set[,i])){
-            unit_defs[[i]] <- "continuous"
-          } else {
-            unit_defs[[i]] <- names(table(data_set[,i]))          
-          }
-        }
-      unit_defs
-      
-      ds <- data.set(data_set,
-                     col.defs = col_defs,
-                     unit.defs = unit_defs
-                     )
-      str(ds)
-      setwd("~/tests")
-      metadata  <- metadata(ds)
-      # no good, needs names
-      for(i in 1:ncol(data_set))
-        {
-          # i = 4
-          if(is.numeric(data_set[,i])){
-            names(metadata[[i]][[3]]) <- "number"
-          } else {
-            names(metadata[[i]][[3]]) <- metadata[[i]][[3]]
-          }
-        }
-      # metadata
-  
-      eml_write(data_set, metadata,
-                title = "sweet sweet data",  
-                description = "An example, fictional dataset",
-                file = "sweet_output_eml5.xml",
-                creator = "Ivan Hanigan <ivanhanigan@gmail.com>"
-                )
-  
-  dir()
 #+end_src
 
 ** COMMENT TODO R-spss-variable-labels-create
