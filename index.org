@@ -1488,7 +1488,7 @@ dir(<span style="color: #2aa198;">"data"</span>)
 </html>
 
 #+end_src
-** make-ddixml-and-ddiindex-and-orapus
+** COMMENT TODO blog-make-ddixml-and-ddiindex-and-orapus
 #+name:make-ddixml-and-ddiindex-and-orapus-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_drafts/2013-11-06-make-ddixml-and-ddiindex-and-orapus.md :exports none :eval no :padline no
 ---
