@@ -9,23 +9,24 @@ data_dictionary <- function(dataframe, variable, show_levels = -1)
   summa[,1]  <- as.character(summa[,1])
   summa[,2]  <- as.character(summa[,2])
   if(is.numeric(dataframe[,variable])){
+  summa$type <- c("number", rep("", nrow(summa) - 1))
   summa$cnt <- NA
   summa$pct  <- NA
   } else {
-
+  summa$type <- c("character", rep("", nrow(summa) - 1))
   summa$summa  <- as.numeric(as.character(summa$summa))  
   summa$summa2 <- rep("", nrow(summa))
       # as.numeric(as.character(summa$V2)) ?
   summa$pct  <- round((summa$summa / sum(summa$summa)) * 100, 2)
-  summa <- summa[,c(1,2,4,3,5)]
+  summa <- summa[,c(1,2,3,5,4,6)]
   if(show_levels > 0){
   if(nrow(summa) > show_levels){
       summa <- summa[1:show_levels,]  
-  summa <- rbind(summa, c("", sprintf("more than %s levels. list truncated.", show_levels), "","", ""))
+  summa <- rbind(summa, c("", "", sprintf("more than %s levels. list truncated.", show_levels), "","", ""))
   }
   }
   }
-  names(summa)  <- c("Variable","Attributes", "Value", "Count", "Percent")
+  names(summa)  <- c("Variable","Type","Attributes", "Value", "Count", "Percent")
 #summa
   return(summa)
 }
