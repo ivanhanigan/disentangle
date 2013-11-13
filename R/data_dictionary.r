@@ -1,6 +1,6 @@
 
-# name:spss_summary
-spss_summary <- function(dataframe, variable)
+# name:data_dictionary
+data_dictionary <- function(dataframe, variable, show_levels = -1)
 {
   summa  <- summary(dataframe[,variable])
   summa  <- as.data.frame(cbind(
@@ -18,9 +18,11 @@ spss_summary <- function(dataframe, variable)
       # as.numeric(as.character(summa$V2)) ?
   summa$pct  <- round((summa$summa / sum(summa$summa)) * 100, 2)
   summa <- summa[,c(1,2,4,3,5)]
-  if(nrow(summa) > 10){
-      summa <- summa[1:10,]  
-  summa <- rbind(summa, c("", "more than 10 levels. remainder suppressed..", "","", ""))
+  if(show_levels > 0){
+  if(nrow(summa) > show_levels){
+      summa <- summa[1:show_levels,]  
+  summa <- rbind(summa, c("", sprintf("more than %s levels. list truncated.", show_levels), "","", ""))
+  }
   }
   }
   names(summa)  <- c("Variable","Attributes", "Value", "Count", "Percent")

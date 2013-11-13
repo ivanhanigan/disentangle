@@ -1866,12 +1866,12 @@ categories:
 
 #+RESULTS: tableCode
 
-** R-spss_summary
-*** R-R-spss_summary
-#+name:R-spss_summary
-#+begin_src R :session *R* :tangle R/spss_summary.r :exports none :eval no
-  # name:spss_summary
-  spss_summary <- function(dataframe, variable)
+** R-data_dictionary
+*** R-R-data_dictionary
+#+name:R-data_dictionary
+#+begin_src R :session *R* :tangle R/data_dictionary.r :exports none :eval no
+  # name:data_dictionary
+  data_dictionary <- function(dataframe, variable, show_levels = -1)
   {
     summa  <- summary(dataframe[,variable])
     summa  <- as.data.frame(cbind(
@@ -1889,9 +1889,11 @@ categories:
         # as.numeric(as.character(summa$V2)) ?
     summa$pct  <- round((summa$summa / sum(summa$summa)) * 100, 2)
     summa <- summa[,c(1,2,4,3,5)]
-    if(nrow(summa) > 10){
-        summa <- summa[1:10,]  
-    summa <- rbind(summa, c("", "more than 10 levels. remainder suppressed..", "","", ""))
+    if(show_levels > 0){
+    if(nrow(summa) > show_levels){
+        summa <- summa[1:show_levels,]  
+    summa <- rbind(summa, c("", sprintf("more than %s levels. list truncated.", show_levels), "","", ""))
+    }
     }
     }
     names(summa)  <- c("Variable","Attributes", "Value", "Count", "Percent")
@@ -1900,28 +1902,29 @@ categories:
   }
   
 #+end_src
-*** test-R-spss_summary
-#+name:R-spss_summary
+*** test-R-data_dictionary
+#+name:R-data_dictionary
 #+begin_src R :session *R* :tangle no :exports none :eval no
   ################################################################
-  # name:R-spss_summary
+  # name:R-data_dictionary
   require(disentangle)
   fpath <- system.file("extdata/civst_gend_sector.csv", package = "disentangle")
   fpath
   civst_gend_sector <- read.csv(fpath)
   out <- matrix(NA, nrow = 0, ncol = 3)
   for(i in 1:ncol(civst_gend_sector)){
-  out2 <- spss_summary(civst_gend_sector, names(civst_gend_sector)[i])
+  out2 <- data_dictionary(civst_gend_sector, names(civst_gend_sector)[i],
+                          show_levels = 2)
   out <- rbind(out, out2)
   }
   out
   
 #+end_src
-*** man-R-spss_summary
-#+name:R-spss_summary
+*** man-R-data_dictionary
+#+name:R-data_dictionary
 #+begin_src R :session *R* :tangle no :exports none :eval no
 ################################################################
-# name:R-spss_summary
+# name:R-data_dictionary
 
 #+end_src
 
