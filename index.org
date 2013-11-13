@@ -1866,7 +1866,7 @@ categories:
 
 #+RESULTS: tableCode
 
-** R-data_dictionary
+** COMMENT R-data_dictionary
 *** R-R-data_dict
 #+name:R-data_dictionary
 #+begin_src R :session *R* :tangle R/data_dict.r :exports none :eval no
@@ -1904,7 +1904,7 @@ categories:
   }
   
 #+end_src
-*** COMMENT data_dictionary-code
+*** data_dictionary-code
 #+name:data_dictionary
 #+begin_src R :session *R* :tangle R/data_dictionary.r :exports none :eval no
   ################################################################
