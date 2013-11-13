@@ -1867,33 +1867,34 @@ categories:
 #+RESULTS: tableCode
 
 ** R-data_dictionary
-*** R-R-data_dictionary
+*** R-R-data_dict
 #+name:R-data_dictionary
-#+begin_src R :session *R* :tangle R/data_dictionary.r :exports none :eval no
-  # name:data_dictionary
-  data_dictionary <- function(dataframe, variable, show_levels = -1)
+#+begin_src R :session *R* :tangle R/data_dict.r :exports none :eval no
+  # name:data_dict
+  data_dict <- function(.dataframe, .variable, .show_levels = -1)
   {
-    summa  <- summary(dataframe[,variable])
+    summa  <- summary(.dataframe[,.variable])
     summa  <- as.data.frame(cbind(
-        c(variable, rep("", length(summa) - 1)),
+        c(.variable, rep("", length(summa) - 1)),
         names(summa), summa))
     summa[,1]  <- as.character(summa[,1])
     summa[,2]  <- as.character(summa[,2])
-    if(is.numeric(dataframe[,variable])){
+    if(is.numeric(.dataframe[,.variable])){
     summa$type <- c("number", rep("", nrow(summa) - 1))
     summa$cnt <- NA
     summa$pct  <- NA
+    summa <- summa[,c(1,4,2,3,5,6)]
     } else {
     summa$type <- c("character", rep("", nrow(summa) - 1))
     summa$summa  <- as.numeric(as.character(summa$summa))  
     summa$summa2 <- rep("", nrow(summa))
         # as.numeric(as.character(summa$V2)) ?
     summa$pct  <- round((summa$summa / sum(summa$summa)) * 100, 2)
-    summa <- summa[,c(1,2,3,5,4,6)]
-    if(show_levels > 0){
-    if(nrow(summa) > show_levels){
-        summa <- summa[1:show_levels,]  
-    summa <- rbind(summa, c("", "", sprintf("more than %s levels. list truncated.", show_levels), "","", ""))
+    summa <- summa[,c(1,4,2,5,3,6)]
+    if(.show_levels > 0){
+    if(nrow(summa) > .show_levels){
+        summa <- summa[1:.show_levels,]  
+    summa <- rbind(summa, c("", "", sprintf("more than %s levels. list truncated.", .show_levels), "","", ""))
     }
     }
     }
@@ -1903,6 +1904,23 @@ categories:
   }
   
 #+end_src
+*** COMMENT data_dictionary-code
+#+name:data_dictionary
+#+begin_src R :session *R* :tangle R/data_dictionary.r :exports none :eval no
+  ################################################################
+  data_dictionary <- function(dataframe, show_levels = -1){
+    out <- matrix(NA, nrow = 0, ncol = 3)
+    for(i in 1:ncol(dataframe)){
+    out2 <- data_dict(.dataframe = dataframe,
+                      names(dataframe)[i],
+                      .show_levels = show_levels)
+    out <- rbind(out, out2)
+    }
+    row.names(out) <- NULL
+    return(out)
+  }
+#+end_src
+
 *** test-R-data_dictionary
 #+name:R-data_dictionary
 #+begin_src R :session *R* :tangle no :exports none :eval no
@@ -1912,14 +1930,10 @@ categories:
   fpath <- system.file("extdata/civst_gend_sector.csv", package = "disentangle")
   fpath
   civst_gend_sector <- read.csv(fpath)
-  out <- matrix(NA, nrow = 0, ncol = 3)
-  for(i in 1:ncol(civst_gend_sector)){
-  out2 <- data_dictionary(civst_gend_sector, names(civst_gend_sector)[i])
-  out <- rbind(out, out2)
-  }
-  row.names(out) <- NULL
-  out
-
+  dataDictionary <- data_dictionary(civst_gend_sector,
+                                    show_levels = -1)
+  dataDictionary
+  #write.csv(dataDictionary, "~/dataDictionary.csv", row.names = F)
 #+end_src
 *** man-R-data_dictionary
 #+name:R-data_dictionary
