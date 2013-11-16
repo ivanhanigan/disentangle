@@ -362,6 +362,35 @@ So I thought what's the other 10?  Here's a few contenders for my work:
       head(df)
 #+end_src
 
+** R-upcase-string
+#+name:r-upcase-string-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-17-really-useful-r-upcase-string.md :exports none :eval no :padline no
+  ---
+  name: 2013-11-17-really-useful-r-upcase-string
+  layout: post
+  title: really-useful-r-upcase-string
+  date: 2013-11-17
+  categories:
+  - research methods
+  ---
+  
+  Here is a really useful R snippet from  [http://stackoverflow.com/a/6364905](http://stackoverflow.com/a/6364905) with a minor modification to allow differnt splits
+  
+  #### Code:r-upcase-string
+      x <- c("The", "quick", "Brown", "fox/lazy dog")
+       
+      simpleCap <- function(x, tosplit = " ") {
+        s <- strsplit(x, tosplit)[[1]]
+        paste(toupper(substring(s, 1,1)), substring(s, 2),
+            sep="", collapse=tosplit)
+      }
+      sapply(x, simpleCap)
+      sapply(x, simpleCap, tosplit = "/")
+  
+  
+  
+      
+#+end_src
 
 * Data Output
 * Data Documentation
