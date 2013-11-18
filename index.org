@@ -2837,7 +2837,7 @@ categories:
 - It turns out to be too simplified, and not have very many of the feature I love about Git and GitHub :-(
 - For eg it is not really distributed in that you don't get to sync your local repo with the onlin version
 - you upload a script or dataset, then you continue editing locally until you want to commit and then you have to upload again, one file at a time with the GUI rather than "git add ." and "git push".
-- I recommend having a look, it might work for you, but if you want more power checkout Yihui's suggestions for using github [http://yihui.name/en/2011/12/how-to-become-an-efficient-and-collaborative-r-programmer/]](http://yihui.name/en/2011/12/how-to-become-an-efficient-and-collaborative-r-programmer/)
+- I recommend having a look, it might work for you, but if you want more power checkout Yihui's suggestions for using github [http://yihui.name/en/2011/12/how-to-become-an-efficient-and-collaborative-r-programmer/](http://yihui.name/en/2011/12/how-to-become-an-efficient-and-collaborative-r-programmer/)
 - and [http://yihui.name/en/2013/06/fix-typo-in-documentation/](http://yihui.name/en/2013/06/fix-typo-in-documentation/)
 
 #### In general I don't think simple front-end's should be a barrier to accessing a sophisticated back-end!
