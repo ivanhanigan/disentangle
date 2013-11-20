@@ -2662,6 +2662,7 @@ source("tests/test-tree.chisq.r")
 
 * Bibliograph-ology
 ** 2013-11-20-sync-endnote-and-mendeley-references-using-r-xml
+*** Intro
 #+name:sync-endnote-and-mendeley-references-using-r-xml-header
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-20-sync-endnote-and-mendeley-using-r-xml.md :exports none :eval no :padline no
   ---
@@ -2734,10 +2735,14 @@ source("tests/test-tree.chisq.r")
   #### OK so XML as a list.
   - I think if I do a merge of two author-date-title dataframes I can easily find the diffs
   
+  
+  #### TRY a square wheel
 #+end_src
+*** some crazy stuff
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-20-sync-endnote-and-mendeley-using-r-xml.md :exports none :eval no :padline no
   #### R Code:
-      endnote_mendeley_df <- function(input_xml, nrow_to_try = 1000){
+      endnote_mendeley_df <- function(input_xml,
+                                      nrow_to_try = 1000){
         d1 <- xmlTreeParse(input_xml, useInternal=T)
         top <- xmlRoot(d1)
        
@@ -2815,18 +2820,78 @@ source("tests/test-tree.chisq.r")
       str(endnote_not_in_mendeley)
       nrow(endnote_not_in_mendeley)
       head(endnote_not_in_mendeley)
-      endnote_not_in_mendeley <- endnote_not_in_mendeley[is.na(endnote_not_in_mendeley$V1.y),]
+      endnote_not_in_mendeley <- endnote_not_in_mendeley[
+                                                         is.na(endnote_not_in_mendeley$V1.y),
+                                                         ]
       nrow(endnote_not_in_mendeley)
       # 66 refs in endnote are not in mendeley
+      write.csv(endnote_not_in_mendeley,
+            "endnote_not_in_mendeley.csv", row.names = F)
   
-  #### TODO fuzzy matching
-  - this relies on the author, date and title to be written the same in both
-  - could  use levenshtein string matching to identify near misses?
-  - [Try this link]( http://wiki.r-project.org/rwiki/doku.php?id=tips:data-strings:levenshtein)
-  - [OR this link](http://rwiki.sciviews.org/doku.php?id=tips:data-strings:levenshtein)
+  #### Open this as spreadsheet and cross check
+  - make a new column for comments
+  
+  #### R Code Checks
+      tmp1 <- mendeley[grep("Walker", mendeley$V1),"mendeley2"]
+      tmp2 <- endnote[grep("Walker", endnote$V1),"endnote2"]
+  
+      # these differ slightly
+      # B. Walker et al vs Walker, Brian et al
+      source("~/Dropbox/tools/levenshtein.r")
+      levenshtein(
+          tmp1
+          ,
+          tmp2
+          )
+      # gives 92percent match
   
   
 #+end_src
+*** do something with these
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-20-sync-endnote-and-mendeley-using-r-xml.md :exports none :eval no :padline no
+  #### R Code: do something with these
+  todo_stuff <- read.csv("endnote_not_in_mendeley.csv")
+  authoryear <- str_c(todo_stuff$V1.x, todo_stuff$V2.x)
+  
+  input_xml <- "EndnoteCollection.xml"
+  nrow_to_try <- 1000
+  
+  d1 <- xmlTreeParse(input_xml, useInternal=T)
+  top <- xmlRoot(d1)
+  for(i in authoryear)
+      {
+  #       i <- authoryear[3]
+       auth <- strsplit(i, " et al  ")[[1]][1]
+       yy <- strsplit(i, " et al  ")[[1]][2]
+       
+  for(j in 1:nrow_to_try)
+    {
+        print(j)
+      #j = 1
+    if(is.na(xmlValue(top [[1]][[j]]))) break
+    if(is.na(xmlValue(top [[1]][[j]][["dates"]][["year"]]))) next
+        
+    if(
+      xmlValue(top [[1]][[j]][["contributors"]][["authors"]][[1]]) == auth
+        &
+        xmlValue(top [[1]][[j]][["dates"]][["year"]]) == yy
+       )
+        {
+            out <- top[[1]][j]
+            #saveXML(out, sprintf("%s-%s.xml", auth, yy), encoding = "UTF-8")
+            #sink(sprintf("%s-%s.xml", auth, yy))
+            #cat(out)
+            #sink()
+            # TODO how to save out this XML NodeList
+            if(exists("out")) break
+        }
+    }
+           rm(out) 
+   }
+  
+#+end_src
+
+*** results, conclude
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-20-sync-endnote-and-mendeley-using-r-xml.md :exports none :eval no :padline no
 
 #### Results
@@ -2835,6 +2900,13 @@ source("tests/test-tree.chisq.r")
 #### Discussion
   
 #### Conclusions
+
+#### TODO fuzzy matching
+- this relies on the author, date and title to be written the same in both
+- could  use levenshtein string matching to identify near misses?
+- [Try this link]( http://wiki.r-project.org/rwiki/doku.php?id=tips:data-strings:levenshtein)
+- [OR this link](http://rwiki.sciviews.org/doku.php?id=tips:data-strings:levenshtein)
+
 #+end_src
 
 * Code Editors
