@@ -2660,6 +2660,183 @@ source("tests/test-tree.chisq.r")
    
 #+end_src
 
+* Bibliograph-ology
+** 2013-11-20-sync-endnote-and-mendeley-references-using-r-xml
+#+name:sync-endnote-and-mendeley-references-using-r-xml-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-20-sync-endnote-and-mendeley-using-r-xml.md :exports none :eval no :padline no
+  ---
+  name: 2013-11-20-sync-endnote-and-mendeley-using-r-xml
+  layout: post
+  title: sync-endnote-and-mendeley-references-using-r-xml
+  date: 2013-11-20
+  categories:
+  - research methods
+  ---
+  
+  #### Background
+  - I use Mendeley (despite them being bought out by Elsevier, who used to sell guns)
+  - My Colleagues use EndNote 
+  - Need to sync, they find Endnote better for their workflow
+  - I tried to export my Mendeley as XML and import to Endnote, but found many duplicates that took time to rectify 
+  - (and the risk is there that the RefNo they used in the Doc will be the duplicate that I removed)
+  
+  #### Aims
+  - test if R and the XML package can help find refs in Endnote that aren't in Mendeley
+  - If so can I write those into an Mendeley import for seamless integrations
+  - and what about going from Mendeley to Endnote?
+  
+  #### Methods
+  - The R XML package seems an obvious place to start
+  - before writing a function, just step thru the process
+  
+  #### Step 1: export XML from Mendeley and Endnote
+  - In Mendeley Just select the refs in the list and then from the file menu
+  - In Endnote it is also under File menu
+  
+  #### Step 2: R Code:
+      # func
+      # might need sudo apt-get install r-cran-xml?
+      require(XML)
+  
+      # load
+      dir()
+      [1] "EndnoteCollection.xml"
+          "MendeleyCollection.Data"
+      [3] "MendeleyCollection.xml" 
+      
+      d1 <- xmlTreeParse("EndnoteCollection.xml", useInternal=T)
+  
+      # clean
+      str(d1)
+      # ooooh xml schmexemhel voodoo?
+  
+      # do
+      top <- xmlRoot(d1)
+      str(top)
+      names(top)
+      # top [[1]] # prints the whole thing
+      top [[1]][[1]]
+      top [[1]][[2]]
+      # prints a record (1 or 2)
+  
+      # just messing around
+      length(top[[1]])
+      top [[1]][[120]]
+      names(top [[1]][[120]])
+      names(top [[1]][[120]][["contributors"]])
+      names(top [[1]][[120]][["contributors"]][["authors"]])
+      top [[1]][[120]][["contributors"]][["authors"]][[2]]
+      
+      i <- 110
+      top [[1]][[i]]
+      as.matrix(names(top [[1]][[i]]))
+  
+  #### OK so XML as a list.
+  - I think if I do a merge of two author-date-title dataframes I can easily find the diffs
+  
+#+end_src
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-20-sync-endnote-and-mendeley-using-r-xml.md :exports none :eval no :padline no
+  #### R Code:
+      endnote_mendeley_df <- function(input_xml, nrow_to_try = 1000){
+        d1 <- xmlTreeParse(input_xml, useInternal=T)
+        top <- xmlRoot(d1)
+       
+        output <- matrix(ncol = 4, nrow = 0)
+        for(i in 1:nrow_to_try)
+        {
+        # i = 1000
+          if(is.na(xmlValue(top [[1]][[i]]))) break
+          if(
+            !is.na(xmlValue(top [[1]][[i]][["contributors"]][["authors"]][[2]]))
+            )
+          {
+            author <- paste(xmlValue(top [[1]][[i]][["contributors"]][["authors"]][[1]]), "et al", " ")
+          } else {
+            author <- xmlValue(top [[1]][[i]][["contributors"]][["authors"]][[1]])
+          }
+          year <- xmlValue(top [[1]][[i]][["dates"]][["year"]])
+          title <- xmlValue(top [[1]][[i]][["titles"]][[1]])
+          endnoteref <- xmlValue(top [[1]][[i]][["rec-number"]])
+          output <- rbind(output, c(author, year, title, endnoteref))
+       
+        }
+        output <- as.data.frame(output)
+        return(output)
+      }
+  
+  #### R Test:
+      output <- endnote_mendeley_df(
+        input_xml = "EndnoteCollection.xml"
+        ,
+        nrow_to_try = 10
+        )
+  
+      nrow(output)
+      write.csv(output, "EndnoteCollection.csv", row.names = F)
+      output  <- read.csv("EndnoteCollection.csv", stringsAsFactors = F)
+      str(output)
+      output[,1:2]
+  
+  #### R Do-read:
+      endnote <- endnote_mendeley_df(
+        input_xml = "EndnoteCollection.xml"
+        )
+      nrow(endnote)
+      mendeley <- endnote_mendeley_df(
+        input_xml = "MendeleyCollection.xml"
+        )
+      nrow(mendeley)
+  
+  #### R Do-concatenate and lowercase
+      # TODO this is a really terrible way to do this.
+      # FIXME find out how to compare the two better
+      require(stringr)
+      mendeley2 <- str_c(mendeley$V1, mendeley$V2, mendeley$V3)
+      mendeley2 <- gsub(" ", "", mendeley2)
+      mendeley2 <- gsub(",", "", mendeley2)
+      mendeley2 <- tolower(mendeley2)
+      mendeley2[1:5]
+      mendeley$mendeley2 <- mendeley2
+  
+      # now do this again from endnote
+      endnote2 <- str_c(endnote$V1, endnote$V2, endnote$V3)
+      endnote2 <- gsub(" ", "", endnote2)
+      endnote2 <- gsub(",", "", endnote2)
+      endnote2 <- tolower(endnote2)
+      endnote2[1:5]
+      endnote$endnote2 <- endnote2
+  
+  #### R Do-merge:
+      endnote_not_in_mendeley <- merge(endnote,
+                                       mendeley,
+                                       by.x = "endnote2",
+                                       by.y = "mendeley2",
+                                       all.x = T)
+      str(endnote_not_in_mendeley)
+      nrow(endnote_not_in_mendeley)
+      head(endnote_not_in_mendeley)
+      endnote_not_in_mendeley <- endnote_not_in_mendeley[is.na(endnote_not_in_mendeley$V1.y),]
+      nrow(endnote_not_in_mendeley)
+      # 66 refs in endnote are not in mendeley
+  
+  #### TODO fuzzy matching
+  - this relies on the author, date and title to be written the same in both
+  - could  use levenshtein string matching to identify near misses?
+  - [Try this link]( http://wiki.r-project.org/rwiki/doku.php?id=tips:data-strings:levenshtein)
+  - [OR this link](http://rwiki.sciviews.org/doku.php?id=tips:data-strings:levenshtein)
+  
+  
+#+end_src
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-20-sync-endnote-and-mendeley-using-r-xml.md :exports none :eval no :padline no
+
+#### Results
+- I found that XML package in R can
+  
+#### Discussion
+  
+#### Conclusions
+#+end_src
+
 * Code Editors
 * Workflow Tools
 ** R-newnode
