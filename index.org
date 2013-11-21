@@ -2907,7 +2907,8 @@ source("tests/test-tree.chisq.r")
                                                             ]
       nrow(mendeley_not_in_endnote)
       # 92 refs in endnote are not in mendeley
-  
+      write.csv(mendeley_not_in_endnote,
+            "mendeley_not_in_endnote.csv", row.names = F)
   #### Not all these 92 will be true
   - so let;s try the string matching
    
@@ -2989,6 +2990,27 @@ source("tests/test-tree.chisq.r")
   
 #+end_src
 
+*** TODO select out of mendeley and send to Endnote
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-20-sync-endnote-and-mendeley-using-r-xml.md :exports none :eval no :padline no
+  
+  #### R Code: Do-concatenate and lowercase
+      require(stringr)
+  out_list <- read.csv("mendeley_not_in_endnote_fz_match.csv", stringsAsFactors = F)
+      mendeley2 <- read.csv("mendeley_not_in_endnote.csv", stringsAsFactors=F)
+  mendeley2[1,]
+  out_list[1,]
+  mendeley2 <- merge(mendeley_not_in_endnote, out_list,
+                     by.x = "mendeley2",
+                     by.y = "V1", all.x = T)
+  mendeley2[2,]
+  mendeley2 <- mendeley2[is.na(mendeley2$V3),]
+  nrow(mendeley2)
+  # 48 records
+  write.csv(mendeley2, "mendeley_not_in_endnote_best_estimate.csv", row.names=F)
+  
+  
+  
+#+end_src
 *** results, conclude
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-20-sync-endnote-and-mendeley-using-r-xml.md :exports none :eval no :padline no
 
