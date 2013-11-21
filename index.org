@@ -2828,10 +2828,27 @@ source("tests/test-tree.chisq.r")
       write.csv(endnote_not_in_mendeley,
             "endnote_not_in_mendeley.csv", row.names = F)
   
+#+end_src
+*** Check in spreadsheet
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-20-sync-endnote-and-mendeley-using-r-xml.md :exports none :eval no :padline no
+  
   #### Open this as spreadsheet and cross check
   - make a new column for comments
+  - check off which ones were in AllDocuments and not in the Mendeley group
+  - this diff was because of when I imported the Endnote XML but had not assigned these to the mendeley group
+  - once have cleaned up the mendeley group export again and then check which are in mendeley but not in endnote
   
-  #### R Code Checks
+  #### First here is a note
+  - about a way to speed up the checks, excluding false positives using fuzzy matching
+  - my method relies on the author, date and title to be written the same in both ie initials then surname or visa verca
+  - But this is not always true 
+  - I previously used levenshtein string matching to identify strings that are close but not identical
+  - [Try this link]( http://wiki.r-project.org/rwiki/doku.php?id=tips:data-strings:levenshtein)
+  - [OR this link](http://rwiki.sciviews.org/doku.php?id=tips:data-strings:levenshtein)
+  - TODO I will share this code as a GitHub Gist later!
+  
+  
+  #### R Code: possibility to speed up Checks
       tmp1 <- mendeley[grep("Walker", mendeley$V1),"mendeley2"]
       tmp2 <- endnote[grep("Walker", endnote$V1),"endnote2"]
   
@@ -2846,9 +2863,90 @@ source("tests/test-tree.chisq.r")
       # gives 92percent match
   
   
+  #### R Code: Find mendeley refs without endnote
+        endnote <- endnote_mendeley_df(
+          input_xml = "EndnoteCollection.xml"
+          )
+        nrow(endnote)
+        mendeley <- endnote_mendeley_df(
+          input_xml = "MendeleyCollection2.xml"
+          )
+        nrow(mendeley)
 #+end_src
-*** do something with these
+*** Do concatenate and loercase    
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-20-sync-endnote-and-mendeley-using-r-xml.md :exports none :eval no :padline no
+  
+  #### R Code: Do-concatenate and lowercase
+      require(stringr)
+      mendeley2 <- str_c(mendeley$V1, mendeley$V2, mendeley$V3)
+      mendeley2 <- gsub(" ", "", mendeley2)
+      mendeley2 <- gsub(",", "", mendeley2)
+      mendeley2 <- tolower(mendeley2)
+      mendeley2[1:5]
+      mendeley$mendeley2 <- mendeley2
+  
+      # now do this again from endnote
+      endnote2 <- str_c(endnote$V1, endnote$V2, endnote$V3)
+      endnote2 <- gsub(" ", "", endnote2)
+      endnote2 <- gsub(",", "", endnote2)
+      endnote2 <- tolower(endnote2)
+      endnote2[1:5]
+      endnote$endnote2 <- endnote2
+  
+  #### R Do-merge:
+      mendeley_not_in_endnote <- merge(mendeley,
+                                       endnote,
+                                       by.y = "endnote2",
+                                       by.x = "mendeley2",
+                                       all.x = T)
+      str(mendeley_not_in_endnote)
+      nrow(mendeley_not_in_endnote)
+      head(mendeley_not_in_endnote)
+      mendeley_not_in_endnote <- mendeley_not_in_endnote[
+                                                            is.na(mendeley_not_in_endnote$V1.y),
+                                                            ]
+      nrow(mendeley_not_in_endnote)
+      # 92 refs in endnote are not in mendeley
+  
+  #### Not all these 92 will be true
+  - so let;s try the string matching
+   
+  #### R Code:
+      source("~/Dropbox/tools/levenshtein.r")
+      pcnt_threshold <- 0.6
+      out_list <- matrix(ncol = 3, nrow = 0)
+      #out_list <- read.csv("mendeley_not_in_endnote_fz_match.csv", stringsAsFactors = F)
+      for(i in 36:nrow(mendeley_not_in_endnote))
+          {
+              print(i)
+      #        i = 2
+      tmp1 <- mendeley_not_in_endnote[i,1]
+          for(j in 1:nrow(endnote))
+              {
+          #        j = 2
+          if(exists("out")) rm(out)
+          tmp2 <- endnote$endnote2[j]
+          pcnt <- levenshtein(
+                  tmp1
+                  ,
+                  tmp2
+                  )
+          #pcnt
+          if(pcnt >= pcnt_threshold) out <- tmp2
+          if(exists("out"))
+              out_list <- rbind(out_list, c(tmp1, tmp2, pcnt))
+          if(exists("out")) break
+              }
+              
+          }
+      out_list
+      write.csv(out_list, "mendeley_not_in_endnote_fz_match.csv", row.names = F)
+   
+      
+      
+#+end_src
+*** COMMENT TODO do something with these
+#+begin_src R :session *R* :tangle no :exports none :eval no :padline no
   #### R Code: do something with these
   todo_stuff <- read.csv("endnote_not_in_mendeley.csv")
   authoryear <- str_c(todo_stuff$V1.x, todo_stuff$V2.x)
@@ -2895,17 +2993,16 @@ source("tests/test-tree.chisq.r")
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-20-sync-endnote-and-mendeley-using-r-xml.md :exports none :eval no :padline no
 
 #### Results
-- I found that XML package in R can
-  
-#### Discussion
+- I found that XML package in R can work with the Endnote and Mendeley export Files
+- I think I made a lot of bad decisions about the way I went about  doing this!
+- It seemed quite difficult to get the XML stuff to make sense to me
+- I;ve heard that python has better libraries for working with XML
+- the levenshtein string matching code proved useful again.  I should get out of the habit of looping and start using lapply etc to speed this up.
   
 #### Conclusions
-
-#### TODO fuzzy matching
-- this relies on the author, date and title to be written the same in both
-- could  use levenshtein string matching to identify near misses?
-- [Try this link]( http://wiki.r-project.org/rwiki/doku.php?id=tips:data-strings:levenshtein)
-- [OR this link](http://rwiki.sciviews.org/doku.php?id=tips:data-strings:levenshtein)
+- This was an interesting if frustrating experiment
+- The minor issues with importing from mendeley/endnote and deduplicating using their own tools was probably not worth writing all this half-baked R code.
+- But I did learn more about working with XML in R (and realised this is probably not one of R's Strengths -- or mine for that matter!)
 
 #+end_src
 
