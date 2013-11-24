@@ -2990,23 +2990,23 @@ source("tests/test-tree.chisq.r")
   
 #+end_src
 
-*** TODO select out of mendeley and send to Endnote
+*** select out of mendeley and send to Endnote
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-20-sync-endnote-and-mendeley-using-r-xml.md :exports none :eval no :padline no
   
   #### R Code: Do-concatenate and lowercase
       require(stringr)
-  out_list <- read.csv("mendeley_not_in_endnote_fz_match.csv", stringsAsFactors = F)
+      out_list <- read.csv("mendeley_not_in_endnote_fz_match.csv", stringsAsFactors = F)
       mendeley2 <- read.csv("mendeley_not_in_endnote.csv", stringsAsFactors=F)
-  mendeley2[1,]
-  out_list[1,]
-  mendeley2 <- merge(mendeley_not_in_endnote, out_list,
-                     by.x = "mendeley2",
-                     by.y = "V1", all.x = T)
-  mendeley2[2,]
-  mendeley2 <- mendeley2[is.na(mendeley2$V3),]
-  nrow(mendeley2)
-  # 48 records
-  write.csv(mendeley2, "mendeley_not_in_endnote_best_estimate.csv", row.names=F)
+      mendeley2[1,]
+      out_list[1,]
+      mendeley2 <- merge(mendeley_not_in_endnote, out_list,
+                         by.x = "mendeley2",
+                         by.y = "V1", all.x = T)
+      mendeley2[2,]
+      mendeley2 <- mendeley2[is.na(mendeley2$V3),]
+      nrow(mendeley2)
+      # 48 records
+      write.csv(mendeley2, "mendeley_not_in_endnote_best_estimate.csv", row.names=F)
   
   
   
@@ -3183,6 +3183,101 @@ source("tests/test-tree.chisq.r")
 
 #+end_src
 
+** 2013-11-25-setting-up-a-workflow-script
+#+name:project-template-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-25-setting-up-a-workflow-with-code-chunks.md :exports none :eval no :padline no
+---
+name: 2013-11-25-setting-up-a-workflow-with-code-chunks
+layout: post
+title: Setting Up A Workflow Script With Code Chunks
+date: 2013-11-25
+categories:
+- research methods
+---
+
+This post describes some ideas and techniques I use to set up a "workflow script".  I use this term to refer to the structured combination of code, data and narrative that make an executable Reproducible Research Report (RRR).
+
+A lot of these ideas are inpsired by  a great paper by Kieran Healy called  "Choosing Your Workflow Applications" available at [https://github.com/kjhealy/workflow-paper](https://github.com/kjhealy/workflow-paper) to accompany [his Emacs Starter Kit](http://kieranhealyo.org/resources/emacs-starter-kit.html). My shortened version of his main points are:
+
+- 1 use a good code editor
+- 2 analyse data with scripts
+- 3 store your work simply and document it properly
+- 4 use a version control system
+- 5 Automate back ups 
+- 6 Avoid distracting gadgets
+
+#### Here's my current approach in each of these categories
+- 1 use Emacs with Orgmode (and kjhealy's drop-in set of useful defaults)
+- 2 Scripts that utilise the literate programming technique of mixing Code Chunks in with descriptive prose
+- 3 John Myles White's ProjectTemplate R Package and Josh Riech's LCFD paradigm 
+- 4 git and GitHub for version control
+
+5 Automated Backups and 6 Avoiding Gadgets are still somethings I find challenging
+
+#### 1 Use a good code editor
+I like ysing Emacs with Orgmode.
+
+- I have previously tried a variety of code editors from Tinn-r, NppToR, Rstudio and Eclipse.  
+- Emacs with Orgmode suits me the most because it has a great number of features especially the linkage with LaTeX or HTML export
+- link to the great orgmode post
+- this guy spends a lot of time on tweaking his set up
+
+#### 2 Analyse data with Scripts
+I use Scripts but prefer to think of them as stiched together Code Chunks with prose into Compendia.
+
+- Compendia are documents that weave together Code and Prose into an executable report
+- The underlying philosophy is called Reproducible Research Reports
+- A very useful tool is a keyboard shortcut to quickly create a chunk for code
+- so you can be writing parts of the report like this: "Blah Blah Blah as shown in Figure X and Table Y"
+- then just hit the correct keys and WHAMM-O there is a new chunk ready for the code that creates Figure X and Table Y to be written.
+- Here is how I use Emacs to achieve this (the other editors I mentioned above also have the abiltiy to do this too)
+
+#### Emacs Code: Put this into the ~/.emacs.d/init.el file
+    (define-skeleton chunk-skeleton
+      "Info for a code chunk."
+      "Title: "
+      "*** " str "-code\n"
+      "#+name:" str "\n"
+      "#+begin_src R :session *R* :tangle src/" str ".r :exports reports :eval no\n"
+      "#### name:" str " ####\n"
+      "\n"
+      "#+end_src\n"
+    )
+    (global-set-key [?\C-x ?\C-\\] 'chunk-skeleton)
+
+#### Using the Emacs Shortcut
+- now whenever you type Control-x control-\ a new code chunk will appear
+- you'll be typing "blah blah blah" and think I need a figure or table, just hit it.
+- move into the empty section and add some code
+- To create modular code scripts from these chunks use C-c C-v t
+
+#### Compiling the resulting Compendium
+- Emacs uses LaTeX or HTML to produce the Report
+- I find both of these outputs very pleasing
+- to compile to TEX use C-c C-e d
+- for HTML use C-c C-e h (FOR CODE HIGHLIGHTING INSTALL htmlize.el)
+- AWESOME!
+    
+#### 3 Store your work simply and document it properly
+- this organises code sections into modules, documentation is within the main script
+
+#### 4 use a version control system
+- git and github
+
+#### 5 Automate back ups AND 6 Avoid distracting gadgets
+- OMG backups stress me out
+- I generally use Dropbox for  basic project management admin stuff
+- I use github for code projects I am happy to share, I also pay for 10 private repos 
+- I Set up a git server at my workplace for extra projects but this is on a test server that is not backed up, and I am not really happy about this
+- In terms of Distracting Gadgets, I think that with the current tempo of new innovations related to new software tools for this type of work I should keep trying new things but I have pretty much settled into a comfortable zone with the gadgets I described here. 
+
+#### Conclusions
+- This is how I've worked for a couple of years
+- I find it very enjoyable, mostly productive but prone to the distractions of "distractions by gadgets"
+- The main thing I want to point out is the usage of Code Chunks in RRR scripts.
+- These things are awesome.
+    
+#+end_src
 
 * Graphical User Interfaces
 * Version Control
