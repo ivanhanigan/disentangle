@@ -3424,3 +3424,61 @@ alias br="build_r"
 
 * Big Data Tips
 * Writing
+** COMMENT Review Template
+\noindent{\textbf{ Background  }} 
+- The main issue is 
+- The author's question are about 
+- It is important because 
+
+\noindent{\textbf{ Method  }} 
+- Data: 
+- What outcome measures? What exposure measures?
+- Do they deal with confounding variables?
+- What data analysis approach? (Statistical? Simulation? Narrative?)
+- Generalisability
+
+\noindent{\textbf{ Results  }} 
+- Do they show their data along with their models?
+- Do they report all the details?
+
+\noindent{\textbf{ Discussion}} 
+
+
+\noindent{\textbf{ Principal findings  }} 
+- What happened / what was found?
+- Does the result of the analysis support the author's theory / question about the issue?
+
+\noindent{\textbf{ Strengths  }} 
+- Quality of data?
+- Control of confounders?
+- Do models use a robust accepted method?
+- Is causality criteria addressed?
+
+\noindent{\textbf{ Weaknesses  }} 
+- Population size?
+- Alternative exposure variables not included?
+
+\noindent{\textbf{ Comparison with other studies  }} 
+- How do these results compare with other studies?
+
+\noindent{\textbf{ What do the results mean?  }} 
+- What are the main unanswered questions?
+- What are the implications for researchers in this field?
+
+\noindent{\textbf{ What are the policy implications?  }} 
+- Who in the policy community will read this?
+- What main message will they take from this?
+- What should they do?
+
+\noindent{\textbf{ Conclusion }} 
+- What are the main unanswered questions?
+- What are the implications for researchers in this field?
+
+\noindent{\textbf{ What are the policy implications? }} 
+- Who in the policy community will read this?
+- What main message will they take from this?
+- What should they do?
+
+\noindent{\textbf{ Conclusion }} 
+- So what is the main 'take-home' message?
+- How do you rate the paper overall?
