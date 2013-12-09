@@ -2743,7 +2743,17 @@ source("tests/test-tree.chisq.r")
 
 
 ** Terminology
-**** 2013-12-03-non-linear-relationships-vs-non-linear-models-vis-a-vis-curvi-linear-terms
+*** 2013-12-03-non-linear-relationships-vs-non-linear-models
+**** orgmode version
+#+TITLE:non-linear-model-vs-non-linear-relationship 
+#+AUTHOR: Ivan Hanigan
+#+email: ivan.hanigan@anu.edu.au
+#+LaTeX_CLASS: article
+#+LaTeX_CLASS_OPTIONS: [a4paper]
+#+LATEX: \tableofcontents
+-----
+
+***** non-linear-relationships-vs-non-linear-models
 
 - I value precise language very highly
 - this is because in multi-disciplinary teams it is easy to talk using the same words and mean different things
@@ -2754,10 +2764,11 @@ source("tests/test-tree.chisq.r")
 - I immediatly felt uncomfortable when we started to discuss these as "non-linear models"
 - so here is a quick bit of google fu (with a session at the coffee shop with Steve and Mishka) to remind me about the difference between 
 
-#### Nonlinear Regression vs. Linear Regression
+***** Nonlinear Regression vs. Linear Regression
 
 - the following comes from
 - http://www.ats.ucla.edu/stat/sas/library/SASNLin_os.htm
+- verbatim except for my attempt at mathjax notation in latex
 
 A regression model is called nonlinear, if the derivatives
 of the model with respect to the model parameters depends on one or
@@ -2766,9 +2777,9 @@ from curvilinear regression. A regression model is not necessarily
 nonlinear if the graphed regression trend is curved. A polynomial
 model such as this:
 
-- Model 1
+***** Model 1
 
-$Y_{i} = \beta_{0} + \beta_{1} X_{i} + \beta_{2} X_{i}^2 + \eta_{i}$
+$Y_{i} = \beta_{0} + \beta_{1} X_{i} + \beta_{2} X_{i}^2 + \epsilon_{i}$
 
 - appears curved when y is plotted against x. It is, however, not a nonlinear model. To see this, take derivatives of y with respect to the parameters b0, b1
 - dy/db0 = 1 
@@ -2778,20 +2789,50 @@ $Y_{i} = \beta_{0} + \beta_{1} X_{i} + \beta_{2} X_{i}^2 + \eta_{i}$
 
 - None of these derivatives depends on a model parameter, the model is linear. In contrast, consider the log-logistic model 
 
-- Model 2
+***** Model 2
 
-- y = d + (a - d)/(1 + exp{b log(x/g)}) + e 
+$Y_{i} = d + (a - d)/(1 + e^{b \times log(x/g)}) + \epsilon$
 
 - Take derivatives with respect to d, for example: 
 
-- dy/dd = 1 - 1/(1 + exp{b log(x/g)})
+$dy/dd = 1 - 1/(1 + e^{b \times log(x/g)})$
 
 - The derivative involves other parameters, hence the model is nonlinear.
 
+***** Conclusions
 
+- It is probably best to refer to the polynomial as a "non-linear relationship" in a linear model
+- reserving "non-linear model" for things like Model 2
 
-**** md
-** 2013-12-03-non-linear-relationships-vs-non-linear-models-vis-a-vis-curvi-linear-terms
+***** COMMENT Draft
+http://www.ats.ucla.edu/stat/sas/library/SASNLin_os.htm
+Nonlinear Regression vs. Linear Regression
+
+    A regression model is called nonlinear, if the derivatives of the model with respect to the model parameters depends on one or more parameters. This definition is essential to distinguish nonlinear from curvilinear regression. A regression model is not necessarily nonlinear if the graphed regression trend is curved. A polynomial model such as 
+
+Model 1
+
+y = b0 + b1x + b2x^2 + b3x^3 + b4z  + e 
+
+appears curved when y is plotted against x. It is, however, not a nonlinear model. To see this, take derivatives of y with respect to the parameters b0, b1, and b2 (and 3): 
+dy/db0 = 1 
+dy/db1 = x 
+dy/db2 = x^2 
+dy/db3 = x^3 
+
+None of these derivatives depends on a model parameter, the model is linear. In contrast, consider the log-logistic model 
+
+Model 2
+
+y = d + (a - d)/(1 + exp{b log(x/g)}) + e 
+
+Take derivatives with respect to d, for example: 
+
+dy/dd = 1 - 1/(1 + exp{b log(x/g)})
+
+The derivative involves other parameters, hence the model is nonlinear.
+
+**** md version
 #+name:non-linear-relationships-vs-non-linear-models-vis-a-vis-curvi-linear-terms-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-12-03-non-linear-relationships-vs-non-linear-models-vis-a-vis-curvi-linear-terms.md :exports none :eval no :padline no
 ---
@@ -3942,6 +3983,80 @@ categories:
 
 #+end_src
 
+** 2013-12-09-bitbucket-has-unlimited-private-git-repositories-for-universities
+#+name:bitbucket-has-unlimited-private-git-repositories-for-universities-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-12-09-bitbucket-has-unlimited-private-git-repositories-for-universities.md :exports none :eval no :padline no
+---
+name: 2013-12-09-bitbucket-has-unlimited-private-git-repositories-for-universities
+layout: post
+title: bitbucket-has-unlimited-private-git-repositories-for-universities
+date: 2013-12-09
+categories:
+- research methods
+---
+
+- I just got introduced to bitbucket, an alternative to Github
+- I've used Github for a couple of years and have been paying for extra private repositories 
+- I did not realise that bitbucket worked with git too (I thought it was just for Mercurial)
+- it offers unlimited public and private repository and unlimited users (to collaborate) if you have the Academic plan.
+- when you sign up with your academic email address, [you automatically get an unlimited academic plan]( http://blog.bitbucket.org/2011/04/01/free-unlimited-user-source-code-hosting-for-university-students/)
+
+#+end_src
+
+** 2013-12-09-dual-code-repository-and-project-website
+#+name:dual-code-repository-and-project-website-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-12-09-dual-code-repository-and-project-website.md :exports none :eval no :padline no
+  ---
+  name: 2013-12-09-dual-code-repository-and-project-website
+  layout: post
+  title: dual-code-repository-and-project-website
+  date: 2013-12-09
+  categories:
+  - research methods
+  ---
+  
+  - I really like the idea of using github or bitbucket for a dual code repository and project website
+  - in Github I set up the master branch with the R package code
+  - and set up the website using the gh-pages branch 
+  - it has to be called gh-pages, and add an index.html, it will appear at your-username.github.com/repo-name
+  
+  #### Github
+
+  - The best bit about doing this on github is that the R package "devtools" can be used to install the package (so long as you can compile the package)
+  - on windows you may need to install Rtools and configure the path
+
+  #### R Code: install_github
+      require(devtools)
+      install_github("repo-name", "github-account-name")
+
+  #### Bitbucket
+
+  - I recently took these notes about setting up a website on Bitbucket
+  - I am not sure about how this would work for R packages (the devtools installer mentioned above is a great tool for developing)
+  - but with unlimited private repositories this seems like a good platform for my "open notebook - selected content" (I need to be selective about what I share and what I keep restricted access only)  
+  - the page is available for "your-account".bitbucket.org
+  - create a new repo on the web UI 
+  - I kept the repo private, but the pages will be public,
+  - added issue tracking and Wiki
+  
+  #### using git shell
+      mkdir ~/projects/your-account.bitbucket.org
+      cd ~/projects/your-account.bitbucket.org
+      git init
+      git remote add origin ssh://git@bitbucket.org/your-account/your-account.bitbucket.org.git
+      touch index.org
+      # use emacs to make changes and publish the html (C-c C-e h)
+       
+      git commit -m "First commit"
+      git push -u origin master
+  
+  - now it is online at http://your-account.bitbucket.org/
+  
+  - More info at:
+  [https://confluence.atlassian.com/display/BITBUCKET/Publishing+a+Website+on+Bitbucket](https://confluence.atlassian.com/display/BITBUCKET/Publishing+a+Website+on+Bitbucket)
+      
+#+end_src
+
 * Latex/Sweave/orgmode/knitr
 ** Orgmode headers
 ** 2013-11-26-a-sharp-looking-orgmode-latex-export-header
@@ -4829,7 +4944,7 @@ see [[./src/SharpReportTemplate.org]]
   #### The code version:
       git clone git@github.com:ivanhanigan/datasharing.git ~/tools/datasharing
       cd ~/tools/datasharing
-      git branch gh-pages
+      git checkout -b gh-pages
       mv README.md index.org
       touch README.md
       # edits to index.org, "C-c C-e h" and WHAMM-O
