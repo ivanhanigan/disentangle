@@ -2150,7 +2150,7 @@ categories:
   - Here is a quick note about how to do a simple animation with R to create a movie file (GIF)
   - To create this movie
   
-  ![animation.gif](animation/animation.gif)
+  ![animation.gif](/animation/animation.gif)
   
   
   #### Code:animations-using-R
