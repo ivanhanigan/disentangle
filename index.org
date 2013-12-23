@@ -679,18 +679,19 @@ Here are a few links to some recent data munging tips I picked up last week:
      
 #+end_src
 
-*** TODO 2013-12-20-extend-Rs-data-frame-class-with-metadata
+*** 2013-12-24-extend-Rs-data-frame-class-with-metadata
 #+name:extend-Rs-data-frame-class-with-metadata-header
-#+begin_src markdown :tangle no :exports none :eval no :padline no
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-12-24-extend-Rs-data-frame-class-with-metadata.md :exports none :eval no :padline no
 ---
-name: extend-Rs-data-frame-class-with-metadata
+name: extend-rs-data-frame-class-with-metadata
 layout: post
 title: extend-Rs-data-frame-class-with-metadata
-date: 2013-12-20
+date: 2013-12-24
 categories:
--
+- research methods
+- data documentation
 ---
-:tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-12-20-extend-Rs-data-frame-class-with-metadata.md
+
 "reml now extends R's data.frame class by introducing the data.set class which includes additional metadata required by EML"
 https://github.com/ropensci/reml
 
@@ -702,7 +703,7 @@ http://carlboettiger.info/2013/09/11/extending-data-frame-class.html
 
 Also this guys attempt was interesting (I like TraMineR too!)
 http://ivanhanigan.github.io/2013/11/handling-survey-data-with-r/
-#### Code:extend-Rs-data-frame-class-with-metadata
+
     
 #+end_src
 
