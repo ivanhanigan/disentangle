@@ -378,8 +378,8 @@ So I thought what's the other 10?  Here's a few contenders for my work:
 #+begin_src R :session *R* :tangle tests/test-upcase_string.r :exports none :eval no
   # name:upcase_string
   x <- c("The", "quick", "Brown", "fox/lazy dog")
-  sapply(x, simpleCap)
-  sapply(x, simpleCap, tosplit = "/")
+  sapply(x, upcase_string)
+  sapply(x, upcase_string, tosplit = "/")
   
 #+end_src
 *** man-upcase_string
