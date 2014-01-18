@@ -463,15 +463,15 @@ So I thought what's the other 10?  Here's a few contenders for my work:
 *** test-levenshtein
 #+name:levenshtein
 #+begin_src R :session *R* :tangle tests/test-levenshtein.r :exports none :eval no
-################################################################
-# name:levenshtein
-#debug(levenshtein)
-require(devtools)
-install_github("disentangle","ivanhanigan")
-require(disentangle)
-
-levenshtein("lazy","1 lasy")
-
+  ################################################################
+  # name:levenshtein
+  #debug(levenshtein)
+  require(devtools)
+  install_github("disentangle","ivanhanigan")
+  require(disentangle)
+  
+  levenshtein("lazy","1 lasy")
+  
 #+end_src
 *** man-levenshtein
 #+name:levenshtein
