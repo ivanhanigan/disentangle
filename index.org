@@ -362,7 +362,35 @@ So I thought what's the other 10?  Here's a few contenders for my work:
       head(df)
 #+end_src
 
-** R-upcase-string
+** R-upcase_string
+*** R-upcase_string
+#+name:upcase_string
+#+begin_src R :session *R* :tangle R/upcase_string.r :exports none :eval no
+  # name:upcase_string
+  upcase_string <- function(x, tosplit = " ") {
+    s <- strsplit(x, tosplit)[[1]]
+    paste(toupper(substring(s, 1,1)), substring(s, 2),
+        sep="", collapse=tosplit)
+  }
+#+end_src
+*** test-upcase_string
+#+name:upcase_string
+#+begin_src R :session *R* :tangle tests/test-upcase_string.r :exports none :eval no
+  # name:upcase_string
+  x <- c("The", "quick", "Brown", "fox/lazy dog")
+  sapply(x, simpleCap)
+  sapply(x, simpleCap, tosplit = "/")
+  
+#+end_src
+*** man-upcase_string
+#+name:upcase_string
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:upcase_string
+
+#+end_src
+
+*** blog
 #+name:r-upcase-string-header
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-17-really-useful-r-upcase-string.md :exports none :eval no :padline no
   ---
