@@ -1,13 +1,13 @@
 
 ################################################################
 # name:reml_boilerplate
- 
+
 # func
-if(!require(EML)) {
-  require(devtools)
-  install_github("EML", "ropensci")
-  } 
-require(EML)
+## if(!require(EML)) {
+##   require(devtools)
+##   install_github("EML", "ropensci")
+##   }
+## require(EML)
 
 reml_boilerplate <- function(data_set, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA, desc = "")
 {
@@ -24,11 +24,11 @@ reml_boilerplate <- function(data_set, created_by = "Ivan Hanigan <ivanhanigan@g
       if(is.numeric(data_set[,i])){
         unit_defs[[i]] <- "number"
       } else {
-        unit_defs[[i]] <- names(table(data_set[,i]))          
+        unit_defs[[i]] <- names(table(data_set[,i]))
       }
     }
   # unit_defs
-  
+
   ds <- data.set(data_set,
                  col.defs = col_defs,
                  unit.defs = unit_defs
@@ -58,10 +58,10 @@ reml_boilerplate <- function(data_set, created_by = "Ivan Hanigan <ivanhanigan@g
   ## 6: eml_dataTable(dat = dat, title = title)
   ## 5: initialize(value, ...)
   ## 4: initialize(value, ...)
-  ## 3: new("dataset", title = title, creator = who$creator, contact = who$contact, 
-  ##        coverage = coverage, methods = methods, dataTable = c(eml_dataTable(dat = dat, 
+  ## 3: new("dataset", title = title, creator = who$creator, contact = who$contact,
+  ##        coverage = coverage, methods = methods, dataTable = c(eml_dataTable(dat = dat,
   ##            title = title)), ...) at eml_methods.R#61
-  ## 2: eml(dat = dat, title = title, creator = creator, contact = contact, 
+  ## 2: eml(dat = dat, title = title, creator = creator, contact = contact,
   ##        ...) at eml_write.R#27
   ## 1: eml_write(dat = ds, file = paste(titl, "xml", sep = "."), title = titl)
   dat <- ds
