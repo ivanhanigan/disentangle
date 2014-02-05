@@ -3,11 +3,11 @@
 # name:reml_boilerplate
  
 # func
-if(!require(EML)) {
-  require(devtools)
-  install_github("EML", "ropensci")
-  } 
-require(EML)
+## if(!require(EML)) {
+##   require(devtools)
+##   install_github("EML", "ropensci")
+##   } 
+## require(EML)
 
 reml_boilerplate <- function(data_set, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA, desc = "")
 {
