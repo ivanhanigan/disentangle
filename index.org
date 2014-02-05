@@ -5002,6 +5002,31 @@ see [[./src/SharpReportTemplate.org]]
       
 #+end_src
 
+** COMMENT add toc to knitr
+tangle to like JBB-overview.Rmd
+#+name:JBB-overview-header
+#+begin_src R :session shell :tangle no :exports none :eval no :padline no
+Jervis Bay Booderee Database EDA
+========================================================
+
+- This is a Reproducible Report of the Exploratory Data Analysis (EDA).
+- The source code is in the private bitbucket repository.
+- This is just the critical R code for the data package stuff.
+
+```{r echo=FALSE, eval=F, results='hide'}
+require(knitr)
+require(markdown)
+knit2html('JBB-overview.Rmd', options = c('toc', markdown::markdownHTMLOptions(TRUE)))
+```
+
+``` {r echo=FALSE, results='hide'}
+require(xtable)
+require(disentangle)
+require(rgdal)
+require(sqldf)
+```
+#+end_src
+
 * R Packages
 * Project Management
 ** Gantt Charts
