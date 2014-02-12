@@ -2887,6 +2887,21 @@ categories:
       
 #+end_src
 
+*** COMMENT boxplots-split-code
+#+name:boxplots-split
+#+begin_src R :session *R* :tangle no :exports none :eval no
+#### name:boxplots-split####
+#work for GuoJing
+boxplot(split(AllRespStacked$AvDailyTemp,AllRespStacked$month),xaxt="n")
+axis(1, at=1:8,labels=c("Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"))
+
+#work for caroline
+x<-rnorm(200,10)
+y<-rnorm(200,5)
+boxplot(split(y,ifelse(x<9,1,ifelse(x<10,2,ifelse(x<11,3,ifelse(x<12,4,5))))),medpch=1,medcol=1,medlwd=1,xaxt="n")
+axis(1, at=1:5,labels=c("8-9","9-10","10-11","11-12","12-13"))
+#+end_src
+
 * Statistical Modelling
 ** COMMENT Logistic Regression
 *** COMMENT a-great-intro-2-logistic-regression
