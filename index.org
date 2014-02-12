@@ -2887,7 +2887,7 @@ categories:
       
 #+end_src
 
-*** COMMENT boxplots-split-code
+** COMMENT boxplots-split-code
 #+name:boxplots-split
 #+begin_src R :session *R* :tangle no :exports none :eval no
 #### name:boxplots-split####
@@ -2900,6 +2900,29 @@ x<-rnorm(200,10)
 y<-rnorm(200,5)
 boxplot(split(y,ifelse(x<9,1,ifelse(x<10,2,ifelse(x<11,3,ifelse(x<12,4,5))))),medpch=1,medcol=1,medlwd=1,xaxt="n")
 axis(1, at=1:5,labels=c("8-9","9-10","10-11","11-12","12-13"))
+#+end_src
+
+** COMMENT x-axis-labels-on-45-deg-angle-code
+#+name:x-axis-labels-on-45-deg-angle
+#+begin_src R :session *R* :tangle no :exports none :eval no
+#### name:x-axis-labels-on-45-deg-angle####
+# 
+text(mp, par('usr')[3], labels = labels, srt = 45, adj = c(1.1,1.1), xpd = TRUE, cex=.9)
+
+
+# X-Axis Labels on a 45-Degree Angle using R
+# Posted on 20 May 2009 by jnlnet| 5 Comments
+# 
+# I’ve been trying to find a simpler bit of R code that will allow axis labels to be written in at an angle, and thanks to my obsessive scanning of the R-help mailing list I found a nice example (all credit to Uwe Ligges and Marc Schwartz for their approach). I’ve made a few cosmetic tweaks in moving the labels off of the x-axis and changing the labels.
+# 
+# The following code will produce the figure below:
+# 
+labels <- c('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December')
+labels <- month.name[1:12]
+mp <- barplot(1:12, axes = FALSE, axisnames = FALSE)
+text(mp, par('usr')[3], labels = labels, srt = 45, adj = c(1.1,1.1), xpd = TRUE, cex=.9)
+axis(2)
+# 
 #+end_src
 
 * Statistical Modelling
