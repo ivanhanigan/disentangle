@@ -1,0 +1,7 @@
+#+TITLE:     gantt-tj3.org                                               
+* Action list                                          :taskjuggler_project:  
+** TODO Test tj3 A                                                           
+    :PROPERTIES:                                                            
+    :Effort:    1w                                                             
+    :allocate:  toA                                         
+    :END:                                                            

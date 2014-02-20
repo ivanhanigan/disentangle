@@ -1,0 +1,22 @@
+project action "Action list" "1.0" 2014-02-21 +280d {
+ }
+shift s40 "Part time shift" {
+  workinghours wed, thu, fri off
+}
+
+resource resources "Resources" {
+ 
+resource toA "A" {
+ 
+}
+}
+task action "Action list" {
+start 2014-02-21
+task test "Test tj3 A" {
+ purge allocate
+ allocate toA
+ effort 40.0h
+
+}
+}
+include "gantexport.tji"

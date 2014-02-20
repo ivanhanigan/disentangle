@@ -1,0 +1,16 @@
+#+TITLE:     gantt-tj3.org
+* Action list                                          :taskjuggler_project:
+** TODO Test tj3 A
+    :PROPERTIES:
+    :Effort:    1w 
+    :allocate:  toA   
+    :END:
+* Resources                                            :taskjuggler_resource:
+** A
+    :PROPERTIES:
+    :resource_id:  toA 
+    :END:
+# Local Variables:
+# org-export-taskjuggler-target-version: 3.0
+# org-export-taskjuggler-default-reports: ("include \"gantexport.tji\"")
+# End:
