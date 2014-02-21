@@ -12,8 +12,6 @@ df$start <- as.Date(df[,"start"], origin= "1899-12-30")
 df
 
 # do
-input <- df[1,]
-input
 sink("text-gantt.org")
 cat(
 paste('#+TITLE:     gantt-tj3.org
@@ -21,6 +19,13 @@ paste('#+TITLE:     gantt-tj3.org
 #+PROPERTY: Effort_ALL 2d 5d 10d 20d 30d 35d 50d
 
 * Action list                                          :taskjuggler_project:
+')
+
+for(input_i in 1:nrow(df)){
+#  input_i  <- 1
+  input_j <- df[input_i,]
+#  input_j
+paste('
 ** TODO Test tj3 A
     :PROPERTIES:
     :Effort:   ',input$Effort,'
