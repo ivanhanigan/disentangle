@@ -5,6 +5,11 @@ require(gdata)
 df <- read.xls("gantt-tj3.xlsx", sheet = 1, header = TRUE)
 str(df)
 df
+df$task_id  <-  as.character(df$task_id)
+df$Effort  <-  as.character(df$Effort)
+df$allocate  <-  as.character(df$allocate)
+df$BLOCKER  <-  as.character(df$BLOCKER)
+
 r  <- read.xls("gantt-tj3.xlsx", sheet = 2, header = TRUE)
 str(r)
 # windows excel origin is 1900? or not
@@ -20,28 +25,44 @@ paste('#+TITLE:     gantt-tj3.org
 
 * Action list                                          :taskjuggler_project:
 ')
+)
+sink()
 
+#### start ####
 for(input_i in 1:nrow(df)){
-#  input_i  <- 1
+  #  input_i  <- 1
+#  input_j <- gsub(' ', '-', df[input_i,4:6])
   input_j <- df[input_i,]
-#  input_j
+#sink("text-gantt.org", append = T)
+cat(
 paste('
 ** TODO Test tj3 A
     :PROPERTIES:
-    :Effort:   ',input$Effort,'
-    :allocate: ',input$allocate,'
+    :task_id:  ',input_j$task_id,'
+    :Effort:   ',input_j$Effort,'
+    :allocate: ',input_j$allocate,'
     :END:
+')
+#sink()
+)
+}
+
+for(input_r in 1:nrow(r)){
+#  input_r  <- 1
+  input_jr <- r[input_r,]
+#  input_jr
+sink("text-gantt.org", append = T)
+paste('
 
 * Resources                                            :taskjuggler_resource:
 ** A
     :PROPERTIES:
     :resource_id: ',r$resource_id[1],'
     :END:
-
-
 ')
 )
 sink()
+
 sink("text-gantt.org", append = T)
 cat('# Local Variables:\n# org-export-taskjuggler-target-version: 3.0\n# org-export-taskjuggler-default-reports: ("include \\"gantexport.tji\\"")\n# End:')
 sink()
