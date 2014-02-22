@@ -76,9 +76,9 @@ paste('
 ')
 )
 sink()
-for(input_r in 1:nrow(r)){
+for(input_r in 1:length(r)){
 #  input_r  <- 1
-  input_jr <- r[input_r,]
+  input_jr <- r[input_r]
 #  input_jr
 sink("text-gantt.org", append = T)
 cat(
@@ -98,10 +98,35 @@ sink()
 
 ################################################################
 # open with orgmode and C-c C-e j to run the export tool
+dir()
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+dir()
 ################################################################
 # name:tjclean
 tjclean <- function(tjfile, start, duration = '280d', print = TRUE){

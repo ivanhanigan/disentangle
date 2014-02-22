@@ -53,6 +53,11 @@
     :PROPERTIES:
     :resource_id:  toB 
     :END:
+
+**  toC 
+    :PROPERTIES:
+    :resource_id:  toC 
+    :END:
 # Local Variables:
 # org-export-taskjuggler-target-version: 3.0
 # org-export-taskjuggler-default-reports: ("include \"gantexport.tji\"")

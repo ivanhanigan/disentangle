@@ -12,6 +12,9 @@ resource toA "toA" {
 resource toB "toB" {
  
 }
+resource toC "toC" {
+ 
+}
 }
 task action "Action list" {
 start 2014-02-22
@@ -42,6 +45,15 @@ task test__2 "Test 2 tj3 B" {
  purge allocate
  allocate toB
  effort 80.0h
+
+}
+}
+task phase3 "Phase3" {
+
+task doing "doing a lot" {
+ purge allocate
+ allocate toC
+ effort 8.0h
 
 }
 }
