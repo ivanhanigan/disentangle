@@ -18,13 +18,24 @@ resource toC "toC" {
 }
 task action "Action list" {
 start 2014-02-22
+task milestones "Milestones" {
+
+task start "start project" {
+ milestone
+start 2014-02-22
+}
+task mid_term "Mid-term review" {
+ milestone
+start 2014-06-28
+}
+}
 task phase1 "Phase1" {
 
 task test "Test tj3 A" {
  purge allocate
  allocate toA
  effort 40.0h
-start 2013-12-02
+
 }
 task test_tj3 "Test tj3 B" {
  depends !test

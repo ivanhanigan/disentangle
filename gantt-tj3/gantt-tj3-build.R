@@ -11,7 +11,7 @@ df$allocate  <-  as.character(df$allocate)
 df$BLOCKER  <-  as.character(df$BLOCKER)
 # windows excel origin is 1900? or not
 df$start <- as.Date(df[,"start"], origin= "1899-12-30")
-df
+
 
 projects <- names(table(df$Container_Task))
 
@@ -19,7 +19,7 @@ projects <- names(table(df$Container_Task))
 r  <- names(table(df$allocate))
 str(r)
 #r$resource_id <- as.character(r$resource_id)
-
+r <- r[which(r != "")]
 
 # do
 ################################################################
@@ -60,8 +60,6 @@ paste('
 *** TODO ',input_j$task_id,'
     :PROPERTIES:
     :task_id:  ',tolower(gsub(" ", "-", input_j$task_id)),'
-    :Effort:   ',input_j$Effort,'
-    :allocate: ',input_j$allocate,'
 ')
 )
 sink()
@@ -74,7 +72,25 @@ paste('
 )
 sink()
 }
-if(!is.na(input_j$BLOCKER)){
+if(!input_j$Effort == ""){
+sink("text-gantt.org", append = T)
+cat(
+paste('
+    :Effort:   ',input_j$Effort,'
+')
+)
+sink()
+}
+if(!input_j$allocate == ""){
+sink("text-gantt.org", append = T)
+cat(
+paste('
+    :allocate: ',input_j$allocate,'
+')
+)
+sink()
+}
+if(!input_j$BLOCKER == ""){
 sink("text-gantt.org", append = T)
 cat(
 paste('
@@ -180,4 +196,6 @@ tjclean <- function(tjfile, start, duration = '280d', print = TRUE){
 }
 
 #### test ####
-#tjclean(  tjfile = 'text-gantt.tjp'  ,  start = '2013-09-01'  ,  duration = '360d'  ,  print = FALSE  )
+cat("open the file in emacs, export with C-c C-e j and then run:\n
+tjclean(  tjfile = 'text-gantt.tjp'  ,  start = '2013-09-01'  ,  duration = '360d'  ,  print = FALSE  )
+")
