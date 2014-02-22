@@ -1,3 +1,59 @@
-[1] "TRUE"
-[1] "\n** TODO Test tj3 A\n    :PROPERTIES:\n    :Effort:    1w \n    :allocate:  toA \n    :END:\n"
-[1] "\n** TODO Test tj3 A\n    :PROPERTIES:\n    :Effort:    1w \n    :allocate:  toA \n    :END:\n"
+#+TITLE:     gantt-tj3.org
+* Action list                                          :taskjuggler_project:
+
+** Phase1 
+
+*** TODO  Test tj3 A 
+    :PROPERTIES:
+    :task_id:   test-tj3-a 
+    :Effort:    1w 
+    :allocate:  toA 
+    :END:
+
+*** TODO  Test tj3 B 
+    :PROPERTIES:
+    :task_id:   test-tj3-b 
+    :Effort:    1w 
+    :allocate:  toB 
+    :END:
+
+** Phase2 
+
+*** TODO  Test 2 tj3 
+    :PROPERTIES:
+    :task_id:   test-2-tj3 
+    :Effort:    2w 
+    :allocate:  toA 
+    :END:
+
+*** TODO  Test 2 tj3 B 
+    :PROPERTIES:
+    :task_id:   test-2-tj3-b 
+    :Effort:    2w 
+    :allocate:  toB 
+    :END:
+
+** Phase3 
+
+*** TODO  doing a lot 
+    :PROPERTIES:
+    :task_id:   doing-a-lot 
+    :Effort:    1d 
+    :allocate:  toC 
+    :END:
+
+* Resources                                            :taskjuggler_resource:
+
+**  toA 
+    :PROPERTIES:
+    :resource_id:  toA 
+    :END:
+
+**  toB 
+    :PROPERTIES:
+    :resource_id:  toB 
+    :END:
+# Local Variables:
+# org-export-taskjuggler-target-version: 3.0
+# org-export-taskjuggler-default-reports: ("include \"gantexport.tji\"")
+# End:
