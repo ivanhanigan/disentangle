@@ -62,6 +62,31 @@ paste('
     :task_id:  ',tolower(gsub(" ", "-", input_j$task_id)),'
     :Effort:   ',input_j$Effort,'
     :allocate: ',input_j$allocate,'
+')
+)
+sink()
+if(!is.na(input_j$start)){
+sink("text-gantt.org", append = T)
+cat(
+paste('
+    :start:   ', input_j$start,'
+')
+)
+sink()
+}
+if(!is.na(input_j$BLOCKER)){
+sink("text-gantt.org", append = T)
+cat(
+paste('
+    :BLOCKER:   ',tolower(gsub(" ", "-", input_j$BLOCKER)),'
+')
+)
+sink()
+}
+
+sink("text-gantt.org", append = T)
+cat(
+paste('
     :END:
 ')
 )
@@ -155,12 +180,4 @@ tjclean <- function(tjfile, start, duration = '280d', print = TRUE){
 }
 
 #### test ####
-tjclean(
-  tjfile = 'text-gantt.tjp'
-  ,
-  start = '2013-09-01'
-  ,
-  duration = '360d'
-  ,
-  print = FALSE
-  )
+#tjclean(  tjfile = 'text-gantt.tjp'  ,  start = '2013-09-01'  ,  duration = '360d'  ,  print = FALSE  )

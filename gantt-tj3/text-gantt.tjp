@@ -24,9 +24,10 @@ task test "Test tj3 A" {
  purge allocate
  allocate toA
  effort 40.0h
-
+start 2013-12-02
 }
 task test_tj3 "Test tj3 B" {
+ depends !test
  purge allocate
  allocate toB
  effort 40.0h
@@ -36,12 +37,14 @@ task test_tj3 "Test tj3 B" {
 task phase2 "Phase2" {
 
 task test "Test 2 tj3" {
+ depends action.phase1.test_tj3 
  purge allocate
  allocate toA
  effort 80.0h
 
 }
 task test__2 "Test 2 tj3 B" {
+ depends !test
  purge allocate
  allocate toB
  effort 80.0h
@@ -51,6 +54,7 @@ task test__2 "Test 2 tj3 B" {
 task phase3 "Phase3" {
 
 task doing "doing a lot" {
+ depends action.phase1.test 
  purge allocate
  allocate toC
  effort 8.0h
