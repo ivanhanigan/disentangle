@@ -1,4 +1,4 @@
-project action "Action list" "1.0" 2013-09-01 +360d {
+project action "Action list" "1.0" 2013-09-01 +760d {
  }
 shift s40 "Part time shift" {
   workinghours wed, thu, fri off
@@ -25,6 +25,12 @@ task start "start project" {
 start 2014-02-22
 }
 task mid_term "Mid-term review" {
+ depends action.phase3.doing 
+ milestone
+start 2014-04-08
+}
+task end "end project" {
+ depends action.phase4.completion 
  milestone
 start 2014-06-28
 }
@@ -32,6 +38,7 @@ start 2014-06-28
 task phase1 "Phase1" {
 
 task test "Test tj3 A" {
+ depends action.milestones.start 
  purge allocate
  allocate toA
  effort 40.0h
@@ -58,6 +65,7 @@ task test__2 "Test 2 tj3 B" {
  depends !test
  purge allocate
  allocate toB
+ complete 100
  effort 80.0h
 
 }
@@ -65,10 +73,34 @@ task test__2 "Test 2 tj3 B" {
 task phase3 "Phase3" {
 
 task doing "doing a lot" {
- depends action.phase1.test 
+ depends action.phase2.test__2 
  purge allocate
  allocate toC
  effort 8.0h
+
+}
+task and "and more and more" {
+ depends action.phase3.doing 
+ purge allocate
+ allocate toA
+ effort 120.0h
+start 2014-05-01
+}
+}
+task phase4 "Phase4" {
+
+task finalising "finalising" {
+ depends action.phase3.and 
+ purge allocate
+ allocate toB
+ effort 16.0h
+
+}
+task completion "completion" {
+ depends action.phase4.finalising 
+ purge allocate
+ allocate toA
+ effort 16.0h
 
 }
 }

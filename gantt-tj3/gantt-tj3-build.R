@@ -57,7 +57,7 @@ for(input_i in 1:nrow(df2)){
 sink("text-gantt.org", append = T)
 cat(
 paste('
-*** TODO ',input_j$task_id,'
+*** ', input_j$status, input_j$task_id,'
     :PROPERTIES:
     :task_id:  ',tolower(gsub(" ", "-", input_j$task_id)),'
 ')

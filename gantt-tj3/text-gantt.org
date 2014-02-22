@@ -6,7 +6,7 @@
 
 ** Milestones 
 
-*** TODO  start project 
+***   start project 
     :PROPERTIES:
     :task_id:   start-project 
 
@@ -14,17 +14,29 @@
 
     :END:
 
-*** TODO  Mid-term review 
+***   Mid-term review 
     :PROPERTIES:
     :task_id:   mid-term-review 
 
+    :start:    2014-04-08 
+
+    :BLOCKER:    doing-a-lot 
+
+    :END:
+
+***   end project 
+    :PROPERTIES:
+    :task_id:   end-project 
+
     :start:    2014-06-28 
+
+    :BLOCKER:    completion 
 
     :END:
 
 ** Phase1 
 
-*** TODO  Test tj3 A 
+***  TODO Test tj3 A 
     :PROPERTIES:
     :task_id:   test-tj3-a 
 
@@ -32,9 +44,11 @@
 
     :allocate:  toA 
 
+    :BLOCKER:    start-project 
+
     :END:
 
-*** TODO  Test tj3 B 
+***  TODO Test tj3 B 
     :PROPERTIES:
     :task_id:   test-tj3-b 
 
@@ -48,7 +62,7 @@
 
 ** Phase2 
 
-*** TODO  Test 2 tj3 
+***  TODO Test 2 tj3 
     :PROPERTIES:
     :task_id:   test-2-tj3 
 
@@ -60,7 +74,7 @@
 
     :END:
 
-*** TODO  Test 2 tj3 B 
+***  DONE Test 2 tj3 B 
     :PROPERTIES:
     :task_id:   test-2-tj3-b 
 
@@ -74,7 +88,7 @@
 
 ** Phase3 
 
-*** TODO  doing a lot 
+***  TODO doing a lot 
     :PROPERTIES:
     :task_id:   doing-a-lot 
 
@@ -82,7 +96,47 @@
 
     :allocate:  toC 
 
-    :BLOCKER:    test-tj3-a 
+    :BLOCKER:    test-2-tj3-b 
+
+    :END:
+
+***  TODO and more and more 
+    :PROPERTIES:
+    :task_id:   and-more-and-more 
+
+    :start:    2014-05-01 
+
+    :Effort:    3w 
+
+    :allocate:  toA 
+
+    :BLOCKER:    doing-a-lot 
+
+    :END:
+
+** Phase4 
+
+***  TODO finalising 
+    :PROPERTIES:
+    :task_id:   finalising 
+
+    :Effort:    2d 
+
+    :allocate:  toB 
+
+    :BLOCKER:    and-more-and-more 
+
+    :END:
+
+***  TODO completion 
+    :PROPERTIES:
+    :task_id:   completion 
+
+    :Effort:    2d 
+
+    :allocate:  toA 
+
+    :BLOCKER:    finalising 
 
     :END:
 
