@@ -200,6 +200,18 @@ pg_dump -h ip_address -U username -i -t schema.table weather | psql -h localhost
   timedata <- read.csv('~/timedata.csv')
 #+end_src
 
+** R-xls-read-all-worksheets-code
+#+name:R-xls-read-all-worksheets
+#+begin_src R :session *R* :tangle no :exports none :eval no
+#### name:R-xls-read-all-worksheets####
+# http://stackoverflow.com/questions/12945687/how-to-read-all-worksheets-in-an-excel-workbook-into-an-r-list-with-data-frame-e
+require(XLConnect)
+wb <- loadWorkbook("myBook.xlsx")
+lst = readWorksheet(wb, sheet = getSheets(wb))
+str(lst)
+
+#+end_src
+
 * Data Operation
 
 
@@ -362,7 +374,38 @@ So I thought what's the other 10?  Here's a few contenders for my work:
       head(df)
 #+end_src
 
-** R-upcase-string
+** R-upcase_string
+*** R-upcase_string
+#+name:upcase_string
+#+begin_src R :session *R* :tangle R/upcase_string.r :exports none :eval no
+  # name:upcase_string
+  upcase_string <- function(x, tosplit = " ") {
+    s <- strsplit(x, tosplit)[[1]]
+    paste(toupper(substring(s, 1,1)), substring(s, 2),
+        sep="", collapse=tosplit)
+  }
+#+end_src
+*** test-upcase_string
+#+name:upcase_string
+#+begin_src R :session *R* :tangle tests/test-upcase_string.r :exports none :eval no
+  # name:upcase_strin
+  require(devtools)
+  install_github("disentangle","ivanhanigan")
+  require(disentangle)
+  x <- c("The", "quick", "Brown", "fox/lazy dog")
+  sapply(x, upcase_string)
+  sapply(x, upcase_string, tosplit = "/")
+  
+#+end_src
+*** man-upcase_string
+#+name:upcase_string
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:upcase_string
+
+#+end_src
+
+*** blog
 #+name:r-upcase-string-header
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-17-really-useful-r-upcase-string.md :exports none :eval no :padline no
   ---
@@ -390,6 +433,587 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   
   
       
+#+end_src
+
+** R-levenshtein
+*** R-levenshtein
+#+name:levenshtein
+#+begin_src R :session *R* :tangle R/levenshtein.r :exports none :eval no
+  ################################################################
+  # name:levenshtein
+  levenshtein <- function(string1, string2, case=TRUE, map=NULL) {
+          if(!is.null(map)) {
+                  m <- matrix(map, ncol=2, byrow=TRUE)
+                  s <- c(ifelse(case, string1, tolower(string1)), ifelse(case, string2, tolower(string2)))
+                  for(i in 1:dim(m)[1]) s <- gsub(m[i,1], m[i,2], s)
+                  string1 <- s[1]
+                  string2 <- s[2]
+          }
+   
+          if(ifelse(case, string1, tolower(string1)) == ifelse(case, string2, tolower(string2))) return(1)
+   
+          s1 <- strsplit(paste(" ", ifelse(case, string1, tolower(string1)), sep=""), NULL)[[1]]
+          s2 <- strsplit(paste(" ", ifelse(case, string2, tolower(string2)), sep=""), NULL)[[1]]
+          
+          l1 <- length(s1)
+          l2 <- length(s2)
+          
+          d <- matrix(nrow = l1, ncol = l2)
+   
+          for(i in 1:l1) d[i,1] <- i-1
+          for(i in 1:l2) d[1,i] <- i-1
+          for(i in 2:l1) for(j in 2:l2) d[i,j] <- min((d[i-1,j]+1) , (d[i,j-1]+1) , (d[i-1,j-1]+ifelse(s1[i] == s2[j], 0, 1)))
+          
+          d[l1,l2]
+          
+          (max(l1,l2) - d[l1,l2]) / (max(l1,l2))
+          
+  }
+  
+  
+#+end_src
+*** test-levenshtein
+#+name:levenshtein
+#+begin_src R :session *R* :tangle tests/test-levenshtein.r :exports none :eval no
+  ################################################################
+  # name:levenshtein
+  #debug(levenshtein)
+  require(devtools)
+  install_github("disentangle","ivanhanigan")
+  require(disentangle)
+  
+  levenshtein("lazy","1 lasy")
+#+end_src
+
+*** COMMENT text2test-code
+#+name:text2test
+#+begin_src R :session *R* :tangle tests/test-levenshtein-text2test.r :exports none :eval yes
+  # http://www.tintinologist.org/guides/lists/curses.html
+  text2test  <- read.csv(textConnection("curse, ref
+  Aardvark! 
+  Abecedarians! 
+  Aborigine! 
+  Addle-pated lumps of anthracite! 
+  (old) Alcoholic ! 
+  Anachronisms! 
+  Anacoluthons!
+  Antediluvian bulldozer [Tibet p60 B2]!
+  Anthracite!
+  Anthropithecus!
+  Anthropophagus!
+  Arabian Nightmare!
+  Artichokes!
+  Autocrats!
+  Aztecs! [15]
+  Baboons!
+  Baby-snatchers!
+  Bagpipers!
+  Bald-headed budgerigar!
+  Bandits!
+  Bashi-bazouks!
+  Bath-tub Admiral!
+  Beast!
+  Belemnite!
+  Big-head, [Tibet p35 B3]!
+  Billions of blue blistering boiled and barbecued barnacles, [The Seven Crystal Balls, p14 frame 10]!
+  Billions of billious barbecued blue blistering barnacles!
+  Billions of Bilious Blue Blistering Barnacles!
+  Billions of bilious blue blistering barnacles in a thundering typhoon, [The Seven Crystal Balls]!
+  Billions of Blue Blistering Barnacles!
+  Billions of blue bistering barnacles, Tibet 1967 on page 4 
+  Billions of blistering barnacles in a thundering typhoon!, Tibet 1967 p11
+  Black beetles!
+  Black Marketers!
+  Blackamoor! Blackbird!
+  Blackguards!
+  Blithering Bombardier!
+  Blistering Barnacles!
+  Blistereing blundering bird-brain [Prisoners p9 E4]!
+  Bloodsuckers! Blue blistering barnacles!
+  Blue Blistering Bell-Bottomed Balderdash!
+  Blunderbuss!
+  Bodysnatcher!
+  Bootlegger!
+  Borgia!
+  Bougainvillea!
+  Brat!
+  Breathalyser!
+  Brigands!
+  Brutes!
+  Bucaneers!
+  Bully!
+  Butcher! [37]
+  Cachinnating cockatoo!
+  Cannibals!
+  Carpetsellers!
+  Caterpillars!
+  Centipede!
+  Cercopithecus!
+  Certified Diplodocuses, [Calculus Affair p30]!
+  Coconut[Crab p58 panel 5]!
+  Coelcanth!
+  Colocynths!
+  Corsair!
+  Cowards!
+  Crabapples!
+  Cro-Magnon!
+  Crooks!
+  Cushion footed quadrupeds!
+  Cyclotron! [17]
+  Diplodocus!
+  Dizzards [Unicorn p54 C1/frame 7]!
+  Dogs!
+  Doryphore!
+  Doryphores!
+  Duck-billed platypus!
+  Dunderheaded coconuts!
+  Dynamiter! [8]
+  Ectoplasms!
+  Egoists! [2]
+  Fancy-dress Facist!
+  Fancy-dress Fatima!
+  Fancy-dress freebooter [Unicorn p24 C1]!
+  Fatfaces!
+  Filibuster(s)!
+  Fourlegged Cyrano!
+  Freshwater pirate [Unicorn p24 C1]!
+  Freshwater swabs!
+  Fuzzy wuzzy! [9]
+  Gallows-fodder!
+  Gangof Theives! Gangsters!
+  Gibbering anthropoids!
+  Great flat-footed grizzly bear!
+  Gobbledgook!
+  Gogglers!
+  Goosecaps!
+  Guano-gatherers [Prisoners p9 A1]!
+  Gyroscope! [10]
+  Harlequin!
+  Heretic!
+  Highwayman!
+  Hydrocarbon! [4]
+  Iconoclasts!
+  Idiots!
+  '... you, Imitation Incas, you', [Prisoners p47 B2]!
+  'You, interplantary goat, you', [Explorers on the Moon p62 C3]! [4]
+  Jellied eel!
+  Jellyfish!
+  Jobbernowl [Tibet p60 B2]! [3]
+  Kleptomaniacs!
+  Koua Kouakouin Kouinkouin Koua Kouin Koua [Emerald p30 panel 8]! [2]
+  Lily-livered landlubbers!
+  Liquorice[Crab p59 panel 2]!
+  Loathsome brute!
+  Logarithim!
+  Lubberscum! [5]
+  Macrocephalic baboon!
+  Megacycle [Tibet p60 B3]!
+  Megacycle Pyromaniac!
+  Mameluke!
+  Miserable blundering barbecued blister!
+  Miserable earth worms!
+  Miserable miser!
+  Miserable molecule of mildew!
+  Misguided missles!
+  MisterMule!
+  Monopolizers!
+  Monster! Morons!
+  Moujiks!
+  Mountebanks!
+  Musical morons! [16]
+  Nanny Goat!
+  Nitwits!
+  Nitwitted ninepins!
+  Nyctalops! [4]
+  Odd-toed ungulate!
+  Ophicleides!
+  Orangoutang!
+  Ostrogoth! [4]
+  Pachyrhizus!
+  Parasites!
+  Patagonians!
+  Pestilential Pachyderm!
+  Phylloxera!
+  Pickled herrings!
+  Pirates!
+  Pithecanthropic montebanks!
+  Pithecanthropic pickpocket [Tibet p37 A3]!
+  Pithecanthropus [Unicorn p24 C1]!
+  Pockmarks!
+  Politican!
+  Poltroons!
+  Polygraphs!
+  Polynesian!
+  Profiteers!
+  Psychopath!
+  Purple profiteering jellyfish!
+  Pyrographers!
+  Pyromaniac! [20]
+  Raggle taggle ruminants!
+  Rapscallion!
+  Rats!
+  Revenge [Crab p58 panel 4]!
+  Rhizopods!
+  RKRPXZKRMTFRZ!
+  Road roller [Secret of the Unicorn]!
+  Roadhogs! [8]  
+  Saucy tramp!
+  Savages!
+  Scorpion!
+  Sea-gherkin(s)!
+  Sea-lice!
+  Sea lion!, [Prisoners p9 frame 6]
+  Shipwreckers!
+  Slavertrader!
+  Slubberdegullions!
+  Sparrows!
+  Spitfire!
+  Steamroller!
+  Stoolpigeon!
+  Subtropical sea-louse!
+  Swine! [15]
+  Squawking popinjay, - in The Secret of the Unicorn on page 24 Captain Francis Haddock says it to Red Rackham--but since Captain Archibald Haddock is narrating this to Tintin some one may say that it is one of his many curse words. Also a parrot says it in Red Rackham's Treasure on page 29. [NAB]
+  Technocrat!
+  Ten thousand thundering typhoons!
+  Terrapins!
+  Terrorists!
+  Thundering typhoons!
+  Tin hatted tyrants!
+  Toads!
+  Toffee-noses!
+  Traitors!
+  Tramps!
+  Tribe of Polynesians [Destination Moon p5 D1]!
+  Troglodytes!
+  Turncoats!
+  Twister!
+  Two-timing Troglodytes! [15]
+  Ungulate (see O for odd-toed ungulate)
+  Vandal!
+  Vegetarian!
+  Vermicellis!
+  Viper!
+  Visigoths!
+  Vulture! [6]
+  Weevils!
+  Whippersnapper!
+  Wildcat!
+  Woodlice! [4]
+  Young monkey [Tibet p54 A4]! [1]
+  Zapotecs! [1]
+  "), stringsAsFactor=F)
+#+end_src
+
+#+RESULTS: text2test
+| Aardvark!                                                             |                                                                                                                                                                                                                                                                                      |
+| Abecedarians!                                                         |                                                                                                                                                                                                                                                                                      |
+| Aborigine!                                                            |                                                                                                                                                                                                                                                                                      |
+| Addle-pated lumps of anthracite!                                      |                                                                                                                                                                                                                                                                                      |
+| (old) Alcoholic !                                                     |                                                                                                                                                                                                                                                                                      |
+| Anachronisms!                                                         |                                                                                                                                                                                                                                                                                      |
+| Anacoluthons!                                                         |                                                                                                                                                                                                                                                                                      |
+| Antediluvian bulldozer [Tibet p60 B2]!                                |                                                                                                                                                                                                                                                                                      |
+| Anthracite!                                                           |                                                                                                                                                                                                                                                                                      |
+| Anthropithecus!                                                       |                                                                                                                                                                                                                                                                                      |
+| Anthropophagus!                                                       |                                                                                                                                                                                                                                                                                      |
+| Arabian Nightmare!                                                    |                                                                                                                                                                                                                                                                                      |
+| Artichokes!                                                           |                                                                                                                                                                                                                                                                                      |
+| Autocrats!                                                            |                                                                                                                                                                                                                                                                                      |
+| Aztecs! [15]                                                          |                                                                                                                                                                                                                                                                                      |
+| Baboons!                                                              |                                                                                                                                                                                                                                                                                      |
+| Baby-snatchers!                                                       |                                                                                                                                                                                                                                                                                      |
+| Bagpipers!                                                            |                                                                                                                                                                                                                                                                                      |
+| Bald-headed budgerigar!                                               |                                                                                                                                                                                                                                                                                      |
+| Bandits!                                                              |                                                                                                                                                                                                                                                                                      |
+| Bashi-bazouks!                                                        |                                                                                                                                                                                                                                                                                      |
+| Bath-tub Admiral!                                                     |                                                                                                                                                                                                                                                                                      |
+| Beast!                                                                |                                                                                                                                                                                                                                                                                      |
+| Belemnite!                                                            |                                                                                                                                                                                                                                                                                      |
+| Big-head                                                              | [Tibet p35 B3]!                                                                                                                                                                                                                                                                      |
+| Billions of blue blistering boiled and barbecued barnacles            | [The Seven Crystal Balls                                                                                                                                                                                                                                                             |
+| p14 frame 10]!                                                        |                                                                                                                                                                                                                                                                                      |
+| Billions of billious barbecued blue blistering barnacles!             |                                                                                                                                                                                                                                                                                      |
+| Billions of Bilious Blue Blistering Barnacles!                        |                                                                                                                                                                                                                                                                                      |
+| Billions of bilious blue blistering barnacles in a thundering typhoon | [The Seven Crystal Balls]!                                                                                                                                                                                                                                                           |
+| Billions of Blue Blistering Barnacles!                                |                                                                                                                                                                                                                                                                                      |
+| Billions of blue bistering barnacles                                  | Tibet 1967 on page 4                                                                                                                                                                                                                                                                 |
+| Billions of blistering barnacles in a thundering typhoon!             | Tibet 1967 p11                                                                                                                                                                                                                                                                       |
+| Black beetles!                                                        |                                                                                                                                                                                                                                                                                      |
+| Black Marketers!                                                      |                                                                                                                                                                                                                                                                                      |
+| Blackamoor! Blackbird!                                                |                                                                                                                                                                                                                                                                                      |
+| Blackguards!                                                          |                                                                                                                                                                                                                                                                                      |
+| Blithering Bombardier!                                                |                                                                                                                                                                                                                                                                                      |
+| Blistering Barnacles!                                                 |                                                                                                                                                                                                                                                                                      |
+| Blistereing blundering bird-brain [Prisoners p9 E4]!                  |                                                                                                                                                                                                                                                                                      |
+| Bloodsuckers! Blue blistering barnacles!                              |                                                                                                                                                                                                                                                                                      |
+| Blue Blistering Bell-Bottomed Balderdash!                             |                                                                                                                                                                                                                                                                                      |
+| Blunderbuss!                                                          |                                                                                                                                                                                                                                                                                      |
+| Bodysnatcher!                                                         |                                                                                                                                                                                                                                                                                      |
+| Bootlegger!                                                           |                                                                                                                                                                                                                                                                                      |
+| Borgia!                                                               |                                                                                                                                                                                                                                                                                      |
+| Bougainvillea!                                                        |                                                                                                                                                                                                                                                                                      |
+| Brat!                                                                 |                                                                                                                                                                                                                                                                                      |
+| Breathalyser!                                                         |                                                                                                                                                                                                                                                                                      |
+| Brigands!                                                             |                                                                                                                                                                                                                                                                                      |
+| Brutes!                                                               |                                                                                                                                                                                                                                                                                      |
+| Bucaneers!                                                            |                                                                                                                                                                                                                                                                                      |
+| Bully!                                                                |                                                                                                                                                                                                                                                                                      |
+| Butcher! [37]                                                         |                                                                                                                                                                                                                                                                                      |
+| Cachinnating cockatoo!                                                |                                                                                                                                                                                                                                                                                      |
+| Cannibals!                                                            |                                                                                                                                                                                                                                                                                      |
+| Carpetsellers!                                                        |                                                                                                                                                                                                                                                                                      |
+| Caterpillars!                                                         |                                                                                                                                                                                                                                                                                      |
+| Centipede!                                                            |                                                                                                                                                                                                                                                                                      |
+| Cercopithecus!                                                        |                                                                                                                                                                                                                                                                                      |
+| Certified Diplodocuses                                                | [Calculus Affair p30]!                                                                                                                                                                                                                                                               |
+| Coconut[Crab p58 panel 5]!                                            |                                                                                                                                                                                                                                                                                      |
+| Coelcanth!                                                            |                                                                                                                                                                                                                                                                                      |
+| Colocynths!                                                           |                                                                                                                                                                                                                                                                                      |
+| Corsair!                                                              |                                                                                                                                                                                                                                                                                      |
+| Cowards!                                                              |                                                                                                                                                                                                                                                                                      |
+| Crabapples!                                                           |                                                                                                                                                                                                                                                                                      |
+| Cro-Magnon!                                                           |                                                                                                                                                                                                                                                                                      |
+| Crooks!                                                               |                                                                                                                                                                                                                                                                                      |
+| Cushion footed quadrupeds!                                            |                                                                                                                                                                                                                                                                                      |
+| Cyclotron! [17]                                                       |                                                                                                                                                                                                                                                                                      |
+| Diplodocus!                                                           |                                                                                                                                                                                                                                                                                      |
+| Dizzards [Unicorn p54 C1/frame 7]!                                    |                                                                                                                                                                                                                                                                                      |
+| Dogs!                                                                 |                                                                                                                                                                                                                                                                                      |
+| Doryphore!                                                            |                                                                                                                                                                                                                                                                                      |
+| Doryphores!                                                           |                                                                                                                                                                                                                                                                                      |
+| Duck-billed platypus!                                                 |                                                                                                                                                                                                                                                                                      |
+| Dunderheaded coconuts!                                                |                                                                                                                                                                                                                                                                                      |
+| Dynamiter! [8]                                                        |                                                                                                                                                                                                                                                                                      |
+| Ectoplasms!                                                           |                                                                                                                                                                                                                                                                                      |
+| Egoists! [2]                                                          |                                                                                                                                                                                                                                                                                      |
+| Fancy-dress Facist!                                                   |                                                                                                                                                                                                                                                                                      |
+| Fancy-dress Fatima!                                                   |                                                                                                                                                                                                                                                                                      |
+| Fancy-dress freebooter [Unicorn p24 C1]!                              |                                                                                                                                                                                                                                                                                      |
+| Fatfaces!                                                             |                                                                                                                                                                                                                                                                                      |
+| Filibuster(s)!                                                        |                                                                                                                                                                                                                                                                                      |
+| Fourlegged Cyrano!                                                    |                                                                                                                                                                                                                                                                                      |
+| Freshwater pirate [Unicorn p24 C1]!                                   |                                                                                                                                                                                                                                                                                      |
+| Freshwater swabs!                                                     |                                                                                                                                                                                                                                                                                      |
+| Fuzzy wuzzy! [9]                                                      |                                                                                                                                                                                                                                                                                      |
+| Gallows-fodder!                                                       |                                                                                                                                                                                                                                                                                      |
+| Gangof Theives! Gangsters!                                            |                                                                                                                                                                                                                                                                                      |
+| Gibbering anthropoids!                                                |                                                                                                                                                                                                                                                                                      |
+| Great flat-footed grizzly bear!                                       |                                                                                                                                                                                                                                                                                      |
+| Gobbledgook!                                                          |                                                                                                                                                                                                                                                                                      |
+| Gogglers!                                                             |                                                                                                                                                                                                                                                                                      |
+| Goosecaps!                                                            |                                                                                                                                                                                                                                                                                      |
+| Guano-gatherers [Prisoners p9 A1]!                                    |                                                                                                                                                                                                                                                                                      |
+| Gyroscope! [10]                                                       |                                                                                                                                                                                                                                                                                      |
+| Harlequin!                                                            |                                                                                                                                                                                                                                                                                      |
+| Heretic!                                                              |                                                                                                                                                                                                                                                                                      |
+| Highwayman!                                                           |                                                                                                                                                                                                                                                                                      |
+| Hydrocarbon! [4]                                                      |                                                                                                                                                                                                                                                                                      |
+| Iconoclasts!                                                          |                                                                                                                                                                                                                                                                                      |
+| Idiots!                                                               |                                                                                                                                                                                                                                                                                      |
+| '... you                                                              | Imitation Incas                                                                                                                                                                                                                                                                      |
+| you'                                                                  | [Prisoners p47 B2]!                                                                                                                                                                                                                                                                  |
+| 'You                                                                  | interplantary goat                                                                                                                                                                                                                                                                   |
+| you'                                                                  | [Explorers on the Moon p62 C3]! [4]                                                                                                                                                                                                                                                  |
+| Jellied eel!                                                          |                                                                                                                                                                                                                                                                                      |
+| Jellyfish!                                                            |                                                                                                                                                                                                                                                                                      |
+| Jobbernowl [Tibet p60 B2]! [3]                                        |                                                                                                                                                                                                                                                                                      |
+| Kleptomaniacs!                                                        |                                                                                                                                                                                                                                                                                      |
+| Koua Kouakouin Kouinkouin Koua Kouin Koua [Emerald p30 panel 8]! [2]  |                                                                                                                                                                                                                                                                                      |
+| Lily-livered landlubbers!                                             |                                                                                                                                                                                                                                                                                      |
+| Liquorice[Crab p59 panel 2]!                                          |                                                                                                                                                                                                                                                                                      |
+| Loathsome brute!                                                      |                                                                                                                                                                                                                                                                                      |
+| Logarithim!                                                           |                                                                                                                                                                                                                                                                                      |
+| Lubberscum! [5]                                                       |                                                                                                                                                                                                                                                                                      |
+| Macrocephalic baboon!                                                 |                                                                                                                                                                                                                                                                                      |
+| Megacycle [Tibet p60 B3]!                                             |                                                                                                                                                                                                                                                                                      |
+| Megacycle Pyromaniac!                                                 |                                                                                                                                                                                                                                                                                      |
+| Mameluke!                                                             |                                                                                                                                                                                                                                                                                      |
+| Miserable blundering barbecued blister!                               |                                                                                                                                                                                                                                                                                      |
+| Miserable earth worms!                                                |                                                                                                                                                                                                                                                                                      |
+| Miserable miser!                                                      |                                                                                                                                                                                                                                                                                      |
+| Miserable molecule of mildew!                                         |                                                                                                                                                                                                                                                                                      |
+| Misguided missles!                                                    |                                                                                                                                                                                                                                                                                      |
+| MisterMule!                                                           |                                                                                                                                                                                                                                                                                      |
+| Monopolizers!                                                         |                                                                                                                                                                                                                                                                                      |
+| Monster! Morons!                                                      |                                                                                                                                                                                                                                                                                      |
+| Moujiks!                                                              |                                                                                                                                                                                                                                                                                      |
+| Mountebanks!                                                          |                                                                                                                                                                                                                                                                                      |
+| Musical morons! [16]                                                  |                                                                                                                                                                                                                                                                                      |
+| Nanny Goat!                                                           |                                                                                                                                                                                                                                                                                      |
+| Nitwits!                                                              |                                                                                                                                                                                                                                                                                      |
+| Nitwitted ninepins!                                                   |                                                                                                                                                                                                                                                                                      |
+| Nyctalops! [4]                                                        |                                                                                                                                                                                                                                                                                      |
+| Odd-toed ungulate!                                                    |                                                                                                                                                                                                                                                                                      |
+| Ophicleides!                                                          |                                                                                                                                                                                                                                                                                      |
+| Orangoutang!                                                          |                                                                                                                                                                                                                                                                                      |
+| Ostrogoth! [4]                                                        |                                                                                                                                                                                                                                                                                      |
+| Pachyrhizus!                                                          |                                                                                                                                                                                                                                                                                      |
+| Parasites!                                                            |                                                                                                                                                                                                                                                                                      |
+| Patagonians!                                                          |                                                                                                                                                                                                                                                                                      |
+| Pestilential Pachyderm!                                               |                                                                                                                                                                                                                                                                                      |
+| Phylloxera!                                                           |                                                                                                                                                                                                                                                                                      |
+| Pickled herrings!                                                     |                                                                                                                                                                                                                                                                                      |
+| Pirates!                                                              |                                                                                                                                                                                                                                                                                      |
+| Pithecanthropic montebanks!                                           |                                                                                                                                                                                                                                                                                      |
+| Pithecanthropic pickpocket [Tibet p37 A3]!                            |                                                                                                                                                                                                                                                                                      |
+| Pithecanthropus [Unicorn p24 C1]!                                     |                                                                                                                                                                                                                                                                                      |
+| Pockmarks!                                                            |                                                                                                                                                                                                                                                                                      |
+| Politican!                                                            |                                                                                                                                                                                                                                                                                      |
+| Poltroons!                                                            |                                                                                                                                                                                                                                                                                      |
+| Polygraphs!                                                           |                                                                                                                                                                                                                                                                                      |
+| Polynesian!                                                           |                                                                                                                                                                                                                                                                                      |
+| Profiteers!                                                           |                                                                                                                                                                                                                                                                                      |
+| Psychopath!                                                           |                                                                                                                                                                                                                                                                                      |
+| Purple profiteering jellyfish!                                        |                                                                                                                                                                                                                                                                                      |
+| Pyrographers!                                                         |                                                                                                                                                                                                                                                                                      |
+| Pyromaniac! [20]                                                      |                                                                                                                                                                                                                                                                                      |
+| Raggle taggle ruminants!                                              |                                                                                                                                                                                                                                                                                      |
+| Rapscallion!                                                          |                                                                                                                                                                                                                                                                                      |
+| Rats!                                                                 |                                                                                                                                                                                                                                                                                      |
+| Revenge [Crab p58 panel 4]!                                           |                                                                                                                                                                                                                                                                                      |
+| Rhizopods!                                                            |                                                                                                                                                                                                                                                                                      |
+| RKRPXZKRMTFRZ!                                                        |                                                                                                                                                                                                                                                                                      |
+| Road roller [Secret of the Unicorn]!                                  |                                                                                                                                                                                                                                                                                      |
+| Roadhogs! [8]                                                         |                                                                                                                                                                                                                                                                                      |
+| Saucy tramp!                                                          |                                                                                                                                                                                                                                                                                      |
+| Savages!                                                              |                                                                                                                                                                                                                                                                                      |
+| Scorpion!                                                             |                                                                                                                                                                                                                                                                                      |
+| Sea-gherkin(s)!                                                       |                                                                                                                                                                                                                                                                                      |
+| Sea-lice!                                                             |                                                                                                                                                                                                                                                                                      |
+| Sea lion!                                                             | [Prisoners p9 frame 6]                                                                                                                                                                                                                                                               |
+| Shipwreckers!                                                         |                                                                                                                                                                                                                                                                                      |
+| Slavertrader!                                                         |                                                                                                                                                                                                                                                                                      |
+| Slubberdegullions!                                                    |                                                                                                                                                                                                                                                                                      |
+| Sparrows!                                                             |                                                                                                                                                                                                                                                                                      |
+| Spitfire!                                                             |                                                                                                                                                                                                                                                                                      |
+| Steamroller!                                                          |                                                                                                                                                                                                                                                                                      |
+| Stoolpigeon!                                                          |                                                                                                                                                                                                                                                                                      |
+| Subtropical sea-louse!                                                |                                                                                                                                                                                                                                                                                      |
+| Swine! [15]                                                           |                                                                                                                                                                                                                                                                                      |
+| Squawking popinjay                                                    | - in The Secret of the Unicorn on page 24 Captain Francis Haddock says it to Red Rackham--but since Captain Archibald Haddock is narrating this to Tintin some one may say that it is one of his many curse words. Also a parrot says it in Red Rackham's Treasure on page 29. [NAB] |
+| Technocrat!                                                           |                                                                                                                                                                                                                                                                                      |
+| Ten thousand thundering typhoons!                                     |                                                                                                                                                                                                                                                                                      |
+| Terrapins!                                                            |                                                                                                                                                                                                                                                                                      |
+| Terrorists!                                                           |                                                                                                                                                                                                                                                                                      |
+| Thundering typhoons!                                                  |                                                                                                                                                                                                                                                                                      |
+| Tin hatted tyrants!                                                   |                                                                                                                                                                                                                                                                                      |
+| Toads!                                                                |                                                                                                                                                                                                                                                                                      |
+| Toffee-noses!                                                         |                                                                                                                                                                                                                                                                                      |
+| Traitors!                                                             |                                                                                                                                                                                                                                                                                      |
+| Tramps!                                                               |                                                                                                                                                                                                                                                                                      |
+| Tribe of Polynesians [Destination Moon p5 D1]!                        |                                                                                                                                                                                                                                                                                      |
+| Troglodytes!                                                          |                                                                                                                                                                                                                                                                                      |
+| Turncoats!                                                            |                                                                                                                                                                                                                                                                                      |
+| Twister!                                                              |                                                                                                                                                                                                                                                                                      |
+| Two-timing Troglodytes! [15]                                          |                                                                                                                                                                                                                                                                                      |
+| Ungulate (see O for odd-toed ungulate)                                |                                                                                                                                                                                                                                                                                      |
+| Vandal!                                                               |                                                                                                                                                                                                                                                                                      |
+| Vegetarian!                                                           |                                                                                                                                                                                                                                                                                      |
+| Vermicellis!                                                          |                                                                                                                                                                                                                                                                                      |
+| Viper!                                                                |                                                                                                                                                                                                                                                                                      |
+| Visigoths!                                                            |                                                                                                                                                                                                                                                                                      |
+| Vulture! [6]                                                          |                                                                                                                                                                                                                                                                                      |
+| Weevils!                                                              |                                                                                                                                                                                                                                                                                      |
+| Whippersnapper!                                                       |                                                                                                                                                                                                                                                                                      |
+| Wildcat!                                                              |                                                                                                                                                                                                                                                                                      |
+| Woodlice! [4]                                                         |                                                                                                                                                                                                                                                                                      |
+| Young monkey [Tibet p54 A4]! [1]                                      |                                                                                                                                                                                                                                                                                      |
+| Zapotecs! [1]                                                         |                                                                                                                                                                                                                                                                                      |
+
+*** test-stringdist-code
+#+name:test-stringdist
+#+begin_src R :session *R* :tangle tests/test-stringdist.r :exports none :eval no
+  #### name:test-stringdist####
+  require(disentangle)
+  source("tests/test-levenshtein-text2test.r")
+  test <- text2test[grep("barnacles", tolower(text2test[,1])),1]
+  str(test)
+  # get source and target
+  matrix(test)
+  test[5]
+  z2 <- expand.grid(test[4], test, stringsAsFactors = F)
+  list(z2)
+  z2
+  z <- z2
+  mapply(z2,
+         function(z) levenshtein(z[,1],z[,2]))
+  list(test[1],
+  test[-1])
+  
+  test <- tolower(test)
+  i  <-  5
+  cbind(test[i], test[-i],  (nchar(test[i]) - stringdist(test[i], test[-i])) / nchar(test[i]))
+#+end_src
+
+*** man-levenshtein
+#+name:levenshtein
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:levenshtein
+#http://rwiki.sciviews.org/doku.php?id=tips:data-strings:levenshtein
+#http://wiki.r-project.org/rwiki/doku.php?id=tips:data-strings:levenshtein
+
+
+#+end_src
+
+** 2014-02-27-yearmon-class-and-interoperability-with-excel-and-access
+#+name:yearmon-class-and-interoperability-with-excel-and-access-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-02-27-yearmon-class-and-interoperability-with-excel-and-access.md :exports none :eval no :padline no
+  ---
+  name: 2014-02-27-yearmon-class-and-interoperability-with-excel-and-access
+  layout: post
+  title: yearmon-class-and-interoperability-with-excel-and-access
+  date: 2014-02-27
+  categories:
+  - research methods
+  ---
+  
+  
+  #### Toward a standard and unambiguous format for sharing Year-Month data
+    
+  - I am working in a new job where we are recieving data from a lot of different groups
+  - we aim to review these datasets and then publish them for a wide audience of potential users
+  - therefore usability and interoperability is a key concern
+  - we recieved some data with Month and Year as Apr.12
+  - I know this is easy to convert to a date/time class with in R but wondered what a better format would be to recommend for our datasets to use to maximise utility downstream (especially for non R users)
+  - Apr.12 is assumed to be text in excel so need something else
+  - Apr-12 is assumed to be the twelfth of April this year (ie 12/4/2014)
+  
+  #### In R the solution might be to use the zoo package
+      require(zoo)
+      as.yearmon("Apr.12", "%b.%y")
+      # [1] "Apr 2012"
+  
+      # other options abound
+      as.yearmon("apr12", "%b%y")
+  
+      # the default is YYYY-MM or similar
+      as.yearmon("2012-04")
+      as.yearmon("2012-4")
+  
+  <p></p>
+  
+  - So I went looking at how Excel and Access deal with this
+  - found that the best appeard to be MMM-YYYY in terms of how these software assume the data should look
+  
+  #### R Code:
+      as.yearmon("Apr-2012", "%b-%Y")
+  
+      # but will need to specify format because otherwise fails
+      as.yearmon("Apr-2012")
+      # NA
+  
+  <p></p>
+  
+  #### Conclusion
+  
+  - I recommend the MMM-YYYY option
+  - it is pretty good that in Excel it is assumed 1/04/2012 
+  - and if MS access is set to date/time and format = mmm-yyyy is ok for data entry (but not importing)
+  - to import this use a shorttext type, then post-import, change to date/time with mmm-yyyy (the . failed)
+  
+  
+  
 #+end_src
 
 * Data Output
@@ -693,16 +1317,16 @@ categories:
 ---
 
 "reml now extends R's data.frame class by introducing the data.set class which includes additional metadata required by EML"
-https://github.com/ropensci/reml
+[https://github.com/ropensci/reml](https://github.com/ropensci/reml)
 
 and
 "I’d like to define a class that acts just like a data.frame, just like the data.table class does, but contains some additional metadata (e.g. the units associated with the columns) and has some additional methods associated with it (e.g. that might do something with those units) while also working with any function that simply knows how to handle data.frame objects.
 How might this be done?"
-http://carlboettiger.info/2013/09/11/extending-data-frame-class.html
+[http://carlboettiger.info/2013/09/11/extending-data-frame-class.html](http://carlboettiger.info/2013/09/11/extending-data-frame-class.html)
 
 
 Also this guys attempt was interesting (I like TraMineR too!)
-http://ivanhanigan.github.io/2013/11/handling-survey-data-with-r/
+[http://ivanhanigan.github.io/2013/11/handling-survey-data-with-r/](http://ivanhanigan.github.io/2013/11/handling-survey-data-with-r/)
 
     
 #+end_src
@@ -1139,11 +1763,11 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
   # name:reml_boilerplate
    
   # func
-  if(!require(reml)) {
-    require(devtools)
-    install_github("reml", "ropensci")
-    } 
-  require(reml)
+  ## if(!require(EML)) {
+  ##   require(devtools)
+  ##   install_github("EML", "ropensci")
+  ##   } 
+  ## require(EML)
   
   reml_boilerplate <- function(data_set, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA, desc = "")
   {
@@ -1158,7 +1782,7 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
       {
         # i = 4
         if(is.numeric(data_set[,i])){
-          unit_defs[[i]] <- "numeric"
+          unit_defs[[i]] <- "number"
         } else {
           unit_defs[[i]] <- names(table(data_set[,i]))          
         }
@@ -1169,27 +1793,39 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
                    col.defs = col_defs,
                    unit.defs = unit_defs
                    )
-    #str(ds)
+    # str(ds)
   
-    metadata  <- metadata(ds)
+    # metadata  <- ds #metadata(ds)
     # needs names
-    for(i in 1:ncol(data_set))
-      {
-        # i = 4
-        if(is.numeric(data_set[,i])){
-          names(metadata[[i]][[3]]) <- "number"
-        } else {
-          names(metadata[[i]][[3]]) <- metadata[[i]][[3]]
-        }
-      }
+    ## for(i in 1:ncol(data_set))
+    ##   {
+    ##     # i = 4
+    ##     if(is.numeric(data_set[,i])){
+    ##       names(metadata[[i]][[3]]) <- "number"
+    ##     } else {
+    ##       names(metadata[[i]][[3]]) <- metadata[[i]][[3]]
+    ##     }
+    ##   }
     # metadata
+    eml_config(creator=created_by)
     oldwd <- getwd()
     setwd(data_dir)
-    eml_write(data_set, metadata,
-              title = titl,  
-              description = desc,
-              creator = created_by
-              )
+    #
+    ## >   eml_write(dat=ds, file = paste(titl, "xml", sep = "."), title = titl)
+    ## Error in is(dat, "data.set") : object 'dat' not found
+    ## > traceback()
+    ## 7: is(dat, "data.set") at dataTable_methods.R#14
+    ## 6: eml_dataTable(dat = dat, title = title)
+    ## 5: initialize(value, ...)
+    ## 4: initialize(value, ...)
+    ## 3: new("dataset", title = title, creator = who$creator, contact = who$contact, 
+    ##        coverage = coverage, methods = methods, dataTable = c(eml_dataTable(dat = dat, 
+    ##            title = title)), ...) at eml_methods.R#61
+    ## 2: eml(dat = dat, title = title, creator = creator, contact = contact, 
+    ##        ...) at eml_write.R#27
+    ## 1: eml_write(dat = ds, file = paste(titl, "xml", sep = "."), title = titl)
+    dat <- ds
+    eml_write(dat, file = paste(titl, "xml", sep = "."), title = titl)
     setwd(oldwd)
     sprintf("your metadata has been created in the '%s' directory", data_dir)
     }
@@ -2097,6 +2733,123 @@ categories:
 
 
 
+** 2014-01-21-morpho-and-reml-use-case-marsupial-mulgara-dasycercus-cristicauda
+#+name:morpho-and-reml-use-case-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-01-21-morpho-and-reml-use-case-marsupial-mulgara-dasycercus-cristicauda.md :exports none :eval no :padline no
+  ---
+  name: 2014-01-21-morpho-and-reml-use-case-marsupial-mulgara-dasycercus-cristicauda
+  layout: post
+  title: Morpho And R-EML Use Case Marsupial mulgara Dasycercus cristicauda
+  date: 2014-01-21
+  categories:
+  - Data Documentation
+  ---
+  
+  # Aim
+    
+  - The [EML R package](https://github.com/ropensci/EML) uses the Ecological Metadata Language (EML) approach that allows archiving of very heterogeneous data without having to standardize everything into a narrow and pre-defined syntax.
+  - XML files in specificed schemas involve strict criteria and are thus best generated by software.
+  - Morpho is an application that provides another GUI based method of generating EML but is a rather tedious tool for generating EML files. Unfortunately, without the ability to script inputs or automatically detect existing data structures, we are forced through the rather arduous process of adding all metadata annotation each time.
+  - The aim of this experiment is to use the EML package to create some advanced metadata quickly and then finish this off with Morpho, using ["boilerplate code"](http://en.wikipedia.org/wiki/Boilerplate_code) wherever possible.
+  - this builds on my previous post [http://ivanhanigan.github.io/2013/10/morpho-and-reml-streamline-the-process-of-metadata-entry](http://ivanhanigan.github.io/2013/10/morpho-and-reml-streamline-the-process-of-metadata-entry)
+  
+  # Background
+  
+  - I am basically very lazy when it comes to entering metadata and when I use the Morpho package for metadata data entry I get frustrated with having to step through ever SINGLE variable and use the drop down menus etc to describe them as essentially "number" or "text"
+  - A big reason I like Morpho is because Metacat is a great data portal and Kepler is a promising scientific workflow tool, and all three are produced by the same group so it would be great to get them working together...
+  - Morpho and Metacat are open source software designed to host all kinds of ecological data. More information about it can be found [here](http://knb.ecoinformatics.org/index.jsp)
+  - More info about the Metacat Data Portal System is [here](https://knb.ecoinformatics.org/knb/docs/).
+  - For technical reasons, I'm running an older version of the Morpho software because I'm working with an older version of the  Metacat portal software and so are also constrained to running the older Morpho version too (but will be upgrading soon).
+  - You might want to look at the background of the Ecological Metadata Language (EML) standard.  I like this page [http://carlboettiger.info/2013/06/23/notes-on-leveraging-the-ecological-markup-language.html](http://carlboettiger.info/2013/06/23/notes-on-leveraging-the-ecological-markup-language.html) along with the references he cites at the bottom.
+  
+  # Material
+  
+  - To tie this experiment back to something that is actually useful for a scientist, I will use the field-based example data on the effects on mulgara of removing spinifex, from:
+  
+      McCarthy, M. a., & Masters, P. (2005). Profiting from prior
+      information in Bayesian analyses of ecological data. Journal of
+      Applied Ecology, 42(6),
+      1012–1019. doi:10.1111/j.1365-2664.2005.01101.x
+    
+  - Brief description is:
+  
+      an experimental manipulation of habitat was conducted by Masters,
+      Dickman & Crowther (2003) in which vegetation cover of a site in
+      arid inland Australia was reduced and the response of the mammal
+      fauna monitored.
+
+  - you can find the data in the download file from [the "Code for analysing the mulgara experiment" from here](http://www.nceas.ucsb.edu/~mccarthy/research.html)
+  - I first checked that these data aren;t already on [the KNB repository](https://knb.ecoinformatics.org/m/)
+  - I searched for Marsupial, Australia, Mulgara and etc, finding no hits.
+  - We will assume that these data are not already published there.
+  
+  # Methods
+  
+  - Step one install the github version of EML and [a function I wrote for this a while back](http://ivanhanigan.github.io/2013/10/morpho-and-reml-streamline-the-process-of-metadata-entry/#sec-1-9)
+  - Note that I made a few changes since that post [https://github.com/ivanhanigan/disentangle/blob/master/R/reml_boilerplate.r](https://github.com/ivanhanigan/disentangle/blob/master/R/reml_boilerplate.r)
+  
+  #### R Code:
+      # func
+      library("devtools")
+      install_github("EML", "ropensci")       
+      library("EML")
+      install_github("disentangle", "ivanhanigan")       
+      library("disentangle")
+
+      # load                                                                    
+      datatext <- 'Treat, Before, After1, After2
+      0,  2.833213344,    1.609437912,    2.48490665
+      0,  1.791759469,    2.197224577,    2.079441542
+      0,  3.044522438,    2.708050201,    3.135494216
+      0,  2.772588722,    1.791759469,    2.197224577
+      0,  1.098612289,    1.609437912,    2.63905733
+      1,  2.944438979,    0.693147181,    1.791759469
+      1,  2.564949357,    0.693147181,    1.791759469
+      1,  2.564949357,    1.609437912,    1.609437912
+      1,  0.693147181,    1.098612289,    1.098612289
+      1,  1.609437912,    0,      1.098612289'
+      analyte <- read.csv(textConnection(datatext))
+
+      # check
+      analyte
+
+      # do
+      ## from a work dir with a subdir for data
+      write.csv(analyte, "data/mulgara.csv", row.names = F)
+      reml_boilerplate(
+        data_set = analyte
+        ,
+        created_by = "Ivan Hanigan <ivanhanigan@gmail.com>"
+        ,
+        data_dir = "data"
+        ,
+        titl = "mulgara"
+        ,
+        desc = "Experimental data: effect of cover reduction on mulgara Dasycercus cristicauda"
+        )
+  
+  <p></p>
+  
+  - Now open morpho and under file > import browse to this  data directory and import.
+  - Got several warnings, about unable to display data, and an older version that could be updated
+
+                                                                                              
+                                                                                              
+  # Results
+  - Result does not display  in morpho
+
+  ![mulgara-morpho-import.png](/images/mulgara-morpho-import.png)
+  
+  # Discussion
+  
+  - There is something different about the way the EML R package writes the data and what Morpho 1.8 is expecting.
+
+  # Conclusions
+
+  - Further research is required.
+  
+#+end_src
+
 * Exploratory Data Analysis
 * General Purpose
 * Visualisation
@@ -2193,6 +2946,44 @@ categories:
       outdir = getwd()
       )
       
+#+end_src
+
+** COMMENT boxplots-split-code
+#+name:boxplots-split
+#+begin_src R :session *R* :tangle no :exports none :eval no
+#### name:boxplots-split####
+#work for GuoJing
+boxplot(split(AllRespStacked$AvDailyTemp,AllRespStacked$month),xaxt="n")
+axis(1, at=1:8,labels=c("Apr","May","Jun","Jul","Aug","Sep","Oct","Nov"))
+
+#work for caroline
+x<-rnorm(200,10)
+y<-rnorm(200,5)
+boxplot(split(y,ifelse(x<9,1,ifelse(x<10,2,ifelse(x<11,3,ifelse(x<12,4,5))))),medpch=1,medcol=1,medlwd=1,xaxt="n")
+axis(1, at=1:5,labels=c("8-9","9-10","10-11","11-12","12-13"))
+#+end_src
+
+** COMMENT x-axis-labels-on-45-deg-angle-code
+#+name:x-axis-labels-on-45-deg-angle
+#+begin_src R :session *R* :tangle no :exports none :eval no
+#### name:x-axis-labels-on-45-deg-angle####
+# 
+text(mp, par('usr')[3], labels = labels, srt = 45, adj = c(1.1,1.1), xpd = TRUE, cex=.9)
+
+
+# X-Axis Labels on a 45-Degree Angle using R
+# Posted on 20 May 2009 by jnlnet| 5 Comments
+# 
+# I’ve been trying to find a simpler bit of R code that will allow axis labels to be written in at an angle, and thanks to my obsessive scanning of the R-help mailing list I found a nice example (all credit to Uwe Ligges and Marc Schwartz for their approach). I’ve made a few cosmetic tweaks in moving the labels off of the x-axis and changing the labels.
+# 
+# The following code will produce the figure below:
+# 
+labels <- c('January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December')
+labels <- month.name[1:12]
+mp <- barplot(1:12, axes = FALSE, axisnames = FALSE)
+text(mp, par('usr')[3], labels = labels, srt = 45, adj = c(1.1,1.1), xpd = TRUE, cex=.9)
+axis(2)
+# 
 #+end_src
 
 * Statistical Modelling
@@ -4321,6 +5112,58 @@ see [[./src/SharpReportTemplate.org]]
       
 #+end_src
 
+** COMMENT add toc to knitr
+tangle to like JBB-overview.Rmd
+#+name:JBB-overview-header
+#+begin_src R :session shell :tangle no :exports none :eval no :padline no
+Jervis Bay Booderee Database EDA
+========================================================
+
+- This is a Reproducible Report of the Exploratory Data Analysis (EDA).
+- The source code is in the private bitbucket repository.
+- This is just the critical R code for the data package stuff.
+
+```{r echo=FALSE, eval=F, results='hide'}
+require(knitr)
+require(markdown)
+knit2html('JBB-overview.Rmd', options = c('toc', markdown::markdownHTMLOptions(TRUE)))
+```
+
+``` {r echo=FALSE, results='hide'}
+require(xtable)
+require(disentangle)
+require(rgdal)
+require(sqldf)
+```
+#+end_src
+
+** 2014-02-12-template-Reproducible-Research-with-R-TEX-and-Sweave
+#+name:template-Reproducible-Research-with-R-TEX-and-Sweave-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-02-12-template-reproducible-research-with-r-tex-and-sweave.md :exports none :eval no :padline no
+---
+name: template-reproducible-research-with-r-tex-and-sweave
+layout: post
+title: Template Reproducible Research with R TEX and Sweave
+date: 2014-02-12
+categories:
+- research methods
+---
+
+- Last year I wrote to a Professor to let them know some numbers that quantified their effect estimate (computed be exponentiating their beta coefficient) described in their results section was inconsistent with the numbers in their table (the raw coefficients).
+- Happily the recalculation showed that they had underestimated the effect size and their conclusions were not wrong, but erroneously conservative.
+- Previously I would use Sweave documents to keep track of all my calculations, but I was still copy-and-pasting the key numbers into the text.
+- I've become more interested now in using Inline R Outputs (called Sexpr - S expressions)
+- This is also the first time I've created a report using the Palatino font, on the advice of a new colleague of mine.
+- I popped up a [Github repo with a Sweave template for Reproducible Reports with a few notes I made](https://github.com/ivanhanigan/DataDocumentation).  Which looks like
+
+![/images/sexpr.png](/images/sexpr.png)
+
+- The [PDF output is here](https://github.com/ivanhanigan/DataDocumentation/blob/master/src/sexpr.pdf)
+
+- The [Sweave file is here](https://github.com/ivanhanigan/DataDocumentation/blob/master/src/sexpr.Rnw)
+
+#+end_src
+
 * R Packages
 * Project Management
 ** Gantt Charts
@@ -5192,6 +6035,59 @@ This is with MCHP resource repository - a general overview of this process is de
   
   </body>
       
+#+end_src
+
+** 2014-02-22-gantting-like-a-hacker
+#+name:gantting-like-a-hacker-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-02-22-gantting-like-a-hacker.md :exports none :eval no :padline no
+  ---
+  name: gantting-like-a-hacker
+  layout: post
+  title: gantting-like-a-hacker
+  date: 2014-02-22
+  categories:
+  - research methods
+  ---
+  
+  ### Background
+  - ["Blogging like a Hacker"](http://tom.preston-werner.com/2008/11/17/blogging-like-a-hacker.html) has become a paradigm for programmers who want to link their code to their blogs.
+  - I've followed this paradigm for a while to support my scientific projects, enhancing their transparency and reproducibility.
+  - I've started a new project where I need to also manage project management and planning (following [Tomas Aragon's tutorial](http://medepi.com/2012/02/05/project-mgmt/))
+  - I propose that the same methods I use in scientific programming and blogging like a hacker can be used in "Gantting like a Hacker"  
+  - The title for this post is also influenced by the poste over at [Geek | Manager](http://blog.geekmanager.co.uk/2007/05/02/using-the-best-plan-format/).
+  - That post says taht "Premature Gannting" is the act of making a "huge Gantt chart (often in MS Project)."
+  - Gannting like a Hacker is doing this in a scripted environment, without relying on closed-source proprietry software such as the Windoze options.  
+  - The community of bloggers (mostly geeks) who are following a style of blogging that originated with the invention of Jekyll, [unveiled in this post by Tom Preston-Werner](http://tom.preston-werner.com/2008/11/17/blogging-like-a-hacker.html); GitHub’s co-founder (aka mojombo).
+  - This experiment uses Taskjuggler and Emacs Orgmode
+  
+  ### Materials and Methods
+  
+  - Use Ubuntu 12.04 Long Term Support (LTS)
+  - with Ruby 
+  
+  #### Code:install task juggler
+      gem install taskjuggler
+  
+  <p></p>
+  
+  ### Gantt charts with Emacs Orgmode
+  
+  - I'm using an Emacs tool to use TaskJuggler to handle the task scheduling and creation of Gantt chart suitable for [a Pointy-haired Boss](http://orgmode.org/worg/org-tutorials/org-taskjuggler.html). 
+  - I hated using the Orgmode script to compile the parts of the Gantt chart so I wrote [this R script](https://raw.github.com/ivanhanigan/disentangle/gh-pages/gantt-tj3/gantt-tj3-build.R) to convert a spreadsheet into an Orgmode script
+  - the spreadsheet is organised in a fairly simple way shown below.
+  
+  ![alttext](/images/gantt-chart-sheet.png)
+  
+  ### Results
+  - and executing my script will convert this into a Emacs orgmode file that will export to a taskjuggler file (use C-c C-e j) and viola!
+  
+  ![alttext](/images/gantt-chart.png)
+  
+  ### Conclusions
+  
+  - This simplifies the Orgmode taskjuggler creation
+  - A drawback is that it has to go through the Emacs export function.
+  
 #+end_src
 
 * Research Protocols

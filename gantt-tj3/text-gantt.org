@@ -1,0 +1,162 @@
+#+TITLE:     gantt-tj3.org
+
+#+PROPERTY: Effort_ALL 2d 5d 10d 20d 30d 35d 50d
+
+* Action list                                          :taskjuggler_project:
+
+** Milestones 
+
+***   start project 
+    :PROPERTIES:
+    :task_id:   start-project 
+
+    :start:    2014-02-22 
+
+    :END:
+
+***   Mid-term review 
+    :PROPERTIES:
+    :task_id:   mid-term-review 
+
+    :start:    2014-04-08 
+
+    :BLOCKER:    doing-a-lot 
+
+    :END:
+
+***   end project 
+    :PROPERTIES:
+    :task_id:   end-project 
+
+    :start:    2014-06-28 
+
+    :BLOCKER:    completion 
+
+    :END:
+
+** Phase1 
+
+***  TODO Test tj3 A 
+    :PROPERTIES:
+    :task_id:   test-tj3-a 
+
+    :Effort:    1w 
+
+    :allocate:  toA 
+
+    :BLOCKER:    start-project 
+
+    :END:
+
+***  TODO Test tj3 B 
+    :PROPERTIES:
+    :task_id:   test-tj3-b 
+
+    :Effort:    1w 
+
+    :allocate:  toB 
+
+    :BLOCKER:    previous-sibling 
+
+    :END:
+
+** Phase2 
+
+***  TODO Test 2 tj3 
+    :PROPERTIES:
+    :task_id:   test-2-tj3 
+
+    :Effort:    2w 
+
+    :allocate:  toA 
+
+    :BLOCKER:    test-tj3-b 
+
+    :END:
+
+***  DONE Test 2 tj3 B 
+    :PROPERTIES:
+    :task_id:   test-2-tj3-b 
+
+    :Effort:    2w 
+
+    :allocate:  toB 
+
+    :BLOCKER:    previous-sibling 
+
+    :END:
+
+** Phase3 
+
+***  TODO doing a lot 
+    :PROPERTIES:
+    :task_id:   doing-a-lot 
+
+    :Effort:    1d 
+
+    :allocate:  toC 
+
+    :BLOCKER:    test-2-tj3-b 
+
+    :END:
+
+***  TODO and more and more 
+    :PROPERTIES:
+    :task_id:   and-more-and-more 
+
+    :start:    2014-05-01 
+
+    :Effort:    3w 
+
+    :allocate:  toA 
+
+    :BLOCKER:    doing-a-lot 
+
+    :END:
+
+** Phase4 
+
+***  TODO finalising 
+    :PROPERTIES:
+    :task_id:   finalising 
+
+    :Effort:    2d 
+
+    :allocate:  toB 
+
+    :BLOCKER:    and-more-and-more 
+
+    :END:
+
+***  TODO completion 
+    :PROPERTIES:
+    :task_id:   completion 
+
+    :Effort:    2d 
+
+    :allocate:  toA 
+
+    :BLOCKER:    finalising 
+
+    :END:
+
+* Resources                                            :taskjuggler_resource:
+
+**  toA 
+    :PROPERTIES:
+    :resource_id:  toA 
+    :END:
+
+**  toB 
+    :PROPERTIES:
+    :resource_id:  toB 
+    :END:
+
+**  toC 
+    :PROPERTIES:
+    :resource_id:  toC 
+    :END:
+# Local Variables:
+# org-export-taskjuggler-target-version: 3.0
+# org-export-taskjuggler-default-reports: ("include \"gantexport.tji\"")
+# End:

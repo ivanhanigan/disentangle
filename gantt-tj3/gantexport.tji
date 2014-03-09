@@ -2,8 +2,8 @@
                                                                               
 taskreport "Gantt Chart" {                                                    
   headline "Project Gantt Chart"                                              
-  columns hierarchindex, name, start, end, effort, duration, completed, 
-chart  
+  columns hierarchindex, name, start, end, resources, effort, duration, completed, 
+chart { width 1100 }  
   timeformat "%Y-%m-%d"       
   hideresource 1                                                              
   formats html                                                                
