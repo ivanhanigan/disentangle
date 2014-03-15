@@ -4908,6 +4908,33 @@ categories:
 #+end_src
 
 * Graphical User Interfaces
+** TODO ORACLE XE APEX / HTMLDB
+*** Drill down reports
+
+
+in oracle the method to create the drill down reports is
+
+   1)create tables
+   2)create pkeys and foriegn keys
+   3)create sequences
+   4)create triggers
+   5)create blank pages
+   6)create new page
+   7)          choose form
+   8)          choose form on report
+   9)          select the report to go on the blank page
+  10)        let the form create a new page
+  11)create a hidden item on report page IE :P2_IDNO
+  12)change report regions source SQL to 'WHERE [IDNO/FILEID ETC] = :P2_IDNO
+  13)set up the link on the previous page if applicable
+in the form page set the default value for say IDNO to PL/SQL expression & = :P2_IDNO for eg
+
+** TODO web2py
+*** refs
+http://stackoverflow.com/questions/6514680/gui-interface-for-sqlite-data-entry-in-python
+http://killer-web-development.com/section/1/0
+*** Exploratory
+[[~/tools/web2py/applications/pitch/pitch-overview.org]]
 * Version Control
 ** 2013-11-19-git-can-be-simple-or-very-complicated
 #+name:git-can-be-simple-or-very-complicated-header
