@@ -15,8 +15,12 @@ d <- read.table(textConnection(
 # do
 str(d)
 head(d)
-loc  <- morpho_bounding_box(longitude = d$long,
-                    latitude = d$lat,
-                    projection = '4283')
+epsg <- make_EPSG()
+# epsg[grep("GDA94$", epsg$note),]
+projection  <- '4283'
+pts <- SpatialPointsDataFrame(cbind(d$long, d$lat), d,
+  proj4string=CRS(epsg$prj4[epsg$code %in% projection]))
+str(pts)
+loc  <- morpho_bounding_box(x = pts)
 loc
 print(xtable(loc), type = 'html')
