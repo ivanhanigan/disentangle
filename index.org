@@ -6313,7 +6313,7 @@ This is with MCHP resource repository - a general overview of this process is de
       automatic testing work out of the box because assumptions are made
       about the directory structure and naming conventions that will be used
   
-  <p><\p>
+  <p></p>
     
   [http://www.johnmyleswhite.com/notebook/2010/08/26/projecttemplate/](http://www.johnmyleswhite.com/notebook/2010/08/26/projecttemplate/)
   
@@ -6336,29 +6336,29 @@ This is with MCHP resource repository - a general overview of this process is de
       # and your workspace will be recreated and any new data automagically analysed in
       # the manner you want
   
-  <p><\p>
+  <p></p>
   
   #### Project Administration
   
   - I;ve found that these directories do not work so well for the administration of my projects and so I put together a different set of automatic defaults
   - Ive based it on the [University of Manitoba Centre for Health Policy](http://ivanhanigan.github.io/2013/12/research-protocol-for-manitoba-centre-for-health-policy/)- along with some other sources I can recall
   #### The full set
-      A.Background        
-      B.Proposals 
-      C.Approvals 
-      D.Budget    
-      E.Datasets  
-      F.Analysis  
-      G.Literature        
-      H.Communication             
-      I.Correspondance    
-      J.Meetings  
-      K.Completion        
-      ContactDetails.txt  
-      README.md
-      TODO.txt    
+      # A.Background        
+      # B.Proposals 
+      # C.Approvals 
+      # D.Budget    
+      # E.Datasets  
+      # F.Analysis  
+      # G.Literature        
+      # H.Communication             
+      # I.Correspondance    
+      # J.Meetings  
+      # K.Completion        
+      # ContactDetails.txt  
+      # README.md
+      # TODO.txt    
   
-  <p><\p>
+  <p></p>
     
   #### R Code: my subset
       AdminTemplate <- function(rootdir = getwd()){
@@ -6373,7 +6373,7 @@ This is with MCHP resource repository - a general overview of this process is de
         file.create(file.path(rootdir,'README.md'))
         }
   
-  <p><\p>
+  <p></p>
   
   
   #### Conclusion
