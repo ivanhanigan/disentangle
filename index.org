@@ -161,6 +161,15 @@ This project is my collection of notes and customised software tools for data ma
 ** Database Connection
 *** TODO connect2postgres
 *** TODO connect2oracle
+*** TODO libre office base to postgres
+install base with software centre and 
+sudo apt-get install libreoffice-sdbc-postgresql
+http://dcparris.net/2012/07/06/connecting-libreoffice-to-postgresql-natively/
+localhost didnt work but 127.0.0.1 did
+*** kexi
+using software centre
+kexi and
+kexi-postgresql-driver
 ** Database Input
 *** TODO readOGR2
 *** PSQL dump and restore
