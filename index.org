@@ -17,6 +17,21 @@ This project is my collection of notes and customised software tools for data ma
   install_github("disentangle", "ivanhanigan")
   require(disentangle)
 #+end_src
+** DESCRIPTION-code
+#+name:DESCRIPTION
+#+begin_src R :session *R* :tangle DESCRIPTION :exports none :eval no :padline no
+Package: Disentangle
+Type: Package
+Title: Disentangle
+Version: 1.1
+Date: 2014-03-26
+Author: ivanhanigan
+Maintainer: <ivan.hanigan@gmail.com>
+Depends: ggmap, maps, maptools, rgdal
+Description:  Functions I modified or created.
+License: GPL (>= 2)
+#+end_src
+
 * Test Data
 ** COMMENT blog-test-data-for-classification-trees
 #+name:test-data-for-classification
@@ -1024,6 +1039,61 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   
   
 #+end_src
+
+
+** TODO working-with-dates
+
+#+name:working-with-dates
+#+begin_src R :session *R* :tangle src/working-with-dates.r :exports none :eval no
+#### name:working-with-dates####
+http://stackoverflow.com/questions/15686451/dates-from-excel-to-r-platform-dependency
+
+  Quoting `?as.Date'
+
+  ## date given as number of days since 1900-01-01 (a date in 1989)
+  as.Date(32768, origin = "1900-01-01")
+  ## Excel is said to use 1900-01-01 as day 1 (Windows default) or
+  ## 1904-01-01 as day 0 (Mac default), but this is complicated by Excel
+  ## treating 1900 as a leap year.
+  ## So for dates (post-1901) from Windows Excel
+  as.Date(35981, origin = "1899-12-30") # 1998-07-05
+  ## and Mac Excel
+  as.Date(34519, origin = "1904-01-01") # 1998-07-05
+  ## (these values come from http://support.microsoft.com/kb/214330)
+#+end_src
+
+** R-spatial
+*** TODO xy2shp
+#+name:xy2shp
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  # func
+
+  if(!require(ggmap)) install.packages('ggmap'); require(ggmap)
+  if (!require(rgdal)) install.packages('rgdal'); require(rgdal)
+  epsg <- make_EPSG()
+  # load
+  latlong <- read.table(tc <- textConnection(
+  "ID  POINT_Y   POINT_X
+  1  150.5556 -35.09305
+  2  150.6851 -35.01535
+  3  150.6710 -35.06412
+  4  150.6534 -35.08666
+  "), header = TRUE); close(tc)
+  # do
+  for(i in 1:nrow(latlong)){
+    coords <- as.numeric(latlong[i,c('POINT_Y', 'POINT_X')])
+    e <- as.data.frame(cbind(i, t(coords), revgeocode(coords)))
+    write.table(e, "test.csv", sep = ',', append = i > 1, col.names = i == 1, row.names = F)
+  }
+  d <- read.csv('test.csv')
+  head(d)
+  ## Treat data frame as spatial points
+  pts <- SpatialPointsDataFrame(cbind(d$V2,d$V3),d,
+    proj4string=CRS(epsg$prj4[epsg$code %in% '4283']))
+  writeOGR(pts, 'test.shp', 'test', driver='ESRI Shapefile')
+  
+#+end_src
+
 
 * Data Output
 * Data Documentation
@@ -2857,6 +2927,71 @@ categories:
 
   - Further research is required.
   
+#+end_src
+
+** morpho_bounding_box
+*** R-morpho_bounding_box
+#+name:bounding_box
+#+begin_src R :session *R* :tangle R/morpho_bounding_box.r :exports none :eval no
+  ################################################################
+  # name:bounding_box
+  morpho_bounding_box <- function(x){
+    ## Check if spatial obj and proj4string is valid
+    #str(x)
+    bb <- x@bbox
+    #bb
+    # TODO polygons   
+    # TODO only for southern hemisphere, east of GMT?
+    loc <- data.frame(
+      rbind(
+        c(NA, abs(bb[2,2]), NA),
+        c(bb[1,1],  NA, bb[1,2]),
+        c(NA, abs(bb[2,1]), NA)
+        )
+      )
+    #loc
+    loc$X2[c(1,3)] <- sprintf("%s S", abs(loc$X2[c(1,3)]))
+    loc[2,c(1,3)] <- sprintf("%s E", abs(loc[2,c(1,3)]))
+     
+    return(loc)
+    }
+#+end_src
+*** test-morpho_bounding_box
+#+name:bounding_box
+#+begin_src R :session *R* :tangle tests/test-morpho_bounding_box.r :exports none :eval no
+  ################################################################
+  # name:bounding_box
+  require(xtable)
+  #if (!require(rgdal)) install.packages('rgdal'); require(rgdal)
+  #epsg <- make_EPSG()
+  # load
+  d <- read.table(textConnection(
+  "ID    long       lat
+  1  150.5556 -35.09305
+  2  150.6851 -35.01535
+  3  150.6710 -35.06412
+  4  150.6534 -35.08666
+  "), header = TRUE)
+  # do
+  str(d)
+  head(d)
+  epsg <- make_EPSG()
+  # epsg[grep("GDA94$", epsg$note),]
+  projection  <- '4283'
+  pts <- SpatialPointsDataFrame(cbind(d$long, d$lat), d,
+    proj4string=CRS(epsg$prj4[epsg$code %in% projection]))
+  str(pts)
+  loc  <- morpho_bounding_box(x = pts)
+  loc
+  print(xtable(loc), type = 'html')
+  
+#+end_src
+*** man-bounding_box
+#+name:bounding_box
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:bounding_box
+
 #+end_src
 
 * Exploratory Data Analysis
@@ -4895,6 +5030,33 @@ categories:
 #+end_src
 
 * Graphical User Interfaces
+** TODO ORACLE XE APEX / HTMLDB
+*** Drill down reports
+
+
+in oracle the method to create the drill down reports is
+
+   1)create tables
+   2)create pkeys and foriegn keys
+   3)create sequences
+   4)create triggers
+   5)create blank pages
+   6)create new page
+   7)          choose form
+   8)          choose form on report
+   9)          select the report to go on the blank page
+  10)        let the form create a new page
+  11)create a hidden item on report page IE :P2_IDNO
+  12)change report regions source SQL to 'WHERE [IDNO/FILEID ETC] = :P2_IDNO
+  13)set up the link on the previous page if applicable
+in the form page set the default value for say IDNO to PL/SQL expression & = :P2_IDNO for eg
+
+** TODO web2py
+*** refs
+http://stackoverflow.com/questions/6514680/gui-interface-for-sqlite-data-entry-in-python
+http://killer-web-development.com/section/1/0
+*** Exploratory
+[[~/tools/web2py/applications/pitch/pitch-overview.org]]
 * Version Control
 ** 2013-11-19-git-can-be-simple-or-very-complicated
 #+name:git-can-be-simple-or-very-complicated-header
@@ -6097,6 +6259,136 @@ This is with MCHP resource repository - a general overview of this process is de
   - This simplifies the Orgmode taskjuggler creation
   - A drawback is that it has to go through the Emacs export function.
   
+#+end_src
+
+** 2014-03-29-project-templates-that-initialize-a-new-project-with-a-skeleton-automatically
+** R-AdminTemplate
+*** R-R-AdminTemplate
+#+name:R-AdminTemplate
+#+begin_src R :session *R* :tangle R/AdminTemplate.r :exports none :eval no
+  ################################################################
+  # name:R-AdminTemplate
+  AdminTemplate <- function(rootdir = getwd()){
+    setwd(rootdir)
+    dir.create(file.path(rootdir,'01_planning'))
+    dir.create(file.path(rootdir,'01_planning','proposal'))
+    dir.create(file.path(rootdir,'01_planning','scheduling'))
+    dir.create(file.path(rootdir,'02_budget'))
+    dir.create(file.path(rootdir,'03_communication'))
+    dir.create(file.path(rootdir,'04_reporting_and_meetings'))
+    file.create(file.path(rootdir,'contact_details.txt'))
+    file.create(file.path(rootdir,'README.md'))
+    }
+  
+#+end_src
+*** test-R-AdminTemplate
+#+name:R-AdminTemplate
+#+begin_src R :session *R* :tangle tests/test-R-AdminTemplate.r :exports none :eval no
+  ################################################################
+  # name:R-AdminTemplate
+  setwd("~/Dropbox/Z_New_T_Drive/Resource Management/IT Infrastructure/PhenocamsAndImageryServer")
+  AdminTemplate()
+#+end_src
+*** man-R-AdminTemplate
+#+name:R-AdminTemplate
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:R-AdminTemplate
+
+#+end_src
+
+*** blog
+#+name:project-templates-that-initialize-a-new-project-with-a-skeleton-automatically-header
+#+begin_src R :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-03-29-project-templates-that-initialize-a-new-project-with-a-skeleton-automatically.md :exports none :eval no :padline no
+  ---
+  name: project-templates-that-initialize-a-new-project-with-a-skeleton-automatically
+  layout: post
+  title: Project Templates That Initialize A New Project With A Skeleton Automatically
+  date: 2014-03-29
+  categories:
+  - research methods
+  ---
+  
+  - I have been using [John Myles Whites ProjectTemplate R package](http://projecttemplate.net/) for ages
+  - I really like the ease with which I can get up and running a new project
+  - and the ease with which I can pick up an old project and start adding new work
+    
+  #### Quote from John's first post
+      My inspiration for this approach comes from the rails command from
+      Ruby on Rails, which initializes a new Rails project with the proper
+      skeletal structure automatically. Also taken from Rails is
+      ProjectTemplate’s approach of preferring convention over
+      configuration: the automatic data and library loading as well as the
+      automatic testing work out of the box because assumptions are made
+      about the directory structure and naming conventions that will be used
+  
+  <p></p>
+    
+  [http://www.johnmyleswhite.com/notebook/2010/08/26/projecttemplate/](http://www.johnmyleswhite.com/notebook/2010/08/26/projecttemplate/)
+  
+  - I dont know anything about RoR but this philosophy works really well for my R programming too
+  
+  #### R Code
+      if(!require(ProjectTemplate)) install.packages(ProjectTemplate); require(ProjectTemplate)
+      setwd("~/projects")
+      create.project("my-project")
+      setwd('my-project')
+      dir()
+      ##  [1] "cache"       "config"      "data"        "diagnostics" "doc"        
+      ##  [6] "graphs"      "lib"         "logs"        "munge"       "profiling"  
+      ## [11] "README"      "reports"     "src"         "tests"       "TODO"   
+      ##### these are very sensible default directories to create a modular
+      ##### analysis workflow.  See the project homepage for descriptions
+       
+      # now all you need to do whenever you start a new day 
+      load.project()
+      # and your workspace will be recreated and any new data automagically analysed in
+      # the manner you want
+  
+  <p></p>
+  
+  #### Project Administration
+  
+  - I;ve found that these directories do not work so well for the administration of my projects and so I put together a different set of automatic defaults
+  - Ive based it on the [University of Manitoba Centre for Health Policy](http://ivanhanigan.github.io/2013/12/research-protocol-for-manitoba-centre-for-health-policy/)- along with some other sources I can recall
+  #### The full set
+      # A.Background        
+      # B.Proposals 
+      # C.Approvals 
+      # D.Budget    
+      # E.Datasets  
+      # F.Analysis  
+      # G.Literature        
+      # H.Communication             
+      # I.Correspondance    
+      # J.Meetings  
+      # K.Completion        
+      # ContactDetails.txt  
+      # README.md
+      # TODO.txt    
+  
+  <p></p>
+    
+  #### R Code: my subset
+      AdminTemplate <- function(rootdir = getwd()){
+        setwd(rootdir)
+        dir.create(file.path(rootdir,'01_planning'))
+        dir.create(file.path(rootdir,'01_planning','proposal'))
+        dir.create(file.path(rootdir,'01_planning','scheduling'))
+        dir.create(file.path(rootdir,'02_budget'))
+        dir.create(file.path(rootdir,'03_communication'))
+        dir.create(file.path(rootdir,'04_reporting_and_meetings'))
+        file.create(file.path(rootdir,'contact_details.txt'))
+        file.create(file.path(rootdir,'README.md'))
+        }
+  
+  <p></p>
+  
+  
+  #### Conclusion
+  
+  - hopefully by formalising some of these into my workflow I will find my projects easier to navigate through
+  - and pick up or put down as needed
 #+end_src
 
 * Research Protocols
