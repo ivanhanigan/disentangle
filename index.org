@@ -43,7 +43,6 @@ License: GPL (>= 2)
   date: 2013-10-10
   categories:
   - Data Documentation
-  - Tree-Based Methods
   ---
 #+end_src
 ** Test Data for Classification Trees
@@ -1306,7 +1305,6 @@ http://biostatmatt.com/uploads/shotwell-interface-2011.pdf
   date: 2013-11-06
   categories:
   - Data Documentation
-  - surveys
   ---
   
   R is generally very good for handling many different data types but
@@ -1392,7 +1390,6 @@ title: extend-Rs-data-frame-class-with-metadata
 date: 2013-12-24
 categories:
 - research methods
-- data documentation
 ---
 
 "reml now extends R's data.frame class by introducing the data.set class which includes additional metadata required by EML"
@@ -2994,13 +2991,13 @@ categories:
 
 #+end_src
 
-** 2014-04-14-using-morpho-for-cataloguing-personal-research-data-blog
-#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-14-using-morpho-for-cataloguing-personal-research-data.md :exports none :eval no :padline no
+** 2014-04-19-using-morpho-for-cataloguing-personal-research-data-blog
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-19-using-morpho-for-cataloguing-personal-research-data.md :exports none :eval no :padline no
   ---
-  name: 2014-04-14-using-morpho-for-cataloguing-personal-research-data
+  name: 2014-04-19-using-morpho-for-cataloguing-personal-research-data
   layout: post
   title: Using Morpho for Cataloguing Personal Research Data
-  date: 2014-04-14
+  date: 2014-04-19
   categories:
   - Data Documentation
   ---
@@ -3318,8 +3315,7 @@ scope	optional	document
   title: quantum-gis-visualisations
   date: 2013-10-31
   categories:
-  - gisviz
-  - concordance
+  - spatial
   ---
   
   - This is a quick post on Quantum GIS for spatial data visualisation
@@ -3379,7 +3375,6 @@ scope	optional	document
   date: 2013-12-18
   categories:
   - research methods
-  - visualisation
   ---
   
   - following on from my previous posts about [animated maps](http://ivanhanigan.github.io/2013/07/animated-maps/), [spatio-temporal animations](http://ivanhanigan.github.io/2013/06/spatio-temporal-animations/) and animations [with buttons for go, stop and reverse](http://ivanhanigan.github.io/button/index.html)
@@ -4193,7 +4188,6 @@ title: non-linear-relationships-vs-non-linear-models-vis-a-vis-curvi-linear-term
 date: 2013-12-03
 categories:
 - research methods
-- statistical models
 ---
 
 
@@ -5256,7 +5250,6 @@ Transformation
   date: 2013-12-01
   categories:
   - research methods 
-  - workflow
   ---
   
   - Back in 2009 Joseph Guillaume worked with me on a complicated workflow
