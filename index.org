@@ -3001,6 +3001,8 @@ categories:
   categories:
   - Data Documentation
   ---
+    
+    
   
   <div id="table-of-contents">
   <h2>Table of Contents</h2>
@@ -3026,16 +3028,132 @@ categories:
   </ul>
   </div>
   </div>
-  
+   
   <div id="outline-container-1" class="outline-3">
   <h3 id="sec-1"><span class="section-number-3">1</span> 2014-04-20-using-morpho-orgmode</h3>
   <div class="outline-text-3" id="text-1">
+    
+  <?xml version="1.0" encoding="utf-8"?>
+  <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+                 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+  <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+  <head>
+  <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
+  <meta name="generator" content="Org-mode"/>
+  <meta name="generated" content="2014-04-19T22:38+1000"/>
+  <meta name="author" content="Ivan Hanigan"/>
+  <meta name="description" content=""/>
+  <meta name="keywords" content=""/>
+  <style type="text/css">
+   <!--/*--><![CDATA[/*><!--*/
+    html { font-family: Times, serif; font-size: 12pt; }
+    .title  { text-align: center; }
+    .todo   { color: red; }
+    .done   { color: green; }
+    .tag    { background-color: #add8e6; font-weight:normal }
+    .target { }
+    .timestamp { color: #bebebe; }
+    .timestamp-kwd { color: #5f9ea0; }
+    .right  {margin-left:auto; margin-right:0px;  text-align:right;}
+    .left   {margin-left:0px;  margin-right:auto; text-align:left;}
+    .center {margin-left:auto; margin-right:auto; text-align:center;}
+    p.verse { margin-left: 3% }
+    pre {
+          border: 1pt solid #AEBDCC;
+          background-color: #F3F5F7;
+          padding: 5pt;
+          font-family: courier, monospace;
+          font-size: 90%;
+          overflow:auto;
+    }
+    table { border-collapse: collapse; }
+    td, th { vertical-align: top;  }
+    th.right  { text-align:center;  }
+    th.left   { text-align:center;   }
+    th.center { text-align:center; }
+    td.right  { text-align:right;  }
+    td.left   { text-align:left;   }
+    td.center { text-align:center; }
+    dt { font-weight: bold; }
+    div.figure { padding: 0.5em; }
+    div.figure p { text-align: center; }
+    div.inlinetask {
+      padding:10px;
+      border:2px solid gray;
+      margin:10px;
+      background: #ffffcc;
+    }
+    textarea { overflow-x: auto; }
+    .linenr { font-size:smaller }
+    .code-highlighted {background-color:#ffff00;}
+    .org-info-js_info-navigation { border-style:none; }
+    #org-info-js_console-label { font-size:10px; font-weight:bold;
+                                 white-space:nowrap; }
+    .org-info-js_search-highlight {background-color:#ffff00; color:#000000;
+                                   font-weight:bold; }
+    /*]]>*/-->
+  </style>
+  <script type="text/javascript">
+  /*
+  @licstart  The following is the entire license notice for the
+  JavaScript code in this tag.
   
+  Copyright (C) 2012-2013 Free Software Foundation, Inc.
+  
+  The JavaScript code in this tag is free software: you can
+  redistribute it and/or modify it under the terms of the GNU
+  General Public License (GNU GPL) as published by the Free Software
+  Foundation, either version 3 of the License, or (at your option)
+  any later version.  The code is distributed WITHOUT ANY WARRANTY;
+  without even the implied warranty of MERCHANTABILITY or FITNESS
+  FOR A PARTICULAR PURPOSE.  See the GNU GPL for more details.
+  
+  As additional permission under GNU GPL version 3 section 7, you
+  may distribute non-source (e.g., minimized or compacted) forms of
+  that code without the copy of the GNU GPL normally required by
+  section 4, provided you include this license notice and a URL
+  through which recipients can access the Corresponding Source.
+  
+  
+  @licend  The above is the entire license notice
+  for the JavaScript code in this tag.
+  ,*/
+  <!--/*--><![CDATA[/*><!--*/
+   function CodeHighlightOn(elem, id)
+   {
+     var target = document.getElementById(id);
+     if(null != target) {
+       elem.cacheClassElem = elem.className;
+       elem.cacheClassTarget = target.className;
+       target.className = "code-highlighted";
+       elem.className   = "code-highlighted";
+     }
+   }
+   function CodeHighlightOff(elem, id)
+   {
+     var target = document.getElementById(id);
+     if(elem.cacheClassElem)
+       elem.className = elem.cacheClassElem;
+     if(elem.cacheClassTarget)
+       target.className = elem.cacheClassTarget;
+   }
+  /*]]>*///-->
+  </script>
+  
+  </head>
+  <body>
+  
+  <div id="preamble">
   
   </div>
   
+  <div id="content">
+    
+    
+  </div>
+  
   <div id="outline-container-1-1" class="outline-4">
-  <h4 id="sec-1-1"><span class="section-number-4">1.1</span> Introduction</h4>
+  <h4 id="sec-1-1"><span class="section-number-4">1.1</span>Introduction</h4>
   <div class="outline-text-4" id="text-1-1">
   
   
@@ -3326,8 +3444,10 @@ categories:
   
   </body>
   </html>
+    
   
 #+end_src  
+
 ** 2014-04-20-using-morpho-orgmode
 *** Introduction
 
@@ -3474,6 +3594,111 @@ As this is metadata only about the dataset, it is innapropriate to refer to rela
 You can see this if you then open it up again in morpho and then under the documentation menu go to Add/Edit Documentation.
 
 ![morphoimg5.png](/images/morphoimg5.png)
+** 2014-04-20-a-workaround-for-inserting-species-names-to-morpho
+#+name:a-workaround-for-inserting-species-names-to-morpho-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-20-a-workaround-for-inserting-species-names-to-morpho.md :exports none :eval no :padline no
+  ---
+  name: a-workaround-for-inserting-species-names-to-morpho
+  layout: post
+  title: A Workaround For Inserting Species Names To Morpho
+  date: 2014-04-20
+  categories:
+  - Data Documentation
+  ---
+  
+  Morpho is a pretty minimal editor for EML really.  It gives you a set
+  of generically useful data entry forms but sometimes a specific task
+  is better achieved through edits made directly to the XML document.
+  An example of this is inserting a large number of species names to the
+  taxonomic coverage module. The form to include these requires
+  individual data entry for each species.
+  
+  ![morpho-taxo.png](/images/morpho-taxo-smll.png)
+  
+  Which looks like this when published
+  
+  ![morpho-taxo2.png](/images/morpho-taxo2.1.png)
+  
+  Go to the morpho catalogue (found at ~/.morpho/profiles/hanigan/data/hanigan/) and take a look at how the XML is constructed.
+  
+  #### XML Code:
+      <taxonomicCoverage>
+        <taxonomicClassification>
+          <taxonRankName>Genus</taxonRankName>
+          <taxonRankValue>Dasycercus</taxonRankValue>
+          <taxonomicClassification>
+            <taxonRankName>Species</taxonRankName>
+            <taxonRankValue>cristicauda</taxonRankValue>
+            <commonName>Mulgara</commonName>
+          </taxonomicClassification>
+        </taxonomicClassification>
+        <taxonomicClassification>
+          <taxonRankName>Genus</taxonRankName>
+          <taxonRankValue>Homo</taxonRankValue>
+            <taxonomicClassification>
+            <taxonRankName>Species</taxonRankName>
+            <taxonRankValue>sapiens</taxonRankValue>
+            <commonName>Modern Human</commonName>
+          </taxonomicClassification>
+        </taxonomicClassification>
+      </taxonomicCoverage>
+  
+  
+  
+  <p></p>
+  
+  
+  
+  #### SO how to insert a large number of these 
+  
+  One could use the taxon import feature to import the details from a
+  file if there is a large list. Morpho’s taxon import feature does not
+  correctly import more than one column of taxon data so if you have
+  Genus and Species to enter you will actually need to combine Genus and
+  Species into a binomial Species rank in one column (beware that if the data are sourced from a datafile that uses the underscore to seperate the words then these will not be correctly imported).  
+  
+  Once you have formated your input list, then import this
+  as a new data table and go to the taxonomic coverage form under the
+  documentation menu.  Click on the option to "import taxon information
+  from data table" and select the appropriate column, selecting
+  'species' for the class.  This will populate the taxonomicCoverage module in the EML.  You can now remove that data table from the package to be tidy.
+  
+  This is what it looks like if you combine genus and species in the single column.
+  
+  ![morpho-taxo3.png](/images/morpho-taxo3.png)
+  
+  And here is the XML
+  
+  #### XML Code:
+      <taxonomicCoverage scope="document">
+        <taxonomicClassification>
+          <taxonRankName>Species</taxonRankName>
+          <taxonRankValue>Abelmoschus moschatus</taxonRankValue>
+        </taxonomicClassification>
+        <taxonomicClassification>
+          <taxonRankName>Species</taxonRankName>
+          <taxonRankValue>Abrus pector</taxonRankValue>
+        </taxonomicClassification>
+        <taxonomicClassification>
+          <taxonRankName>Species</taxonRankName>
+          <taxonRankValue>Abrus precatorius</taxonRankValue>
+        </taxonomicClassification>
+  
+  <p></p>
+  
+  #### Morpho has problems subsequently editing a very long list
+  
+  We found that if a very large amount of taxonomic information is entered into Morpho
+  we had issues modifying it. When you click on Documentation >
+  Taxonomic Coverage to try and go in and edit nothing will
+  happen. Morpho crashes when trying to open the Taxonomic Coverage
+  because the list is long enough to cause “Out of Memory” error with
+  the default configuration of Java heap space. It is a Morpho bug. The
+  workaround is to edit the XML file manually.
+  
+  
+#+end_src
+
 ** advanced EML for data integration
 *** Adding the data location 
     https://im.lternet.edu/node/1119
