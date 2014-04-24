@@ -3699,6 +3699,66 @@ You can see this if you then open it up again in morpho and then under the docum
   
 #+end_src
 
+** 2014-04-21-linking-eml-packages-by-umbrella-project-info
+#+name:linking-eml-packages-by-umbrella-project-info-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-21-linking-eml-packages-by-umbrella-project-info.md :exports none :eval no :padline no
+  ---
+  name: linking-eml-packages-by-umbrella-project-info
+  layout: post
+  title: linking-eml-packages-by-umbrella-project-info
+  date: 2014-04-21
+  categories:
+  - Data Documentation
+  ---
+  
+  In Eml the optional "project" module provides an overall description
+  of the larger-scale project or research context with which that
+  dataset is associated. For the examples in our work the "project" will
+  most often be an LTER (Longterm Ecological Research Network) site that
+  directed the research.  Accordingly, the "title" here consists of the
+  name of the LTER site. The "personnel" group contains the same
+  elements as "creator" and "contact", with the addition of a mandatory
+  "role" element, and it is used to identify the lead PI and/or
+  information manager on the site. Other optional elements in the
+  "project" module include "abstract", "funding",
+  "studyAreaDescription", and "designDescription", each of which can be
+  used to provide a richer textual description of the LTER site
+  responsible for the research project being documented.  If used, the
+  "abstract" includes basic information about the LTER site, such as its
+  general history and administration, while "studyAreaDescription" is
+  more of a physical description of the area where the site is
+  located. This description may also include the "coverage" module,
+  which is fully discussed on page XX of this handbook, or the
+  "citation" module, covered on page XX. The "funding" tag is textual
+  and self-explanatory, but "designDescription" is best used for a
+  description of the site’s database information and availability.
+  
+  Morpho doesn't give all these options so you need to go to the EML file found in the "~/.morpho/..." directory and edit this with a text editor
+  I think the order of the tags here might make a difference so I always put thye "abstract" tag after the "/personnel" tag.  I also think you might need this "para" tag:
+  
+  #### Code:linking-eml-packages-by-umbrella-project-inf
+      <abstract> 
+        <para>Prof McMichael set up this group to develop new methods of researching Environmental (especially Climate Change) and Health
+        </para>
+      </abstract>
+  
+  <p></p>
+  
+  So this gives the overarching project a valid reference, but how to provde the links for interested readers to find out more?  First we can include a link to the project homepage from the eml/dataset/abstract node, but also we can provide URLs in a machine-readable way by inserting an "additionalLinks" node at the bottom of the EML:
+  
+  #### Code:linking-eml-packages-by-umbrella-project-info
+      <additionalMetadata>
+        <metadata>
+          <additionalLinks>
+            <url name="The name of the homepage">http://...</url>
+          </additionalLinks>
+        </metadata>
+      </additionalMetadata>
+      
+  
+      
+#+end_src
+
 ** advanced EML for data integration
 *** Adding the data location 
     https://im.lternet.edu/node/1119
@@ -3852,6 +3912,144 @@ scope	optional	document
     element is intended specifically for controlling access to the
     data entity itself. For more information on the <access> tree, see
     above, under the general access discussion.
+
+** 2014-04-24-using-reml-to-input-large-number-of-column-descriptions
+#+name:using-reml-to-input-large-number-of-column-descriptions-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-24-using-reml-to-input-large-number-of-column-descriptions.md :exports none :eval no :padline no
+  ---
+  name: using-reml-to-input-large-number-of-column-descriptions
+  layout: post
+  title: Using Reml To Input Large Number Of Column Descriptions
+  date: 2014-04-24
+  categories:
+  - Data Documentation
+  ---
+  
+  We recently hit an issue when using morpho to enter metadata for a large number of variables (~200).  The GUI form for entering definitions and units steps through each variable, but at about 60 or 70 it starts to slow down.  By the time we got to 160 it was taking more than 5 minutes to change to the next variable.  To safegaurd against losing work, we kept hitting "save for later" but this got slower and apeared to freeze at the last minute...  Not sure if that last save worked at all.
+  
+  So I;ve come back once more to the ROpenSci EML package which is looking like a really useful way to build metadata elements automatically, with Morpho being used to proved augmentation and finesse the documents.
+  
+  First thing I tried was the constructed Column Definitions and Unit Definitions example from [the README](https://github.com/ropensci/EML)
+  
+  #### R Code:
+      #require(devtools)
+      #install_github("EML", "ROpenSci")
+      require(EML)
+       
+      # The example from orig doco
+      dat = data.set(river = c("SAC",  "SAC",   "AM"),
+                     spp   = c("king",  "king", "ccho"),
+                     stg   = c("smolt", "parr", "smolt"),
+                     ct    = c(293L,    410L,    210L),
+                     col.defs = c("River site used for collection",
+                                  "Species common name",
+                                  "Life Stage",
+                                  "count of live fish in traps"),
+                     unit.defs = list(c(SAC = "The Sacramento River",
+                                        AM = "The American River"),
+                                      c(king = "King Salmon",
+                                        ccho = "Coho Salmon"),
+                                      c(parr = "third life stage",
+                                        smolt = "fourth life stage"),
+                                      "number"))
+      str(dat)
+      eml_config(creator="Carl Boettiger <cboettig@gmail.com>")
+      eml_write(dat, file = "inst/doc/EML_example.xml")
+      # now you can import this to morpho and have a look
+      # note that for morpho 1.8 it wants to change the EML version from 2.1.1 to 2.1.0
+      # and it can't show the data yet
+      # so what we need to do is write this as a file to the morpho database
+      # save and close, note which number it assigned
+      dat <- data.frame(dat)
+      morpho_db  <- "~/.morpho/profiles/hanigan/data/hanigan/"
+      maxid  <-  1+max(as.numeric(dir(morpho_db)))
+      filename <- file.path(morpho_db,maxid)
+      # what is the number?
+      filename
+      write.csv(dat, filename, row.names =F, quote=F)
+  
+  
+  <p></p>
+  
+  So now to finish what we need to add into the EML that morpho has created (22.1 in my case)  just needs the reference to the dataTable.
+  
+  #### EML Code:
+      ...
+      </dataFormat>
+      <distribution scope="document"> <online> <url function="download">ecogrid://knb/hanigan.22.1</url>
+      </online>
+      <access authSystem="knb" order="denyFirst"><allow><principal>uid=datalibrarian,o=unaffiliated,dc=ecoinformatics,dc=org</principal>
+      <permission>all</permission>
+      </allow>
+      <allow><principal>uid=hanigan,o=unaffiliated,dc=ecoinformatics,dc=org</principal>
+      <permission>read</permission>
+      </allow>
+      </access>
+      </distribution>
+      </physical>
+      ...
+  
+  <p></p>
+  
+  Which seems to have worked when we open it up again:
+    
+  ![moprho-wide1.png](/images/morpho-wide1.png)
+  
+  So now let;s try a large nuber of variables:
+  
+  #### R Code:
+      # add lots of cols
+      for(i in 5:100){
+        dat[,i] <-  sample(rnorm(100,1,2), 3)
+      }
+      str(dat)
+      ##  $ V95  : num  1.5708 -0.0936 2.2324
+      ##  $ V96  : num  1.79 5.4 1.62
+      ##  $ V97  : num  -1.141 0.653 5.365
+      ##  $ V98  : num  1.738 -1.046 -0.135
+      ##  $ V99  : num  3.6 -0.738 -1.877
+      ##   [list output truncated]
+                     unit.defs = list(c(SAC = "The Sacramento River",
+                                        AM = "The American River"),
+                                      c(king = "King Salmon",
+                                        ccho = "Coho Salmon"),
+                                      c(parr = "third life stage",
+                                        smolt = "fourth life stage"))
+      unit.defs[[3]]
+      for(i in 4:100){
+      unit.defs[[i]] <- "number"
+      }
+      unit.defs
+      dat = data.set(dat,
+                     col.defs = c("River site used for collection",
+                                  "Species common name",
+                                  "Life Stage",
+                                  "count of live fish in traps",
+      c(rep("count stuff", 95))
+                       ),
+      unit.defs = unit.defs
+                       
+        )
+      str(dat)
+       
+      eml_config(creator="Ivan Charles Hanigan <ivan.hanigan@gmail.com>")
+      eml_write(dat, file = "inst/doc/EML_example_wide.xml")
+      # import to morpho, save and close
+      dat <- data.frame(dat)
+      morpho_db  <- "~/.morpho/profiles/hanigan/data/hanigan/"
+      maxid  <-  1+max(as.numeric(dir(morpho_db)))
+      filename <- file.path(morpho_db,maxid)
+      # what is the number?
+      filename
+      write.csv(dat, filename, row.names =F, quote=F)
+      # now add this into the EML morpho has created (25.2 in my case)
+  
+  <p></p>
+  
+  Which now seems to have attached the variable defintions and dataTable adequately.
+  
+  ![morpho-wide2.png](/images/morpho-wide2.png)
+#+end_src
 
 * Exploratory Data Analysis
 * General Purpose
