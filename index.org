@@ -989,6 +989,7 @@ So I thought what's the other 10?  Here's a few contenders for my work:
   date: 2014-02-27
   categories:
   - research methods
+  - Data Documentation
   ---
   
   
@@ -3759,6 +3760,344 @@ You can see this if you then open it up again in morpho and then under the docum
       
 #+end_src
 
+** 2014-04-24-using-reml-to-input-large-number-of-column-descriptions
+#+name:using-reml-to-input-large-number-of-column-descriptions-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-24-using-reml-to-input-large-number-of-column-descriptions.md :exports none :eval no :padline no
+  ---
+  name: using-reml-to-input-large-number-of-column-descriptions
+  layout: post
+  title: Using Reml To Input Large Number Of Column Descriptions
+  date: 2014-04-24
+  categories:
+  - Data Documentation
+  ---
+  
+  We recently hit an issue when using morpho to enter metadata for a large number of variables (~200).  The GUI form for entering definitions and units steps through each variable, but at about 60 or 70 it starts to slow down.  By the time we got to 160 it was taking more than 5 minutes to change to the next variable.  To safegaurd against losing work, we kept hitting "save for later" but this got slower and apeared to freeze at the last minute...  Not sure if that last save worked at all.
+  
+  So I;ve come back once more to the ROpenSci EML package which is looking like a really useful way to build metadata elements automatically, with Morpho being used to proved augmentation and finesse the documents.
+  
+  First thing I tried was the constructed Column Definitions and Unit Definitions example from [the README](https://github.com/ropensci/EML)
+  
+  #### R Code:
+      #require(devtools)
+      #install_github("EML", "ROpenSci")
+      require(EML)
+       
+      # The example from orig doco
+      dat = data.set(river = c("SAC",  "SAC",   "AM"),
+                     spp   = c("king",  "king", "ccho"),
+                     stg   = c("smolt", "parr", "smolt"),
+                     ct    = c(293L,    410L,    210L),
+                     col.defs = c("River site used for collection",
+                                  "Species common name",
+                                  "Life Stage",
+                                  "count of live fish in traps"),
+                     unit.defs = list(c(SAC = "The Sacramento River",
+                                        AM = "The American River"),
+                                      c(king = "King Salmon",
+                                        ccho = "Coho Salmon"),
+                                      c(parr = "third life stage",
+                                        smolt = "fourth life stage"),
+                                      "number"))
+      str(dat)
+      eml_config(creator="Carl Boettiger <cboettig@gmail.com>")
+      eml_write(dat, file = "inst/doc/EML_example.xml")
+      # now you can import this to morpho and have a look
+      # note that for morpho 1.8 it wants to change the EML version from 2.1.1 to 2.1.0
+      # and it can't show the data yet
+      # so what we need to do is write this as a file to the morpho database
+      # save and close, note which number it assigned
+      dat <- data.frame(dat)
+      morpho_db  <- "~/.morpho/profiles/hanigan/data/hanigan/"
+      maxid  <-  1+max(as.numeric(dir(morpho_db)))
+      filename <- file.path(morpho_db,maxid)
+      # what is the number?
+      filename
+      write.csv(dat, filename, row.names =F, quote=F)
+  
+  
+  <p></p>
+  
+  So now to finish what we need to add into the EML that morpho has created (22.1 in my case)  just needs the reference to the dataTable.
+  
+  #### EML Code:
+      ...
+      </dataFormat>
+      <distribution scope="document"> <online> <url function="download">ecogrid://knb/hanigan.22.1</url>
+      </online>
+      <access authSystem="knb" order="denyFirst"><allow><principal>uid=datalibrarian,o=unaffiliated,dc=ecoinformatics,dc=org</principal>
+      <permission>all</permission>
+      </allow>
+      <allow><principal>uid=hanigan,o=unaffiliated,dc=ecoinformatics,dc=org</principal>
+      <permission>read</permission>
+      </allow>
+      </access>
+      </distribution>
+      </physical>
+      ...
+  
+  <p></p>
+  
+  Which seems to have worked when we open it up again:
+    
+  ![moprho-wide1.png](/images/morpho-wide1.png)
+  
+  So now let;s try a large nuber of variables:
+  
+  #### R Code:
+      # add lots of cols
+      for(i in 5:100){
+        dat[,i] <-  sample(rnorm(100,1,2), 3)
+      }
+      str(dat)
+      ##  $ V95  : num  1.5708 -0.0936 2.2324
+      ##  $ V96  : num  1.79 5.4 1.62
+      ##  $ V97  : num  -1.141 0.653 5.365
+      ##  $ V98  : num  1.738 -1.046 -0.135
+      ##  $ V99  : num  3.6 -0.738 -1.877
+      ##   [list output truncated]
+  
+      # firstly I make a liset of the unit definitions for the example
+      unit.defs <- list(c(SAC = "The Sacramento River",
+                         AM = "The American River"),
+                       c(king = "King Salmon",
+                         ccho = "Coho Salmon"),
+                       c(parr = "third life stage",
+                         smolt = "fourth life stage"))
+      # then I add to it the definition for the constructed variables
+      unit.defs[[3]]
+      for(i in 4:100){
+        unit.defs[[i]] <- "number"
+      }
+      unit.defs
+  
+      # and this can be passed to the data.set constructor
+      dat <- data.set(dat,
+                     col.defs = c("River site used for collection",
+                                  "Species common name",
+                                  "Life Stage",
+                                  "count of live fish in traps",
+                                 c(rep("count stuff", 95))),
+                      unit.defs = unit.defs
+                      )
+      str(dat)
+       
+      eml_config(creator="Ivan Charles Hanigan <ivan.hanigan@gmail.com>")
+      eml_write(dat, file = "inst/doc/EML_example_wide.xml")
+      # import to morpho, save and close
+      # create the dataset for morphos database
+      dat <- data.frame(dat)
+      morpho_db  <- "~/.morpho/profiles/hanigan/data/hanigan/"
+      maxid  <-  1+max(as.numeric(dir(morpho_db)))
+      filename <- file.path(morpho_db,maxid)
+      # what is the number?
+      filename
+      write.csv(dat, filename, row.names =F, quote=F)
+      # now add this into the EML morpho has created (25.2 in my case)
+  
+  <p></p>
+  
+  Which now seems to have attached the variable defintions and dataTable adequately.
+  
+  ![morpho-wide2.png](/images/morpho-wide2.png)
+#+end_src
+
+** 2014-04-25-tweaking-r-eml-package-outputs-with-morpho-and-failing-that-with-emacs
+#+name:tweaking-r-eml-package-outputs-with-morpho-and-failing-that-with-emacs-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-25-tweaking-r-eml-package-outputs-with-morpho-and-failing-that-with-emacs.md :exports none :eval no :padline no
+  ---
+  name: tweaking-r-eml-package-outputs-with-morpho-and-failing-that-with-emacs
+  layout: post
+  title: Tweaking R Eml Package Outputs With Morpho And Failing That With Emacs
+  date: 2014-04-25
+  categories:
+  - Data Documentation
+  ---
+  
+  I realised that the work I did yesterday had an error in it.  I'd
+  created a list of unit.defs with one less than I needed.  So the
+  variable V100 was given the definition of NA!  I can fix this by open
+  that package in Morpho and go to the column and select it, then under
+  the Data menu, choose Edit Column Documentation.  There we can change
+  all the definitions.  Now I start thinking about changing the type
+  from count to ArealDensity, numberPerMeterSquared.  To change all
+  these new variables I don't want to go thru the GUI 95 times!  Change
+  the first one and then look at the EML
+  
+  #### EML Code:
+      <attribute id="1398382425052">
+        <attributeName>V99</attributeName>
+        <attributeDefinition>count stuff</attributeDefinition>
+        <measurementScale>
+          <ratio>
+            <unit><standardUnit>number</standardUnit></unit>
+            <numericDomain><numberType>real</numberType></numericDomain>
+          </ratio>
+        </measurementScale>
+      </attribute>
+      <attribute id="1398382385863">
+        <attributeName>V100</attributeName>
+        <attributeDefinition>A random variable</attributeDefinition>
+        <measurementScale>
+          <ratio>
+            <unit><standardUnit>numberPerMeterSquared</standardUnit></unit>
+            <numericDomain><numberType>real</numberType></numericDomain>
+          </ratio>
+        </measurementScale>
+      </attribute>
+  
+  <p></p>
+  
+  So this looks like I can do a find and replace in Emacs so go to the
+  "~/.morpho" database and make a copy of the appropriate EML (number was in the morpho saved) and rename it with the increment up one of the minor version. Open this and run the find and replace.
+  
+  #### Code:
+      <standardUnit>number<
+      to
+      <standardUnit>numberPerMeterSquared<
+  
+  <p></p>
+  
+  Which was a much quicker way to redefine all these.  Save to our Metacat Network and it shows up as I wanted it to.
+  
+  ![morpho-wide3.png](/images/morpho-wide3.png)
+  
+  ## Conclusions
+  - Morpho and a code editor can be used in conjunction to edit EML quite well
+  - I suspect edits to the EML directly with a code editor are pretty dangerous
+  - For eg if you do the wrong change then that EML will likely not be valid and Morpho will complain.
+  - But the advantage of quickly modifying things like 100 variables unit definitions rather than opening every one in the GUI seems to be a worthwhile risk to me.
+  
+  
+  
+  
+#+end_src
+
+** 2014-04-29-using-r-eml-to-input-large-numbers-of-variables-part-2
+#+name:using-r-eml-to-input-large-numbers-of-variables-part-2-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-29-using-r-eml-to-input-large-numbers-of-variables-part-2.md :exports none :eval no :padline no
+  ---
+  name: using-r-eml-to-input-large-numbers-of-variables-part-2
+  layout: post
+  title: using-r-eml-to-input-large-numbers-of-variables-part-2
+  date: 2014-04-29
+  categories:
+  - Data Documentation
+  ---
+  
+  In my [previous post](/2014/04/using-reml-to-input-large-number-of-column-descriptions) I showed a workaround to input large number of variabels than Morpho could handle.  I have found out an interesting thing about the R EML package data.set approach.  The unit.defs depends on the type of the column in the data frame (R knows if you try to trick it).  Rather than describe all the levels of the factor vars, I wanted to just have simple descriptions for numeric or character type columns.  If numeric it should be number and if character it can be the name of the column.  Because I am just trying to sidestep the issue with morpho failing to input the 200 plus variables I just need to create a dataframe with either number or character (not factor).
+  
+  For an example:
+  
+  #### R Code:
+      require(EML)
+      fname <- dir("myData", full.names=T, pattern = 'csv')
+      fname
+      fname  <- "myData/paper_data.csv"  
+      dat  <- read.csv(fname, stringsAsFactor=F)
+      # the variable names include special characters such as % and [ so need to do some extra work
+      names_dat  <- read.csv(fname, nrow=1, header=F, stringsAsFactor=F)
+      names(dat) <- names_dat
+      head(dat)
+      nrow(dat)
+      # the first 46 variables are nominal, thereafter they are all numeric
+      str(dat[,1:46])
+      str(dat[,47:49])
+      # but these numerics are character for some reason
+      table(dat[ , 47])
+      # it is because the raw data had * instead of NA...  I could use na.strings when I call read.table above, or deal with it here
+      # I'll just convert them to numerics now
+      dat1 <- dat[,1:46]
+      dat2 <- dat[,47:ncol(dat)]
+      dat2[dat2 == "*"] <- NA
+      for(i in 1:ncol(dat2)){
+        dat2[,i]  <- as.numeric(dat2[ , i])
+      }
+      str(dat2)
+      # good that has set them up properly, also make sure all the text are character type
+      for(i in 1:ncol(dat1)){
+        dat1[,i]  <- as.character(dat1[ , i])
+      }
+      # recombine
+      dat <- cbind(dat1,dat2)
+      str(dat)
+      # then I add to it the definition for the constructed variables
+      unit_defs <- list()
+      for(i in 1:46){
+          unit_defs[[i]] <- names(dat[i])
+      }
+      for(i in 47:ncol(dat)){
+          unit_defs[[i]] <- "number"
+      }
+      unit_defs[1:20]
+      col_defs <- names(dat)
+      col_defs
+      #names(dat)
+      dat <- data.set(dat,
+                     col.defs = col_defs,
+                     unit.defs = unit_defs
+                     )
+      str(dat)
+      
+      eml_config(creator="Ivan Charles Hanigan <ivan.hanigan@gmail.com>")
+      dir()
+      oldwd <- getwd()
+      setwd("myData")
+      eml_write(dat, file = "test_eml.xml", title = "test_eml")
+      setwd(oldwd)
+  
+  
+  <p></p>
+  
+  ### Use Morpho to tidy up the Results
+
+  - The result can be imported to Morpho and then edited from there
+  - or you can use a code editor like emacs or notepad++ to do bulk find-and-replace operations to fix up issues
+
+  ### Conclusions
+  
+  - Morpho failed with 200 plus variables
+  - the R EML package succeeded to write the file
+  - I needed to pay careful attention to the type of the variables in the data.frame before running the R EML functions
+#+end_src
+** 2014-04-29-workaround-for-installing-morpho-on-a-windows-network
+#+name:workaround-for-installing-morpho-on-a-windows-network-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-29-workaround-for-installing-morpho-on-a-windows-network.md :exports none :eval no :padline no
+  ---
+  name: workaround-for-installing-morpho-on-a-windows-network
+  layout: post
+  title: workaround-for-installing-morpho-on-a-windows-network
+  date: 2014-04-29
+  categories:
+  - Data Documentation
+  ---
+  
+  ### Introduction
+  
+  Morpho is an open source piece of software designed to host all kinds of ecological data.  It is used to describe data collections. We publish to Metacat using Morpho.  For technical reasons, we have our own server running an older version of the Metacat software so have to run an old version of Morpho (v1.8).
+    
+  ### Installation and configuration
+  
+  TERN specific instructions are replicated across:
+  
+  - [http://www.tern-supersites.net.au/index.php/data/repository-tutorial](http://www.tern-supersites.net.au/index.php/data/repository-tutorial)
+  - [http://www.ltern.org.au/index.php/data/guides-and-tutorial](http://www.ltern.org.au/index.php/data/guides-and-tutorial)
+  
+  ### Morpho issue on Windows in our network environment
+  
+  The ANU Fenner School came across this issue. Our local IT department have discovered with Morpho (v1.8) Installation on Windows in our network environment, Morpho installs a hidden directory called ".morpho" and this is written to a PATH next to the User Desktop. This is actually on a network share with a very small quota.
+  
+  Therefore as Morpho writes data there it can easily exceed the quota causing the software to stop working.  All users of Morpho on such a network should check for the location of the ".morpho" directory and if it is located with such a restricted quota then alternative arrangements need to be made.
+  
+  At the ANU Fenner School we opted to set up local user accounts (the ".morpho" file is then on the C drive) and this user is accessible from the main User's account.  The Morpho files are therefore stored on the C drive which is of course a danger for hard disk failure and data loss.
+  
+  We feel that as long as the draft packages are saved to the networked Metacat (with the maximum access restrictions in force for draft work) then if the local hard disk dies then the draft data package is not lost but can be accessed again from a new Morpho install and the Metacat server.
+  
+  Issues remain about the long term solution to this problem but this will work in the short-term.
+  
+  We think you can also create a junction (symlink) so that .morpho/ can point to a different location (perhaps another network storage with bigger capacity and automated backup).
+#+end_src
+
 ** advanced EML for data integration
 *** Adding the data location 
     https://im.lternet.edu/node/1119
@@ -3802,12 +4141,7 @@ You can see this if you then open it up again in morpho and then under the docum
 - start morpho
 - next time want to test backups or bring this up to sync just overwrite .morpho and restart morpho?
 
-- test upgrading to morpho 1.10, just use uninstaller (tools/morpho1.8/Uninstaller, java -jar uninstaller.jar) then install newer version
-  
-  
-  
-  
-  
+- test upgrading to morpho 1.10, just use uninstaller (tools/morpho1.8/Uninstaller, java -jar uninstaller.jar) then install newer version  
 ** 2014-04-xx-using-morpho-for-cataloguing-postgis-servers-org
 *** Adding regarding the Data Location and Backups
   
@@ -3912,145 +4246,6 @@ scope	optional	document
     element is intended specifically for controlling access to the
     data entity itself. For more information on the <access> tree, see
     above, under the general access discussion.
-
-** 2014-04-24-using-reml-to-input-large-number-of-column-descriptions
-#+name:using-reml-to-input-large-number-of-column-descriptions-header
-#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-24-using-reml-to-input-large-number-of-column-descriptions.md :exports none :eval no :padline no
-  ---
-  name: using-reml-to-input-large-number-of-column-descriptions
-  layout: post
-  title: Using Reml To Input Large Number Of Column Descriptions
-  date: 2014-04-24
-  categories:
-  - Data Documentation
-  ---
-  
-  We recently hit an issue when using morpho to enter metadata for a large number of variables (~200).  The GUI form for entering definitions and units steps through each variable, but at about 60 or 70 it starts to slow down.  By the time we got to 160 it was taking more than 5 minutes to change to the next variable.  To safegaurd against losing work, we kept hitting "save for later" but this got slower and apeared to freeze at the last minute...  Not sure if that last save worked at all.
-  
-  So I;ve come back once more to the ROpenSci EML package which is looking like a really useful way to build metadata elements automatically, with Morpho being used to proved augmentation and finesse the documents.
-  
-  First thing I tried was the constructed Column Definitions and Unit Definitions example from [the README](https://github.com/ropensci/EML)
-  
-  #### R Code:
-      #require(devtools)
-      #install_github("EML", "ROpenSci")
-      require(EML)
-       
-      # The example from orig doco
-      dat = data.set(river = c("SAC",  "SAC",   "AM"),
-                     spp   = c("king",  "king", "ccho"),
-                     stg   = c("smolt", "parr", "smolt"),
-                     ct    = c(293L,    410L,    210L),
-                     col.defs = c("River site used for collection",
-                                  "Species common name",
-                                  "Life Stage",
-                                  "count of live fish in traps"),
-                     unit.defs = list(c(SAC = "The Sacramento River",
-                                        AM = "The American River"),
-                                      c(king = "King Salmon",
-                                        ccho = "Coho Salmon"),
-                                      c(parr = "third life stage",
-                                        smolt = "fourth life stage"),
-                                      "number"))
-      str(dat)
-      eml_config(creator="Carl Boettiger <cboettig@gmail.com>")
-      eml_write(dat, file = "inst/doc/EML_example.xml")
-      # now you can import this to morpho and have a look
-      # note that for morpho 1.8 it wants to change the EML version from 2.1.1 to 2.1.0
-      # and it can't show the data yet
-      # so what we need to do is write this as a file to the morpho database
-      # save and close, note which number it assigned
-      dat <- data.frame(dat)
-      morpho_db  <- "~/.morpho/profiles/hanigan/data/hanigan/"
-      maxid  <-  1+max(as.numeric(dir(morpho_db)))
-      filename <- file.path(morpho_db,maxid)
-      # what is the number?
-      filename
-      write.csv(dat, filename, row.names =F, quote=F)
-  
-  
-  <p></p>
-  
-  So now to finish what we need to add into the EML that morpho has created (22.1 in my case)  just needs the reference to the dataTable.
-  
-  #### EML Code:
-      ...
-      </dataFormat>
-      <distribution scope="document"> <online> <url function="download">ecogrid://knb/hanigan.22.1</url>
-      </online>
-      <access authSystem="knb" order="denyFirst"><allow><principal>uid=datalibrarian,o=unaffiliated,dc=ecoinformatics,dc=org</principal>
-      <permission>all</permission>
-      </allow>
-      <allow><principal>uid=hanigan,o=unaffiliated,dc=ecoinformatics,dc=org</principal>
-      <permission>read</permission>
-      </allow>
-      </access>
-      </distribution>
-      </physical>
-      ...
-  
-  <p></p>
-  
-  Which seems to have worked when we open it up again:
-    
-  ![moprho-wide1.png](/images/morpho-wide1.png)
-  
-  So now let;s try a large nuber of variables:
-  
-  #### R Code:
-      # add lots of cols
-      for(i in 5:100){
-        dat[,i] <-  sample(rnorm(100,1,2), 3)
-      }
-      str(dat)
-      ##  $ V95  : num  1.5708 -0.0936 2.2324
-      ##  $ V96  : num  1.79 5.4 1.62
-      ##  $ V97  : num  -1.141 0.653 5.365
-      ##  $ V98  : num  1.738 -1.046 -0.135
-      ##  $ V99  : num  3.6 -0.738 -1.877
-      ##   [list output truncated]
-                     unit.defs = list(c(SAC = "The Sacramento River",
-                                        AM = "The American River"),
-                                      c(king = "King Salmon",
-                                        ccho = "Coho Salmon"),
-                                      c(parr = "third life stage",
-                                        smolt = "fourth life stage"))
-      unit.defs[[3]]
-      for(i in 4:100){
-      unit.defs[[i]] <- "number"
-      }
-      unit.defs
-      dat = data.set(dat,
-                     col.defs = c("River site used for collection",
-                                  "Species common name",
-                                  "Life Stage",
-                                  "count of live fish in traps",
-      c(rep("count stuff", 95))
-                       ),
-      unit.defs = unit.defs
-                       
-        )
-      str(dat)
-       
-      eml_config(creator="Ivan Charles Hanigan <ivan.hanigan@gmail.com>")
-      eml_write(dat, file = "inst/doc/EML_example_wide.xml")
-      # import to morpho, save and close
-      dat <- data.frame(dat)
-      morpho_db  <- "~/.morpho/profiles/hanigan/data/hanigan/"
-      maxid  <-  1+max(as.numeric(dir(morpho_db)))
-      filename <- file.path(morpho_db,maxid)
-      # what is the number?
-      filename
-      write.csv(dat, filename, row.names =F, quote=F)
-      # now add this into the EML morpho has created (25.2 in my case)
-  
-  <p></p>
-  
-  Which now seems to have attached the variable defintions and dataTable adequately.
-  
-  ![morpho-wide2.png](/images/morpho-wide2.png)
-#+end_src
-
 * Exploratory Data Analysis
 * General Purpose
 * Visualisation
