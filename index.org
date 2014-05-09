@@ -1407,6 +1407,112 @@ Also this guys attempt was interesting (I like TraMineR too!)
     
 #+end_src
 
+** 2013-09-19-transform
+
+
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-09-20-toward-a-unified-ecology-dataset.md :exports none :eval no :padline no
+  ---
+  name: toward-a-unified-ecology-dataset
+  layout: post
+  title: toward-a-unified-ecology-dataset
+  categories:
+  - Data Documentation
+  ---
+  
+  # Ecology datasets
+  These are my notes from a meeting that Kathryn and I had with a group of Ecologists at the ANU (primarily Luciana Porforio and Nasreen Khan).  We asked them to discuss how they search for and use Ecology datasets, especially how to best package up the parts of an ecological field data collection (ie weather, vegetation, biodiversity, soils, topography etc).
+  
+  Lu started off the discussion by stating that the most important thing to acknowledge is that every ecologist will start off with a main research question and then search for data that will address their specific research question.  It is difficult to work from a 'top-down' perspective that hopes to pre-empt the range of possible questions.  Lu felt that it may therefore be best to just keep all the data together in the biggest bundle that is possible and the end user can pick it apart once downloaded.  
+
+  We explained that LTERN datasets can be quite expansive with many dimensions and it seemed preferable to at least untangle the main 'themes' for packaging up.
+
+  Nasreen pointed out that there is always a protocol for how data are collected and this should give the data collection it's structure.  However I felt that ecology collections are so diverse they have been made (by necessity) very flexible and specific to the needs of the individual plot network.  Therefore generalisations across data collections are very hard to make (apart from easy things like "weather" or "aboveground dead biomass"). 
+
+  # Toward a Unified Ecology
+  I always fall back on the text book "Toward a Unified Ecology: Timothy F. H. Allen, Thomas W. Hoekstra 1992".  I wondered if it can guide us?  On pages 42-53 they describe the following framework and use the image below (the letters in the middle disc correspond to the criteria ie O = Organism).  In this framework it is possible to summarise ANY ecological study as they ALWAYS incorporate these scale-independent criteria:
+  
+  - Organism: genetic integrity, discrete body, autonomy from other organisms
+  - Population: relative similarity within the group
+  - Community: inter-species competition, interference, mutualism
+  - Ecosystem: biotic and abiotic interactions
+  - Landscape: spatial structure/contiguity
+  - Biome: characteristic physiognomy, disturbance and climate
+
+  I thought that if these dimensions were identified in a data collection first then they might become the discrete packages by which each plot network publishes their collection?
+  
+  ![datadoco-layercake.png](/images/datadoco-layercake.png)
+  
+ 
+  
+  # Aekos
+  Over at [AEKOS](http://www.aekos.org.au/why_aekos#diversity) they have a similar conceptual framework
+  
+      Observations can range from that of individual organisms and
+      interactions, through to populations, communities, ecosystems and
+      across broad global landscapes.
+  
+  # Conclusions
+  This is an open issue.  More discussions are needed internally for the Data Custodians.
+
+  Lu also pointed out that the end users are the key stakeholders and perhaps more input from them (via surveys and workshops?) is needed?
+#+end_src
+** 2014-01-07-cwt-lter-data-submission-template-critique
+#+name:cwt-lter-data-submission-template-critique-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-01-07-cwt-lter-data-submission-template-critique.md :exports none :eval no :padline no
+---
+name: 2014-01-07-cwt-lter-data-submission-template-critique
+layout: post
+title: cwt-lter-data-submission-template-critique
+date: 2014-01-07
+categories:
+- Data Documentation
+tags:
+- morpho
+---
+
+- A colleague sent me the cwt\_data\_subm\_template\_2013.xls today
+- You can download a copy here [coweeta.uga.edu/resources/forms/cwt_data_subm_template_2013.xls](coweeta.uga.edu/resources/forms/cwt_data_subm_template_2013.xls)
+- LTER is The U.S. Long-Term Ecological Research (LTER) network
+- I made the following notes, this is not intended to be a nasty critique
+- The following is a few Frank and Fearless comments I'll be using to compare the pros and cons of a variety of data documentation approaches
+
+#### Critique
+
+- opened first on windows, saw comments on cells with instructions
+- opened next on linux with libreOffice and comments are gone
+- opened at the last tab (split in two for no reason?)
+- noticed recommended name "GCE site" = Site, otherwise "permanent plot" =	Plot?
+- [GCE = Georgia Coastal Ecosystems LTER program](http://nsmn1.uh.edu/steve/research/gce/gce.htm)
+- flip to first tab, point 4 suggests there is some export functionality I cannot see (a VBA script?)
+- cell 11 a    NOTE: When submitting updated metadata or re-using templates please highlight fields with modified contents in yellow
+- and use glitter pen???
+- personnell tab OK
+- instrumentation, variable measured is free text. ok but for eg "max temp", "temperature maxima", "maximum temperature (c)" "maximum temperature in 24 hours after 9am local time in degrees" etc
+- too wide, last column was off my wide screen! noticed wasted real estate in column A
+- tabular data "–  Paste or enter your data values into the 'Values' section (white cells), starting with the indicated cell"
+- this is an invitation for clerical error! Too many "copy-and-paste" actions will inevtably introduce errors
+- I do like the extra metadata Column Name:
+-- Description:
+-- Units:
+-- Data type:
+-- Variable type:
+-- Number type:
+-- Precision:
+-- Code values:
+-- Calculations:
+-- QC: Minimum Valid:
+-- QC: Minimum Expected:
+-- QC: Maximum Expected:
+-- QC: Maximum Valid:
+-- QC: Custom:
+–  Fill in missing values in the table with NaN (not a number), including text fields, and do not skip columns
+- but what about missing values imbued with other meanings (NA = not observed, censored etc)?
+- ask users to format digit rounding in Excel?? oh no
+- old excel users may still be restricted to 65,536 rows by 256 columns.
+- non tabular sheet is ok
+    
+#+end_src
+
 ** R-reml-and-rfigshare
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-10-12-data-documentation-case-study-reml-and-rfigshare.md :exports reports :eval no :padline no
   ---
