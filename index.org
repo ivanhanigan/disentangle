@@ -189,26 +189,26 @@ kexi-postgresql-driver
 *** PSQL dump and restore
 #+name:psql-dump-restore
 #+begin_src sh :tangle no :exports reports :eval no
-# name:psql-dump-restore
-"C:\Program Files\pgAdmin III\1.8\pg_dump.exe" -h ip_address -p 5432 -U user_name -F t -v -i -f "z:pathtobackup_file.backup" -t \"public\".\"table\" databaseName
-
-# Or for an entire schema
-
-"C:\Program Files\pgAdmin III\1.8\pg_dump.exe" -h ip_address -p 5432 -U user_name -F t -v -i -f "z:\path\to\backup_file.backup" -n \"public\" databaseName
-
-#You can dump and restore in a single line directly to your local postgres server
-
-pg_dump -h ip_address -U username -i -t schema.table weather | psql -h localhost postgis
-
-#You can dump and restore in a single line between databases
-
-"C:\Program Files\PostgreSQL\8.3\bin\pg_dump" -h ip_address -U username -i -t schema.table database | "C:\Program Files\PostgreSQL\8.3\bin\psql" -h ipaddress -U username database
-
-#To copy to a CSV file
-
-"C:\Program Files\PostgreSQL\8.3\bin\psql" -h ip_address -d weather -U username -c "COPY \"schema\".\"table\" TO STDOUT WITH CSV HEADER;" > "J:\workdir\filename.csv"
-
-"C:\Program Files\PostgreSQL\8.3\bin\psql" -h ip_address -d weather -U username -c "COPY (select * from schema.table where var = X) TO STDOUT WITH CSV HEADER;" > "J:\workdir\filename.csv"
+  # name:psql-dump-restore
+  "C:\Program Files\pgAdmin III\1.8\pg_dump.exe" -h ip_address -p 5432 -U user_name -F t -v -i -f "z:pathtobackup_file.backup" -t \"public\".\"table\" databaseName
+  
+  # Or for an entire schema
+  
+  "C:\Program Files\pgAdmin III\1.8\pg_dump.exe" -h ip_address -p 5432 -U user_name -F t -v -i -f "z:\path\to\backup_file.backup" -n \"public\" databaseName
+  
+  #You can dump and restore in a single line directly to your local postgres server
+  
+  pg_dump -h ip_address -U username -i -t schema.table weather | psql -h localhost postgis
+  
+  #You can dump and restore in a single line between databases
+  
+  "C:\Program Files\PostgreSQL\8.3\bin\pg_dump" -h ip_address -U username -i -t schema.table database | "C:\Program Files\PostgreSQL\8.3\bin\psql" -h ipaddress -U username database
+  
+  #To copy to a CSV file
+  
+  "C:\Program Files\PostgreSQL\8.3\bin\psql" -h ip_address -d weather -U username -c "COPY \"schema\".\"table\" TO STDOUT WITH CSV HEADER;" > "J:\workdir\filename.csv"
+  
+  "C:\Program Files\PostgreSQL\8.3\bin\psql" -h ip_address -d weather -U username -c "COPY (select * from schema.table where var = X) TO STDOUT WITH CSV HEADEsR;" > "J:\workdir\filename.csv"
 #+end_src
 * Data Input - Local
 ** Download File from HTTPS
