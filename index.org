@@ -4021,7 +4021,7 @@ scope	optional	document
 
 ** 2014-04-24-using-reml-to-input-large-number-of-column-descriptions
 #+name:using-reml-to-input-large-number-of-column-descriptions-header
-#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-24-using-reml-to-input-large-number-of-column-descriptions.md :exports none :eval no :padline no
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-24-using-reml-to-input-large-number-of-column-descriptions.md :exports none :eval no :padline no
   ---
   name: using-reml-to-input-large-number-of-column-descriptions
   layout: post
