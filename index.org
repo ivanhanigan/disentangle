@@ -3009,21 +3009,22 @@ categories:
     #str(x)
     bb <- x@bbox
     #bb
-    # TODO polygons   
+    # TODO polygons
     # TODO only for southern hemisphere, east of GMT?
     loc <- data.frame(
       rbind(
-        c(NA, abs(bb[2,2]), NA),
-        c(bb[1,1],  NA, bb[1,2]),
-        c(NA, abs(bb[2,1]), NA)
+        c(NA, round(abs(bb[2,2]), 5), NA),
+        c(round(bb[1,1], 5),  NA, round(bb[1,2],5)),
+        c(NA, round(abs(bb[2,1]),5), NA)
         )
       )
     #loc
     loc$X2[c(1,3)] <- sprintf("%s S", abs(loc$X2[c(1,3)]))
     loc[2,c(1,3)] <- sprintf("%s E", abs(loc[2,c(1,3)]))
-     
+  
     return(loc)
     }
+  
 #+end_src
 *** test-morpho_bounding_box
 #+name:bounding_box
@@ -3036,10 +3037,10 @@ categories:
   # load
   d <- read.table(textConnection(
   "ID    long       lat
-  1  150.5556 -35.09305
-  2  150.6851 -35.01535
-  3  150.6710 -35.06412
-  4  150.6534 -35.08666
+  1  150.555699999 -35.093059999999999
+  2  150.685199999 -35.015359999999999 
+  3  150.671099999 -35.064129999999999 
+  4  150.653499999 -35.086669999999999 
   "), header = TRUE)
   # do
   str(d)
