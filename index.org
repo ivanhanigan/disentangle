@@ -1129,7 +1129,187 @@ http://stackoverflow.com/questions/15686451/dates-from-excel-to-r-platform-depen
   
 #+end_src
 
+** TODO reshape
+*** TODO base:reshape
+rshaped<-reshape(selected2,direction="long",idvar="Date",ids=row.names(selected2),
+    timevar="pharmacy",times=names(selected2)[5:ncol(selected2)],
+    varying=list(names(selected2)[5:ncol(selected2)]),v.names="sales")
 
+rshaped<-reshape(data,direction="long",varying=list(c( "a1_salm_cnt",    "a2_salm_cnt",    "a3_a5_salm_cnt"),c( "a1_pop",         "a2_pop","a3_a5_pop" )),v.names=c("counts","pops"),timevar="agegroup",times=c("a1","a2","a3"))  
+
+selectedSLAERP<-reshape(selectedSLA, times=names(selectedSLA)[3:ncol(selectedSLA)],timevar="agesex",varying=list(names(selectedSLA)[3:ncol(selectedSLA)]),v.name=paste(i),direction="long") 
+
+reshape(test,direction="long",varying=list(names(test)[2:ncol(test)]),times=names(test)[2:ncol(test)])
+# all you need is varying (list of col names) and times (not a list), timevar and v.name are useful
+
+reshape(Commands[,c(1,5)],direction="wide",v.names="codes",idvar="disease",timevar="codes")
+
+
+#when d2=
+    station           Time TemperatureC DewpointC PressurehPa WindDirection WindDirectionDegrees WindSpeedKMH
+1 INSWGUND1 1/01/2009 0:01         13.8       3.6      1005.3            NW                  308          3.2
+2 INSWGUND1 1/01/2009 0:30         14.5       3.6      1005.3            NW                  308          1.6
+3 INSWGUND1 1/01/2009 1:00         14.2       3.7      1005.0            NW                  308          3.2
+4 INSWGUND1 1/01/2009 1:30         14.3       3.8      1004.6            NW                  306          8.0
+5 INSWGUND1 1/01/2009 2:00         13.8       3.9      1004.6            NW                  315          8.0
+6 INSWGUND1 1/01/2009 2:30         13.5       3.8      1004.3            NW                  321          8.0
+
+reshape(d,direction="wide",idvar="Time",timevar="station")
+*** TODO reshape Packages
+http://psychwire.wordpress.com/2011/05/16/reshape-package-in-r-long-data-format-to-wide-back-to-long-again/
+
+Reshape Package in R: Long Data format, to Wide, back to Long again
+May 16, 2011 Hayward Godwin Leave a comment Go to comments
+
+In this post, I describe how to use the reshape package to modify a dataframe from a long data format, to a wide format, and then back to a long format again. It’ll be an epic journey; some of us may not survive (especially me!).
+Wide versus Long Data Formats
+
+I’ll begin by describing what is meant by ‘wide’ versus ‘long’ data formats. Long data look like this:
+
+As you can see, there is one row for each value that you have. Many statistical tests in R need data in this shape (e.g., ANOVAs and the like). This is the case even when running tests with repeated factors.
+
+In the example above, lets say that iv1 is a between-subjects factor and iv2 is a within-subjects factor. The same table, in a wide format, would look like this:
+
+Here, each column represents a unique pairing of the various factors. SPSS favours this method for repeated-measures tests (such as repeated-measures ANOVAs or paired t-tests), and being able to move between the two formats is helpful when multiple people are working on a single dataset but using different packages (e.g., R vs SPSS).
+Get in Shape! The Reshape Package
+
+I’ll begin by going back to a dataset that I’ve been messing around with for some time. I’m going to select out the columns I need, and rename one of them. One of them ended up getting called “X.” because of the way the data were tabbed. Here, I rename the “X.” column into “rank”, which is what it really should have been in the first place.
+1	full_list_cutdown = data.frame("rank"=full_list_dps$X., "class"=full_list_dps$class,
+2	"spec"=full_list_dps$spec, "dps"=full_list_dps$DPS)
+
+The data look like this:
+
+Rows truncated to prevent from filling entire page
+
+Let’s begin by converting these data into a wide format. To do that, all we need to do is use the cast function. This has the general format of:
+1	cast(dataset, factor1 ~ factor2 ~ etc., value=value column, fun=aggregation method)
+
+Here, dataset refers to your target dataset. factor1 ~ factor2 ~ etc lists the columns/factors that you want to split up the data by. value deals with the column that you want to select and calculate a value for. You can run all sorts of aggregation functions using the fun= command. The default is len, the count of the number of cells for that combination of factor levels. To make my dataset into a wide format, all I need to run is:
+1		
+
+Here, I create a wide dataframe based on the rank and class columns. The computed value is the mean of the dps column. It looks like this:
+
+There and Back Again: Getting from Wide to Long Format
+
+Say that we want to go back to the long format again (or, indeed, convert from wide to long in the first place!). How can we do that? We use the melt function!
+1	melt(wide_frame, id=c("rank"))
+
+This takes us right back to the start, where our exciting journey began. 
+
+*** TODO reshapes
+Also consider reshape2 by same author as reshape.
+
+He mentions it may be 'considerably faster and more memory efficient'
+http://r.789695.n4.nabble.com/R-pkgs-reshape2-a-reboot-of-the-reshape-package-td2534378.html
+
+# tools
+require(reshape2)
+sort_df<-function (data, vars = names(data), decreasing=F) {
+    if (length(vars) == 0 || is.null(vars)) 
+        return(data)
+    data[do.call("order", c(data[, vars, drop = FALSE], decreasing = decreasing)), , drop = FALSE]
+ }
+ 
+# load
+d<-as.data.frame(rbind(
+ c(1,1970,3,3,8,12,23,20,26,25,25,16,8,4),
+ c(2,1970,5,4,10,13,26,20,27,28,27,18,9,5)
+ ))
+d$climate <- 'frst' 
+names(d)<-c('ID','Year','1','2','3','4','5','6','7','8','9','10','11','12','climate')
+str(d)
+
+# do
+d2 <- melt(d,id=c('ID','Year', 'climate'))
+str(d2)
+d2$variable <- as.numeric(as.character(d2$variable) )
+sort_df(d2)
+
+
+
+
+
+
+OR
+
+# load
+t<-"ID,Year,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,climate
+1,1970,3,3,8,12,23,20,26,25,25,16,8,4,frst
+2,1970,5,4,10,13,26,20,27,28,27,18,9,5,frst
+"
+t<-read.csv(textConnection(t))
+
+library(reshape)
+
+#convert wide form to long form
+t2<-melt(t,id.var=c("ID","climate","Year"))
+names(t2)<-c("ID","Surf","Year","Month","Value")
+
+#turn named months into indices
+t2$Month<-match(t2$Month,month.abb)
+
+*** TODO reshapse more
+seasonalCountsPMmeans <- data.frame(cast(qc2, adjustedyear ~ season, value=c('pm10_av'), fun=mean, na.rm=T))
+** TODO catenate columns
+
+dat <- data.frame(a = c("what is", "it is hard"),
+                          b = c("going on with", "to know what to"),
+                          c = c("this data file?", "make of it all!"),
+                          stringsAsFactors = FALSE)
+                         
+dat$b                    
+v <- unlist(unname(dat[1,]))
+paste(v)[1]
+paste(v, sep="", collapse = "")[1]
+paste(v, sep="", collapse = " ")[1]
+ 
+apply(dat, 1, function(x) paste(x, sep='', collapse=' '))
+ 
+ 
+
+
+
+** TODO fill ragged matrix
+      person        fruit    suburb something
+1        Tom      oranges   Scullin       3.0
+2                  apples                 6.0
+3                   pears                 9.0
+4                tim tams                 2.0
+5   Gertrude       durian Charnwood       3.7
+6            dragon fruit                 7.0
+7                 lychees                 4.9
+8               pineapple               100.9
+9                  apples                98.0
+10 Pennelope      cashews   Higgins       2.0
+11              beer nuts                 5.6
+12               Pringles                 4.0
+ 
+ 
+fill.col <- function(x, col.name) {
+      s <- which(!x[[col.name]] == "")
+      item <- x[[col.name]][s]
+      hold <- vector('list', length(item))      
+      for(i in 1: length(hold)) hold[[i]] <- rep(item[i], ifelse(is.na(s[i+1]), dim(x)[1] + 1, s[i+1]) - s[i])
+      x[[col.name]] <- unlist(hold)
+      x
+      }
+     
+d <- fill.col(d, 'person')   
+fill.col(d, 'suburb')  
+ 
+      person        fruit    suburb something
+1        Tom      oranges   Scullin       3.0
+2        Tom       apples   Scullin       6.0
+3        Tom        pears   Scullin       9.0
+4        Tom     tim tams   Scullin       2.0
+5   Gertrude       durian Charnwood       3.7
+6   Gertrude dragon fruit Charnwood       7.0
+7   Gertrude      lychees Charnwood       4.9
+8   Gertrude    pineapple Charnwood     100.9
+9   Gertrude       apples Charnwood      98.0
+10 Pennelope      cashews   Higgins       2.0
+11 Pennelope    beer nuts   Higgins       5.6
+12 Pennelope     Pringles   Higgins       4.0
 * Data Output
 * Data Documentation
 ** COMMENT data-documentation-blogposts
