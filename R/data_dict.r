@@ -2,7 +2,7 @@
 # name:data_dict
 data_dict <- function(dataframe, variable, show_levels = -1)
 {
-  if(is.character(dataframe[,variable])){
+  if(is.character(dataframe[ ,variable])){
     dataframe[,variable]  <- factor(dataframe[,variable])
   }
   summa  <- summary(dataframe[,variable])
