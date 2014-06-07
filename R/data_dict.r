@@ -18,8 +18,6 @@ data_dict <- function(.dataframe, .variable, .show_levels = -1)
   summa[,2]  <- as.character(summa[,2])
   # summa
 
-
-
   # if char (factor)
   if(is.factor(.dataframe[,.variable])){
   summa$type <- c("character", rep("", nrow(summa) - 1))
@@ -39,6 +37,13 @@ data_dict <- function(.dataframe, .variable, .show_levels = -1)
     }
   # summa
   } else if (
+    is.numeric(.dataframe[,.variable])
+    ){
+  summa$type <- c("number", rep("", nrow(summa) - 1))
+  summa$cnt <- NA
+  summa$pct  <- NA
+  summa <- summa[,c(1,4,2,3,5,6)]
+  } else if (
    !all(
       is.na(as.Date(as.character(.dataframe[,.variable]), origin = "1970-01-01"))
       )
@@ -54,13 +59,6 @@ data_dict <- function(.dataframe, .variable, .show_levels = -1)
   ## }
     
   summa$type <- c("date", rep("", nrow(summa) - 1))
-  summa$cnt <- NA
-  summa$pct  <- NA
-  summa <- summa[,c(1,4,2,3,5,6)]
-  } else if (
-    is.numeric(.dataframe[,.variable])
-    ){
-  summa$type <- c("number", rep("", nrow(summa) - 1))
   summa$cnt <- NA
   summa$pct  <- NA
   summa <- summa[,c(1,4,2,3,5,6)]
