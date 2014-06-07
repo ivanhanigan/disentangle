@@ -3019,8 +3019,6 @@ categories:
     summa[,2]  <- as.character(summa[,2])
     # summa
   
-  
-  
     # if char (factor)
     if(is.factor(.dataframe[,.variable])){
     summa$type <- c("character", rep("", nrow(summa) - 1))
@@ -3040,6 +3038,13 @@ categories:
       }
     # summa
     } else if (
+      is.numeric(.dataframe[,.variable])
+      ){
+    summa$type <- c("number", rep("", nrow(summa) - 1))
+    summa$cnt <- NA
+    summa$pct  <- NA
+    summa <- summa[,c(1,4,2,3,5,6)]
+    } else if (
      !all(
         is.na(as.Date(as.character(.dataframe[,.variable]), origin = "1970-01-01"))
         )
@@ -3055,13 +3060,6 @@ categories:
     ## }
       
     summa$type <- c("date", rep("", nrow(summa) - 1))
-    summa$cnt <- NA
-    summa$pct  <- NA
-    summa <- summa[,c(1,4,2,3,5,6)]
-    } else if (
-      is.numeric(.dataframe[,.variable])
-      ){
-    summa$type <- c("number", rep("", nrow(summa) - 1))
     summa$cnt <- NA
     summa$pct  <- NA
     summa <- summa[,c(1,4,2,3,5,6)]
@@ -3081,9 +3079,15 @@ categories:
   data_dictionary <- function(dataframe, show_levels = -1){
     out <- matrix(NA, nrow = 0, ncol = 3)
     for(i in 1:ncol(dataframe)){
-    out2 <- data_dict(.dataframe = dataframe,
-                      names(dataframe)[i],
-                      .show_levels = show_levels)
+    #  i = 1
+      print(i)
+    out2 <- data_dict(
+      .dataframe = dataframe
+      ,
+      .variable = names(dataframe)[i]
+      ,
+      .show_levels = show_levels
+      )
     out <- rbind(out, out2)
     }
     row.names(out) <- NULL
@@ -3107,6 +3111,7 @@ categories:
   #data_dict
   data_dict(civst_gend_sector, "civil_status")
   data_dict(civst_gend_sector, "datevar")
+  data_dict(civst_gend_sector, "number_of_cases")
   
   dataDictionary <- data_dictionary(civst_gend_sector,
                                     show_levels = -1)
