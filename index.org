@@ -6,6 +6,15 @@
 #+LATEX: \tableofcontents
 -----
 
+* Download
+- [[/lib/disentangle_1.0.zip][Windows Version is Downloadable Here]]
+- Linux and Mac users can just run this R code
+#+begin_src R :session *R* :eval no
+  require(devtools)
+  install_github("disentangle", "ivanhanigan")
+#+end_src
+
+
 * Introduction
 This project is my collection of notes and customised software tools for data management, manipulation and analysis.
 
@@ -1131,30 +1140,38 @@ http://stackoverflow.com/questions/15686451/dates-from-excel-to-r-platform-depen
 
 ** TODO reshape
 *** TODO base:reshape
-rshaped<-reshape(selected2,direction="long",idvar="Date",ids=row.names(selected2),
-    timevar="pharmacy",times=names(selected2)[5:ncol(selected2)],
-    varying=list(names(selected2)[5:ncol(selected2)]),v.names="sales")
 
-rshaped<-reshape(data,direction="long",varying=list(c( "a1_salm_cnt",    "a2_salm_cnt",    "a3_a5_salm_cnt"),c( "a1_pop",         "a2_pop","a3_a5_pop" )),v.names=c("counts","pops"),timevar="agegroup",times=c("a1","a2","a3"))  
+#+name:reshape
+#+begin_src R :eval no
+  #### name:reshape####
+  
+  rshaped<-reshape(selected2,direction="long",idvar="Date",ids=row.names(selected2),
+      timevar="pharmacy",times=names(selected2)[5:ncol(selected2)],
+      varying=list(names(selected2)[5:ncol(selected2)]),v.names="sales")
+  
+  rshaped<-reshape(data,direction="long",varying=list(c( "a1_salm_cnt",    "a2_salm_cnt",    "a3_a5_salm_cnt"),c( "a1_pop",         "a2_pop","a3_a5_pop" )),v.names=c("counts","pops"),timevar="agegroup",times=c("a1","a2","a3"))  
+  
+  selectedSLAERP<-reshape(selectedSLA, times=names(selectedSLA)[3:ncol(selectedSLA)],timevar="agesex",varying=list(names(selectedSLA)[3:ncol(selectedSLA)]),v.name=paste(i),direction="long") 
+  
+  reshape(test,direction="long",varying=list(names(test)[2:ncol(test)]),times=names(test)[2:ncol(test)])
+  # all you need is varying (list of col names) and times (not a list), timevar and v.name are useful
+  
+  reshape(Commands[,c(1,5)],direction="wide",v.names="codes",idvar="disease",timevar="codes")
+  
+  
+  #when d2=
+  ##     station           Time TemperatureC DewpointC PressurehPa WindDirection WindDirectionDegrees WindSpeedKMH
+  ## 1 INSWGUND1 1/01/2009 0:01         13.8       3.6      1005.3            NW                  308          3.2
+  ## 2 INSWGUND1 1/01/2009 0:30         14.5       3.6      1005.3            NW                  308          1.6
+  ## 3 INSWGUND1 1/01/2009 1:00         14.2       3.7      1005.0            NW                  308          3.2
+  ## 4 INSWGUND1 1/01/2009 1:30         14.3       3.8      1004.6            NW                  306          8.0
+  ## 5 INSWGUND1 1/01/2009 2:00         13.8       3.9      1004.6            NW                  315          8.0
+  ## 6 INSWGUND1 1/01/2009 2:30         13.5       3.8      1004.3            NW                  321          8.0
+  
+  reshape(d,direction="wide",idvar="Time",timevar="station")
+  
+#+end_src
 
-selectedSLAERP<-reshape(selectedSLA, times=names(selectedSLA)[3:ncol(selectedSLA)],timevar="agesex",varying=list(names(selectedSLA)[3:ncol(selectedSLA)]),v.name=paste(i),direction="long") 
-
-reshape(test,direction="long",varying=list(names(test)[2:ncol(test)]),times=names(test)[2:ncol(test)])
-# all you need is varying (list of col names) and times (not a list), timevar and v.name are useful
-
-reshape(Commands[,c(1,5)],direction="wide",v.names="codes",idvar="disease",timevar="codes")
-
-
-#when d2=
-    station           Time TemperatureC DewpointC PressurehPa WindDirection WindDirectionDegrees WindSpeedKMH
-1 INSWGUND1 1/01/2009 0:01         13.8       3.6      1005.3            NW                  308          3.2
-2 INSWGUND1 1/01/2009 0:30         14.5       3.6      1005.3            NW                  308          1.6
-3 INSWGUND1 1/01/2009 1:00         14.2       3.7      1005.0            NW                  308          3.2
-4 INSWGUND1 1/01/2009 1:30         14.3       3.8      1004.6            NW                  306          8.0
-5 INSWGUND1 1/01/2009 2:00         13.8       3.9      1004.6            NW                  315          8.0
-6 INSWGUND1 1/01/2009 2:30         13.5       3.8      1004.3            NW                  321          8.0
-
-reshape(d,direction="wide",idvar="Time",timevar="station")
 *** TODO reshape Packages
 http://psychwire.wordpress.com/2011/05/16/reshape-package-in-r-long-data-format-to-wide-back-to-long-again/
 
@@ -1174,6 +1191,7 @@ Here, each column represents a unique pairing of the various factors. SPSS favou
 Get in Shape! The Reshape Package
 
 I’ll begin by going back to a dataset that I’ve been messing around with for some time. I’m going to select out the columns I need, and rename one of them. One of them ended up getting called “X.” because of the way the data were tabbed. Here, I rename the “X.” column into “rank”, which is what it really should have been in the first place.
+
 1	full_list_cutdown = data.frame("rank"=full_list_dps$X., "class"=full_list_dps$class,
 2	"spec"=full_list_dps$spec, "dps"=full_list_dps$DPS)
 
@@ -1201,6 +1219,11 @@ Also consider reshape2 by same author as reshape.
 
 He mentions it may be 'considerably faster and more memory efficient'
 http://r.789695.n4.nabble.com/R-pkgs-reshape2-a-reboot-of-the-reshape-package-td2534378.html
+
+#+name:reshapes
+#+begin_src R :session *R* :eval no
+#### name:reshapes####
+
 
 # tools
 require(reshape2)
@@ -1230,7 +1253,7 @@ sort_df(d2)
 
 
 
-OR
+#OR
 
 # load
 t<-"ID,Year,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,climate
@@ -1247,10 +1270,22 @@ names(t2)<-c("ID","Surf","Year","Month","Value")
 
 #turn named months into indices
 t2$Month<-match(t2$Month,month.abb)
+#+end_src
 
-*** TODO reshapse more
+*** TODO reshape more
+
+#+name:rshapemore
+#+begin_src R :session *R* :eval no
+
 seasonalCountsPMmeans <- data.frame(cast(qc2, adjustedyear ~ season, value=c('pm10_av'), fun=mean, na.rm=T))
+#+end_src
+
 ** TODO catenate columns
+
+#+name:catenate
+#+begin_src R :session *R* :eval no
+#### name:catenate####
+
 
 dat <- data.frame(a = c("what is", "it is hard"),
                           b = c("going on with", "to know what to"),
@@ -1268,8 +1303,15 @@ apply(dat, 1, function(x) paste(x, sep='', collapse=' '))
  
 
 
+#+end_src
 
 ** TODO fill ragged matrix
+
+#+name:fill
+#+begin_src R :session *R* :eval no
+#### name:fill####
+
+
       person        fruit    suburb something
 1        Tom      oranges   Scullin       3.0
 2                  apples                 6.0
@@ -1310,6 +1352,8 @@ fill.col(d, 'suburb')
 10 Pennelope      cashews   Higgins       2.0
 11 Pennelope    beer nuts   Higgins       5.6
 12 Pennelope     Pringles   Higgins       4.0
+#+end_src
+
 * Data Output
 * Data Documentation
 ** COMMENT data-documentation-blogposts
@@ -5847,8 +5891,8 @@ source("tests/test-tree.chisq.r")
 #+end_src
 
 
-** Terminology
-*** 2013-12-03-non-linear-relationships-vs-non-linear-models
+** COMMENT Terminology
+*** COMMENT 2013-12-03-non-linear-relationships-vs-non-linear-models
 **** orgmode version
 #+TITLE:non-linear-model-vs-non-linear-relationship 
 #+AUTHOR: Ivan Hanigan
