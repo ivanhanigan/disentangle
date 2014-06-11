@@ -7,7 +7,7 @@
 -----
 
 * Download
-- [[/lib/disentangle_1.0.zip][Windows Version is Downloadable Here]]
+- [[http://ivanhanigan.github.io/disentangle/lib/disentangle_1.0.zip][Windows Version is Downloadable Here]]
 - Linux and Mac users can just run this R code
 #+begin_src R :session *R* :eval no
   require(devtools)
