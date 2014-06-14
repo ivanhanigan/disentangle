@@ -3,11 +3,11 @@
                "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-<title>Disentangle Things</title>
+<title>non-linear-model-vs-non-linear-relationship </title>
 <meta http-equiv="Content-Type" content="text/html;charset=utf-8"/>
-<meta name="title" content="Disentangle Things"/>
+<meta name="title" content="non-linear-model-vs-non-linear-relationship "/>
 <meta name="generator" content="Org-mode"/>
-<meta name="generated" content="2013-11-19T08:45+1100"/>
+<meta name="generated" content="2014-06-11T23:22+1000"/>
 <meta name="author" content="Ivan Hanigan"/>
 <meta name="description" content=""/>
 <meta name="keywords" content=""/>
@@ -115,7 +115,7 @@ for the JavaScript code in this tag.
 </div>
 
 <div id="content">
-<h1 class="title">Disentangle Things</h1>
+<h1 class="title">non-linear-model-vs-non-linear-relationship </h1>
 
 
 <hr/>
@@ -125,128 +125,332 @@ for the JavaScript code in this tag.
 <h2>Table of Contents</h2>
 <div id="text-table-of-contents">
 <ul>
-<li><a href="#sec-1">1 Introduction</a></li>
-<li><a href="#sec-2">2 Test Data</a>
+<li><a href="#sec-1">1 Download</a></li>
+<li><a href="#sec-2">2 Introduction</a>
 <ul>
-<li><a href="#sec-2-1">2.1 Test Data for Classification Trees</a></li>
+<li><a href="#sec-2-1">2.1 DESCRIPTION-code</a></li>
 </ul>
 </li>
-<li><a href="#sec-3">3 Data Input - Remote</a>
+<li><a href="#sec-3">3 Test Data</a>
 <ul>
-<li><a href="#sec-3-1">3.1 Database Connection</a>
-<ul>
-<li><a href="#sec-3-1-1">3.1.1 connect2postgres</a></li>
-<li><a href="#sec-3-1-2">3.1.2 connect2oracle</a></li>
+<li><a href="#sec-3-1">3.1 Test Data for Classification Trees</a></li>
 </ul>
 </li>
-<li><a href="#sec-3-2">3.2 Database Input</a>
+<li><a href="#sec-4">4 Data Input - Remote</a>
 <ul>
-<li><a href="#sec-3-2-1">3.2.1 readOGR2</a></li>
-<li><a href="#sec-3-2-2">3.2.2 PSQL dump and restore</a></li>
+<li><a href="#sec-4-1">4.1 Database Connection</a>
+<ul>
+<li><a href="#sec-4-1-1">4.1.1 connect2postgres</a></li>
+<li><a href="#sec-4-1-2">4.1.2 connect2oracle</a></li>
+<li><a href="#sec-4-1-3">4.1.3 libre office base to postgres</a></li>
+<li><a href="#sec-4-1-4">4.1.4 kexi</a></li>
+<li><a href="#sec-4-1-5">4.1.5 2014-05-10-ms-access-to-postgresql-in-64-bit-windows</a></li>
+</ul>
+</li>
+<li><a href="#sec-4-2">4.2 Database Input</a>
+<ul>
+<li><a href="#sec-4-2-1">4.2.1 readOGR2</a></li>
+<li><a href="#sec-4-2-2">4.2.2 PSQL dump and restore</a></li>
 </ul></li>
 </ul>
 </li>
-<li><a href="#sec-4">4 Data Input - Local</a>
+<li><a href="#sec-5">5 Data Input - Local</a>
 <ul>
-<li><a href="#sec-4-1">4.1 Download File from HTTPS</a>
+<li><a href="#sec-5-1">5.1 Download File from HTTPS</a>
 <ul>
-<li><a href="#sec-4-1-1">4.1.1 download-file-https-code</a></li>
+<li><a href="#sec-5-1-1">5.1.1 download-file-https-code</a></li>
+</ul>
+</li>
+<li><a href="#sec-5-2">5.2 R-xls-read-all-worksheets-code</a></li>
+</ul>
+</li>
+<li><a href="#sec-6">6 Data Operation</a>
+<ul>
+<li><a href="#sec-6-1">6.1 R-subset</a></li>
+<li><a href="#sec-6-2">6.2 R-transform</a></li>
+<li><a href="#sec-6-3">6.3 R-mutate</a></li>
+<li><a href="#sec-6-4">6.4 R-summarise</a></li>
+<li><a href="#sec-6-5">6.5 R-arrange</a></li>
+<li><a href="#sec-6-6">6.6 R-upcase<sub>string</sub></a>
+<ul>
+<li><a href="#sec-6-6-1">6.6.1 R-upcase<sub>string</sub></a></li>
+<li><a href="#sec-6-6-2">6.6.2 test-upcase<sub>string</sub></a></li>
+<li><a href="#sec-6-6-3">6.6.3 man-upcase<sub>string</sub></a></li>
+<li><a href="#sec-6-6-4">6.6.4 blog</a></li>
+</ul>
+</li>
+<li><a href="#sec-6-7">6.7 R-levenshtein</a>
+<ul>
+<li><a href="#sec-6-7-1">6.7.1 R-levenshtein</a></li>
+<li><a href="#sec-6-7-2">6.7.2 test-levenshtein</a></li>
+<li><a href="#sec-6-7-3">6.7.3 test-stringdist-code</a></li>
+<li><a href="#sec-6-7-4">6.7.4 man-levenshtein</a></li>
+</ul>
+</li>
+<li><a href="#sec-6-8">6.8 2014-02-27-yearmon-class-and-interoperability-with-excel-and-access</a></li>
+<li><a href="#sec-6-9">6.9 working-with-dates</a></li>
+<li><a href="#sec-6-10">6.10 R-spatial</a>
+<ul>
+<li><a href="#sec-6-10-1">6.10.1 xy2shp</a></li>
+</ul>
+</li>
+<li><a href="#sec-6-11">6.11 reshape</a>
+<ul>
+<li><a href="#sec-6-11-1">6.11.1 base:reshape</a></li>
+<li><a href="#sec-6-11-2">6.11.2 reshape Packages</a></li>
+<li><a href="#sec-6-11-3">6.11.3 reshapes</a></li>
+<li><a href="#sec-6-11-4">6.11.4 reshape more</a></li>
+</ul>
+</li>
+<li><a href="#sec-6-12">6.12 catenate columns</a></li>
+<li><a href="#sec-6-13">6.13 fill ragged matrix</a></li>
+</ul>
+</li>
+<li><a href="#sec-7">7 Data Output</a></li>
+<li><a href="#sec-8">8 Data Documentation</a>
+<ul>
+<li><a href="#sec-8-1">8.1 2013-09-19-transform</a></li>
+<li><a href="#sec-8-2">8.2 R-reml-and-rfigshare</a></li>
+<li><a href="#sec-8-3">8.3 R-reml-and-rfigshare-part-2</a></li>
+<li><a href="#sec-8-4">8.4 dc-uploader-and-ANU-DataCommons</a></li>
+<li><a href="#sec-8-5">8.5 morpho-and-rfigshare</a></li>
+<li><a href="#sec-8-6">8.6 morpho-and-reml-boilerplate-streamline-the-process-of-metadata-entry</a>
+<ul>
+<li><a href="#sec-8-6-1">8.6.1 Background</a></li>
+<li><a href="#sec-8-6-2">8.6.2 Speed and Rigour</a></li>
+<li><a href="#sec-8-6-3">8.6.3 Analysts can often trade-off completeness of documentation for speed</a></li>
+<li><a href="#sec-8-6-4">8.6.4 Librarians produce gold plated documentation and can take longer to produce this</a></li>
+<li><a href="#sec-8-6-5">8.6.5 An example</a></li>
+<li><a href="#sec-8-6-6">8.6.6 Embracing Inaccuracy and Incompleteness</a></li>
+<li><a href="#sec-8-6-7">8.6.7 Aim</a></li>
+<li><a href="#sec-8-6-8">8.6.8 Step 1: load a simple example dataset</a></li>
+<li><a href="#sec-8-6-9">8.6.9 Step 2 create a function to deliver the minimal metadata object</a></li>
+<li><a href="#sec-8-6-10">8.6.10 reml<sub>boilerplate</sub>-code</a></li>
+<li><a href="#sec-8-6-11">8.6.11 reml<sub>boilerplate</sub>-test-code</a></li>
+<li><a href="#sec-8-6-12">8.6.12 Results: This loads into Morpho with some errors</a></li>
+<li><a href="#sec-8-6-13">8.6.13 Conclusions</a></li>
+</ul>
+</li>
+<li><a href="#sec-8-7">8.7 R-get.var.labels</a>
+<ul>
+<li><a href="#sec-8-7-1">8.7.1 test-get.var.labels</a></li>
+</ul>
+</li>
+<li><a href="#sec-8-8">8.8 R-spss-variable-labels-read</a>
+<ul>
+<li><a href="#sec-8-8-1">8.8.1 R-spss-variable-labels-read</a></li>
+<li><a href="#sec-8-8-2">8.8.2 test-spss-variable-labels-read-code</a></li>
+</ul>
+</li>
+<li><a href="#sec-8-9">8.9 R-spss-variable-summary-table-code</a></li>
+<li><a href="#sec-8-10">8.10 R-reporttools-variable-summary-table</a></li>
+<li><a href="#sec-8-11">8.11 2014-01-21-morpho-and-reml-use-case-marsupial-mulgara-dasycercus-cristicauda</a></li>
+<li><a href="#sec-8-12">8.12 morpho<sub>bounding</sub><sub>box</sub></a>
+<ul>
+<li><a href="#sec-8-12-1">8.12.1 R-morpho<sub>bounding</sub><sub>box</sub></a></li>
+<li><a href="#sec-8-12-2">8.12.2 test-morpho<sub>bounding</sub><sub>box</sub></a></li>
+<li><a href="#sec-8-12-3">8.12.3 man-bounding<sub>box</sub></a></li>
+</ul>
+</li>
+<li><a href="#sec-8-13">8.13 2014-04-20-using-morpho-for-cataloguing-personal-research-data-blog</a></li>
+<li><a href="#sec-8-14">8.14 2014-04-20-using-morpho-orgmode</a>
+<ul>
+<li><a href="#sec-8-14-1">8.14.1 Introduction</a></li>
+<li><a href="#sec-8-14-2">8.14.2 Cataloguing Personal Research Data with Morpho</a></li>
+<li><a href="#sec-8-14-3">8.14.3 How Morpho Works</a></li>
+<li><a href="#sec-8-14-4">8.14.4 Adding a dataset from my collection</a></li>
+<li><a href="#sec-8-14-5">8.14.5 the drought dataset:</a></li>
+<li><a href="#sec-8-14-6">8.14.6 Step One: define the project that I will keep locally</a></li>
+<li><a href="#sec-8-14-7">8.14.7 Contextual Metadata</a></li>
+<li><a href="#sec-8-14-8">8.14.8 Abstract</a></li>
+<li><a href="#sec-8-14-9">8.14.9 Australian FOR codes</a></li>
+<li><a href="#sec-8-14-10">8.14.10 GCMD Keywords</a></li>
+<li><a href="#sec-8-14-11">8.14.11 Geographic coverage</a></li>
+<li><a href="#sec-8-14-12">8.14.12 Save the metadata</a></li>
+<li><a href="#sec-8-14-13">8.14.13 Additional Metadata</a></li>
+</ul>
+</li>
+<li><a href="#sec-8-15">8.15 2014-04-20-a-workaround-for-inserting-species-names-to-morpho</a></li>
+<li><a href="#sec-8-16">8.16 2014-04-21-linking-eml-packages-by-umbrella-project-info</a></li>
+<li><a href="#sec-8-17">8.17 2014-04-24-using-reml-to-input-large-number-of-column-descriptions</a></li>
+<li><a href="#sec-8-18">8.18 2014-04-25-tweaking-r-eml-package-outputs-with-morpho-and-failing-that-with-emacs</a></li>
+<li><a href="#sec-8-19">8.19 2014-04-29-using-r-eml-to-input-large-numbers-of-variables-part-2</a></li>
+<li><a href="#sec-8-20">8.20 2014-04-29-workaround-for-installing-morpho-on-a-windows-network</a></li>
+<li><a href="#sec-8-21">8.21 2014-05-02-morpho-has-an-issue-with-zero-length-strings-as-missing-data</a></li>
+<li><a href="#sec-8-22">8.22 advanced EML for data integration</a>
+<ul>
+<li><a href="#sec-8-22-1">8.22.1 Adding the data location</a></li>
+<li><a href="#sec-8-22-2">8.22.2 Backing up and restoring your Morpho catalogue</a></li>
+</ul>
+</li>
+<li><a href="#sec-8-23">8.23 2014-05-09-cwt-lter-data-submission-template-critique</a></li>
+<li><a href="#sec-8-24">8.24 2014-05-17-using-additional-header-rows-for-metadata</a></li>
+<li><a href="#sec-8-25">8.25 2014-04-xx-using-morpho-for-cataloguing-postgis-servers-org</a>
+<ul>
+<li><a href="#sec-8-25-1">8.25.1 Adding regarding the Data Location and Backups</a></li>
+<li><a href="#sec-8-25-2">8.25.2 notes</a></li>
+</ul>
+</li>
+<li><a href="#sec-8-26">8.26 2014-04-24-using-reml-to-input-large-number-of-column-descriptions</a></li>
+</ul>
+</li>
+<li><a href="#sec-9">9 Exploratory Data Analysis</a></li>
+<li><a href="#sec-10">10 General Purpose</a></li>
+<li><a href="#sec-11">11 Visualisation</a>
+<ul>
+<li><a href="#sec-11-1">11.1 2013-12-18-animations-using-R</a></li>
+</ul>
+</li>
+<li><a href="#sec-12">12 Statistical Modelling</a>
+<ul>
+<li><a href="#sec-12-1">12.1 Tree-Based Methods</a></li>
+<li><a href="#sec-12-2">12.2 Misclassification Error Rate for Classification Trees</a></li>
+<li><a href="#sec-12-3">12.3 Deviance Based Measures of Descriptive Power for Classification Trees</a></li>
+<li><a href="#sec-12-4">12.4 Deviance Measures and Descriptive Power for Regression Trees</a>
+<ul>
+<li><a href="#sec-12-4-1">12.4.1 rpart-deviance-explained-code</a></li>
+<li><a href="#sec-12-4-2">12.4.2 rpart-deviance-explained-test</a></li>
 </ul></li>
 </ul>
 </li>
-<li><a href="#sec-5">5 Data Operation</a>
+<li><a href="#sec-13">13 Bibliograph-ology</a>
 <ul>
-<li><a href="#sec-5-1">5.1 R-subset</a></li>
-<li><a href="#sec-5-2">5.2 R-transform</a></li>
-<li><a href="#sec-5-3">5.3 R-mutate</a></li>
-<li><a href="#sec-5-4">5.4 R-summarise</a></li>
-<li><a href="#sec-5-5">5.5 R-arrange</a></li>
-<li><a href="#sec-5-6">5.6 R-upcase-string</a></li>
-</ul>
-</li>
-<li><a href="#sec-6">6 Data Output</a></li>
-<li><a href="#sec-7">7 Data Documentation</a>
+<li><a href="#sec-13-1">13.1 2013-11-20-sync-endnote-and-mendeley-references-using-r-xml</a>
 <ul>
-<li><a href="#sec-7-1">7.1 R-reml-and-rfigshare</a></li>
-<li><a href="#sec-7-2">7.2 R-reml-and-rfigshare-part-2</a></li>
-<li><a href="#sec-7-3">7.3 dc-uploader-and-ANU-DataCommons</a></li>
-<li><a href="#sec-7-4">7.4 morpho-and-rfigshare</a></li>
-<li><a href="#sec-7-5">7.5 morpho-and-reml-boilerplate-streamline-the-process-of-metadata-entry</a>
-<ul>
-<li><a href="#sec-7-5-1">7.5.1 Background</a></li>
-<li><a href="#sec-7-5-2">7.5.2 Speed and Rigour</a></li>
-<li><a href="#sec-7-5-3">7.5.3 Analysts can often trade-off completeness of documentation for speed</a></li>
-<li><a href="#sec-7-5-4">7.5.4 Librarians produce gold plated documentation and can take longer to produce this</a></li>
-<li><a href="#sec-7-5-5">7.5.5 An example</a></li>
-<li><a href="#sec-7-5-6">7.5.6 Embracing Inaccuracy and Incompleteness</a></li>
-<li><a href="#sec-7-5-7">7.5.7 Aim</a></li>
-<li><a href="#sec-7-5-8">7.5.8 Step 1: load a simple example dataset</a></li>
-<li><a href="#sec-7-5-9">7.5.9 Step 2 create a function to deliver the minimal metadata object</a></li>
-<li><a href="#sec-7-5-10">7.5.10 reml<sub>boilerplate</sub>-code</a></li>
-<li><a href="#sec-7-5-11">7.5.11 reml<sub>boilerplate</sub>-test-code</a></li>
-<li><a href="#sec-7-5-12">7.5.12 Results: This loads into Morpho with some errors</a></li>
-<li><a href="#sec-7-5-13">7.5.13 Conclusions</a></li>
-</ul>
-</li>
-<li><a href="#sec-7-6">7.6 R-get.var.labels</a>
-<ul>
-<li><a href="#sec-7-6-1">7.6.1 test-get.var.labels</a></li>
-</ul>
-</li>
-<li><a href="#sec-7-7">7.7 R-spss-variable-labels-read</a>
-<ul>
-<li><a href="#sec-7-7-1">7.7.1 R-spss-variable-labels-read</a></li>
-<li><a href="#sec-7-7-2">7.7.2 test-spss-variable-labels-read-code</a></li>
-</ul>
-</li>
-<li><a href="#sec-7-8">7.8 R-spss-variable-summary-table-code</a></li>
-<li><a href="#sec-7-9">7.9 R-reporttools-variable-summary-table</a></li>
-</ul>
-</li>
-<li><a href="#sec-8">8 Exploratory Data Analysis</a></li>
-<li><a href="#sec-9">9 General Purpose</a></li>
-<li><a href="#sec-10">10 Visualisation</a></li>
-<li><a href="#sec-11">11 Statistical Modelling</a>
-<ul>
-<li><a href="#sec-11-1">11.1 Tree-Based Methods</a></li>
-<li><a href="#sec-11-2">11.2 Misclassification Error Rate for Classification Trees</a></li>
-<li><a href="#sec-11-3">11.3 Deviance Based Measures of Descriptive Power for Classification Trees</a></li>
-<li><a href="#sec-11-4">11.4 Deviance Measures and Descriptive Power for Regression Trees</a>
-<ul>
-<li><a href="#sec-11-4-1">11.4.1 rpart-deviance-explained-code</a></li>
-<li><a href="#sec-11-4-2">11.4.2 rpart-deviance-explained-test</a></li>
+<li><a href="#sec-13-1-1">13.1.1 Intro</a></li>
+<li><a href="#sec-13-1-2">13.1.2 some crazy stuff</a></li>
+<li><a href="#sec-13-1-3">13.1.3 Check in spreadsheet</a></li>
+<li><a href="#sec-13-1-4">13.1.4 Do concatenate and loercase</a></li>
+<li><a href="#sec-13-1-5">13.1.5 select out of mendeley and send to Endnote</a></li>
+<li><a href="#sec-13-1-6">13.1.6 results, conclude</a></li>
 </ul></li>
 </ul>
 </li>
-<li><a href="#sec-12">12 Code Editors</a></li>
-<li><a href="#sec-13">13 Workflow Tools</a>
+<li><a href="#sec-14">14 Code Editors</a></li>
+<li><a href="#sec-15">15 Workflow Tools</a>
 <ul>
-<li><a href="#sec-13-1">13.1 R-newnode</a>
+<li><a href="#sec-15-1">15.1 R-newnode</a>
 <ul>
-<li><a href="#sec-13-1-1">13.1.1 test-newnode</a></li>
+<li><a href="#sec-15-1-1">15.1.1 test-newnode</a></li>
+</ul>
+</li>
+<li><a href="#sec-15-2">15.2 2013-11-25-setting-up-a-workflow-script</a></li>
+<li><a href="#sec-15-3">15.3 2013-12-01-graphviz-automagic-flowcharts</a>
+<ul>
+<li><a href="#sec-15-3-1">15.3.1 workflow<sub>steps</sub>-code</a></li>
+<li><a href="#sec-15-3-2">15.3.2 post</a></li>
+</ul>
+</li>
+<li><a href="#sec-15-4">15.4 2013-12-24-a-few-best-practices-for-statistical-programming</a></li>
+</ul>
+</li>
+<li><a href="#sec-16">16 Graphical User Interfaces</a>
+<ul>
+<li><a href="#sec-16-1">16.1 ORACLE XE APEX / HTMLDB</a>
+<ul>
+<li><a href="#sec-16-1-1">16.1.1 Drill down reports</a></li>
+</ul>
+</li>
+<li><a href="#sec-16-2">16.2 web2py</a>
+<ul>
+<li><a href="#sec-16-2-1">16.2.1 refs</a></li>
+<li><a href="#sec-16-2-2">16.2.2 Exploratory</a></li>
 </ul></li>
 </ul>
 </li>
-<li><a href="#sec-14">14 Graphical User Interfaces</a></li>
-<li><a href="#sec-15">15 Version Control</a>
+<li><a href="#sec-17">17 Version Control</a>
 <ul>
-<li><a href="#sec-15-1">15.1 2013-11-19-git-can-be-simple-or-very-complicated</a></li>
+<li><a href="#sec-17-1">17.1 2013-11-19-git-can-be-simple-or-very-complicated</a></li>
+<li><a href="#sec-17-2">17.2 2013-12-09-bitbucket-has-unlimited-private-git-repositories-for-universities</a></li>
+<li><a href="#sec-17-3">17.3 2013-12-09-dual-code-repository-and-project-website</a></li>
 </ul>
 </li>
-<li><a href="#sec-16">16 Latex/Sweave</a></li>
-<li><a href="#sec-17">17 R Packages</a></li>
-<li><a href="#sec-18">18 Project Management</a></li>
-<li><a href="#sec-19">19 Operating Systems</a></li>
-<li><a href="#sec-20">20 Linux - Ubuntu</a></li>
-<li><a href="#sec-21">21 Big Data Tips</a></li>
-<li><a href="#sec-22">22 Writing</a></li>
+<li><a href="#sec-18">18 Latex/Sweave/orgmode/knitr</a>
+<ul>
+<li><a href="#sec-18-1">18.1 Orgmode headers</a>
+<ul>
+<li><a href="#sec-18-1-1">18.1.1 2013-11-26-a-sharp-looking-orgmode-latex-export-header</a></li>
+</ul>
+</li>
+<li><a href="#sec-18-2">18.2 LaTeX templates</a></li>
+<li><a href="#sec-18-3">18.3 2014-02-12-template-Reproducible-Research-with-R-TEX-and-Sweave</a></li>
+<li><a href="#sec-18-4">18.4 2014-05-17-reproducible-research-reports-using-emacs-orgmode-export-to-knitr</a></li>
+</ul>
+</li>
+<li><a href="#sec-19">19 R Packages</a></li>
+<li><a href="#sec-20">20 Project Management</a>
+<ul>
+<li><a href="#sec-20-1">20.1 Gantt Charts</a>
+<ul>
+<li><a href="#sec-20-1-1">20.1.1 taskjuggler gantt-tj3-code</a></li>
+<li><a href="#sec-20-1-2">20.1.2 2013-12-01-gantt-charts-for-health-professionals</a></li>
+</ul>
+</li>
+<li><a href="#sec-20-2">20.2 2013-12-02-research-protocol-we-used-for-our-bushfire-project</a></li>
+<li><a href="#sec-20-3">20.3 2013-12-02-research-protocol-for-manitoba-centre-for-health-policy-raw-U-Manitoba Centre for Health Policy Guidelines</a>
+<ul>
+<li><a href="#sec-20-3-1">20.3.1 Confidentiality</a></li>
+<li><a href="#sec-20-3-2">20.3.2 Project Team Makeup</a></li>
+<li><a href="#sec-20-3-3">20.3.3 Project Team considerations</a></li>
+<li><a href="#sec-20-3-4">20.3.4 File organization and Documentation Development.</a></li>
+<li><a href="#sec-20-3-5">20.3.5 Communication</a></li>
+<li><a href="#sec-20-3-6">20.3.6 Administrative</a></li>
+<li><a href="#sec-20-3-7">20.3.7 Report preparation</a></li>
+<li><a href="#sec-20-3-8">20.3.8 Project Completion</a></li>
+</ul>
+</li>
+<li><a href="#sec-20-4">20.4 2013-12-02-research-protocol-for-manitoba-centre-for-health-policy</a></li>
+<li><a href="#sec-20-5">20.5 2014-02-22-gantting-like-a-hacker</a></li>
+<li><a href="#sec-20-6">20.6 2014-03-29-project-templates-that-initialize-a-new-project-with-a-skeleton-automatically</a></li>
+<li><a href="#sec-20-7">20.7 R-AdminTemplate</a>
+<ul>
+<li><a href="#sec-20-7-1">20.7.1 R-R-AdminTemplate</a></li>
+<li><a href="#sec-20-7-2">20.7.2 test-R-AdminTemplate</a></li>
+<li><a href="#sec-20-7-3">20.7.3 man-R-AdminTemplate</a></li>
+<li><a href="#sec-20-7-4">20.7.4 blog</a></li>
+</ul></li>
+</ul>
+</li>
+<li><a href="#sec-21">21 Research Protocols</a>
+<ul>
+<li><a href="#sec-21-1">21.1 2013-11-27-sharing-and-extending-research-protocols</a></li>
+</ul>
+</li>
+<li><a href="#sec-22">22 Operating Systems</a></li>
+<li><a href="#sec-23">23 Linux - Ubuntu</a></li>
+<li><a href="#sec-24">24 Big Data Tips</a></li>
+<li><a href="#sec-25">25 Writing</a></li>
 </ul>
 </div>
 </div>
 
 <div id="outline-container-1" class="outline-2">
-<h2 id="sec-1"><span class="section-number-2">1</span> Introduction</h2>
+<h2 id="sec-1"><span class="section-number-2">1</span> Download</h2>
 <div class="outline-text-2" id="text-1">
+
+<ul>
+<li><a href="http://ivanhanigan.github.io/disentangle/lib/disentangle_1.0.zip">Windows Version is Downloadable Here</a>
+</li>
+<li>Linux and Mac users can just run this R code
+</li>
+</ul>
+
+
+
+
+<pre class="src src-R"><span style="color: #268bd2; font-weight: bold;">require</span>(devtools)
+install_github(<span style="color: #2aa198;">"disentangle"</span>, <span style="color: #2aa198;">"ivanhanigan"</span>)
+</pre>
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-2" class="outline-2">
+<h2 id="sec-2"><span class="section-number-2">2</span> Introduction</h2>
+<div class="outline-text-2" id="text-2">
 
 <p>This project is my collection of notes and customised software tools for data management, manipulation and analysis.
 </p>
@@ -260,21 +464,31 @@ install_github(<span style="color: #2aa198;">"disentangle"</span>, <span style="
 <span style="color: #268bd2; font-weight: bold;">require</span>(disentangle)
 </pre>
 
-</div>
-
-</div>
-
-<div id="outline-container-2" class="outline-2">
-<h2 id="sec-2"><span class="section-number-2">2</span> Test Data</h2>
-<div class="outline-text-2" id="text-2">
-
-
 
 </div>
 
 <div id="outline-container-2-1" class="outline-3">
-<h3 id="sec-2-1"><span class="section-number-3">2.1</span> Test Data for Classification Trees</h3>
+<h3 id="sec-2-1"><span class="section-number-3">2.1</span> DESCRIPTION-code</h3>
 <div class="outline-text-3" id="text-2-1">
+
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-3" class="outline-2">
+<h2 id="sec-3"><span class="section-number-2">3</span> Test Data</h2>
+<div class="outline-text-2" id="text-3">
+
+
+
+</div>
+
+<div id="outline-container-3-1" class="outline-3">
+<h3 id="sec-3-1"><span class="section-number-3">3.1</span> Test Data for Classification Trees</h3>
+<div class="outline-text-3" id="text-3-1">
 
 
 
@@ -403,55 +617,88 @@ I<span style="color: #2aa198;">'ve mostly used Regression Trees in the past but 
 
 </div>
 
-<div id="outline-container-3" class="outline-2">
-<h2 id="sec-3"><span class="section-number-2">3</span> Data Input - Remote</h2>
-<div class="outline-text-2" id="text-3">
+<div id="outline-container-4" class="outline-2">
+<h2 id="sec-4"><span class="section-number-2">4</span> Data Input - Remote</h2>
+<div class="outline-text-2" id="text-4">
 
 
 </div>
 
-<div id="outline-container-3-1" class="outline-3">
-<h3 id="sec-3-1"><span class="section-number-3">3.1</span> Database Connection</h3>
-<div class="outline-text-3" id="text-3-1">
+<div id="outline-container-4-1" class="outline-3">
+<h3 id="sec-4-1"><span class="section-number-3">4.1</span> Database Connection</h3>
+<div class="outline-text-3" id="text-4-1">
 
 
 </div>
 
-<div id="outline-container-3-1-1" class="outline-4">
-<h4 id="sec-3-1-1"><span class="section-number-4">3.1.1</span> <span class="todo TODO">TODO</span> connect2postgres</h4>
-<div class="outline-text-4" id="text-3-1-1">
-
-</div>
-
-</div>
-
-<div id="outline-container-3-1-2" class="outline-4">
-<h4 id="sec-3-1-2"><span class="section-number-4">3.1.2</span> <span class="todo TODO">TODO</span> connect2oracle</h4>
-<div class="outline-text-4" id="text-3-1-2">
-
-</div>
-</div>
-
-</div>
-
-<div id="outline-container-3-2" class="outline-3">
-<h3 id="sec-3-2"><span class="section-number-3">3.2</span> Database Input</h3>
-<div class="outline-text-3" id="text-3-2">
-
-
-</div>
-
-<div id="outline-container-3-2-1" class="outline-4">
-<h4 id="sec-3-2-1"><span class="section-number-4">3.2.1</span> <span class="todo TODO">TODO</span> readOGR2</h4>
-<div class="outline-text-4" id="text-3-2-1">
+<div id="outline-container-4-1-1" class="outline-4">
+<h4 id="sec-4-1-1"><span class="section-number-4">4.1.1</span> <span class="todo TODO">TODO</span> connect2postgres</h4>
+<div class="outline-text-4" id="text-4-1-1">
 
 </div>
 
 </div>
 
-<div id="outline-container-3-2-2" class="outline-4">
-<h4 id="sec-3-2-2"><span class="section-number-4">3.2.2</span> PSQL dump and restore</h4>
-<div class="outline-text-4" id="text-3-2-2">
+<div id="outline-container-4-1-2" class="outline-4">
+<h4 id="sec-4-1-2"><span class="section-number-4">4.1.2</span> <span class="todo TODO">TODO</span> connect2oracle</h4>
+<div class="outline-text-4" id="text-4-1-2">
+
+</div>
+
+</div>
+
+<div id="outline-container-4-1-3" class="outline-4">
+<h4 id="sec-4-1-3"><span class="section-number-4">4.1.3</span> <span class="todo TODO">TODO</span> libre office base to postgres</h4>
+<div class="outline-text-4" id="text-4-1-3">
+
+<p>install base with software centre and 
+sudo apt-get install libreoffice-sdbc-postgresql
+<a href="http://dcparris.net/2012/07/06/connecting-libreoffice-to-postgresql-natively/">http://dcparris.net/2012/07/06/connecting-libreoffice-to-postgresql-natively/</a>
+localhost didnt work but 127.0.0.1 did
+</p></div>
+
+</div>
+
+<div id="outline-container-4-1-4" class="outline-4">
+<h4 id="sec-4-1-4"><span class="section-number-4">4.1.4</span> kexi</h4>
+<div class="outline-text-4" id="text-4-1-4">
+
+<p>using software centre
+kexi and
+kexi-postgresql-driver
+</p></div>
+
+</div>
+
+<div id="outline-container-4-1-5" class="outline-4">
+<h4 id="sec-4-1-5"><span class="section-number-4">4.1.5</span> 2014-05-10-ms-access-to-postgresql-in-64-bit-windows</h4>
+<div class="outline-text-4" id="text-4-1-5">
+
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-4-2" class="outline-3">
+<h3 id="sec-4-2"><span class="section-number-3">4.2</span> Database Input</h3>
+<div class="outline-text-3" id="text-4-2">
+
+
+</div>
+
+<div id="outline-container-4-2-1" class="outline-4">
+<h4 id="sec-4-2-1"><span class="section-number-4">4.2.1</span> <span class="todo TODO">TODO</span> readOGR2</h4>
+<div class="outline-text-4" id="text-4-2-1">
+
+</div>
+
+</div>
+
+<div id="outline-container-4-2-2" class="outline-4">
+<h4 id="sec-4-2-2"><span class="section-number-4">4.2.2</span> PSQL dump and restore</h4>
+<div class="outline-text-4" id="text-4-2-2">
 
 
 
@@ -475,7 +722,7 @@ pg_dump -h ip_address -U username -i -t schema.table weather | psql -h localhost
 
 <span style="color: #2aa198;">"C:\Program Files\PostgreSQL\8.3\bin\psql"</span> -h ip_address -d weather -U username -c <span style="color: #2aa198;">"COPY \"schema\".\"table\" TO STDOUT WITH CSV HEADER;"</span> &gt; <span style="color: #2aa198;">"J:\workdir\filename.csv"</span>
 
-<span style="color: #2aa198;">"C:\Program Files\PostgreSQL\8.3\bin\psql"</span> -h ip_address -d weather -U username -c <span style="color: #2aa198;">"COPY (select * from schema.table where var = X) TO STDOUT WITH CSV HEADER;"</span> &gt; <span style="color: #2aa198;">"J:\workdir\filename.csv"</span>
+<span style="color: #2aa198;">"C:\Program Files\PostgreSQL\8.3\bin\psql"</span> -h ip_address -d weather -U username -c <span style="color: #2aa198;">"COPY (select * from schema.table where var = X) TO STDOUT WITH CSV HEADEsR;"</span> &gt; <span style="color: #2aa198;">"J:\workdir\filename.csv"</span>
 </pre>
 
 </div>
@@ -484,23 +731,23 @@ pg_dump -h ip_address -U username -i -t schema.table weather | psql -h localhost
 
 </div>
 
-<div id="outline-container-4" class="outline-2">
-<h2 id="sec-4"><span class="section-number-2">4</span> Data Input - Local</h2>
-<div class="outline-text-2" id="text-4">
+<div id="outline-container-5" class="outline-2">
+<h2 id="sec-5"><span class="section-number-2">5</span> Data Input - Local</h2>
+<div class="outline-text-2" id="text-5">
 
 
 </div>
 
-<div id="outline-container-4-1" class="outline-3">
-<h3 id="sec-4-1"><span class="section-number-3">4.1</span> Download File from HTTPS</h3>
-<div class="outline-text-3" id="text-4-1">
+<div id="outline-container-5-1" class="outline-3">
+<h3 id="sec-5-1"><span class="section-number-3">5.1</span> Download File from HTTPS</h3>
+<div class="outline-text-3" id="text-5-1">
 
 
 </div>
 
-<div id="outline-container-4-1-1" class="outline-4">
-<h4 id="sec-4-1-1"><span class="section-number-4">4.1.1</span> download-file-https-code</h4>
-<div class="outline-text-4" id="text-4-1-1">
+<div id="outline-container-5-1-1" class="outline-4">
+<h4 id="sec-5-1-1"><span class="section-number-4">5.1.1</span> download-file-https-code</h4>
+<div class="outline-text-4" id="text-5-1-1">
 
 
 
@@ -516,23 +763,33 @@ timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(
 
 </div>
 </div>
-</div>
 
 </div>
 
-<div id="outline-container-5" class="outline-2">
-<h2 id="sec-5"><span class="section-number-2">5</span> Data Operation</h2>
-<div class="outline-text-2" id="text-5">
-
-
+<div id="outline-container-5-2" class="outline-3">
+<h3 id="sec-5-2"><span class="section-number-3">5.2</span> R-xls-read-all-worksheets-code</h3>
+<div class="outline-text-3" id="text-5-2">
 
 
 
 </div>
+</div>
 
-<div id="outline-container-5-1" class="outline-3">
-<h3 id="sec-5-1"><span class="section-number-3">5.1</span> R-subset</h3>
-<div class="outline-text-3" id="text-5-1">
+</div>
+
+<div id="outline-container-6" class="outline-2">
+<h2 id="sec-6"><span class="section-number-2">6</span> Data Operation</h2>
+<div class="outline-text-2" id="text-6">
+
+
+
+
+
+</div>
+
+<div id="outline-container-6-1" class="outline-3">
+<h3 id="sec-6-1"><span class="section-number-3">6.1</span> R-subset</h3>
+<div class="outline-text-3" id="text-6-1">
 
 
 
@@ -560,9 +817,9 @@ timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(
 
 </div>
 
-<div id="outline-container-5-2" class="outline-3">
-<h3 id="sec-5-2"><span class="section-number-3">5.2</span> R-transform</h3>
-<div class="outline-text-3" id="text-5-2">
+<div id="outline-container-6-2" class="outline-3">
+<h3 id="sec-6-2"><span class="section-number-3">6.2</span> R-transform</h3>
+<div class="outline-text-3" id="text-6-2">
 
 
 
@@ -582,9 +839,9 @@ timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(
 
 </div>
 
-<div id="outline-container-5-3" class="outline-3">
-<h3 id="sec-5-3"><span class="section-number-3">5.3</span> R-mutate</h3>
-<div class="outline-text-3" id="text-5-3">
+<div id="outline-container-6-3" class="outline-3">
+<h3 id="sec-6-3"><span class="section-number-3">6.3</span> R-mutate</h3>
+<div class="outline-text-3" id="text-6-3">
 
 
 
@@ -606,9 +863,9 @@ timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(
 
 </div>
 
-<div id="outline-container-5-4" class="outline-3">
-<h3 id="sec-5-4"><span class="section-number-3">5.4</span> R-summarise</h3>
-<div class="outline-text-3" id="text-5-4">
+<div id="outline-container-6-4" class="outline-3">
+<h3 id="sec-6-4"><span class="section-number-3">6.4</span> R-summarise</h3>
+<div class="outline-text-3" id="text-6-4">
 
 
 
@@ -686,9 +943,9 @@ timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(
 
 </div>
 
-<div id="outline-container-5-5" class="outline-3">
-<h3 id="sec-5-5"><span class="section-number-3">5.5</span> R-arrange</h3>
-<div class="outline-text-3" id="text-5-5">
+<div id="outline-container-6-5" class="outline-3">
+<h3 id="sec-6-5"><span class="section-number-3">6.5</span> R-arrange</h3>
+<div class="outline-text-3" id="text-6-5">
 
 
 
@@ -704,9 +961,44 @@ timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(
 
 </div>
 
-<div id="outline-container-5-6" class="outline-3">
-<h3 id="sec-5-6"><span class="section-number-3">5.6</span> R-upcase-string</h3>
-<div class="outline-text-3" id="text-5-6">
+<div id="outline-container-6-6" class="outline-3">
+<h3 id="sec-6-6"><span class="section-number-3">6.6</span> R-upcase<sub>string</sub></h3>
+<div class="outline-text-3" id="text-6-6">
+
+
+</div>
+
+<div id="outline-container-6-6-1" class="outline-4">
+<h4 id="sec-6-6-1"><span class="section-number-4">6.6.1</span> R-upcase<sub>string</sub></h4>
+<div class="outline-text-4" id="text-6-6-1">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-6-2" class="outline-4">
+<h4 id="sec-6-6-2"><span class="section-number-4">6.6.2</span> test-upcase<sub>string</sub></h4>
+<div class="outline-text-4" id="text-6-6-2">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-6-3" class="outline-4">
+<h4 id="sec-6-6-3"><span class="section-number-4">6.6.3</span> man-upcase<sub>string</sub></h4>
+<div class="outline-text-4" id="text-6-6-3">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-6-4" class="outline-4">
+<h4 id="sec-6-6-4"><span class="section-number-4">6.6.4</span> blog</h4>
+<div class="outline-text-4" id="text-6-6-4">
 
 
 
@@ -715,26 +1007,419 @@ timedata <span style="color: #268bd2; font-weight: bold;">&lt;-</span> read.csv(
 
 </div>
 
-<div id="outline-container-6" class="outline-2">
-<h2 id="sec-6"><span class="section-number-2">6</span> Data Output</h2>
-<div class="outline-text-2" id="text-6">
+<div id="outline-container-6-7" class="outline-3">
+<h3 id="sec-6-7"><span class="section-number-3">6.7</span> R-levenshtein</h3>
+<div class="outline-text-3" id="text-6-7">
 
+
+</div>
+
+<div id="outline-container-6-7-1" class="outline-4">
+<h4 id="sec-6-7-1"><span class="section-number-4">6.7.1</span> R-levenshtein</h4>
+<div class="outline-text-4" id="text-6-7-1">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-7-2" class="outline-4">
+<h4 id="sec-6-7-2"><span class="section-number-4">6.7.2</span> test-levenshtein</h4>
+<div class="outline-text-4" id="text-6-7-2">
+
+
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-7-3" class="outline-4">
+<h4 id="sec-6-7-3"><span class="section-number-4">6.7.3</span> test-stringdist-code</h4>
+<div class="outline-text-4" id="text-6-7-3">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-7-4" class="outline-4">
+<h4 id="sec-6-7-4"><span class="section-number-4">6.7.4</span> man-levenshtein</h4>
+<div class="outline-text-4" id="text-6-7-4">
+
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-6-8" class="outline-3">
+<h3 id="sec-6-8"><span class="section-number-3">6.8</span> 2014-02-27-yearmon-class-and-interoperability-with-excel-and-access</h3>
+<div class="outline-text-3" id="text-6-8">
+
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-9" class="outline-3">
+<h3 id="sec-6-9"><span class="section-number-3">6.9</span> <span class="todo TODO">TODO</span> working-with-dates</h3>
+<div class="outline-text-3" id="text-6-9">
+
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-10" class="outline-3">
+<h3 id="sec-6-10"><span class="section-number-3">6.10</span> R-spatial</h3>
+<div class="outline-text-3" id="text-6-10">
+
+
+</div>
+
+<div id="outline-container-6-10-1" class="outline-4">
+<h4 id="sec-6-10-1"><span class="section-number-4">6.10.1</span> <span class="todo TODO">TODO</span> xy2shp</h4>
+<div class="outline-text-4" id="text-6-10-1">
+
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-6-11" class="outline-3">
+<h3 id="sec-6-11"><span class="section-number-3">6.11</span> <span class="todo TODO">TODO</span> reshape</h3>
+<div class="outline-text-3" id="text-6-11">
+
+
+</div>
+
+<div id="outline-container-6-11-1" class="outline-4">
+<h4 id="sec-6-11-1"><span class="section-number-4">6.11.1</span> <span class="todo TODO">TODO</span> base:reshape</h4>
+<div class="outline-text-4" id="text-6-11-1">
+
+
+
+
+
+<pre class="src src-R"><span style="color: #586e75;">#### </span><span style="color: #586e75;">name:reshape####</span>
+
+rshaped<span style="color: #268bd2; font-weight: bold;">&lt;-</span>reshape(selected2,direction=<span style="color: #2aa198;">"long"</span>,idvar=<span style="color: #2aa198;">"Date"</span>,ids=row.names(selected2),
+    timevar=<span style="color: #2aa198;">"pharmacy"</span>,times=names(selected2)[5:ncol(selected2)],
+    varying=list(names(selected2)[5:ncol(selected2)]),v.names=<span style="color: #2aa198;">"sales"</span>)
+
+rshaped<span style="color: #268bd2; font-weight: bold;">&lt;-</span>reshape(data,direction=<span style="color: #2aa198;">"long"</span>,varying=list(c( <span style="color: #2aa198;">"a1_salm_cnt"</span>,    <span style="color: #2aa198;">"a2_salm_cnt"</span>,    <span style="color: #2aa198;">"a3_a5_salm_cnt"</span>),c( <span style="color: #2aa198;">"a1_pop"</span>,         <span style="color: #2aa198;">"a2_pop"</span>,<span style="color: #2aa198;">"a3_a5_pop"</span> )),v.names=c(<span style="color: #2aa198;">"counts"</span>,<span style="color: #2aa198;">"pops"</span>),timevar=<span style="color: #2aa198;">"agegroup"</span>,times=c(<span style="color: #2aa198;">"a1"</span>,<span style="color: #2aa198;">"a2"</span>,<span style="color: #2aa198;">"a3"</span>))  
+
+selectedSLAERP<span style="color: #268bd2; font-weight: bold;">&lt;-</span>reshape(selectedSLA, times=names(selectedSLA)[3:ncol(selectedSLA)],timevar=<span style="color: #2aa198;">"agesex"</span>,varying=list(names(selectedSLA)[3:ncol(selectedSLA)]),v.name=paste(i),direction=<span style="color: #2aa198;">"long"</span>) 
+
+reshape(test,direction=<span style="color: #2aa198;">"long"</span>,varying=list(names(test)[2:ncol(test)]),times=names(test)[2:ncol(test)])
+<span style="color: #586e75;"># </span><span style="color: #586e75;">all you need is varying (list of col names) and times (not a list), timevar and v.name are useful</span>
+
+reshape(Commands[,c(1,5)],direction=<span style="color: #2aa198;">"wide"</span>,v.names=<span style="color: #2aa198;">"codes"</span>,idvar=<span style="color: #2aa198;">"disease"</span>,timevar=<span style="color: #2aa198;">"codes"</span>)
+
+
+<span style="color: #586e75;">#</span><span style="color: #586e75;">when d2=</span>
+<span style="color: #586e75;">##     </span><span style="color: #586e75;">station           Time TemperatureC DewpointC PressurehPa WindDirection WindDirectionDegrees WindSpeedKMH</span>
+<span style="color: #586e75;">## </span><span style="color: #586e75;">1 INSWGUND1 1/01/2009 0:01         13.8       3.6      1005.3            NW                  308          3.2</span>
+<span style="color: #586e75;">## </span><span style="color: #586e75;">2 INSWGUND1 1/01/2009 0:30         14.5       3.6      1005.3            NW                  308          1.6</span>
+<span style="color: #586e75;">## </span><span style="color: #586e75;">3 INSWGUND1 1/01/2009 1:00         14.2       3.7      1005.0            NW                  308          3.2</span>
+<span style="color: #586e75;">## </span><span style="color: #586e75;">4 INSWGUND1 1/01/2009 1:30         14.3       3.8      1004.6            NW                  306          8.0</span>
+<span style="color: #586e75;">## </span><span style="color: #586e75;">5 INSWGUND1 1/01/2009 2:00         13.8       3.9      1004.6            NW                  315          8.0</span>
+<span style="color: #586e75;">## </span><span style="color: #586e75;">6 INSWGUND1 1/01/2009 2:30         13.5       3.8      1004.3            NW                  321          8.0</span>
+
+reshape(d,direction=<span style="color: #2aa198;">"wide"</span>,idvar=<span style="color: #2aa198;">"Time"</span>,timevar=<span style="color: #2aa198;">"station"</span>)
+
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-11-2" class="outline-4">
+<h4 id="sec-6-11-2"><span class="section-number-4">6.11.2</span> <span class="todo TODO">TODO</span> reshape Packages</h4>
+<div class="outline-text-4" id="text-6-11-2">
+
+<p><a href="http://psychwire.wordpress.com/2011/05/16/reshape-package-in-r-long-data-format-to-wide-back-to-long-again/">http://psychwire.wordpress.com/2011/05/16/reshape-package-in-r-long-data-format-to-wide-back-to-long-again/</a>
+</p>
+<p>
+Reshape Package in R: Long Data format, to Wide, back to Long again
+May 16, 2011 Hayward Godwin Leave a comment Go to comments
+</p>
+<p>
+In this post, I describe how to use the reshape package to modify a dataframe from a long data format, to a wide format, and then back to a long format again. It’ll be an epic journey; some of us may not survive (especially me!).
+Wide versus Long Data Formats
+</p>
+<p>
+I’ll begin by describing what is meant by ‘wide’ versus ‘long’ data formats. Long data look like this:
+</p>
+<p>
+As you can see, there is one row for each value that you have. Many statistical tests in R need data in this shape (e.g., ANOVAs and the like). This is the case even when running tests with repeated factors.
+</p>
+<p>
+In the example above, lets say that iv1 is a between-subjects factor and iv2 is a within-subjects factor. The same table, in a wide format, would look like this:
+</p>
+<p>
+Here, each column represents a unique pairing of the various factors. SPSS favours this method for repeated-measures tests (such as repeated-measures ANOVAs or paired t-tests), and being able to move between the two formats is helpful when multiple people are working on a single dataset but using different packages (e.g., R vs SPSS).
+Get in Shape! The Reshape Package
+</p>
+<p>
+I’ll begin by going back to a dataset that I’ve been messing around with for some time. I’m going to select out the columns I need, and rename one of them. One of them ended up getting called “X.” because of the way the data were tabbed. Here, I rename the “X.” column into “rank”, which is what it really should have been in the first place.
+</p>
+<p>
+1       full<sub>list</sub><sub>cutdown</sub> = data.frame("rank"=full<sub>list</sub><sub>dps</sub>$X., "class"=full<sub>list</sub><sub>dps</sub>$class,
+2       "spec"=full<sub>list</sub><sub>dps</sub>$spec, "dps"=full<sub>list</sub><sub>dps</sub>$DPS)
+</p>
+<p>
+The data look like this:
+</p>
+<p>
+Rows truncated to prevent from filling entire page
+</p>
+<p>
+Let’s begin by converting these data into a wide format. To do that, all we need to do is use the cast function. This has the general format of:
+1       cast(dataset, factor1 ~ factor2 ~ etc., value=value column, fun=aggregation method)
+</p>
+<p>
+Here, dataset refers to your target dataset. factor1 ~ factor2 ~ etc lists the columns/factors that you want to split up the data by. value deals with the column that you want to select and calculate a value for. You can run all sorts of aggregation functions using the fun= command. The default is len, the count of the number of cells for that combination of factor levels. To make my dataset into a wide format, all I need to run is:
+1               
+</p>
+<p>
+Here, I create a wide dataframe based on the rank and class columns. The computed value is the mean of the dps column. It looks like this:
+</p>
+<p>
+There and Back Again: Getting from Wide to Long Format
+</p>
+<p>
+Say that we want to go back to the long format again (or, indeed, convert from wide to long in the first place!). How can we do that? We use the melt function!
+1       melt(wide<sub>frame</sub>, id=c("rank"))
+</p>
+<p>
+This takes us right back to the start, where our exciting journey began. 
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-6-11-3" class="outline-4">
+<h4 id="sec-6-11-3"><span class="section-number-4">6.11.3</span> <span class="todo TODO">TODO</span> reshapes</h4>
+<div class="outline-text-4" id="text-6-11-3">
+
+<p>Also consider reshape2 by same author as reshape.
+</p>
+<p>
+He mentions it may be 'considerably faster and more memory efficient'
+<a href="http://r.789695.n4.nabble.com/R-pkgs-reshape2-a-reboot-of-the-reshape-package-td2534378.html">http://r.789695.n4.nabble.com/R-pkgs-reshape2-a-reboot-of-the-reshape-package-td2534378.html</a>
+</p>
+
+
+
+<pre class="src src-R"><span style="color: #586e75;">#### </span><span style="color: #586e75;">name:reshapes####</span>
+
+
+<span style="color: #586e75;"># </span><span style="color: #586e75;">tools</span>
+<span style="color: #268bd2; font-weight: bold;">require</span>(reshape2)
+<span style="color: #268bd2;">sort_df</span><span style="color: #268bd2; font-weight: bold;">&lt;-</span><span style="color: #859900; font-weight: bold;">function</span> (data, vars = names(data), decreasing=F) {
+    <span style="color: #859900; font-weight: bold;">if</span> (length(vars) == 0 || is.null(vars)) 
+        <span style="color: #859900; font-weight: bold;">return</span>(data)
+    data[do.call(<span style="color: #2aa198;">"order"</span>, c(data[, vars, drop = <span style="color: #b58900;">FALSE</span>], decreasing = decreasing)), , drop = <span style="color: #b58900;">FALSE</span>]
+ }
+
+<span style="color: #586e75;"># </span><span style="color: #586e75;">load</span>
+d<span style="color: #268bd2; font-weight: bold;">&lt;-</span>as.data.frame(rbind(
+ c(1,1970,3,3,8,12,23,20,26,25,25,16,8,4),
+ c(2,1970,5,4,10,13,26,20,27,28,27,18,9,5)
+ ))
+d$climate <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #2aa198;">'frst'</span> 
+names(d)<span style="color: #268bd2; font-weight: bold;">&lt;-</span>c(<span style="color: #2aa198;">'ID'</span>,<span style="color: #2aa198;">'Year'</span>,<span style="color: #2aa198;">'1'</span>,<span style="color: #2aa198;">'2'</span>,<span style="color: #2aa198;">'3'</span>,<span style="color: #2aa198;">'4'</span>,<span style="color: #2aa198;">'5'</span>,<span style="color: #2aa198;">'6'</span>,<span style="color: #2aa198;">'7'</span>,<span style="color: #2aa198;">'8'</span>,<span style="color: #2aa198;">'9'</span>,<span style="color: #2aa198;">'10'</span>,<span style="color: #2aa198;">'11'</span>,<span style="color: #2aa198;">'12'</span>,<span style="color: #2aa198;">'climate'</span>)
+str(d)
+
+<span style="color: #586e75;"># </span><span style="color: #586e75;">do</span>
+d2 <span style="color: #268bd2; font-weight: bold;">&lt;-</span> melt(d,id=c(<span style="color: #2aa198;">'ID'</span>,<span style="color: #2aa198;">'Year'</span>, <span style="color: #2aa198;">'climate'</span>))
+str(d2)
+d2$variable <span style="color: #268bd2; font-weight: bold;">&lt;-</span> as.numeric(as.character(d2$variable) )
+sort_df(d2)
+
+
+
+
+
+
+<span style="color: #586e75;">#</span><span style="color: #586e75;">OR</span>
+
+<span style="color: #586e75;"># </span><span style="color: #586e75;">load</span>
+t<span style="color: #268bd2; font-weight: bold;">&lt;-</span><span style="color: #2aa198;">"ID,Year,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,climate</span>
+<span style="color: #2aa198;">1,1970,3,3,8,12,23,20,26,25,25,16,8,4,frst</span>
+<span style="color: #2aa198;">2,1970,5,4,10,13,26,20,27,28,27,18,9,5,frst</span>
+<span style="color: #2aa198;">"</span>
+t<span style="color: #268bd2; font-weight: bold;">&lt;-</span>read.csv(textConnection(t))
+
+<span style="color: #268bd2; font-weight: bold;">library</span>(reshape)
+
+<span style="color: #586e75;">#</span><span style="color: #586e75;">convert wide form to long form</span>
+t2<span style="color: #268bd2; font-weight: bold;">&lt;-</span>melt(t,id.var=c(<span style="color: #2aa198;">"ID"</span>,<span style="color: #2aa198;">"climate"</span>,<span style="color: #2aa198;">"Year"</span>))
+names(t2)<span style="color: #268bd2; font-weight: bold;">&lt;-</span>c(<span style="color: #2aa198;">"ID"</span>,<span style="color: #2aa198;">"Surf"</span>,<span style="color: #2aa198;">"Year"</span>,<span style="color: #2aa198;">"Month"</span>,<span style="color: #2aa198;">"Value"</span>)
+
+<span style="color: #586e75;">#</span><span style="color: #586e75;">turn named months into indices</span>
+t2$Month<span style="color: #268bd2; font-weight: bold;">&lt;-</span>match(t2$Month,month.abb)
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-11-4" class="outline-4">
+<h4 id="sec-6-11-4"><span class="section-number-4">6.11.4</span> <span class="todo TODO">TODO</span> reshape more</h4>
+<div class="outline-text-4" id="text-6-11-4">
+
+
+
+
+
+<pre class="src src-R">seasonalCountsPMmeans <span style="color: #268bd2; font-weight: bold;">&lt;-</span> data.frame(cast(qc2, adjustedyear ~ season, value=c(<span style="color: #2aa198;">'pm10_av'</span>), fun=mean, na.rm=T))
+</pre>
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-6-12" class="outline-3">
+<h3 id="sec-6-12"><span class="section-number-3">6.12</span> <span class="todo TODO">TODO</span> catenate columns</h3>
+<div class="outline-text-3" id="text-6-12">
+
+
+
+
+
+<pre class="src src-R"><span style="color: #586e75;">#### </span><span style="color: #586e75;">name:catenate####</span>
+
+
+dat <span style="color: #268bd2; font-weight: bold;">&lt;-</span> data.frame(a = c(<span style="color: #2aa198;">"what is"</span>, <span style="color: #2aa198;">"it is hard"</span>),
+                          b = c(<span style="color: #2aa198;">"going on with"</span>, <span style="color: #2aa198;">"to know what to"</span>),
+                          c = c(<span style="color: #2aa198;">"this data file?"</span>, <span style="color: #2aa198;">"make of it all!"</span>),
+                          stringsAsFactors = <span style="color: #b58900;">FALSE</span>)
+
+dat$b                    
+v <span style="color: #268bd2; font-weight: bold;">&lt;-</span> unlist(unname(dat[1,]))
+paste(v)[1]
+paste(v, sep=<span style="color: #2aa198;">""</span>, collapse = <span style="color: #2aa198;">""</span>)[1]
+paste(v, sep=<span style="color: #2aa198;">""</span>, collapse = <span style="color: #2aa198;">" "</span>)[1]
+
+apply(dat, 1, <span style="color: #859900; font-weight: bold;">function</span>(x) paste(x, sep=<span style="color: #2aa198;">''</span>, collapse=<span style="color: #2aa198;">' '</span>))
+
+
+
+
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-6-13" class="outline-3">
+<h3 id="sec-6-13"><span class="section-number-3">6.13</span> <span class="todo TODO">TODO</span> fill ragged matrix</h3>
+<div class="outline-text-3" id="text-6-13">
+
+
+
+
+
+<pre class="src src-R"><span style="color: #586e75;">#### </span><span style="color: #586e75;">name:fill####</span>
+
+
+      person        fruit    suburb something
+1        Tom      oranges   Scullin       3.0
+2                  apples                 6.0
+3                   pears                 9.0
+4                tim tams                 2.0
+5   Gertrude       durian Charnwood       3.7
+6            dragon fruit                 7.0
+7                 lychees                 4.9
+8               pineapple               100.9
+9                  apples                98.0
+10 Pennelope      cashews   Higgins       2.0
+11              beer nuts                 5.6
+12               Pringles                 4.0
+
+
+<span style="color: #268bd2;">fill.col</span> <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #859900; font-weight: bold;">function</span>(x, col.name) {
+      s <span style="color: #268bd2; font-weight: bold;">&lt;-</span> which(!x[[col.name]] == <span style="color: #2aa198;">""</span>)
+      item <span style="color: #268bd2; font-weight: bold;">&lt;-</span> x[[col.name]][s]
+      hold <span style="color: #268bd2; font-weight: bold;">&lt;-</span> vector(<span style="color: #2aa198;">'list'</span>, length(item))      
+      <span style="color: #859900; font-weight: bold;">for</span>(i <span style="color: #859900; font-weight: bold;">in</span> 1: length(hold)) hold[[i]] <span style="color: #268bd2; font-weight: bold;">&lt;-</span> rep(item[i], ifelse(is.na(s[i+1]), dim(x)[1] + 1, s[i+1]) - s[i])
+      x[[col.name]] <span style="color: #268bd2; font-weight: bold;">&lt;-</span> unlist(hold)
+      x
+      }
+
+d <span style="color: #268bd2; font-weight: bold;">&lt;-</span> fill.col(d, <span style="color: #2aa198;">'person'</span>)   
+fill.col(d, <span style="color: #2aa198;">'suburb'</span>)  
+
+      person        fruit    suburb something
+1        Tom      oranges   Scullin       3.0
+2        Tom       apples   Scullin       6.0
+3        Tom        pears   Scullin       9.0
+4        Tom     tim tams   Scullin       2.0
+5   Gertrude       durian Charnwood       3.7
+6   Gertrude dragon fruit Charnwood       7.0
+7   Gertrude      lychees Charnwood       4.9
+8   Gertrude    pineapple Charnwood     100.9
+9   Gertrude       apples Charnwood      98.0
+10 Pennelope      cashews   Higgins       2.0
+11 Pennelope    beer nuts   Higgins       5.6
+12 Pennelope     Pringles   Higgins       4.0
+</pre>
+
+
+</div>
 </div>
 
 </div>
 
 <div id="outline-container-7" class="outline-2">
-<h2 id="sec-7"><span class="section-number-2">7</span> Data Documentation</h2>
+<h2 id="sec-7"><span class="section-number-2">7</span> Data Output</h2>
 <div class="outline-text-2" id="text-7">
+
+</div>
+
+</div>
+
+<div id="outline-container-8" class="outline-2">
+<h2 id="sec-8"><span class="section-number-2">8</span> Data Documentation</h2>
+<div class="outline-text-2" id="text-8">
 
 
 
 
 </div>
 
-<div id="outline-container-7-1" class="outline-3">
-<h3 id="sec-7-1"><span class="section-number-3">7.1</span> R-reml-and-rfigshare</h3>
-<div class="outline-text-3" id="text-7-1">
+<div id="outline-container-8-1" class="outline-3">
+<h3 id="sec-8-1"><span class="section-number-3">8.1</span> 2013-09-19-transform</h3>
+<div class="outline-text-3" id="text-8-1">
+
+
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-2" class="outline-3">
+<h3 id="sec-8-2"><span class="section-number-3">8.2</span> R-reml-and-rfigshare</h3>
+<div class="outline-text-3" id="text-8-2">
 
 
 
@@ -864,9 +1549,9 @@ So this looks like a useful tool.  Next steps are to:
 
 </div>
 
-<div id="outline-container-7-2" class="outline-3">
-<h3 id="sec-7-2"><span class="section-number-3">7.2</span> R-reml-and-rfigshare-part-2</h3>
-<div class="outline-text-3" id="text-7-2">
+<div id="outline-container-8-3" class="outline-3">
+<h3 id="sec-8-3"><span class="section-number-3">8.3</span> R-reml-and-rfigshare-part-2</h3>
+<div class="outline-text-3" id="text-8-3">
 
 
 
@@ -941,9 +1626,9 @@ Now I have published the data they are visible and have a DOI
 
 </div>
 
-<div id="outline-container-7-3" class="outline-3">
-<h3 id="sec-7-3"><span class="section-number-3">7.3</span> dc-uploader-and-ANU-DataCommons</h3>
-<div class="outline-text-3" id="text-7-3">
+<div id="outline-container-8-4" class="outline-3">
+<h3 id="sec-8-4"><span class="section-number-3">8.4</span> dc-uploader-and-ANU-DataCommons</h3>
+<div class="outline-text-3" id="text-8-4">
 
 
 
@@ -951,9 +1636,9 @@ Now I have published the data they are visible and have a DOI
 
 </div>
 
-<div id="outline-container-7-4" class="outline-3">
-<h3 id="sec-7-4"><span class="section-number-3">7.4</span> morpho-and-rfigshare</h3>
-<div class="outline-text-3" id="text-7-4">
+<div id="outline-container-8-5" class="outline-3">
+<h3 id="sec-8-5"><span class="section-number-3">8.5</span> morpho-and-rfigshare</h3>
+<div class="outline-text-3" id="text-8-5">
 
 
 
@@ -961,16 +1646,16 @@ Now I have published the data they are visible and have a DOI
 
 </div>
 
-<div id="outline-container-7-5" class="outline-3">
-<h3 id="sec-7-5"><span class="section-number-3">7.5</span> morpho-and-reml-boilerplate-streamline-the-process-of-metadata-entry</h3>
-<div class="outline-text-3" id="text-7-5">
+<div id="outline-container-8-6" class="outline-3">
+<h3 id="sec-8-6"><span class="section-number-3">8.6</span> morpho-and-reml-boilerplate-streamline-the-process-of-metadata-entry</h3>
+<div class="outline-text-3" id="text-8-6">
 
 
 </div>
 
-<div id="outline-container-7-5-1" class="outline-4">
-<h4 id="sec-7-5-1"><span class="section-number-4">7.5.1</span> Background</h4>
-<div class="outline-text-4" id="text-7-5-1">
+<div id="outline-container-8-6-1" class="outline-4">
+<h4 id="sec-8-6-1"><span class="section-number-4">8.6.1</span> Background</h4>
+<div class="outline-text-4" id="text-8-6-1">
 
 
 <ul>
@@ -991,9 +1676,9 @@ Now I have published the data they are visible and have a DOI
 
 </div>
 
-<div id="outline-container-7-5-2" class="outline-4">
-<h4 id="sec-7-5-2"><span class="section-number-4">7.5.2</span> Speed and Rigour</h4>
-<div class="outline-text-4" id="text-7-5-2">
+<div id="outline-container-8-6-2" class="outline-4">
+<h4 id="sec-8-6-2"><span class="section-number-4">8.6.2</span> Speed and Rigour</h4>
+<div class="outline-text-4" id="text-8-6-2">
 
 <p>As I noted in a previous post, there are [two types of data documentation workflow](<a href="http://ivanhanigan.github.io/2013/10/two-main-types-of-data-documentation-workflow/">http://ivanhanigan.github.io/2013/10/two-main-types-of-data-documentation-workflow/</a>).  
 </p>
@@ -1020,9 +1705,9 @@ I also think there are two types of users with different motivations and constra
 
 </div>
 
-<div id="outline-container-7-5-3" class="outline-4">
-<h4 id="sec-7-5-3"><span class="section-number-4">7.5.3</span> Analysts can often trade-off completeness of documentation for speed</h4>
-<div class="outline-text-4" id="text-7-5-3">
+<div id="outline-container-8-6-3" class="outline-4">
+<h4 id="sec-8-6-3"><span class="section-number-4">8.6.3</span> Analysts can often trade-off completeness of documentation for speed</h4>
+<div class="outline-text-4" id="text-8-6-3">
 
 <p>In my view the Analysts group of users need a tool that will very rapidly document their data and workflow steps and can live with a bit less rigour in the quality of documentation.  Obviously this is not ideal but seems an inevitable trade-off needed to enable analysts to keep up the momentum of the data processing and modelling without getting distracted by tedious (and potentially unnecessary) data documentation tasks.
 </p>
@@ -1030,9 +1715,9 @@ I also think there are two types of users with different motivations and constra
 
 </div>
 
-<div id="outline-container-7-5-4" class="outline-4">
-<h4 id="sec-7-5-4"><span class="section-number-4">7.5.4</span> Librarians produce gold plated documentation and can take longer to produce this</h4>
-<div class="outline-text-4" id="text-7-5-4">
+<div id="outline-container-8-6-4" class="outline-4">
+<h4 id="sec-8-6-4"><span class="section-number-4">8.6.4</span> Librarians produce gold plated documentation and can take longer to produce this</h4>
+<div class="outline-text-4" id="text-8-6-4">
 
 <p>On the other hand the role of the Librarian group is to produce documentation to the best level possible (given time and resource constraints) the datasets and methodologies that lead to the creation of the datasets.  For that group Rigour will take precedence and there will be a trade-off in terms of the amount of time needed to produce the documentation.
 </p>
@@ -1040,9 +1725,9 @@ I also think there are two types of users with different motivations and constra
 
 </div>
 
-<div id="outline-container-7-5-5" class="outline-4">
-<h4 id="sec-7-5-5"><span class="section-number-4">7.5.5</span> An example</h4>
-<div class="outline-text-4" id="text-7-5-5">
+<div id="outline-container-8-6-5" class="outline-4">
+<h4 id="sec-8-6-5"><span class="section-number-4">8.6.5</span> An example</h4>
+<div class="outline-text-4" id="text-8-6-5">
 
 <p>As an example of the two different groups, an analyst working with weather data in Australia may want to specify that their variable "temperature" is the average of the daily maxima and minima, but might not need to specify that the observations were taken inside a Stevenson Screen, or even if they are in Celsius, Farenhiet or Kelvin.  They will be very keen to start the analysis to identify any associations between weather variables and the response variable they are investigating.   The data librarian on the other hand will be more likely to need to include this information so that the users of the temperature data do not mis-interpret it.
 </p>
@@ -1050,9 +1735,9 @@ I also think there are two types of users with different motivations and constra
 
 </div>
 
-<div id="outline-container-7-5-6" class="outline-4">
-<h4 id="sec-7-5-6"><span class="section-number-4">7.5.6</span> Embracing Inaccuracy and Incompleteness</h4>
-<div class="outline-text-4" id="text-7-5-6">
+<div id="outline-container-8-6-6" class="outline-4">
+<h4 id="sec-8-6-6"><span class="section-number-4">8.6.6</span> Embracing Inaccuracy and Incompleteness</h4>
+<div class="outline-text-4" id="text-8-6-6">
 
 
 <ul>
@@ -1093,9 +1778,9 @@ left to rot).
 
 </div>
 
-<div id="outline-container-7-5-7" class="outline-4">
-<h4 id="sec-7-5-7"><span class="section-number-4">7.5.7</span> Aim</h4>
-<div class="outline-text-4" id="text-7-5-7">
+<div id="outline-container-8-6-7" class="outline-4">
+<h4 id="sec-8-6-7"><span class="section-number-4">8.6.7</span> Aim</h4>
+<div class="outline-text-4" id="text-8-6-7">
 
 
 <ul>
@@ -1115,9 +1800,9 @@ left to rot).
 
 </div>
 
-<div id="outline-container-7-5-8" class="outline-4">
-<h4 id="sec-7-5-8"><span class="section-number-4">7.5.8</span> Step 1: load a simple example dataset</h4>
-<div class="outline-text-4" id="text-7-5-8">
+<div id="outline-container-8-6-8" class="outline-4">
+<h4 id="sec-8-6-8"><span class="section-number-4">8.6.8</span> Step 1: load a simple example dataset</h4>
+<div class="outline-text-4" id="text-8-6-8">
 
 <p>I've been using a [fictitious dataset from a Statistics Methodology paper by Ritschard 2006](<a href="http://ivanhanigan.github.io/2013/10/test-data-for-classification-trees/">http://ivanhanigan.github.io/2013/10/test-data-for-classification-trees/</a>).  It will do as a first cut but when it comes to actually test this out it would be good to have something that would take a bit longer (so that the frustrations of using Morpho become very apparent).
 </p>
@@ -1158,9 +1843,9 @@ left to rot).
 
 </div>
 
-<div id="outline-container-7-5-9" class="outline-4">
-<h4 id="sec-7-5-9"><span class="section-number-4">7.5.9</span> Step 2 create a function to deliver the minimal metadata object</h4>
-<div class="outline-text-4" id="text-7-5-9">
+<div id="outline-container-8-6-9" class="outline-4">
+<h4 id="sec-8-6-9"><span class="section-number-4">8.6.9</span> Step 2 create a function to deliver the minimal metadata object</h4>
+<div class="outline-text-4" id="text-8-6-9">
 
 <ul>
 <li>the package REML will create a EML metadata document quite easily
@@ -1174,9 +1859,9 @@ left to rot).
 
 </div>
 
-<div id="outline-container-7-5-10" class="outline-4">
-<h4 id="sec-7-5-10"><span class="section-number-4">7.5.10</span> reml<sub>boilerplate</sub>-code</h4>
-<div class="outline-text-4" id="text-7-5-10">
+<div id="outline-container-8-6-10" class="outline-4">
+<h4 id="sec-8-6-10"><span class="section-number-4">8.6.10</span> reml<sub>boilerplate</sub>-code</h4>
+<div class="outline-text-4" id="text-8-6-10">
 
 
 
@@ -1185,11 +1870,11 @@ left to rot).
 <span style="color: #586e75;"># </span><span style="color: #586e75;">name:reml_boilerplate</span>
  
 <span style="color: #586e75;"># </span><span style="color: #586e75;">func</span>
-<span style="color: #859900; font-weight: bold;">if</span>(!<span style="color: #268bd2; font-weight: bold;">require</span>(reml)) {
-  <span style="color: #268bd2; font-weight: bold;">require</span>(devtools)
-  install_github(<span style="color: #2aa198;">"reml"</span>, <span style="color: #2aa198;">"ropensci"</span>)
-  } 
-<span style="color: #268bd2; font-weight: bold;">require</span>(reml)
+<span style="color: #586e75;">## </span><span style="color: #586e75;">if(!require(EML)) {</span>
+<span style="color: #586e75;">##   </span><span style="color: #586e75;">require(devtools)</span>
+<span style="color: #586e75;">##   </span><span style="color: #586e75;">install_github("EML", "ropensci")</span>
+<span style="color: #586e75;">##   </span><span style="color: #586e75;">} </span>
+<span style="color: #586e75;">## </span><span style="color: #586e75;">require(EML)</span>
 
 <span style="color: #268bd2;">reml_boilerplate</span> <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #859900; font-weight: bold;">function</span>(data_set, created_by = <span style="color: #2aa198;">"Ivan Hanigan <a href="mailto:ivanhanigan%40gmail.com">&lt;ivanhanigan@gmail.com&gt;</a>"</span>, data_dir = getwd(), titl = <span style="color: #b58900;">NA</span>, desc = <span style="color: #2aa198;">""</span>)
 {
@@ -1204,7 +1889,7 @@ left to rot).
     {
       <span style="color: #586e75;"># </span><span style="color: #586e75;">i = 4</span>
       <span style="color: #859900; font-weight: bold;">if</span>(is.numeric(data_set[,i])){
-        unit_defs[[i]] <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #2aa198;">"numeric"</span>
+        unit_defs[[i]] <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #2aa198;">"number"</span>
       } <span style="color: #859900; font-weight: bold;">else</span> {
         unit_defs[[i]] <span style="color: #268bd2; font-weight: bold;">&lt;-</span> names(table(data_set[,i]))          
       }
@@ -1215,27 +1900,39 @@ left to rot).
                  col.defs = col_defs,
                  unit.defs = unit_defs
                  )
-  <span style="color: #586e75;">#</span><span style="color: #586e75;">str(ds)</span>
+  <span style="color: #586e75;"># </span><span style="color: #586e75;">str(ds)</span>
 
-  metadata  <span style="color: #268bd2; font-weight: bold;">&lt;-</span> metadata(ds)
+  <span style="color: #586e75;"># </span><span style="color: #586e75;">metadata  &lt;- ds #metadata(ds)</span>
   <span style="color: #586e75;"># </span><span style="color: #586e75;">needs names</span>
-  <span style="color: #859900; font-weight: bold;">for</span>(i <span style="color: #859900; font-weight: bold;">in</span> 1:ncol(data_set))
-    {
-      <span style="color: #586e75;"># </span><span style="color: #586e75;">i = 4</span>
-      <span style="color: #859900; font-weight: bold;">if</span>(is.numeric(data_set[,i])){
-        names(metadata[[i]][[3]]) <span style="color: #268bd2; font-weight: bold;">&lt;-</span> <span style="color: #2aa198;">"number"</span>
-      } <span style="color: #859900; font-weight: bold;">else</span> {
-        names(metadata[[i]][[3]]) <span style="color: #268bd2; font-weight: bold;">&lt;-</span> metadata[[i]][[3]]
-      }
-    }
+  <span style="color: #586e75;">## </span><span style="color: #586e75;">for(i in 1:ncol(data_set))</span>
+  <span style="color: #586e75;">##   </span><span style="color: #586e75;">{</span>
+  <span style="color: #586e75;">##     </span><span style="color: #586e75;"># i = 4</span>
+  <span style="color: #586e75;">##     </span><span style="color: #586e75;">if(is.numeric(data_set[,i])){</span>
+  <span style="color: #586e75;">##       </span><span style="color: #586e75;">names(metadata[[i]][[3]]) &lt;- "number"</span>
+  <span style="color: #586e75;">##     </span><span style="color: #586e75;">} else {</span>
+  <span style="color: #586e75;">##       </span><span style="color: #586e75;">names(metadata[[i]][[3]]) &lt;- metadata[[i]][[3]]</span>
+  <span style="color: #586e75;">##     </span><span style="color: #586e75;">}</span>
+  <span style="color: #586e75;">##   </span><span style="color: #586e75;">}</span>
   <span style="color: #586e75;"># </span><span style="color: #586e75;">metadata</span>
+  eml_config(creator=created_by)
   oldwd <span style="color: #268bd2; font-weight: bold;">&lt;-</span> getwd()
   setwd(data_dir)
-  eml_write(data_set, metadata,
-            title = titl,  
-            description = desc,
-            creator = created_by
-            )
+  <span style="color: #586e75;">#</span>
+  <span style="color: #586e75;">## </span><span style="color: #586e75;">&gt;   eml_write(dat=ds, file = paste(titl, "xml", sep = "."), title = titl)</span>
+  <span style="color: #586e75;">## </span><span style="color: #586e75;">Error in is(dat, "data.set") : object 'dat' not found</span>
+  <span style="color: #586e75;">## </span><span style="color: #586e75;">&gt; traceback()</span>
+  <span style="color: #586e75;">## </span><span style="color: #586e75;">7: is(dat, "data.set") at dataTable_methods.R#14</span>
+  <span style="color: #586e75;">## </span><span style="color: #586e75;">6: eml_dataTable(dat = dat, title = title)</span>
+  <span style="color: #586e75;">## </span><span style="color: #586e75;">5: initialize(value, ...)</span>
+  <span style="color: #586e75;">## </span><span style="color: #586e75;">4: initialize(value, ...)</span>
+  <span style="color: #586e75;">## </span><span style="color: #586e75;">3: new("dataset", title = title, creator = who$creator, contact = who$contact, </span>
+  <span style="color: #586e75;">##        </span><span style="color: #586e75;">coverage = coverage, methods = methods, dataTable = c(eml_dataTable(dat = dat, </span>
+  <span style="color: #586e75;">##            </span><span style="color: #586e75;">title = title)), ...) at eml_methods.R#61</span>
+  <span style="color: #586e75;">## </span><span style="color: #586e75;">2: eml(dat = dat, title = title, creator = creator, contact = contact, </span>
+  <span style="color: #586e75;">##        </span><span style="color: #586e75;">...) at eml_write.R#27</span>
+  <span style="color: #586e75;">## </span><span style="color: #586e75;">1: eml_write(dat = ds, file = paste(titl, "xml", sep = "."), title = titl)</span>
+  dat <span style="color: #268bd2; font-weight: bold;">&lt;-</span> ds
+  eml_write(dat, file = paste(titl, <span style="color: #2aa198;">"xml"</span>, sep = <span style="color: #2aa198;">"."</span>), title = titl)
   setwd(oldwd)
   sprintf(<span style="color: #2aa198;">"your metadata has been created in the '%s' directory"</span>, data_dir)
   }
@@ -1245,9 +1942,9 @@ left to rot).
 
 </div>
 
-<div id="outline-container-7-5-11" class="outline-4">
-<h4 id="sec-7-5-11"><span class="section-number-4">7.5.11</span> reml<sub>boilerplate</sub>-test-code</h4>
-<div class="outline-text-4" id="text-7-5-11">
+<div id="outline-container-8-6-11" class="outline-4">
+<h4 id="sec-8-6-11"><span class="section-number-4">8.6.11</span> reml<sub>boilerplate</sub>-test-code</h4>
+<div class="outline-text-4" id="text-8-6-11">
 
 
 
@@ -1271,9 +1968,9 @@ dir(<span style="color: #2aa198;">"data"</span>)
 
 </div>
 
-<div id="outline-container-7-5-12" class="outline-4">
-<h4 id="sec-7-5-12"><span class="section-number-4">7.5.12</span> Results: This loads into Morpho with some errors</h4>
-<div class="outline-text-4" id="text-7-5-12">
+<div id="outline-container-8-6-12" class="outline-4">
+<h4 id="sec-8-6-12"><span class="section-number-4">8.6.12</span> Results: This loads into Morpho with some errors</h4>
+<div class="outline-text-4" id="text-8-6-12">
 
 <ul>
 <li>Notably unable to import the data file
@@ -1296,9 +1993,9 @@ dir(<span style="color: #2aa198;">"data"</span>)
 
 </div>
 
-<div id="outline-container-7-5-13" class="outline-4">
-<h4 id="sec-7-5-13"><span class="section-number-4">7.5.13</span> Conclusions</h4>
-<div class="outline-text-4" id="text-7-5-13">
+<div id="outline-container-8-6-13" class="outline-4">
+<h4 id="sec-8-6-13"><span class="section-number-4">8.6.13</span> Conclusions</h4>
+<div class="outline-text-4" id="text-8-6-13">
 
 <ul>
 <li>This needs testing
@@ -1313,22 +2010,25 @@ dir(<span style="color: #2aa198;">"data"</span>)
 
 
 
-</div>
-</div>
-
-</div>
-
-<div id="outline-container-7-6" class="outline-3">
-<h3 id="sec-7-6"><span class="section-number-3">7.6</span> R-get.var.labels</h3>
-<div class="outline-text-3" id="text-7-6">
 
 
 
 </div>
+</div>
 
-<div id="outline-container-7-6-1" class="outline-4">
-<h4 id="sec-7-6-1"><span class="section-number-4">7.6.1</span> test-get.var.labels</h4>
-<div class="outline-text-4" id="text-7-6-1">
+</div>
+
+<div id="outline-container-8-7" class="outline-3">
+<h3 id="sec-8-7"><span class="section-number-3">8.7</span> R-get.var.labels</h3>
+<div class="outline-text-3" id="text-8-7">
+
+
+
+</div>
+
+<div id="outline-container-8-7-1" class="outline-4">
+<h4 id="sec-8-7-1"><span class="section-number-4">8.7.1</span> test-get.var.labels</h4>
+<div class="outline-text-4" id="text-8-7-1">
 
 
 
@@ -1376,16 +2076,16 @@ as.data.frame(
 
 </div>
 
-<div id="outline-container-7-7" class="outline-3">
-<h3 id="sec-7-7"><span class="section-number-3">7.7</span> R-spss-variable-labels-read</h3>
-<div class="outline-text-3" id="text-7-7">
+<div id="outline-container-8-8" class="outline-3">
+<h3 id="sec-8-8"><span class="section-number-3">8.8</span> R-spss-variable-labels-read</h3>
+<div class="outline-text-3" id="text-8-8">
 
 
 </div>
 
-<div id="outline-container-7-7-1" class="outline-4">
-<h4 id="sec-7-7-1"><span class="section-number-4">7.7.1</span> R-spss-variable-labels-read</h4>
-<div class="outline-text-4" id="text-7-7-1">
+<div id="outline-container-8-8-1" class="outline-4">
+<h4 id="sec-8-8-1"><span class="section-number-4">8.8.1</span> R-spss-variable-labels-read</h4>
+<div class="outline-text-4" id="text-8-8-1">
 
 
 
@@ -1422,9 +2122,9 @@ as.data.frame(
 
 </div>
 
-<div id="outline-container-7-7-2" class="outline-4">
-<h4 id="sec-7-7-2"><span class="section-number-4">7.7.2</span> test-spss-variable-labels-read-code</h4>
-<div class="outline-text-4" id="text-7-7-2">
+<div id="outline-container-8-8-2" class="outline-4">
+<h4 id="sec-8-8-2"><span class="section-number-4">8.8.2</span> test-spss-variable-labels-read-code</h4>
+<div class="outline-text-4" id="text-8-8-2">
 
 
 
@@ -1456,9 +2156,9 @@ qc
 
 </div>
 
-<div id="outline-container-7-8" class="outline-3">
-<h3 id="sec-7-8"><span class="section-number-3">7.8</span> R-spss-variable-summary-table-code</h3>
-<div class="outline-text-3" id="text-7-8">
+<div id="outline-container-8-9" class="outline-3">
+<h3 id="sec-8-9"><span class="section-number-3">8.9</span> R-spss-variable-summary-table-code</h3>
+<div class="outline-text-3" id="text-8-9">
 
 
 
@@ -1503,9 +2203,9 @@ sink()
 
 </div>
 
-<div id="outline-container-7-9" class="outline-3">
-<h3 id="sec-7-9"><span class="section-number-3">7.9</span> R-reporttools-variable-summary-table</h3>
-<div class="outline-text-3" id="text-7-9">
+<div id="outline-container-8-10" class="outline-3">
+<h3 id="sec-8-10"><span class="section-number-3">8.10</span> R-reporttools-variable-summary-table</h3>
+<div class="outline-text-3" id="text-8-10">
 
 
 
@@ -1566,20 +2266,692 @@ sink()
 
 
 </div>
+
+</div>
+
+<div id="outline-container-8-11" class="outline-3">
+<h3 id="sec-8-11"><span class="section-number-3">8.11</span> 2014-01-21-morpho-and-reml-use-case-marsupial-mulgara-dasycercus-cristicauda</h3>
+<div class="outline-text-3" id="text-8-11">
+
+
+
 </div>
 
 </div>
 
-<div id="outline-container-8" class="outline-2">
-<h2 id="sec-8"><span class="section-number-2">8</span> Exploratory Data Analysis</h2>
-<div class="outline-text-2" id="text-8">
+<div id="outline-container-8-12" class="outline-3">
+<h3 id="sec-8-12"><span class="section-number-3">8.12</span> morpho<sub>bounding</sub><sub>box</sub></h3>
+<div class="outline-text-3" id="text-8-12">
 
+
+</div>
+
+<div id="outline-container-8-12-1" class="outline-4">
+<h4 id="sec-8-12-1"><span class="section-number-4">8.12.1</span> R-morpho<sub>bounding</sub><sub>box</sub></h4>
+<div class="outline-text-4" id="text-8-12-1">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-12-2" class="outline-4">
+<h4 id="sec-8-12-2"><span class="section-number-4">8.12.2</span> test-morpho<sub>bounding</sub><sub>box</sub></h4>
+<div class="outline-text-4" id="text-8-12-2">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-12-3" class="outline-4">
+<h4 id="sec-8-12-3"><span class="section-number-4">8.12.3</span> man-bounding<sub>box</sub></h4>
+<div class="outline-text-4" id="text-8-12-3">
+
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-8-13" class="outline-3">
+<h3 id="sec-8-13"><span class="section-number-3">8.13</span> 2014-04-20-using-morpho-for-cataloguing-personal-research-data-blog</h3>
+<div class="outline-text-3" id="text-8-13">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-14" class="outline-3">
+<h3 id="sec-8-14"><span class="section-number-3">8.14</span> 2014-04-20-using-morpho-orgmode</h3>
+<div class="outline-text-3" id="text-8-14">
+
+
+</div>
+
+<div id="outline-container-8-14-1" class="outline-4">
+<h4 id="sec-8-14-1"><span class="section-number-4">8.14.1</span> Introduction</h4>
+<div class="outline-text-4" id="text-8-14-1">
+
+
+<p>
+The collection of scientific data is undertaken at an individual level
+by everybody in their own way. The layout of data collections that I
+have seen is incredibly varied; spread across multiple files and folders which can
+be difficult to navigate or search through. In some cases
+these collections are incomprehensible to all but the individual themselves. Given
+that a lot of projects are collaborative in nature and require
+extensive sharing, it is important that scientists maintain their
+data collection by some form of system that allows easy data extraction and
+use in other projects. Therefore, the maintenance of a personal catalogue of datasets is an
+important activity for scientists.
+</p>
+<p>
+By cataloguing I mean that a file or database is kept that stores all the
+information about the names of the datasets (and any other files the
+data may be spread across), where the datasets are located, any
+references (papers) that were developed from it and finally
+important information regarding the conditions it
+was formed under.
+</p>
+<p>
+While this may seem laborious, it keeps track of all the data that one
+has collected over time and gives one a reference system to find a
+dataset of interest when sharing with collaborators. Datasets can be
+saved in any filing system the scientist chooses, but with the help of
+their personal data catalogue they will always know the status of
+their data collection.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-8-14-2" class="outline-4">
+<h4 id="sec-8-14-2"><span class="section-number-4">8.14.2</span> Cataloguing Personal Research Data with Morpho</h4>
+<div class="outline-text-4" id="text-8-14-2">
+
+
+<p>
+[Metacat](<a href="https://knb.ecoinformatics.org/knb/docs/intro.html">https://knb.ecoinformatics.org/knb/docs/intro.html</a>) is an
+online repository for data and metadata. It is a great resource for
+the publication of data, but not very useful for an individual
+scientist to use on their personal computer.  However
+[Morpho](<a href="https://knb.ecoinformatics.org/#tools/morpho">https://knb.ecoinformatics.org/#tools/morpho</a>) the Metadata
+Editor used by Metacat may be used locally by a researcher to
+catalogue their collection (and ultimately this will make publishing
+elements of the collection easier.)  Morpho uses the Ecological
+Metadata Language (EML) to author metadata with a graphical user
+interface wizard.
+</p>
+<p>
+I am using morpho 1.8 due to my group using older metacat server.
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-8-14-3" class="outline-4">
+<h4 id="sec-8-14-3"><span class="section-number-4">8.14.3</span> How Morpho Works</h4>
+<div class="outline-text-4" id="text-8-14-3">
+
+
+<p>
+When you install Morpho it creates a directory where you can run the
+program from, and another hidden directory called ".morpho" for it's
+database of all your metadata (and optionally any data you import to
+it).  Below is an image of mine, with a couple of test records I
+played around with (the XMLs/HTMLs) and a dataset I imported (the text
+file).
+</p>
+<ul>
+<li>~/.morpho/profiles/hanigan/data/hanigan/
+</li>
+</ul>
+
+
+<p>
+![morphodir1](/images/morphodir1.png)
+</p>
+<p>  
+Every time a modification is made to the metadata a new XML is saved here, with the major number being the ID of the package and incremented minor number to reflect the change.
+</p>
+<p>
+The GUI is tedious.
+</p>
+
+</div>
+
+</div>
+
+<div id="outline-container-8-14-4" class="outline-4">
+<h4 id="sec-8-14-4"><span class="section-number-4">8.14.4</span> Adding a dataset from my collection</h4>
+<div class="outline-text-4" id="text-8-14-4">
+
+
+<p>
+I have already got a good amount of metadata I generated when I published [the drought data](<a href="http://dx.doi.org/10.4225/13/50BBFD7E6727A">http://dx.doi.org/10.4225/13/50BBFD7E6727A</a>)
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-8-14-5" class="outline-4">
+<h4 id="sec-8-14-5"><span class="section-number-4">8.14.5</span> the drought dataset:</h4>
+<div class="outline-text-4" id="text-8-14-5">
+
+<p>    Hanigan, Ivan (2012): Monthly drought data for Australia 1890-2008
+    using the Hutchinson Drought Index. Australian National University Data Commons.
+    DOI: 10.4225/13/50BBFD7E6727A. 
+</p>
+<p>
+&lt;p&gt;&lt;/p&gt;
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-8-14-6" class="outline-4">
+<h4 id="sec-8-14-6"><span class="section-number-4">8.14.6</span> Step One: define the project that I will keep locally</h4>
+<div class="outline-text-4" id="text-8-14-6">
+
+
+<ul>
+<li>This is the Github repo <a href="https://github.com/swish-climate-impact-assessment/DROUGHT-BOM-GRIDS">https://github.com/swish-climate-impact-assessment/DROUGHT-BOM-GRIDS</a>
+</li>
+<li>I store this locally at ~/data/DROUGHT-BOM-GRIDS
+</li>
+</ul>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-14-7" class="outline-4">
+<h4 id="sec-8-14-7"><span class="section-number-4">8.14.7</span> Contextual Metadata</h4>
+<div class="outline-text-4" id="text-8-14-7">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-14-8" class="outline-4">
+<h4 id="sec-8-14-8"><span class="section-number-4">8.14.8</span> Abstract</h4>
+<div class="outline-text-4" id="text-8-14-8">
+
+
+<p>
+I originally wrote the abstract as the description for a RIF-CS metadata object to publish for the ANU library.
+</p>
+<p>
+I got the following instructions from a Librarian: The "informative abstract" method.
+</p>
+<ul>
+<li>The abstract should be a descriptive of the data, not the research.
+</li>
+<li>Briefly outline the relevant project or study and describe the contents of the data package. 
+</li>
+<li>Include geographic location, the primary objectives of the study, what data was collected (species or phenomena), the year range the data was collected in, and collection frequency if applicable.
+</li>
+<li>Describe methodology techniques or approaches only to the degree necessary for comprehension – don’t go into any detail.
+</li>
+<li>Cite references and/or links to any publications that are related to the data package.
+</li>
+<li>Single paragraph
+</li>
+<li>200-250 words
+</li>
+<li>Use active voice and past tense.
+</li>
+<li>Use short complete sentences.
+</li>
+<li>Express terms in both their abbreviated and spelled out form for search retrieval purposes.
+</li>
+</ul>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-14-9" class="outline-4">
+<h4 id="sec-8-14-9"><span class="section-number-4">8.14.9</span> Australian FOR codes</h4>
+<div class="outline-text-4" id="text-8-14-9">
+
+<p>ANZSRC-FOR Codes: Australian and New Zealand Standard Research Classification – Fields of Research codes allow R&amp;D activity to be categorised according to the methodology used in the R&amp;D, rather than the activity of the unit performing the R&amp;D or the purpose of the R&amp;D.  
+<a href="http://www.abs.gov.au/Ausstats/abs@.nsf/Latestproducts/4AE1B46AE2048A28CA25741800044242?opendocument">http://www.abs.gov.au/Ausstats/abs@.nsf/Latestproducts/4AE1B46AE2048A28CA25741800044242?opendocument</a>
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-8-14-10" class="outline-4">
+<h4 id="sec-8-14-10"><span class="section-number-4">8.14.10</span> GCMD Keywords</h4>
+<div class="outline-text-4" id="text-8-14-10">
+
+<p>Olsen, L.M., G. Major, K. Shein, J. Scialdone, S. Ritz, T. Stevens, M. Morahan, A. Aleman, R. Vogel, S. Leicester, H. Weir, M. Meaux, S. Grebas, C.Solomon, M. Holland, T. Northcutt, R. A. Restrepo, R. Bilodeau, 2013. NASA/Global Change Master Directory (GCMD) Earth Science Keywords. Version 8.0.0.0.0 
+<a href="http://gcmd.nasa.gov/learn/keyword_list.html">http://gcmd.nasa.gov/learn/keyword_list.html</a>
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-8-14-11" class="outline-4">
+<h4 id="sec-8-14-11"><span class="section-number-4">8.14.11</span> Geographic coverage</h4>
+<div class="outline-text-4" id="text-8-14-11">
+
+<p>    &gt; require(devtools)
+    &gt; install<sub>github</sub>("disentangle", "ivanhanigan")
+    &gt; require(disentangle)
+    &gt; morpho<sub>bounding</sub><sub>box</sub>(d)
+                      X1                 X2                 X3
+    1               &lt;NA&gt; 10.1356954574585 S               &lt;NA&gt;
+    2 112.907211303711 E               &lt;NA&gt; 158.960372924805 E
+    3               &lt;NA&gt; 54.7538909912109 S               &lt;NA&gt;
+</p>
+
+</div>
+
+</div>
+
+<div id="outline-container-8-14-12" class="outline-4">
+<h4 id="sec-8-14-12"><span class="section-number-4">8.14.12</span> Save the metadata</h4>
+<div class="outline-text-4" id="text-8-14-12">
+
+
+<ul>
+<li>the metadata is now ready to save to my .morpho catalogue
+</li>
+<li>without importing any data
+</li>
+</ul>
+
+
+<p>
+![morphoimg2.png](/images/morphoimg2.png)
+</p>
+<ul>
+<li>this appears as a new XML
+</li>
+</ul>
+
+
+<p>
+![morphoimg3.png](/images/morphoimg3.png)
+</p>
+<ul>
+<li>which looks like this
+</li>
+</ul>
+
+
+<p>
+![morphoimg4.png](/images/morphoimg4.png)
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-8-14-13" class="outline-4">
+<h4 id="sec-8-14-13"><span class="section-number-4">8.14.13</span> Additional Metadata</h4>
+<div class="outline-text-4" id="text-8-14-13">
+
+
+<p>
+As this is metadata only about the dataset, it is innapropriate to refer to related publications etc in these elements.  Luckily EML has the additionalMetadata and additionalLinks fields.  Just open the XML and paste the following in the bottom.
+</p>
+<p>
+    &lt;additionalMetadata&gt;
+      &lt;metadata&gt;
+        &lt;additionalLinks&gt;
+          &lt;url name="Hanigan, IC, Butler, CD, Kokic, PN, Hutchinson, MF. Suicide and Drought in New South Wales, Australia, 1970-2007. Proceedings of the National Academy of Science USA 2012, vol. 109 no. 35 13950-13955, doi: 10.1073/pnas.1112965109"&gt;<a href="http://dx.doi.org/10.1073/pnas.1112965109">http://dx.doi.org/10.1073/pnas.1112965109</a>&lt;/url&gt;
+        &lt;/additionalLinks&gt;
+      &lt;/metadata&gt;
+    &lt;/additionalMetadata&gt;
+</p>
+<p>
+You can see this if you then open it up again in morpho and then under the documentation menu go to Add/Edit Documentation.
+</p>
+<p>
+![morphoimg5.png](/images/morphoimg5.png)
+</p></div>
+</div>
+
+</div>
+
+<div id="outline-container-8-15" class="outline-3">
+<h3 id="sec-8-15"><span class="section-number-3">8.15</span> 2014-04-20-a-workaround-for-inserting-species-names-to-morpho</h3>
+<div class="outline-text-3" id="text-8-15">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-16" class="outline-3">
+<h3 id="sec-8-16"><span class="section-number-3">8.16</span> 2014-04-21-linking-eml-packages-by-umbrella-project-info</h3>
+<div class="outline-text-3" id="text-8-16">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-17" class="outline-3">
+<h3 id="sec-8-17"><span class="section-number-3">8.17</span> 2014-04-24-using-reml-to-input-large-number-of-column-descriptions</h3>
+<div class="outline-text-3" id="text-8-17">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-18" class="outline-3">
+<h3 id="sec-8-18"><span class="section-number-3">8.18</span> 2014-04-25-tweaking-r-eml-package-outputs-with-morpho-and-failing-that-with-emacs</h3>
+<div class="outline-text-3" id="text-8-18">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-19" class="outline-3">
+<h3 id="sec-8-19"><span class="section-number-3">8.19</span> 2014-04-29-using-r-eml-to-input-large-numbers-of-variables-part-2</h3>
+<div class="outline-text-3" id="text-8-19">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-20" class="outline-3">
+<h3 id="sec-8-20"><span class="section-number-3">8.20</span> 2014-04-29-workaround-for-installing-morpho-on-a-windows-network</h3>
+<div class="outline-text-3" id="text-8-20">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-21" class="outline-3">
+<h3 id="sec-8-21"><span class="section-number-3">8.21</span> 2014-05-02-morpho-has-an-issue-with-zero-length-strings-as-missing-data</h3>
+<div class="outline-text-3" id="text-8-21">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-22" class="outline-3">
+<h3 id="sec-8-22"><span class="section-number-3">8.22</span> advanced EML for data integration</h3>
+<div class="outline-text-3" id="text-8-22">
+
+
+</div>
+
+<div id="outline-container-8-22-1" class="outline-4">
+<h4 id="sec-8-22-1"><span class="section-number-4">8.22.1</span> Adding the data location</h4>
+<div class="outline-text-4" id="text-8-22-1">
+
+<p>    <a href="https://im.lternet.edu/node/1119">https://im.lternet.edu/node/1119</a>
+    This element is found at these locations (XPath):
+    /eml:eml/dataset/distribution
+    /eml:eml/dataset/[entity]/physical/distribution 
+</p>
+<p>     
+    The &lt;distribution&gt; element appears at the dataset and entity
+    levels and contains information on how the data described in the
+    EML document can be accessed. The &lt;distribution&gt; element has one
+    of three children for describing the location of the resource:
+    &lt;online&gt;, &lt;offline&gt;, and &lt;inline&gt;.
+</p>
+<p>     
+    Offline Data: Use the &lt;offline&gt; element to describe restricted
+    access data or data that is not available online. The minimum that
+    should be included is the &lt;mediumName&gt; tag, if using the &lt;offline&gt;
+    element.
+</p>
+<p>     
+    Inline Data: The &lt;inline&gt; element contains data that is stored
+    directly within the EML document. Data included as text or string
+    will be parsed as XML. If data are not to be parsed, encode them
+    as “CDATA sections,” by surrounding them with
+    “&lt;![CDATA[“ and “]]&gt;” tags.
+</p>
+<p>     
+    Online Data: The &lt;online&gt; element has two sub elements, &lt;url&gt;, and
+    &lt;onlineDescription&gt; (optional).  &lt;url&gt; tags may have an optional
+    attribute named function, which may be set to either “download” or
+    “information”. If the URL provides only information about
+    downloading the object but does not directly return the data
+    stream, then the function attribute should be set to
+    "information". If accessing the URL directly returns the data
+    stream, then the function attribute should be set to "download".
+    If the function attribute is omitted, then "download" is implied
+</p>
+</div>
+
+</div>
+
+<div id="outline-container-8-22-2" class="outline-4">
+<h4 id="sec-8-22-2"><span class="section-number-4">8.22.2</span> Backing up and restoring your Morpho catalogue</h4>
+<div class="outline-text-4" id="text-8-22-2">
+
+
+<ul>
+<li>one option is metacat, but requires overhead of install/manage that server too
+</li>
+<li>just copy the .morpho folder to your backup drive
+</li>
+<li>test on another machine by install morpho
+</li>
+<li>copy .morpho to my ~/ drive
+</li>
+<li>start morpho
+</li>
+<li>next time want to test backups or bring this up to sync just overwrite .morpho and restart morpho?
+
+</li>
+<li>test upgrading to morpho 1.10, just use uninstaller (tools/morpho1.8/Uninstaller, java -jar uninstaller.jar) then install newer version  
+</li>
+</ul>
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-8-23" class="outline-3">
+<h3 id="sec-8-23"><span class="section-number-3">8.23</span> 2014-05-09-cwt-lter-data-submission-template-critique</h3>
+<div class="outline-text-3" id="text-8-23">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-24" class="outline-3">
+<h3 id="sec-8-24"><span class="section-number-3">8.24</span> 2014-05-17-using-additional-header-rows-for-metadata</h3>
+<div class="outline-text-3" id="text-8-24">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-8-25" class="outline-3">
+<h3 id="sec-8-25"><span class="section-number-3">8.25</span> 2014-04-xx-using-morpho-for-cataloguing-postgis-servers-org</h3>
+<div class="outline-text-3" id="text-8-25">
+
+
+</div>
+
+<div id="outline-container-8-25-1" class="outline-4">
+<h4 id="sec-8-25-1"><span class="section-number-4">8.25.1</span> Adding regarding the Data Location and Backups</h4>
+<div class="outline-text-4" id="text-8-25-1">
+
+
+<p>  
+These data are quite large and also geospatial, so I store these 
+on a PostGIS server at the ANU library. The original data are stored
+on a PostGIS server at NCEPH and the code I used to compute the
+indices is on github.  So all I want to do with Morpho is document the
+data, not import it.
+</p></div>
+
+</div>
+
+<div id="outline-container-8-25-2" class="outline-4">
+<h4 id="sec-8-25-2"><span class="section-number-4">8.25.2</span> notes</h4>
+<div class="outline-text-4" id="text-8-25-2">
+
+<p><a href="https://knb.ecoinformatics.org/#external//emlparser/docs/eml-2.1.1/./eml-physical.html#PhysicalDistributionType">https://knb.ecoinformatics.org/#external//emlparser/docs/eml-2.1.1/./eml-physical.html#PhysicalDistributionType</a>
+PhysicalDistributionType 
+</p>
+<p>        
+Content of this field:  Description of this field:
+Elements:       Use:    How many:
+A choice of (
+A sequence of (
+A choice of (
+online  required        
+OR
+offline required        
+OR
+inline  required        
+)
+access  optional        
+)
+OR
+res:ReferencesGroup              
+)
+Attributes:     Use:    Default Value:
+id      optional
+system  optional
+scope   optional        document
+</p>
+
+<p>
+    The PhysicalDistributionType contains the information required for retrieving the resource.
+</p>
+<p>
+    It differs from the
+    res:DistributionType
+</p><pre class="example">
+
+</pre>
+
+
+<p>
+    Generally, the PhysicalDisribtutionType is intended for download whereas the Type at the resource level is intended primarily for information.
+</p>
+<p>
+    The phys:PhysicalDistributionType includes an optional access tree which can be used to override access rules applied at the resource level. Access for the documents included entities can then be managed individually.
+</p>
+<p>
+    Also see individual sub elements for more information.
+</p>
+
+
+<p>
+    and
+    <a href="https://im.lternet.edu/node/1119">https://im.lternet.edu/node/1119</a>
+    This element is found at these locations (XPath):
+    /eml:eml/dataset/distribution
+    /eml:eml/dataset/[entity]/physical/distribution 
+</p>
+<p>     
+    The &lt;distribution&gt; element appears at the dataset and entity
+    levels and contains information on how the data described in the
+    EML document can be accessed. The &lt;distribution&gt; element has one
+    of three children for describing the location of the resource:
+    &lt;online&gt;, &lt;offline&gt;, and &lt;inline&gt;.
+</p>
+<p>     
+    Offline Data: Use the &lt;offline&gt; element to describe restricted
+    access data or data that is not available online. The minimum that
+    should be included is the &lt;mediumName&gt; tag, if using the &lt;offline&gt;
+    element.
+</p>
+<p>     
+    Inline Data: The &lt;inline&gt; element contains data that is stored
+    directly within the EML document. Data included as text or string
+    will be parsed as XML. If data are not to be parsed, encode them
+    as “CDATA sections,” by surrounding them with
+    “&lt;![CDATA[“ and “]]&gt;” tags.
+</p>
+<p>     
+    Online Data: The &lt;online&gt; element has two sub elements, &lt;url&gt;, and
+    &lt;onlineDescription&gt; (optional).  &lt;url&gt; tags may have an optional
+    attribute named function, which may be set to either “download” or
+    “information”. If the URL provides only information about
+    downloading the object but does not directly return the data
+    stream, then the function attribute should be set to
+    "information". If accessing the URL directly returns the data
+    stream, then the function attribute should be set to "download".
+    If the function attribute is omitted, then "download" is implied
+</p>
+<p>     
+    An EML dataset should include at least one URL; at a minimum, this
+    should be at the &lt;dataset&gt; level (XPath:
+    /eml:eml/dataset/distribution/url), and may point to an
+    application or website. This &lt;url&gt; function attribute can be set
+    to either “information” or “download”.  However, a URL at the
+    entity level (e.g, a dataTable at
+    /eml:eml/dataset/dataTable/physical/distribution/url) should
+    stream data to the requesting application and should include an
+    attribute function with the value “download”.  In other words, at
+    the entity level, the URL should lead directly to the data and not
+    to a data catalog or intended-use page. For more information about
+    describing a URL connection, see the EML documentation online.
+</p>
+<p>     
+    When used at the entity level, an alternative tag is available to
+    &lt;url&gt;, &lt;connection&gt;. This element is discussed under data
+    entities, below.
+</p>
+<p>     
+    As of EML 2.1, there is also an optional &lt;access&gt; element in a
+    &lt;distribution&gt; tree at the data entity level
+    (/eml:eml/dataset/[entity]/physical/distribution/access). This
+    element is intended specifically for controlling access to the
+    data entity itself. For more information on the &lt;access&gt; tree, see
+    above, under the general access discussion.
+&lt;&lt;&lt;&lt;&lt;&lt;&lt; HEAD
+</p>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-8-26" class="outline-3">
+<h3 id="sec-8-26"><span class="section-number-3">8.26</span> 2014-04-24-using-reml-to-input-large-number-of-column-descriptions</h3>
+<div class="outline-text-3" id="text-8-26">
+
+
+
+<p>
+=======
+&gt;&gt;&gt;&gt;&gt;&gt;&gt; 97232c527e5291321d5a3bfd72d5b616c3f608b1
+</p>
+</div>
 </div>
 
 </div>
 
 <div id="outline-container-9" class="outline-2">
-<h2 id="sec-9"><span class="section-number-2">9</span> General Purpose</h2>
+<h2 id="sec-9"><span class="section-number-2">9</span> Exploratory Data Analysis</h2>
 <div class="outline-text-2" id="text-9">
 
 </div>
@@ -1587,17 +2959,15 @@ sink()
 </div>
 
 <div id="outline-container-10" class="outline-2">
-<h2 id="sec-10"><span class="section-number-2">10</span> Visualisation</h2>
+<h2 id="sec-10"><span class="section-number-2">10</span> General Purpose</h2>
 <div class="outline-text-2" id="text-10">
-
-
 
 </div>
 
 </div>
 
 <div id="outline-container-11" class="outline-2">
-<h2 id="sec-11"><span class="section-number-2">11</span> Statistical Modelling</h2>
+<h2 id="sec-11"><span class="section-number-2">11</span> Visualisation</h2>
 <div class="outline-text-2" id="text-11">
 
 
@@ -1606,30 +2976,54 @@ sink()
 </div>
 
 <div id="outline-container-11-1" class="outline-3">
-<h3 id="sec-11-1"><span class="section-number-3">11.1</span> Tree-Based Methods</h3>
+<h3 id="sec-11-1"><span class="section-number-3">11.1</span> 2013-12-18-animations-using-R</h3>
 <div class="outline-text-3" id="text-11-1">
 
 
 
+
+
+
+
+</div>
 </div>
 
 </div>
 
-<div id="outline-container-11-2" class="outline-3">
-<h3 id="sec-11-2"><span class="section-number-3">11.2</span> Misclassification Error Rate for Classification Trees</h3>
-<div class="outline-text-3" id="text-11-2">
+<div id="outline-container-12" class="outline-2">
+<h2 id="sec-12"><span class="section-number-2">12</span> Statistical Modelling</h2>
+<div class="outline-text-2" id="text-12">
+
+
+
+
+</div>
+
+<div id="outline-container-12-1" class="outline-3">
+<h3 id="sec-12-1"><span class="section-number-3">12.1</span> Tree-Based Methods</h3>
+<div class="outline-text-3" id="text-12-1">
+
 
 
 </div>
 
 </div>
 
-<div id="outline-container-11-3" class="outline-3">
-<h3 id="sec-11-3"><span class="section-number-3">11.3</span> Deviance Based Measures of Descriptive Power for Classification Trees</h3>
-<div class="outline-text-3" id="text-11-3">
+<div id="outline-container-12-2" class="outline-3">
+<h3 id="sec-12-2"><span class="section-number-3">12.2</span> Misclassification Error Rate for Classification Trees</h3>
+<div class="outline-text-3" id="text-12-2">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-12-3" class="outline-3">
+<h3 id="sec-12-3"><span class="section-number-3">12.3</span> Deviance Based Measures of Descriptive Power for Classification Trees</h3>
+<div class="outline-text-3" id="text-12-3">
 
 <ul>
-<li id="sec-11-3-1">Computing-and-using-deviance-with-classification-trees-Ritschard, G. (2006).<br/>
+<li id="sec-12-3-1">Computing-and-using-deviance-with-classification-trees-Ritschard, G. (2006).<br/>
 I'm reading Ritschard, G. (2006). Computing and using the deviance with classification trees. In Compstat 2006 - Proceedings in Computational Statistics 17th Symposium Held in Rome, Italy, 2006. Retrieved from <a href="http://link.springer.com/chapter/10.1007/978-3-7908-1709-6_5">http://link.springer.com/chapter/10.1007%2F978-3-7908-1709-6_5</a>
 
 <p>
@@ -1643,7 +3037,7 @@ First I'll get the data out of their paper and fit the tree in figure 1
 </li>
 </ul>
 <ul>
-<li id="sec-11-3-2">Reproduce the figure from the paper<br/>
+<li id="sec-12-3-2">Reproduce the figure from the paper<br/>
 The figure in the paper can be checked against our results (and also the improved plot from the party package might be used).
 
 <p>
@@ -1651,7 +3045,7 @@ The figure in the paper can be checked against our results (and also the improve
 </p></li>
 </ul>
 <ul>
-<li id="sec-11-3-3">One row per case or using weights?<br/>
+<li id="sec-12-3-3">One row per case or using weights?<br/>
 Using the case weights like above is convenient especially when datasets are very large, but caused problems in model fitting for me (tree failed to compute a deviance when done this way but succeeded with a dataset expanded so the data.frame is transformed into one in which each row is an observation.
 
 
@@ -1702,7 +3096,7 @@ title(<span style="color: #2aa198;">"fit1"</span>)
 </li>
 </ul>
 <ul>
-<li id="sec-11-3-4"><span class="todo TODO">TODO</span> Check This: R function to calculate for classification trees<br/>
+<li id="sec-12-3-4"><span class="todo TODO">TODO</span> Check This: R function to calculate for classification trees<br/>
 The Ritschard (2006) paper (with SPSS code) describes a complicated method that includes Needing to retrieve for each case: 
 <ul>
 <li>leaf number and
@@ -1739,11 +3133,11 @@ So let's start simple first.  The following code follows the simpler approach:
 </li>
 </ul>
 <ul>
-<li id="sec-11-3-5">R-tree.chisq<br/>
+<li id="sec-12-3-5">R-tree.chisq<br/>
 </li>
 </ul>
 <ul>
-<li id="sec-11-3-6">R code<br/>
+<li id="sec-12-3-6">R code<br/>
 
 
 
@@ -1767,7 +3161,7 @@ So let's start simple first.  The following code follows the simpler approach:
 </li>
 </ul>
 <ul>
-<li id="sec-11-3-7">test-tree.chisq<br/>
+<li id="sec-12-3-7">test-tree.chisq<br/>
 
 
 
@@ -1814,7 +3208,7 @@ tree.chisq(null_model = model0, fitted_model = model1)
 </li>
 </ul>
 <ul>
-<li id="sec-11-3-8">main-tree-model<br/>
+<li id="sec-12-3-8">main-tree-model<br/>
 
 
 
@@ -1828,16 +3222,16 @@ tree.chisq(null_model = model0, fitted_model = model1)
 
 </div>
 
-<div id="outline-container-11-4" class="outline-3">
-<h3 id="sec-11-4"><span class="section-number-3">11.4</span> Deviance Measures and Descriptive Power for Regression Trees</h3>
-<div class="outline-text-3" id="text-11-4">
+<div id="outline-container-12-4" class="outline-3">
+<h3 id="sec-12-4"><span class="section-number-3">12.4</span> Deviance Measures and Descriptive Power for Regression Trees</h3>
+<div class="outline-text-3" id="text-12-4">
 
 
 </div>
 
-<div id="outline-container-11-4-1" class="outline-4">
-<h4 id="sec-11-4-1"><span class="section-number-4">11.4.1</span> rpart-deviance-explained-code</h4>
-<div class="outline-text-4" id="text-11-4-1">
+<div id="outline-container-12-4-1" class="outline-4">
+<h4 id="sec-12-4-1"><span class="section-number-4">12.4.1</span> rpart-deviance-explained-code</h4>
+<div class="outline-text-4" id="text-12-4-1">
 
 
 
@@ -1860,9 +3254,9 @@ tree.chisq(null_model = model0, fitted_model = model1)
 
 </div>
 
-<div id="outline-container-11-4-2" class="outline-4">
-<h4 id="sec-11-4-2"><span class="section-number-4">11.4.2</span> rpart-deviance-explained-test</h4>
-<div class="outline-text-4" id="text-11-4-2">
+<div id="outline-container-12-4-2" class="outline-4">
+<h4 id="sec-12-4-2"><span class="section-number-4">12.4.2</span> rpart-deviance-explained-test</h4>
+<div class="outline-text-4" id="text-12-4-2">
 
 
 
@@ -1919,38 +3313,115 @@ rdev <span style="color: #268bd2; font-weight: bold;">&lt;-</span> sum(sapply(re
 </pre>
 
 
-</div>
-</div>
-</div>
+
+
+
 
 </div>
-
-<div id="outline-container-12" class="outline-2">
-<h2 id="sec-12"><span class="section-number-2">12</span> Code Editors</h2>
-<div class="outline-text-2" id="text-12">
-
+</div>
 </div>
 
 </div>
 
 <div id="outline-container-13" class="outline-2">
-<h2 id="sec-13"><span class="section-number-2">13</span> Workflow Tools</h2>
+<h2 id="sec-13"><span class="section-number-2">13</span> Bibliograph-ology</h2>
 <div class="outline-text-2" id="text-13">
 
 
 </div>
 
 <div id="outline-container-13-1" class="outline-3">
-<h3 id="sec-13-1"><span class="section-number-3">13.1</span> R-newnode</h3>
+<h3 id="sec-13-1"><span class="section-number-3">13.1</span> 2013-11-20-sync-endnote-and-mendeley-references-using-r-xml</h3>
 <div class="outline-text-3" id="text-13-1">
-
 
 
 </div>
 
 <div id="outline-container-13-1-1" class="outline-4">
-<h4 id="sec-13-1-1"><span class="section-number-4">13.1.1</span> test-newnode</h4>
+<h4 id="sec-13-1-1"><span class="section-number-4">13.1.1</span> Intro</h4>
 <div class="outline-text-4" id="text-13-1-1">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-13-1-2" class="outline-4">
+<h4 id="sec-13-1-2"><span class="section-number-4">13.1.2</span> some crazy stuff</h4>
+<div class="outline-text-4" id="text-13-1-2">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-13-1-3" class="outline-4">
+<h4 id="sec-13-1-3"><span class="section-number-4">13.1.3</span> Check in spreadsheet</h4>
+<div class="outline-text-4" id="text-13-1-3">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-13-1-4" class="outline-4">
+<h4 id="sec-13-1-4"><span class="section-number-4">13.1.4</span> Do concatenate and loercase</h4>
+<div class="outline-text-4" id="text-13-1-4">
+
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-13-1-5" class="outline-4">
+<h4 id="sec-13-1-5"><span class="section-number-4">13.1.5</span> select out of mendeley and send to Endnote</h4>
+<div class="outline-text-4" id="text-13-1-5">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-13-1-6" class="outline-4">
+<h4 id="sec-13-1-6"><span class="section-number-4">13.1.6</span> results, conclude</h4>
+<div class="outline-text-4" id="text-13-1-6">
+
+
+
+</div>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-14" class="outline-2">
+<h2 id="sec-14"><span class="section-number-2">14</span> Code Editors</h2>
+<div class="outline-text-2" id="text-14">
+
+</div>
+
+</div>
+
+<div id="outline-container-15" class="outline-2">
+<h2 id="sec-15"><span class="section-number-2">15</span> Workflow Tools</h2>
+<div class="outline-text-2" id="text-15">
+
+
+</div>
+
+<div id="outline-container-15-1" class="outline-3">
+<h3 id="sec-15-1"><span class="section-number-3">15.1</span> R-newnode</h3>
+<div class="outline-text-3" id="text-15-1">
+
+
+
+</div>
+
+<div id="outline-container-15-1-1" class="outline-4">
+<h4 id="sec-15-1-1"><span class="section-number-4">15.1.1</span> test-newnode</h4>
+<div class="outline-text-4" id="text-15-1-1">
 
 
 
@@ -2043,28 +3514,77 @@ nodes <span style="color: #268bd2; font-weight: bold;">&lt;-</span> newnode(name
 
 </div>
 </div>
+
+</div>
+
+<div id="outline-container-15-2" class="outline-3">
+<h3 id="sec-15-2"><span class="section-number-3">15.2</span> 2013-11-25-setting-up-a-workflow-script</h3>
+<div class="outline-text-3" id="text-15-2">
+
+
+
 </div>
 
 </div>
 
-<div id="outline-container-14" class="outline-2">
-<h2 id="sec-14"><span class="section-number-2">14</span> Graphical User Interfaces</h2>
-<div class="outline-text-2" id="text-14">
+<div id="outline-container-15-3" class="outline-3">
+<h3 id="sec-15-3"><span class="section-number-3">15.3</span> 2013-12-01-graphviz-automagic-flowcharts</h3>
+<div class="outline-text-3" id="text-15-3">
+
+
+</div>
+
+<div id="outline-container-15-3-1" class="outline-4">
+<h4 id="sec-15-3-1"><span class="section-number-4">15.3.1</span> workflow<sub>steps</sub>-code</h4>
+<div class="outline-text-4" id="text-15-3-1">
+
+
+
+
+<pre class="src src-R"><span style="color: #586e75;"># </span><span style="color: #586e75;">~/tools/transformations/workflow_steps.txt</span>
+Transformation
+        description
+                the thing 
+        inputs
+                the thing before
+                another thing
+        output
+                the <span style="color: #859900; font-weight: bold;">next</span> thing
+        notes
+                the thing is this other thing   this is a really long description 
+                blah blah asdfasdfasdfasdfasdfa 
+
+Transformation
+        description
+                yet another thing
+        inputs
+                the <span style="color: #859900; font-weight: bold;">next</span> thing
+        output
+                a final thing
+        notes
+                this is a note
+
+</pre>
+
 
 </div>
 
 </div>
 
-<div id="outline-container-15" class="outline-2">
-<h2 id="sec-15"><span class="section-number-2">15</span> Version Control</h2>
-<div class="outline-text-2" id="text-15">
+<div id="outline-container-15-3-2" class="outline-4">
+<h4 id="sec-15-3-2"><span class="section-number-4">15.3.2</span> post</h4>
+<div class="outline-text-4" id="text-15-3-2">
+
 
 
 </div>
+</div>
 
-<div id="outline-container-15-1" class="outline-3">
-<h3 id="sec-15-1"><span class="section-number-3">15.1</span> 2013-11-19-git-can-be-simple-or-very-complicated</h3>
-<div class="outline-text-3" id="text-15-1">
+</div>
+
+<div id="outline-container-15-4" class="outline-3">
+<h3 id="sec-15-4"><span class="section-number-3">15.4</span> 2013-12-24-a-few-best-practices-for-statistical-programming</h3>
+<div class="outline-text-3" id="text-15-4">
 
 
 
@@ -2074,31 +3594,194 @@ nodes <span style="color: #268bd2; font-weight: bold;">&lt;-</span> newnode(name
 </div>
 
 <div id="outline-container-16" class="outline-2">
-<h2 id="sec-16"><span class="section-number-2">16</span> Latex/Sweave</h2>
+<h2 id="sec-16"><span class="section-number-2">16</span> Graphical User Interfaces</h2>
 <div class="outline-text-2" id="text-16">
 
+
+</div>
+
+<div id="outline-container-16-1" class="outline-3">
+<h3 id="sec-16-1"><span class="section-number-3">16.1</span> <span class="todo TODO">TODO</span> ORACLE XE APEX / HTMLDB</h3>
+<div class="outline-text-3" id="text-16-1">
+
+
+</div>
+
+<div id="outline-container-16-1-1" class="outline-4">
+<h4 id="sec-16-1-1"><span class="section-number-4">16.1.1</span> Drill down reports</h4>
+<div class="outline-text-4" id="text-16-1-1">
+
+
+
+<p>
+in oracle the method to create the drill down reports is
+</p>
+<p>
+   1)create tables
+   2)create pkeys and foriegn keys
+   3)create sequences
+   4)create triggers
+   5)create blank pages
+   6)create new page
+</p><ol>
+<li>choose form
+</li>
+<li>choose form on report
+</li>
+<li>select the report to go on the blank page
+</li>
+<li>let the form create a new page
+</li>
+</ol>
+
+<p>  11)create a hidden item on report page IE :P2<sub>IDNO</sub>
+  12)change report regions source SQL to 'WHERE [IDNO/FILEID ETC] = :P2<sub>IDNO</sub>
+  13)set up the link on the previous page if applicable
+in the form page set the default value for say IDNO to PL/SQL expression &amp; = :P2<sub>IDNO</sub> for eg
+</p>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-16-2" class="outline-3">
+<h3 id="sec-16-2"><span class="section-number-3">16.2</span> <span class="todo TODO">TODO</span> web2py</h3>
+<div class="outline-text-3" id="text-16-2">
+
+
+</div>
+
+<div id="outline-container-16-2-1" class="outline-4">
+<h4 id="sec-16-2-1"><span class="section-number-4">16.2.1</span> refs</h4>
+<div class="outline-text-4" id="text-16-2-1">
+
+<p><a href="http://stackoverflow.com/questions/6514680/gui-interface-for-sqlite-data-entry-in-python">http://stackoverflow.com/questions/6514680/gui-interface-for-sqlite-data-entry-in-python</a>
+<a href="http://killer-web-development.com/section/1/0">http://killer-web-development.com/section/1/0</a>
+<a href="http://web2py.com/books/default/chapter/29/07/forms-and-validators">http://web2py.com/books/default/chapter/29/07/forms-and-validators</a>
+<a href="http://stackoverflow.com/questions/11905471/web2py-show-a-different-reference-field-than-id">http://stackoverflow.com/questions/11905471/web2py-show-a-different-reference-field-than-id</a>
+</p></div>
+
+</div>
+
+<div id="outline-container-16-2-2" class="outline-4">
+<h4 id="sec-16-2-2"><span class="section-number-4">16.2.2</span> Exploratory</h4>
+<div class="outline-text-4" id="text-16-2-2">
+
+<p><a href="file:///home/ivan_hanigan/tools/web2py/applications/pitch/pitch-overview.html">~/tools/web2py/applications/pitch/pitch-overview.org</a>
+</p></div>
+</div>
 </div>
 
 </div>
 
 <div id="outline-container-17" class="outline-2">
-<h2 id="sec-17"><span class="section-number-2">17</span> R Packages</h2>
+<h2 id="sec-17"><span class="section-number-2">17</span> Version Control</h2>
 <div class="outline-text-2" id="text-17">
 
+
+</div>
+
+<div id="outline-container-17-1" class="outline-3">
+<h3 id="sec-17-1"><span class="section-number-3">17.1</span> 2013-11-19-git-can-be-simple-or-very-complicated</h3>
+<div class="outline-text-3" id="text-17-1">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-17-2" class="outline-3">
+<h3 id="sec-17-2"><span class="section-number-3">17.2</span> 2013-12-09-bitbucket-has-unlimited-private-git-repositories-for-universities</h3>
+<div class="outline-text-3" id="text-17-2">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-17-3" class="outline-3">
+<h3 id="sec-17-3"><span class="section-number-3">17.3</span> 2013-12-09-dual-code-repository-and-project-website</h3>
+<div class="outline-text-3" id="text-17-3">
+
+
+
+</div>
 </div>
 
 </div>
 
 <div id="outline-container-18" class="outline-2">
-<h2 id="sec-18"><span class="section-number-2">18</span> Project Management</h2>
+<h2 id="sec-18"><span class="section-number-2">18</span> Latex/Sweave/orgmode/knitr</h2>
 <div class="outline-text-2" id="text-18">
 
+
+</div>
+
+<div id="outline-container-18-1" class="outline-3">
+<h3 id="sec-18-1"><span class="section-number-3">18.1</span> Orgmode headers</h3>
+<div class="outline-text-3" id="text-18-1">
+
+
+</div>
+
+<div id="outline-container-18-1-1" class="outline-4">
+<h4 id="sec-18-1-1"><span class="section-number-4">18.1.1</span> 2013-11-26-a-sharp-looking-orgmode-latex-export-header</h4>
+<div class="outline-text-4" id="text-18-1-1">
+
+<ul>
+<li id="sec-18-1-1-1">raw<br/>
+    <a href="file:///home/ivan_hanigan/Dropbox/projects/tools/LaTeX templates/Sweave/SweaveExample1.Rnw">~/Dropbox/projects/tools/LaTeX templates/Sweave/SweaveExample1.Rnw</a>
+see <a href="./src/SharpReportTemplate.html">./src/SharpReportTemplate.org</a>
+</li>
+</ul>
+<ul>
+<li id="sec-18-1-1-2">blogged<br/>
+
+
+</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-18-2" class="outline-3">
+<h3 id="sec-18-2"><span class="section-number-3">18.2</span> LaTeX templates</h3>
+<div class="outline-text-3" id="text-18-2">
+
+
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-18-3" class="outline-3">
+<h3 id="sec-18-3"><span class="section-number-3">18.3</span> 2014-02-12-template-Reproducible-Research-with-R-TEX-and-Sweave</h3>
+<div class="outline-text-3" id="text-18-3">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-18-4" class="outline-3">
+<h3 id="sec-18-4"><span class="section-number-3">18.4</span> 2014-05-17-reproducible-research-reports-using-emacs-orgmode-export-to-knitr</h3>
+<div class="outline-text-3" id="text-18-4">
+
+
+
+</div>
 </div>
 
 </div>
 
 <div id="outline-container-19" class="outline-2">
-<h2 id="sec-19"><span class="section-number-2">19</span> Operating Systems</h2>
+<h2 id="sec-19"><span class="section-number-2">19</span> R Packages</h2>
 <div class="outline-text-2" id="text-19">
 
 </div>
@@ -2106,26 +3789,658 @@ nodes <span style="color: #268bd2; font-weight: bold;">&lt;-</span> newnode(name
 </div>
 
 <div id="outline-container-20" class="outline-2">
-<h2 id="sec-20"><span class="section-number-2">20</span> Linux - Ubuntu</h2>
+<h2 id="sec-20"><span class="section-number-2">20</span> Project Management</h2>
 <div class="outline-text-2" id="text-20">
 
 
+</div>
 
+<div id="outline-container-20-1" class="outline-3">
+<h3 id="sec-20-1"><span class="section-number-3">20.1</span> Gantt Charts</h3>
+<div class="outline-text-3" id="text-20-1">
+
+
+</div>
+
+<div id="outline-container-20-1-1" class="outline-4">
+<h4 id="sec-20-1-1"><span class="section-number-4">20.1.1</span> taskjuggler gantt-tj3-code</h4>
+<div class="outline-text-4" id="text-20-1-1">
+
+
+
+
+<pre class="src src-R">http://permalink.gmane.org/gmane.emacs.orgmode/52844
+d.tchin | 29 Feb 2012 20:11
+Re: taskjuggler3 export
+
+Hi, 
+
+I use the following testtj3.org file that I export to taskjuggler 3.0 :
+
+,----------------------------------------------------------------------------
+|<span style="color: #586e75;">#</span><span style="color: #586e75;">+TITLE:     testtj3.org                                               </span>
+                  
+|<span style="color: #586e75;">#</span><span style="color: #586e75;">+PROPERTY: Effort_ALL 2d 5d 10d 20d 30d 35d 50d                             </span>
+|                                                                             
+|* Action list                                          :taskjuggler_project:  
+|** TODO Test tj3 A                                                           
+|    :PROPERTIES:                                                            
+|    :Effort:   1w                                                            
+|    :allocate: toA                                      
+|    :END:                                                            
+|** TODO Test tj3 B                                                           
+|    :PROPERTIES:                                                             
+|    :Effort:   1w                                                            
+|    :allocate: toB                                                           
+|    :BLOCKER:  previous-sibling                                              
+|    :END:                                                                    
+|** TODO Test 2 tj3     
+|    :PROPERTIES:                                                             
+|    :Effort:   2w                                                            
+|    :allocate:  toA                                                          
+|    :BLOCKER:  previous-sibling                                
+|    :END:                                                                    
+|** TODO Test 2 tj3 B                                                        
+|    :PROPERTIES:                                                             
+|    :Effort:   2w                                                           
+|    :allocate: toB 
+|    :BLOCKER: previous-sibling                                               
+|    :END:                                                                    
+|* Ressources                                          :taskjuggler_resource: 
+|** A                                                                         
+|    :PROPERTIES:                                                             
+|    :resource_id: toA                                                        
+|    :END:                                                               
+|** B                                                                         
+|    :PROPERTIES:                                       
+|    :resource_id: toB                                   
+|    :END:                                       
+|                                                                             
+|<span style="color: #586e75;"># </span><span style="color: #586e75;">Local Variables&#58;                                                           </span>
+|<span style="color: #586e75;"># </span><span style="color: #586e75;">org-export-taskjuggler-target-version: 3.0   </span>
+|<span style="color: #586e75;"># </span><span style="color: #586e75;">org-export-taskjuggler-default-reports: ("include \"gantexport.tji\"")      </span>
+|<span style="color: #586e75;"># </span><span style="color: #586e75;">End:                                                                    </span>
+<span style="color: #2aa198;">`----------------------------------------------------------------------------</span>
+
+<span style="color: #2aa198;">As you can see, I define in the org-export-taskjuggler-default-reports </span>
+<span style="color: #2aa198;">variable at the end of the file that I want to use gantexport.tji where the </span>
+<span style="color: #2aa198;">gant output directives are defined. This file is in the same directory as org </span>
+<span style="color: #2aa198;">file.</span>
+
+<span style="color: #2aa198;">The gantexport.tji is the following :</span>
+
+<span style="color: #2aa198;">,-----------------------------------------------------------------------------</span>
+<span style="color: #2aa198;">|### begin report definition                                                   </span>
+<span style="color: #2aa198;">|                                                                              </span>
+<span style="color: #2aa198;">|taskreport "Gantt Chart" {                                                    </span>
+<span style="color: #2aa198;">|  headline "Project Gantt Chart"                                              </span>
+<span style="color: #2aa198;">|  columns hierarchindex, name, start, end, effort, duration, completed, </span>
+<span style="color: #2aa198;">chart  </span>
+<span style="color: #2aa198;">|  timeformat "%Y-%m-%d"       </span>
+<span style="color: #2aa198;">|  hideresource 1                                                              </span>
+<span style="color: #2aa198;">|  formats html                                                                </span>
+<span style="color: #2aa198;">|  loadunit shortauto                                                          </span>
+<span style="color: #2aa198;">|}                                                                            </span>
+<span style="color: #2aa198;">`</span>-----------------------------------------------------------------------------
+
+Then the instruction tj3 testtj3.tjp generate the gant chart accessible 
+<span style="color: #859900; font-weight: bold;">in</span> <span style="color: #2aa198;">"Gantt Chart.html"</span> file.
+
+Hope that can help.
+
+
+</pre>
+
+
+</div>
+
+</div>
+
+<div id="outline-container-20-1-2" class="outline-4">
+<h4 id="sec-20-1-2"><span class="section-number-4">20.1.2</span> 2013-12-01-gantt-charts-for-health-professionals</h4>
+<div class="outline-text-4" id="text-20-1-2">
+
+
+
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-20-2" class="outline-3">
+<h3 id="sec-20-2"><span class="section-number-3">20.2</span> 2013-12-02-research-protocol-we-used-for-our-bushfire-project</h3>
+<div class="outline-text-3" id="text-20-2">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-20-3" class="outline-3">
+<h3 id="sec-20-3"><span class="section-number-3">20.3</span> 2013-12-02-research-protocol-for-manitoba-centre-for-health-policy-raw-U-Manitoba Centre for Health Policy Guidelines</h3>
+<div class="outline-text-3" id="text-20-3">
+
+<p>These guidelines come from:
+</p>
+<p>
+\noindent <a href="http://umanitoba.ca/faculties/medicine/units/mchp/protocol/media/manage_guidelines.pdf">http://umanitoba.ca/faculties/medicine/units/mchp/protocol/media/manage_guidelines.pdf</a><br/>
+</p>
+<p>
+Most of the material below is taken verbatim from the original. Unfortunately many of the items described below have links to internal MCHP documents that we cannot access.  Nonetheless the structure of the guidelines provides a useful skeleton to frame our thinking. 
+</p>
+<p>
+The following areas should be reviewed with project team members near the beginning of the study and throughout the
+project as needed:
+</p><ul>
+<li>Confidentiality
+</li>
+<li>Project team
+</li>
+<li>File organization and documentation development
+</li>
+<li>Communication
+</li>
+<li>Administrative
+</li>
+<li>Report Preparation
+</li>
+<li>Project Completion
+</li>
+</ul>
+
+
+</div>
+
+<div id="outline-container-20-3-1" class="outline-4">
+<h4 id="sec-20-3-1"><span class="section-number-4">20.3.1</span> Confidentiality</h4>
+<div class="outline-text-4" id="text-20-3-1">
+
+<p>Maintaining data access
+</p></div>
+
+</div>
+
+<div id="outline-container-20-3-2" class="outline-4">
+<h4 id="sec-20-3-2"><span class="section-number-4">20.3.2</span> Project Team Makeup</h4>
+<div class="outline-text-4" id="text-20-3-2">
+
+<p>Roles and contact information should be documented on the project website for the following, where applicable (information may also be included on level of access approved for each team member).
+</p>
+<ul>
+<li id="sec-20-3-2-1">Principal Investigator<br/>
+This is the lead person on the project, who assumes responsibility for delivering the project. The PI makes decisions on project direction and analysis requirements, with input from programmers and the research coordinator (an iterative process). If there is more than one PI (e.g., multi-site studies), overall responsibility for the study needs to be determined, and how the required work will be allocated and coordinated among the co-investigators. Researcher Workgroup website (internal link) 
+
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-2-2">Research Coordinator<br/>
+Th RC is always assigned to deliverables and is usually brought in on other types of projects involving multiple sites, investigators and/or programmers. Responsibilities include project documentation, project management (e.g., ensuring that timelines are met, ensuring that project specifications are being followed), and working with both investigator(s) and the Programmer Coordinator throughout the project to coordinate project requirements. 
+
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-2-3">The Programmer Coordinator<br/>
+The PC is a central management role who facilitates assignment of programming resources to projects, ensuring the best possible match among programmers and investigators.
+Research Coordinator Workgroup website(internal link) 
+
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-2-4">Programmer Analyst<br/>
+This is primarily responsible for programming and related programming documentation (such that the purpose of the program and how results were derived can be understood by others). However, a major role may be taken in the analyses of the project as well, and this will characteristically vary with the project.
+Programmer Analyst Workgroup website(internal link) 
+
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-2-5">Research Support<br/>
+This is primarily responsible for preparing the final product (i.e., the report), including editing and formatting of final graphs and manuscript and using Reference Manager to set up the references. Research support also normally sets up and attends working group meetings. All requests for research support go through the Office Manager.
+
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-20-3-3" class="outline-4">
+<h4 id="sec-20-3-3"><span class="section-number-4">20.3.3</span> Project Team considerations</h4>
+<div class="outline-text-4" id="text-20-3-3">
+
+<ul>
+<li id="sec-20-3-3-1">Roles<br/>
+It is important to clarify everyone's roles at the beginning of the project; for example, whether the investigator routinely expects basic graphs and/or programming logs from the programmer.
+
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-3-2">Continuity<br/>
+It is highly desirable to keep the same personnel, from the start of the project, where possible. It can take some time to develop a cohesive working relationship, particularly if work styles are not initially compatible. Furthermore, requesting others to temporarily fill in for team absences is generally best avoided, particularly for programming tasks (unless there is an extended period of absence). The original programmer will know best the potential impact of any changes that may need to be made to programming code.
+
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-3-3">Access levels<br/>
+Access to MCHP internal resources (e.g., Windows, Unix) need to be assessed for all team members and set up as appropriate to their roles on the project.
+
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-3-4">Working group<br/>
+A WG is always set up for deliverables (and frequently for other projects):
+Terms of Reference for working group (internal)
+
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-3-5">Atmospherics<br/>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-20-3-4" class="outline-4">
+<h4 id="sec-20-3-4"><span class="section-number-4">20.3.4</span> File organization and Documentation Development.</h4>
+<div class="outline-text-4" id="text-20-3-4">
+
+<p>All project-related documentation, including key e-mails used to update project methodology, should be saved within the project directory. Resources for directory setup and file development include:
+</p><ul>
+<li id="sec-20-3-4-1">Managing MCHP resources<br/>
+This includes various process documents as well as an overview of the documentation process for incorporating research carried out by MCHP into online resources: Documentation Management Guide (internal)
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-2">MCHP directory structure<br/>
+A detailed outline of how the Windows environment is structured at MCHP
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-3">Managing project files<br/>
+How files and sub-directories should be organized and named as per the MCHP Guide to Managing Project Files (internal pdf). Information that may be suitable for incorporating into MCHP online resources should be identified; for example, a Concept Development section for subsequent integration of a new concept(s) into the MCHP
+Concept Dictionary. The deliverable glossary is another resource typically integrated into the MCHP Glossary.
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4">Recommended Directories<br/>
+NOTE this is a diversion from the MCHP guidelines.  These recommended directories are from a combination of sources that we have synthesised.
+<ul>
+<li id="sec-20-3-4-4-1">Background: concise summaries: possibly many documents for main project and any main analyses based on the 1:3:25 paradigm: one page of main messages; a three-page executive summary; 25 pages of detailed findings.<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-2">Proposals: for documents related to grant applications.<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-3">Approvals: for ethics applications.<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-4">Budget: spreadsheets and so-forth.<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-5">Data<br/>
+<ul>
+<li id="sec-20-3-4-4-5-1">dataset1<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-5-2">dataset2<br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-6">Paper1<br/>
+<ul>
+<li id="sec-20-3-4-4-6-1">Data<br/>
+<ul>
+<li id="sec-20-3-4-4-6-1-1">merged dataset1 and 2<br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-6-2">Analysis (also see <a href="http://projecttemplate.net">http://projecttemplate.net</a> for a programmer oriented template)<br/>
+<ul>
+<li id="sec-20-3-4-4-6-2-1">exploratory analyses<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-6-2-2">data cleaning<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-6-2-3">main analysis<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-6-2-4">sensitivity analysis<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-6-2-5">data checking<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-6-2-6">model checking<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-6-2-7">internal review<br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-6-3">Document<br/>
+<ul>
+<li id="sec-20-3-4-4-6-3-1">Draft<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-6-3-2">Journal1<br/>
+<ul>
+<li id="sec-20-3-4-4-6-3-2-1">rejected? :-(<br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-6-3-3">Journal2<br/>
+<ul>
+<li id="sec-20-3-4-4-6-3-3-1">Response to reviews<br/>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-6-4">Versions: folders named by date - dump entire copies of the project at certain milestones/change points<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-6-5">Archiving final data with final published paper<br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-7">Papers 2, 3, etc: same structure as paper 1 hopefully the project spawns several papers<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-8">Communication: details of communication with stakeholders and decision makers<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-9">Meetings: for organisation and records of meetings<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-10">Contact details. table contacts lists<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-11">Completion: checklists to make sure project completion is systematic.  Factor in a critical reflection of lessons learnt.<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-4-4-12">References<br/>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-20-3-5" class="outline-4">
+<h4 id="sec-20-3-5"><span class="section-number-4">20.3.5</span> Communication</h4>
+<div class="outline-text-4" id="text-20-3-5">
+
+<p>Project communication should be in written form, wherever possible, to serve as reference for project documentation. Access and confidentiality clearance levels for all involved in the project will determine whether separate communication plans need to be considered for confidential information.
+</p><ul>
+<li id="sec-20-3-5-1">E-mail<br/>
+provides opportunities for feedback/ discussion from everyone and for documenting key project decisions. Responses on any given issue would normally be copied to every project member, with the expectation of receiving feedback within a reasonable period of time - e.g.,a few days). The Research Coordinator should be copied on ALL project correspondence in order to keep the information up to date on the project website.
+<ul>
+<li id="sec-20-3-5-1-1">E-mail etiquette (internal)<br/>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-5-2">Meetings<br/>
+Regularly-scheduled meetings or conference calls should include all project members where possible. Research Coordinators typically arrange project team meetings and take meeting minutes, while Research Support typically arranges the Working Group meetings.
+<ul>
+<li id="sec-20-3-5-2-1">Tips for taking notes (internal)<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-5-2-2">Outlook calendar<br/>
+Used for booking rooms, it displays information on room availability and may include schedules of team members.
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-20-3-6" class="outline-4">
+<h4 id="sec-20-3-6"><span class="section-number-4">20.3.6</span> Administrative</h4>
+<div class="outline-text-4" id="text-20-3-6">
+
+<ul>
+<li id="sec-20-3-6-1">Time entry<br/>
+Time spent on projects should be entered by all MCHP employees who are members of the project team.
+<ul>
+<li id="sec-20-3-6-1-1">website for time entry (internal)<br/>
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-6-1-2">procedures for time entry (internal)<br/>
+
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-20-3-7" class="outline-4">
+<h4 id="sec-20-3-7"><span class="section-number-4">20.3.7</span> Report preparation</h4>
+<div class="outline-text-4" id="text-20-3-7">
+
+<p>This includes:
+</p><ul>
+<li>Policies - e.g., Dissemination of Research Findings
+</li>
+<li>Standards - e.g., deliverable production, use of logos, web publishing
+</li>
+<li>Guidelines - e.g., producing PDFs, powerpoint, and Reference Manager files
+</li>
+<li>Other resources - e.g., e-mail etiquette, technical resources, photos.
+</li>
+</ul>
+
+
+<ul>
+<li id="sec-20-3-7-1">Reliability and Validity Checks<br/>
+Making sure the numbers "make sense". Carrying out these checks requires spelling out who will do which checks.
+<ul>
+<li id="sec-20-3-7-1-1">Data Validity Checks<br/>
+A variety of things to check for at various stages of the study. Programming can be reviewed, for example, by checking to ensure all programs have used the right exclusions, the correct definitions, etc. , and output has been accurately transferred to graphs, tables, and maps for the report.
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-7-1-2">Discrepancies between data sources<br/>
+In this case it is MCHP and Manitoba Health Reports - an example of cross-checking against another source of data.
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+</div>
+
+<div id="outline-container-20-3-8" class="outline-4">
+<h4 id="sec-20-3-8"><span class="section-number-4">20.3.8</span> Project Completion</h4>
+<div class="outline-text-4" id="text-20-3-8">
+
+<p>Several steps need to take place to "finish" the project:
+</p><ul>
+<li id="sec-20-3-8-1">Final Project Meeting.<br/>
+Wind-up or debriefing meetings are held shortly after public release of a deliverable. Such meetings provide all team members with an opportunity to communicate what worked/did not work in bringing the project to completion, providing lessons learned for future deliverables.
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-8-2">Final Documentation Review.<br/>
+Findings from the wind-up meeting should be used to update and finalize the project website (including entering the date of release of report/paper). Both Windows and Unix project directories should be reviewed to ensure that only those SAS programs relevant to project analyses are kept (and well-documented) for future reference. Any related files which may be stored in a user directory should be moved to the project directory.
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-8-3">System Cleanup.<br/>
+When the project is complete, the Systems Administrator should be informed. Project directories, including program files and output data sets, will be archived to tape or CD. Tape backups are retained for a 5-year period before being destroyed so any project may be restored up to five years after completion.
+</li>
+</ul>
+<ul>
+<li id="sec-20-3-8-4">Integration of new material to institution repository<br/>
+This is with MCHP resource repository - a general overview of this process is described in General Documentation Process {internal}.
+</li>
+</ul>
+</div>
+</div>
+
+</div>
+
+<div id="outline-container-20-4" class="outline-3">
+<h3 id="sec-20-4"><span class="section-number-3">20.4</span> 2013-12-02-research-protocol-for-manitoba-centre-for-health-policy</h3>
+<div class="outline-text-3" id="text-20-4">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-20-5" class="outline-3">
+<h3 id="sec-20-5"><span class="section-number-3">20.5</span> 2014-02-22-gantting-like-a-hacker</h3>
+<div class="outline-text-3" id="text-20-5">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-20-6" class="outline-3">
+<h3 id="sec-20-6"><span class="section-number-3">20.6</span> 2014-03-29-project-templates-that-initialize-a-new-project-with-a-skeleton-automatically</h3>
+<div class="outline-text-3" id="text-20-6">
+
+</div>
+
+</div>
+
+<div id="outline-container-20-7" class="outline-3">
+<h3 id="sec-20-7"><span class="section-number-3">20.7</span> R-AdminTemplate</h3>
+<div class="outline-text-3" id="text-20-7">
+
+
+</div>
+
+<div id="outline-container-20-7-1" class="outline-4">
+<h4 id="sec-20-7-1"><span class="section-number-4">20.7.1</span> R-R-AdminTemplate</h4>
+<div class="outline-text-4" id="text-20-7-1">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-20-7-2" class="outline-4">
+<h4 id="sec-20-7-2"><span class="section-number-4">20.7.2</span> test-R-AdminTemplate</h4>
+<div class="outline-text-4" id="text-20-7-2">
+
+
+</div>
+
+</div>
+
+<div id="outline-container-20-7-3" class="outline-4">
+<h4 id="sec-20-7-3"><span class="section-number-4">20.7.3</span> man-R-AdminTemplate</h4>
+<div class="outline-text-4" id="text-20-7-3">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-20-7-4" class="outline-4">
+<h4 id="sec-20-7-4"><span class="section-number-4">20.7.4</span> blog</h4>
+<div class="outline-text-4" id="text-20-7-4">
+
+
+
+</div>
+</div>
 </div>
 
 </div>
 
 <div id="outline-container-21" class="outline-2">
-<h2 id="sec-21"><span class="section-number-2">21</span> Big Data Tips</h2>
+<h2 id="sec-21"><span class="section-number-2">21</span> Research Protocols</h2>
 <div class="outline-text-2" id="text-21">
 
+
+</div>
+
+<div id="outline-container-21-1" class="outline-3">
+<h3 id="sec-21-1"><span class="section-number-3">21.1</span> 2013-11-27-sharing-and-extending-research-protocols</h3>
+<div class="outline-text-3" id="text-21-1">
+
+
+
+</div>
 </div>
 
 </div>
 
 <div id="outline-container-22" class="outline-2">
-<h2 id="sec-22"><span class="section-number-2">22</span> Writing</h2>
+<h2 id="sec-22"><span class="section-number-2">22</span> Operating Systems</h2>
 <div class="outline-text-2" id="text-22">
+
+</div>
+
+</div>
+
+<div id="outline-container-23" class="outline-2">
+<h2 id="sec-23"><span class="section-number-2">23</span> Linux - Ubuntu</h2>
+<div class="outline-text-2" id="text-23">
+
+
+
+</div>
+
+</div>
+
+<div id="outline-container-24" class="outline-2">
+<h2 id="sec-24"><span class="section-number-2">24</span> Big Data Tips</h2>
+<div class="outline-text-2" id="text-24">
+
+</div>
+
+</div>
+
+<div id="outline-container-25" class="outline-2">
+<h2 id="sec-25"><span class="section-number-2">25</span> Writing</h2>
+<div class="outline-text-2" id="text-25">
+
 
 </div>
 </div>
