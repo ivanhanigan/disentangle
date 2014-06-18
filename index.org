@@ -270,6 +270,30 @@ str(lst)
 
 #+end_src
 
+** 2014-05-24-RODBC-to-ms-access-is-broken
+#+name:RODBC-to-ms-access-is-broken-header
+# ~/projects/ivanhanigan.github.com/_posts/2014-05-24-RODBC-to-ms-access-is-broken.md
+#+begin_src R :tangle no :exports none :eval no :padline no
+  ---
+  name: RODBC-to-ms-access-is-broken
+  layout: post
+  title: RODBC-to-ms-access-is-broken
+  date: 2014-05-24
+  categories:
+  -
+  ---
+  
+  #### Code:RODBC-to-ms-access-is-broken
+      Warning messages:
+      1: In odbcDriverConnect(con, ...) :
+        [RODBC] ERROR: state HY000, code 63, message [Microsoft][ODBC Microsoft Access Driver]General error Unable to open registry key Temporary (volatile) Ace DSN for process 0x1b40 Thread 0x1eec DBC 0x6628004                                                              Jet'.
+      2: In odbcDriverConnect(con, ...) :
+        [RODBC] ERROR: state HY000, code 63, message [Microsoft][ODBC Microsoft Access Driver]General error Unable to open registry key Temporary (volatile) Ace DSN for process 0x1b40 Thread 0x1eec DBC 0x6628004                                                              Jet'.
+      3: In odbcDriverConnect(con, ...) :
+        [RODBC] ERROR: state HY024, code -1023, message [Microsoft][ODBC Microsoft Access Driver] '(unknown)' is not a valid path. Make sure that the path name is spelled correctly and that you are connected to the server on which the file resides.
+      4: In odbcDriverConnect(con, ...) : ODBC connection failed    
+#+end_src
+
 * Data Operation
 
 
