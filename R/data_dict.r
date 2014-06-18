@@ -2,11 +2,17 @@
 # name:data_dict
 data_dict <- function(.dataframe, .variable, .show_levels = -1)
 {
+
   if(is.character(.dataframe[ ,.variable])){
     .dataframe[,.variable]  <- factor(.dataframe[,.variable])
   }
-
-  summa  <- summary(.dataframe[,.variable])
+  if(all(is.na(.dataframe[ ,.variable]))){
+    summa <- summary(.dataframe[,.variable])
+    summa <- as.data.frame(t(summa[2]))
+    summa[,1]  <- as.numeric(as.character(summa[,1]))
+  } else {
+    summa <- summary(.dataframe[,.variable])
+  }
   summa  <- as.data.frame(
     cbind(
       c(.variable, rep("", length(summa) - 1)),
@@ -62,10 +68,17 @@ data_dict <- function(.dataframe, .variable, .show_levels = -1)
   summa$cnt <- NA
   summa$pct  <- NA
   summa <- summa[,c(1,4,2,3,5,6)]
+  } else if (all(is.na(.dataframe[ ,.variable]))){
+    
+  summa$type <- c("missing", rep("", nrow(summa) - 1))
+  summa$fill  <- NA
+  summa$pct  <- 100
+  summa <- summa[,c(1,4,2,5,3,6)]
+  
   } else {
-    stop("type not character, factor, date or numeric")
+      stop(sprintf("variable '%s' type is not character, factor, date, numeric or missing", .variable))
   }
   names(summa)  <- c("Variable","Type","Attributes", "Value", "Count", "Percent")
-#summa
+  # summa
   return(summa)
 }

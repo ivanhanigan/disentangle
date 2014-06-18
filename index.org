@@ -3070,11 +3070,17 @@ categories:
   # name:data_dict
   data_dict <- function(.dataframe, .variable, .show_levels = -1)
   {
+  
     if(is.character(.dataframe[ ,.variable])){
       .dataframe[,.variable]  <- factor(.dataframe[,.variable])
     }
-  
-    summa  <- summary(.dataframe[,.variable])
+    if(all(is.na(.dataframe[ ,.variable]))){
+      summa <- summary(.dataframe[,.variable])
+      summa <- as.data.frame(t(summa[2]))
+      summa[,1]  <- as.numeric(as.character(summa[,1]))
+    } else {
+      summa <- summary(.dataframe[,.variable])
+    }
     summa  <- as.data.frame(
       cbind(
         c(.variable, rep("", length(summa) - 1)),
@@ -3130,11 +3136,18 @@ categories:
     summa$cnt <- NA
     summa$pct  <- NA
     summa <- summa[,c(1,4,2,3,5,6)]
+    } else if (all(is.na(.dataframe[ ,.variable]))){
+      
+    summa$type <- c("missing", rep("", nrow(summa) - 1))
+    summa$fill  <- NA
+    summa$pct  <- 100
+    summa <- summa[,c(1,4,2,5,3,6)]
+    
     } else {
-      stop("type not character, factor, date or numeric")
+        stop(sprintf("variable '%s' type is not character, factor, date, numeric or missing", .variable))
     }
     names(summa)  <- c("Variable","Type","Attributes", "Value", "Count", "Percent")
-  #summa
+    # summa
     return(summa)
   }
   
@@ -3174,11 +3187,13 @@ categories:
   fpath
   civst_gend_sector <- read.csv(fpath)
   civst_gend_sector$datevar <- as.Date(round(rnorm(nrow(civst_gend_sector), Sys.Date(),10)), origin = "1970-01-01")
+  civst_gend_sector$missing_blahblah_variable  <- NA
   str(civst_gend_sector)
   #data_dict
   data_dict(civst_gend_sector, "civil_status")
   data_dict(civst_gend_sector, "datevar")
   data_dict(civst_gend_sector, "number_of_cases")
+  data_dict(civst_gend_sector, "missing_blahblah_variable")
   
   dataDictionary <- data_dictionary(civst_gend_sector,
                                     show_levels = -1)
@@ -5132,12 +5147,12 @@ scope	optional	document
 #+name:testing-aekos-data-portal-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-06-14-testing-aekos-data-portal.md :exports none :eval no :padline no
   ---
-  name: testing-aekos-data-portal
+  name: 2014-06-14-testing-aekos-data-portal
   layout: post
   title: Testing Aekos Data Portal
   date: 2014-06-14
   categories:
-  - data documentation
+  - Data Documentation
   ---
   
   <body>
@@ -5590,6 +5605,70 @@ scope	optional	document
   </body>
   
   
+#+end_src
+** 2014-06-15-my-feed-filesize-is-larger-than-512k-need-to-reduce-its-size-in-order-for-feedburner-to-process-it
+#+name:using-additional-header-rows-for-metadata-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-06-15-my-feed-filesize-is-larger-than-512k-need-to-reduce-its-size-in-order-for-feedburner-to-process-it.md :exports none :eval no :padline no
+  ---
+  name: 2014-06-15-my-feed-filesize-is-larger-than-512k-need-to-reduce-its-size-in-order-for-feedburner-to-process-it
+  layout: post
+  title: my-feed-filesize-is-larger-than-512k-need-to-reduce-its-size-in-order-for-feedburner-to-process-it
+  date: 2014-06-15
+  categories:
+  - Data Documentation
+  ---
+  
+  - I am not sure but I suspect [this post](http://ivanhanigan.github.com/2014/05/using-additional-header-rows-for-metadata.html) caused my feedburner xml to become too big and stop the updates to my feedly account
+  - Found this out by logging in to [http://feedburner.google.com](http://feedburner.google.com) and trying to re-sync my feed (under troubleshootize)
+  - I may have tipped the size over the edge with [this post](http://ivanhanigan.github.com/2014/06/testing-aekos-data-portal.html) 
+  - the issue is probably due to me starting to use knitr (see [this post](/2014/05/reproducible-research-reports-using-emacs-orgmode-export-to-knitr/) ) to produce the HTML reports which encodes the images inline, whereas I used to use the old school orgmode approach of referencing the png in the images directory
+  - looking at the feed/index.xml I saw that this includes every post I ever wrote
+  - I fixed it by going back to [the instructions I used to set up the feed](http://www.daveperrett.com/articles/2010/09/14/integrating-jekyll-with-feedburner/)
+  - and adding limit:10 to the line of the loop 'for post in site.posts'
+
+#+end_src
+
+** 2014-06-15-reflecting-on-aekos-data-portal-test
+#+name:reflecting-on-aekos-data-portal-test-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-06-15-reflecting-on-aekos-data-portal-test.md :exports none :eval no :padline no
+  ---
+  name: 2014-06-15-reflecting-on-aekos-data-portal-test
+  layout: post
+  title: reflecting-on-aekos-data-portal-test
+  date: 2014-06-15
+  categories:
+  - Data Documentation
+  ---
+  
+  - In [my last post on AEKOS Dta Portal](/2014/06/testing-aekos-data-portal) I reported my test of the Australian Terrestrial Ecosystem Research Network (TERN) AEKOS Data Portal system implemented by Uni Adelaide's Eco-informatics Facility.
+  - I've reflected a bit on this process and I want to jot down some notes
+  
+  ### Database restore scripts are complicated and inhibit access
+  - I'd re-iterate my conclusion that I really like how this model emphasises the use of databases for data management (and postgres or mysql are great options)
+  - but for a less-technically savvy person or for a casual browser just looking for some quick data to play with this is not easy enough
+  - for a good description of alternative approaches see [http://flowingdata.com/2014/06/10/how-to-make-government-data-sites-better/](http://flowingdata.com/2014/06/10/how-to-make-government-data-sites-better/) which is a good set of requests for simple and efficient access to data via Government portals in the USA
+  - I spoke with Squid and Matt the developers and they described the new enhancement they are working on now to provide a simple flat file download so that will be great.
+  
+  ### Linking Exploratory Data Analyses back to metadata and source data documentation
+  - In my normal mode of operating I spend more time reviewing the metadata and source data documentation before exploring data (much like the workflow described at [http://simplystatistics.org/2014/06/13/what-i-do-when-i-get-a-new-data-set-as-told-through-tweets/](http://simplystatistics.org/2014/06/13/what-i-do-when-i-get-a-new-data-set-as-told-through-tweets/), especially see Step 1: Learn about the elephant)
+  - but this time I just wanted to get some data out and so went full steam ahead like a bull at a gate
+  - Once I had [my map visualisation done](/2014/06/testing-aekos-data-portal/#toc_12) I decided to go back to the documentation to read up a bit more on why these locations were studied and other contextual metadata
+  - But when I look in the zip I downloaded I investigated the citation.pdf and the tabledefinitions.pdf but these don't really have much in it for me to link back to the source of the data and the documentation I need
+  - See the citation link h ref="http://www.portal.aekos.org.au/" target="_blank"
+  - so hunting around the portal again I search for the survey name "Department of Environment, Water and Natural Resources, South Australia - Dalhousie Survey (Scientific Expedition Group)
+  Survey"
+  - and got 10 hits, chose number 1
+  - skim-read of overview and scope. seems the link out from the overview/abstract is the most useful to get an overview
+  - moved on to methods and I really like the way the segments collapse and expand as you read them, but didn't like how I had to keep navigating back and forward with the browser (like between Study Location Selection Method and Study Location Visit Method, each time I went back I had to scroll to bottom of page to get to list of sections)
+  - Finally I got to explore the observation diagram and methods diagram which I have not seen before.  These seem like a great way to show the information and let people browse through the concepts etc...
+  - But I think I still prefer an old school document with a table of contents and some kind of index.
+  
+  ![aekos_obs_diagram.png](/images/aekos_obs_diagram.png)
+  
+  
+  
+  
+      
 #+end_src
 
 * Exploratory Data Analysis
