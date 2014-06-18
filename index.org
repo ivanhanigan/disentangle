@@ -53,6 +53,7 @@ categories:
   - Recently I got a lot of files with columns that are all missing.  I had to modify the 'data\_dictionary' function to cope with these so have released version 1.1
   - [Windows Version is Downloadable Here](http://ivanhanigan.github.io/disentangle/lib/disentangle_1.1.zip)
   - Linux and Mac users can just run this R code
+  
   #### R Code:
       require(devtools)
       install_github("disentangle", "ivanhanigan")
