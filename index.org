@@ -126,6 +126,32 @@ categories:
   
 #+end_src
 
+
+** COMMENT 2014-06-24-data-dictionary-function-needed-further-upgrades-to-my-misc-package
+#+name:data-dictionary-function-needed-upgrade-to-my-misc-package-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-06-24-data-dictionary-function-needed-further-upgrades-to-my-misc-package.md :exports none :eval no :padline no
+  ---
+  name: 2014-06-24-data-dictionary-function-needed-further-upgrades-to-my-misc-package
+  layout: post
+  title: data-dictionary-function-needed-further-upgrades-to-my-misc-package
+  date: 2014-06-24
+  categories:
+  - disentangle
+  tags:
+  - software
+  ---
+  
+  - I've been enjoying summarising datasets with my data\_dictionary function
+  - There was a bug when a date variable had any missings.  
+  - I have modified the function to cope with these so have released version 1.2
+  - [Windows Version is Downloadable Here](http://ivanhanigan.github.io/disentangle/lib/disentangle_1.2.zip)
+  - Linux and Mac users can just run this R code
+  
+  #### R Code:
+      require(devtools)
+      install_github("disentangle", "ivanhanigan")
+
+#+end_src
 * Introduction
 This project is my collection of notes and customised software tools for data management, manipulation and analysis.
 
@@ -3665,13 +3691,13 @@ categories:
   fpath
   civst_gend_sector <- read.csv(fpath)
   civst_gend_sector$datevar <- as.Date(round(rnorm(nrow(civst_gend_sector), Sys.Date(),10)), origin = "1970-01-01")
-  civst_gend_sector$missing_blahblah_variable  <- NA
+  civst_gend_sector$missing_variable  <- NA
   str(civst_gend_sector)
   #data_dict
   data_dict(civst_gend_sector, "civil_status")
   data_dict(civst_gend_sector, "datevar")
   data_dict(civst_gend_sector, "number_of_cases")
-  data_dict(civst_gend_sector, "missing_blahblah_variable")
+  data_dict(civst_gend_sector, "missing_variable")
   
   dataDictionary <- data_dictionary(civst_gend_sector,
                                     show_levels = -1)
@@ -3681,6 +3707,11 @@ categories:
   
   # with randoms in date variable
   civst_gend_sector$datevar[sample(1:nrow(civst_gend_sector), 5)] <- NA
+  # and civil status
+  civst_gend_sector$civil_status[sample(1:nrow(civst_gend_sector), 7)] <- NA
+  # and number of cases
+  civst_gend_sector$number_of_cases[sample(1:nrow(civst_gend_sector), 2)] <- NA
+  
   data_dict(
             .dataframe=civst_gend_sector
             ,
@@ -3688,6 +3719,10 @@ categories:
             ,
             .show_levels = -1
             )
+  dataDictionary <- data_dictionary(civst_gend_sector,
+                                    show_levels = -1)
+  
+  dataDictionary
   
 #+end_src
 *** man-R-data_dictionary
