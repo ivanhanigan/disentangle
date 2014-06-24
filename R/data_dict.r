@@ -13,10 +13,18 @@ data_dict <- function(.dataframe, .variable, .show_levels = -1)
   } else {
     summa <- summary(.dataframe[,.variable])
   }
-  summa  <- as.data.frame(
+# if there are some missing obs in a date var you get a malformed
+# summa with less names than levels
+  if(length(as.character(summa)) != length(names(summa))){
+    summa <- as.character(summa)
+  }
+
+  
+  summa <- as.data.frame(
     cbind(
       c(.variable, rep("", length(summa) - 1)),
-      names(summa),
+      names(summa)
+      ,
       as.vector(as.character(summa))
       )
     )

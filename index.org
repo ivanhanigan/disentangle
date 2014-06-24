@@ -3548,10 +3548,18 @@ categories:
     } else {
       summa <- summary(.dataframe[,.variable])
     }
-    summa  <- as.data.frame(
+  # if there are some missing obs in a date var you get a malformed
+  # summa with less names than levels
+    if(length(as.character(summa)) != length(names(summa))){
+      summa <- as.character(summa)
+    }
+  
+    
+    summa <- as.data.frame(
       cbind(
         c(.variable, rep("", length(summa) - 1)),
-        names(summa),
+        names(summa)
+        ,
         as.vector(as.character(summa))
         )
       )
@@ -3619,6 +3627,9 @@ categories:
   }
   
 #+end_src
+
+#+RESULTS: R-data_dictionary
+
 *** data_dictionary-code
 #+name:data_dictionary
 #+begin_src R :session *R* :tangle R/data_dictionary.r :exports none :eval no
@@ -3667,6 +3678,17 @@ categories:
   
   dataDictionary
   #write.csv(dataDictionary, "~/dataDictionary.csv", row.names = F)
+  
+  # with randoms in date variable
+  civst_gend_sector$datevar[sample(1:nrow(civst_gend_sector), 5)] <- NA
+  data_dict(
+            .dataframe=civst_gend_sector
+            ,
+            .variable="datevar"
+            ,
+            .show_levels = -1
+            )
+  
 #+end_src
 *** man-R-data_dictionary
 #+name:R-data_dictionary
