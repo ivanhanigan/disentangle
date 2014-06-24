@@ -150,7 +150,7 @@ categories:
   #### R Code:
       require(devtools)
       install_github("disentangle", "ivanhanigan")
-
+  
 #+end_src
 * Introduction
 This project is my collection of notes and customised software tools for data management, manipulation and analysis.
