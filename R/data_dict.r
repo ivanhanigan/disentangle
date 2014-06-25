@@ -25,7 +25,7 @@ data_dict <- function(.dataframe, .variable, .show_levels = -1)
       c(.variable, rep("", length(summa) - 1)),
       names(summa)
       ,
-      as.vector(as.character(summa))
+      as.vector(summa)
       )
     )
   summa[,1]  <- as.character(summa[,1])

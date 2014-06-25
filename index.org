@@ -3586,7 +3586,7 @@ categories:
         c(.variable, rep("", length(summa) - 1)),
         names(summa)
         ,
-        as.vector(as.character(summa))
+        as.vector(summa)
         )
       )
     summa[,1]  <- as.character(summa[,1])
@@ -3692,6 +3692,7 @@ categories:
   civst_gend_sector <- read.csv(fpath)
   civst_gend_sector$datevar <- as.Date(round(rnorm(nrow(civst_gend_sector), Sys.Date(),10)), origin = "1970-01-01")
   civst_gend_sector$missing_variable  <- NA
+  civst_gend_sector$Survey.year  <- rep(2012, nrow(civst_gend_sector))
   str(civst_gend_sector)
   #data_dict
   data_dict(civst_gend_sector, "civil_status")
