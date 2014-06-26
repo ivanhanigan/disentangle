@@ -1,0 +1,43 @@
+#+TITLE:transformations-tracker 
+#+AUTHOR: Ivan Hanigan
+#+email: ivan.hanigan@anu.edu.au
+#+LaTeX_CLASS: article
+#+LaTeX_CLASS_OPTIONS: [a4paper]
+#+LATEX: \tableofcontents
+-----
+
+* start graph
+#+begin_src dot :tangle transformations-tracker.dot
+digraph transformations {
+#+end_src
+* subgraph cluster4 macro
+#+begin_src dot :tangle transformations-tracker.dot
+	subgraph cluster_4 {
+label = "Macro";
+#+end_src
+** CLimate change
+#+begin_src dot :tangle transformations-tracker.dot
+"Climate Change" -> link 
+link [ shape=record, label="{{ {type|description|influence} | {Natural|Increased Extreme Weather Events|+} }}" , URL="START\NEND" ]
+link -> ds6
+#+end_src
+
+* close brackets
+** close subgraph cluster1
+#+begin_src dot :tangle transformations-tracker.dot
+
+}
+#+end_src
+
+* run
+
+#+name:run
+#+begin_src sh :session *shell* :tangle no :exports none :eval yes
+dot -Tpng transformations-tracker.dot -o transformations-tracker.png
+#+end_src
+
+#+RESULTS: run
+|      |         |         |          |           |     |            |     |     |         |    |    |         |
+| The  | program | 'dot'   | is       | currently | not | installed. | You | can | install | it | by | typing: |
+| sudo | apt-get | install | graphviz |           |     |            |     |     |         |    |    |         |
+
