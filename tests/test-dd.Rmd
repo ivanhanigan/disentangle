@@ -1,0 +1,23 @@
+Title
+========================================================
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring web pages (click the **MD** toolbar button for help on Markdown).
+
+When you click the **Knit HTML** button a web page will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+dat <- data.frame(a = letters, b = rep(2012, length(letters)))
+str(dat)
+
+## 'data.frame':    26 obs. of  2 variables:
+##  $ a: Factor w/ 26 levels &quot;a&quot;,&quot;b&quot;,&quot;c&quot;,&quot;d&quot;,..: 1 2 3 4 5 6 7 8 9 10 ...
+##  $ b: num  2012 2012 2012 2012 2012 ...
+
+dd <- lapply(dat, summary)
+dd
+
+require(disentangle)
+data_dict
+data_dictionary(dat)
+```
+
