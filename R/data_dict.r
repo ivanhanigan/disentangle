@@ -3,15 +3,20 @@
 data_dict <- function(.dataframe, .variable, .show_levels = -1)
 {
 
+summary2 <- function(x){
+  summa <- summary(x, digits = nchar(max(x))+3)
+  return(summa)
+}
+
   if(is.character(.dataframe[ ,.variable])){
     .dataframe[,.variable]  <- factor(.dataframe[,.variable])
   }
   if(all(is.na(.dataframe[ ,.variable]))){
-    summa <- summary(.dataframe[,.variable])
+    summa <- summary2(.dataframe[,.variable])
     summa <- as.data.frame(t(summa[2]))
     summa[,1]  <- as.numeric(as.character(summa[,1]))
   } else {
-    summa <- summary(.dataframe[,.variable])
+    summa <- summary2(.dataframe[,.variable])
   }
 # if there are some missing obs in a date var you get a malformed
 # summa with less names than levels
