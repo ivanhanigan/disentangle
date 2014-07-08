@@ -3641,7 +3641,7 @@ categories:
     summa$type <- c("date", rep("", nrow(summa) - 1))
     summa$cnt <- NA
     summa$pct  <- NA
-    summa
+    # summa
     summa$V3[-which(summa$V2 == "NA's")] <- as.character(
         as.Date(as.character(
         summa$V3[-which(summa$V2 == "NA's")]
