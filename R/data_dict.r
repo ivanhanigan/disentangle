@@ -24,7 +24,7 @@ summary2 <- function(x){
     summa <- as.character(summa)
   }
 
-  
+
   summa <- as.data.frame(
     cbind(
       c(.variable, rep("", length(summa) - 1)),
@@ -40,14 +40,14 @@ summary2 <- function(x){
   # if char (factor)
   if(is.factor(.dataframe[,.variable])){
   summa$type <- c("character", rep("", nrow(summa) - 1))
-  summa$summa  <- as.numeric(as.character(summa$V3))  
+  summa$summa  <- as.numeric(as.character(summa$V3))
   summa$summa2 <- rep(NA, nrow(summa))
       # as.numeric(as.character(summa$V2)) ?
   summa$pct  <- round((summa$summa / sum(summa$summa)) * 100, 2)
   summa <- summa[,c(1,4,2,6,5,7)]
   if(.show_levels > 0){
     if(nrow(summa) > .show_levels){
-      summa <- summa[1:.show_levels,]  
+      summa <- summa[1:.show_levels,]
       summa <- rbind(summa, c("", "",
                               sprintf("more than %s levels. list truncated.", .show_levels),
                               "","", "")
@@ -76,24 +76,30 @@ summary2 <- function(x){
   ## if(!all(is.na(datevar))){
   ##   summa[,3] <- as.character(datevar)
   ## }
-    
+
   summa$type <- c("date", rep("", nrow(summa) - 1))
   summa$cnt <- NA
   summa$pct  <- NA
   # summa
-  summa$V3[-which(summa$V2 == "NA's")] <- as.character(
-      as.Date(as.character(
-      summa$V3[-which(summa$V2 == "NA's")]
-      ), origin = "1970-01-01")
-      )  
+  if(
+    length(which(is.na(.dataframe[,.variable]))) > 0
+    ){
+    summa$V3[-which(summa$V2 == "NA's")] <- as.character(
+        as.Date(as.character(
+        summa$V3[-which(summa$V2 == "NA's")]
+        ), origin = "1970-01-01")
+        )
+  } else {
+    summa$V3 <- as.character(as.Date(as.numeric(as.character(summa$V3)), origin = "1970-01-01"))
+  }
   summa <- summa[,c(1,4,2,3,5,6)]
   } else if (all(is.na(.dataframe[ ,.variable]))){
-    
+
   summa$type <- c("missing", rep("", nrow(summa) - 1))
   summa$fill  <- NA
   summa$pct  <- 100
   summa <- summa[,c(1,4,2,5,3,6)]
-  
+
   } else {
       stop(sprintf("variable '%s' type is not character, factor, date, numeric or missing", .variable))
   }

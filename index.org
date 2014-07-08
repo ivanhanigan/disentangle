@@ -3642,11 +3642,17 @@ categories:
     summa$cnt <- NA
     summa$pct  <- NA
     # summa
-    summa$V3[-which(summa$V2 == "NA's")] <- as.character(
-        as.Date(as.character(
-        summa$V3[-which(summa$V2 == "NA's")]
-        ), origin = "1970-01-01")
-        )  
+    if(
+      length(which(is.na(.dataframe[,.variable]))) > 0
+      ){
+      summa$V3[-which(summa$V2 == "NA's")] <- as.character(
+          as.Date(as.character(
+          summa$V3[-which(summa$V2 == "NA's")]
+          ), origin = "1970-01-01")
+          )    
+    } else {
+      summa$V3 <- as.character(as.Date(as.numeric(as.character(summa$V3)), origin = "1970-01-01"))    
+    }
     summa <- summa[,c(1,4,2,3,5,6)]
     } else if (all(is.na(.dataframe[ ,.variable]))){
       
@@ -3675,7 +3681,7 @@ categories:
     out <- matrix(NA, nrow = 0, ncol = 3)
     for(i in 1:ncol(dataframe)){
     #  i = 1
-      print(i)
+    #  print(i)
     out2 <- data_dict(
       .dataframe = dataframe
       ,
@@ -3697,6 +3703,8 @@ categories:
   # name:R-data_dictionary
   require(devtools)
   install_github("disentangle", "ivanhanigan")
+  # or
+  load_all()
   require(disentangle)
   fpath <- system.file("extdata/civst_gend_sector.csv", package = "disentangle")
   fpath
@@ -3707,6 +3715,7 @@ categories:
   str(civst_gend_sector)
   #data_dict
   data_dict(civst_gend_sector, "civil_status")
+  class(civst_gend_sector$datevar)
   data_dict(civst_gend_sector, "datevar")
   data_dict(civst_gend_sector, "number_of_cases")
   data_dict(civst_gend_sector, "missing_variable")
@@ -3725,6 +3734,7 @@ categories:
   civst_gend_sector$number_of_cases[sample(1:nrow(civst_gend_sector), 2)] <- NA
   civst_gend_sector$Survey.year[sample(1:nrow(civst_gend_sector), 4)] <- NA
   str(civst_gend_sector)
+  #debug(data_dict)
   data_dict(
             .dataframe=civst_gend_sector
             ,
@@ -3732,6 +3742,8 @@ categories:
             ,
             .show_levels = -1
             )
+  #undebug(data_dict)
+  
   dataDictionary <- data_dictionary(civst_gend_sector,
                                     show_levels = -1)
   
