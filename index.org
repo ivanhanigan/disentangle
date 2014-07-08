@@ -1738,54 +1738,54 @@ http://r.789695.n4.nabble.com/R-pkgs-reshape2-a-reboot-of-the-reshape-package-td
 
 #+name:reshapes
 #+begin_src R :session *R* :eval no
-#### name:reshapes####
-
-
-# tools
-require(reshape2)
-sort_df<-function (data, vars = names(data), decreasing=F) {
-    if (length(vars) == 0 || is.null(vars)) 
-        return(data)
-    data[do.call("order", c(data[, vars, drop = FALSE], decreasing = decreasing)), , drop = FALSE]
- }
- 
-# load
-d<-as.data.frame(rbind(
- c(1,1970,3,3,8,12,23,20,26,25,25,16,8,4),
- c(2,1970,5,4,10,13,26,20,27,28,27,18,9,5)
- ))
-d$climate <- 'frst' 
-names(d)<-c('ID','Year','1','2','3','4','5','6','7','8','9','10','11','12','climate')
-str(d)
-
-# do
-d2 <- melt(d,id=c('ID','Year', 'climate'))
-str(d2)
-d2$variable <- as.numeric(as.character(d2$variable) )
-sort_df(d2)
-
-
-
-
-
-
-#OR
-
-# load
-t<-"ID,Year,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,climate
-1,1970,3,3,8,12,23,20,26,25,25,16,8,4,frst
-2,1970,5,4,10,13,26,20,27,28,27,18,9,5,frst
-"
-t<-read.csv(textConnection(t))
-
-library(reshape)
-
-#convert wide form to long form
-t2<-melt(t,id.var=c("ID","climate","Year"))
-names(t2)<-c("ID","Surf","Year","Month","Value")
-
-#turn named months into indices
-t2$Month<-match(t2$Month,month.abb)
+  #### name:reshapes####
+  
+  
+  # tools
+  require(reshape2)
+  sort_df<-function (data, vars = names(data), decreasing=F) {
+      if (length(vars) == 0 || is.null(vars)) 
+          return(data)
+      data[do.call("order", c(data[, vars, drop = FALSE], decreasing = decreasing)), , drop = FALSE]
+   }
+   
+  # load
+  d<-as.data.frame(rbind(
+   c(1,1970,3,3,8,12,23,20,26,25,25,16,8,4),
+   c(2,1970,5,4,10,13,26,20,27,28,27,18,9,5)
+   ))
+  d$climate <- 'frst' 
+  names(d)<-c('ID','Year','1','2','3','4','5','6','7','8','9','10','11','12','climate')
+  str(d)
+  
+  # do
+  d2 <- melt(d,id=c('ID','Year', 'climate'))
+  str(d2)
+  d2$variable <- as.numeric(as.character(d2$variable) )
+  sort_df(d2)
+  
+  
+  
+  
+  
+  
+  #OR
+  
+  # load
+  t<-"ID,Year,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,climate
+  1,1970,3,3,8,12,23,20,26,25,25,16,8,4,frst
+  2,1970,5,4,10,13,26,20,27,28,27,18,9,5,frst
+  "
+  t<-read.csv(textConnection(t))
+  
+  library(reshape)
+  
+  #convert wide form to long form
+  t2<-melt(t,id.var=c("ID","climate","Year"))
+  names(t2)<-c("ID","Surf","Year","Month","Value")
+  
+  #turn named months into indices
+  t2$Month<-match(t2$Month,month.abb)
 #+end_src
 
 *** TODO reshape more
@@ -3641,6 +3641,7 @@ categories:
     summa$type <- c("date", rep("", nrow(summa) - 1))
     summa$cnt <- NA
     summa$pct  <- NA
+    summa$V3 <- as.character(as.Date(as.numeric(as.character(summa$V3)), origin = "1970-01-01"))  
     summa <- summa[,c(1,4,2,3,5,6)]
     } else if (all(is.na(.dataframe[ ,.variable]))){
       
