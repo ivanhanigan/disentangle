@@ -80,6 +80,7 @@ summary2 <- function(x){
   summa$type <- c("date", rep("", nrow(summa) - 1))
   summa$cnt <- NA
   summa$pct  <- NA
+  summa$V3 <- as.character(as.Date(as.numeric(as.character(summa$V3)), origin = "1970-01-01"))  
   summa <- summa[,c(1,4,2,3,5,6)]
   } else if (all(is.na(.dataframe[ ,.variable]))){
     
