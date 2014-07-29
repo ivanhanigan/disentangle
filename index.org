@@ -367,6 +367,42 @@ Scroll down the list and find the PostgreSQL ODBC Driver.
 
 ** Database Input
 *** TODO readOGR2
+*** PostGIS geomFromText
+COPY yourNewTableName (lat, long, name, other)
+FROM '/path/yourCSVfile.csv' CSV;
+
+SELECT addgeometrycolumn('public','yourNewTableName ','the_geom',4326,'POINT');
+
+4.Populating the geometry column from your lat, long with UPDATE function with GeometryFromText function of PostGIS.
+
+UPDATE yourNewTableName SET the_geom = GeometryFromText('POINT('||lat||' '||long||')',4326);
+
+or ie
+
+SELECT ST_GeomFromText('MULTIPOLYGON(((-71.1031880899493 42.3152774590236,
+-71.1031627617667 42.3152960829043,-71.102923838298 42.3149156848307,
+-71.1023097974109 42.3151969047397,-71.1019285062273 42.3147384934248,
+-71.102505233663 42.3144722937587,-71.10277487471 42.3141658254797,
+-71.103113945163 42.3142739188902,-71.10324876416 42.31402489987,
+-71.1033002961013 42.3140393340215,-71.1033488797549 42.3139495090772,
+-71.103396240451 42.3138632439557,-71.1041521907712 42.3141153348029,
+-71.1041411411543 42.3141545014533,-71.1041287795912 42.3142114839058,
+-71.1041188134329 42.3142693656241,-71.1041112482575 42.3143272556118,
+-71.1041072845732 42.3143851580048,-71.1041057218871 42.3144430686681,
+-71.1041065602059 42.3145009876017,-71.1041097995362 42.3145589148055,
+-71.1041166403905 42.3146168544148,-71.1041258822717 42.3146748022936,
+-71.1041375307579 42.3147318674446,-71.1041492906949 42.3147711126569,
+-71.1041598612795 42.314808571739,-71.1042515013869 42.3151287620809,
+-71.1041173835118 42.3150739481917,-71.1040809891419 42.3151344119048,
+-71.1040438678912 42.3151191367447,-71.1040194562988 42.3151832057859,
+-71.1038734225584 42.3151140942995,-71.1038446938243 42.3151006300338,
+-71.1038315271889 42.315094347535,-71.1037393329282 42.315054824985,
+-71.1035447555574 42.3152608696313,-71.1033436658644 42.3151648370544,
+-71.1032580383161 42.3152269126061,-71.103223066939 42.3152517403219,
+-71.1031880899493 42.3152774590236)),
+((-71.1043632495873 42.315113108546,-71.1043583974082 42.3151211109857,
+-71.1043443253471 42.3150676015829,-71.1043850704575 42.3150793250568,-71.1043632495873 42.315113108546)))',4326);
+
 *** PSQL dump and restore
 #+name:psql-dump-restore
 #+begin_src sh :tangle no :exports reports :eval no
@@ -386,7 +422,13 @@ Scroll down the list and find the PostgreSQL ODBC Driver.
   "C:\Program Files\PostgreSQL\8.3\bin\pg_dump" -h ip_address -U username -i -t schema.table database | "C:\Program Files\PostgreSQL\8.3\bin\psql" -h ipaddress -U username database
   
   #To copy to a CSV file
+  psql -h ip -d database -U user -c "\copy (select max(maximum_temperature_in_24_hours_after_9am_local_time_in_degrees) from WEATHER_BOM.bom_daily_data_1990_2010) TO '~/maxtemp_recently.csv' WITH DELIMITER ',' CSV HEADER"
   
+  and then if this works go for broke, or something from this cheatsheet
+  
+  http://www.gistutor.com/postgresqlpostgis/10-intermediate-postgresqlpostgis-tutorials/39-how-to-import-or-export-a-csv-file-using-postgresql-copy-to-and-copy-from-queries.html
+  
+  # DEPRECATED
   "C:\Program Files\PostgreSQL\8.3\bin\psql" -h ip_address -d weather -U username -c "COPY \"schema\".\"table\" TO STDOUT WITH CSV HEADER;" > "J:\workdir\filename.csv"
   
   "C:\Program Files\PostgreSQL\8.3\bin\psql" -h ip_address -d weather -U username -c "COPY (select * from schema.table where var = X) TO STDOUT WITH CSV HEADEsR;" > "J:\workdir\filename.csv"
@@ -2671,10 +2713,11 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
   ##   } 
   ## require(EML)
   
-  reml_boilerplate <- function(data_set, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA, desc = "")
+  reml_boilerplate <- function(data_set, outfile = NA, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA, desc = "")
   {
   
     # essential
+    if(is.na(outfile)) stop(print("must specify outfile"))
     if(is.na(titl)) stop(print("must specify title"))
     # we can get the col names easily
     col_defs <- names(data_set)
@@ -2686,7 +2729,7 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
         if(is.numeric(data_set[,i])){
           unit_defs[[i]] <- "number"
         } else {
-          unit_defs[[i]] <- names(table(data_set[,i]))          
+          unit_defs[[i]] <- names(data_set)[i]
         }
       }
     # unit_defs
@@ -2727,9 +2770,9 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
     ##        ...) at eml_write.R#27
     ## 1: eml_write(dat = ds, file = paste(titl, "xml", sep = "."), title = titl)
     dat <- ds
-    eml_write(dat, file = paste(titl, "xml", sep = "."), title = titl)
+    eml_write(dat, file = paste(outfile, "xml", sep = "."), title = titl)
     setwd(oldwd)
-    sprintf("your metadata has been created in the '%s' directory", data_dir)
+    sprintf('your metadata has been created in the %s directory\nif you want to add this to morpho and metacat it will needs something like\n </dataFormat>\n <distribution scope="document"> <online>\n<url function="download">ecogrid://knb/hanigan.34.1</url>\n </online></distribution>\n</physical>', data_dir)
     }
 #+end_src  
 *** reml_boilerplate-test-code

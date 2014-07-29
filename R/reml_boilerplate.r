@@ -9,10 +9,11 @@
 ##   } 
 ## require(EML)
 
-reml_boilerplate <- function(data_set, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA, desc = "")
+reml_boilerplate <- function(data_set, outfile = NA, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA, desc = "")
 {
 
   # essential
+  if(is.na(outfile)) stop(print("must specify outfile"))
   if(is.na(titl)) stop(print("must specify title"))
   # we can get the col names easily
   col_defs <- names(data_set)
@@ -24,7 +25,7 @@ reml_boilerplate <- function(data_set, created_by = "Ivan Hanigan <ivanhanigan@g
       if(is.numeric(data_set[,i])){
         unit_defs[[i]] <- "number"
       } else {
-        unit_defs[[i]] <- names(table(data_set[,i]))          
+        unit_defs[[i]] <- names(data_set)[i]
       }
     }
   # unit_defs
@@ -65,7 +66,7 @@ reml_boilerplate <- function(data_set, created_by = "Ivan Hanigan <ivanhanigan@g
   ##        ...) at eml_write.R#27
   ## 1: eml_write(dat = ds, file = paste(titl, "xml", sep = "."), title = titl)
   dat <- ds
-  eml_write(dat, file = paste(titl, "xml", sep = "."), title = titl)
+  eml_write(dat, file = paste(outfile, "xml", sep = "."), title = titl)
   setwd(oldwd)
-  sprintf("your metadata has been created in the '%s' directory", data_dir)
+  sprintf('your metadata has been created in the %s directory\nif you want to add this to morpho and metacat it will needs something like\n </dataFormat>\n <distribution scope="document"> <online>\n<url function="download">ecogrid://knb/hanigan.34.1</url>\n </online></distribution>\n</physical>', data_dir)
   }
