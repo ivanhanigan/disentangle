@@ -36,7 +36,7 @@ ds <- data.set(data_set,
                unit.defs = unit_defs
                )
 # now write EML metadata file
-eml_config(creator=created_by)
+eml_config(creator=%s)
 eml_write(ds,
           file = %s,
           title = %s
@@ -50,7 +50,7 @@ eml_write(ds,
       <url function="download">ecogrid://knb/hanigan.34.1</url>
     </online>
   </distribution>
-</physical>', outfile, titl)
+</physical>', created_by, outfile, titl)
 )
 
 
