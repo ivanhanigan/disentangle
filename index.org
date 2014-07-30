@@ -2716,11 +2716,6 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
   reml_boilerplate <- function(data_set, outfile = NA, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA, desc = "")
   {
   
-    # essential
-    if(is.na(outfile)) stop(print("must specify outfile"))
-    if(is.na(titl)) stop(print("must specify title"))
-    # we can get the col names easily
-    col_defs <- names(data_set)
     # next create a list from the data
     unit_defs <- list()
     for(i in 1:ncol(data_set))
@@ -2732,7 +2727,53 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
           unit_defs[[i]] <- names(data_set)[i]
         }
       }
-    # unit_defs
+  
+  # print helpful comments
+  cat(
+  sprintf('
+  # you just got a cheaters unit_defs
+  # we can get the col names easily
+  col_defs <- names(data_set)
+  # then create a dataset with metadata
+  ds <- data.set(data_set,
+                 col.defs = col_defs,
+                 unit.defs = unit_defs
+                 )
+  # now write EML metadata file
+  eml_config(creator=created_by)
+  eml_write(ds,
+            file = %s,
+            title = %s
+            )
+  
+  # now your metadata has been created
+  # if you want to add this to morpho and metacat it will needs something like
+  </dataFormat>
+    <distribution scope="document">
+      <online>
+        <url function="download">ecogrid://knb/hanigan.34.1</url>
+      </online>
+    </distribution>
+  </physical>', outfile, titl)
+  )
+  
+  
+    return(unit_defs)
+  
+   }
+#+end_src
+*** COMMENT snip-code
+#+name:snip
+#+begin_src R :session *R* :tangle no :exports none :eval no
+#### name:snip####
+
+
+    # essential
+    if(is.na(outfile)) stop(print("must specify outfile"))
+    if(is.na(titl)) stop(print("must specify title"))
+    # we can get the col names easily
+    col_defs <- names(data_set)
+
     
     ds <- data.set(data_set,
                    col.defs = col_defs,
@@ -2773,24 +2814,26 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
     eml_write(dat, file = paste(outfile, "xml", sep = "."), title = titl)
     setwd(oldwd)
     sprintf('your metadata has been created in the %s directory\nif you want to add this to morpho and metacat it will needs something like\n </dataFormat>\n <distribution scope="document"> <online>\n<url function="download">ecogrid://knb/hanigan.34.1</url>\n </online></distribution>\n</physical>', data_dir)
-    }
+    #}
 #+end_src  
 *** reml_boilerplate-test-code
 #+name:reml_boilerplate-test
 #+begin_src R :session *R* :tangle no :exports reports :eval no
   ################################################################
   # name:reml_boilerplate-test
-  
+  require(devtools)
+  load_all()
   analyte <- read.csv("data/civst_gend_sector_full.csv")
-  reml_boilerplate(
+  str(analyte)
+  unit_defs <- reml_boilerplate(
     data_set = analyte,
     created_by = "Ivan Hanigan <ivanhanigan@gmail.com>",
     data_dir = "data",
     titl = "civst_gend_sector_full",
-    desc = "An example, fictional dataset"
+    outfile = 'testing1234'
     )
-  
-  dir("data")
+  unit_defs
+  # dir("data")
 #+end_src
 *** Results: This loads into Morpho with some errors
 - Notably unable to import the data file
@@ -4973,7 +5016,7 @@ You can see this if you then open it up again in morpho and then under the docum
   
 #+end_src
 
-** 2014-04-29-using-r-eml-to-input-large-numbers-of-variables-part-2
+*** 2014-04-29-using-r-eml-to-input-large-numbers-of-variables-part-2
 #+name:using-r-eml-to-input-large-numbers-of-variables-part-2-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-29-using-r-eml-to-input-large-numbers-of-variables-part-2.md :exports none :eval no :padline no
   ---
@@ -5063,7 +5106,7 @@ You can see this if you then open it up again in morpho and then under the docum
   - the R EML package succeeded to write the file
   - I needed to pay careful attention to the type of the variables in the data.frame before running the R EML functions
 #+end_src
-** 2014-04-29-workaround-for-installing-morpho-on-a-windows-network
+*** 2014-04-29-workaround-for-installing-morpho-on-a-windows-network
 #+name:workaround-for-installing-morpho-on-a-windows-network-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-29-workaround-for-installing-morpho-on-a-windows-network.md :exports none :eval no :padline no
   ---
@@ -5103,7 +5146,7 @@ You can see this if you then open it up again in morpho and then under the docum
   We think you can also create a junction (symlink) so that .morpho/ can point to a different location (perhaps another network storage with bigger capacity and automated backup).
 #+end_src
 
-** 2014-05-02-morpho-has-an-issue-with-zero-length-strings-as-missing-data
+*** 2014-05-02-morpho-has-an-issue-with-zero-length-strings-as-missing-data
 #+name:morpho-has-an-issue-with-zero-length-strings-as-missing-data-header
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-05-02-morpho-has-an-issue-with-zero-length-strings-as-missing-data.md :exports none :eval no :padline no
   ---
@@ -5176,41 +5219,41 @@ You can see this if you then open it up again in morpho and then under the docum
       
 #+end_src
 
-** advanced EML for data integration
-*** Adding the data location 
-    https://im.lternet.edu/node/1119
-    This element is found at these locations (XPath):
-    /eml:eml/dataset/distribution
-    /eml:eml/dataset/[entity]/physical/distribution 
-     
-    The <distribution> element appears at the dataset and entity
-    levels and contains information on how the data described in the
-    EML document can be accessed. The <distribution> element has one
-    of three children for describing the location of the resource:
-    <online>, <offline>, and <inline>.
-     
-    Offline Data: Use the <offline> element to describe restricted
-    access data or data that is not available online. The minimum that
-    should be included is the <mediumName> tag, if using the <offline>
-    element.
-     
-    Inline Data: The <inline> element contains data that is stored
-    directly within the EML document. Data included as text or string
-    will be parsed as XML. If data are not to be parsed, encode them
-    as “CDATA sections,” by surrounding them with
-    “<![CDATA[“ and “]]>” tags.
-     
-    Online Data: The <online> element has two sub elements, <url>, and
-    <onlineDescription> (optional).  <url> tags may have an optional
-    attribute named function, which may be set to either “download” or
-    “information”. If the URL provides only information about
-    downloading the object but does not directly return the data
-    stream, then the function attribute should be set to
-    "information". If accessing the URL directly returns the data
-    stream, then the function attribute should be set to "download".
-    If the function attribute is omitted, then "download" is implied
+*** advanced EML for data integration
+**** Adding the data location 
+     https://im.lternet.edu/node/1119
+     This element is found at these locations (XPath):
+     /eml:eml/dataset/distribution
+     /eml:eml/dataset/[entity]/physical/distribution 
+      
+     The <distribution> element appears at the dataset and entity
+     levels and contains information on how the data described in the
+     EML document can be accessed. The <distribution> element has one
+     of three children for describing the location of the resource:
+     <online>, <offline>, and <inline>.
+      
+     Offline Data: Use the <offline> element to describe restricted
+     access data or data that is not available online. The minimum that
+     should be included is the <mediumName> tag, if using the <offline>
+     element.
+      
+     Inline Data: The <inline> element contains data that is stored
+     directly within the EML document. Data included as text or string
+     will be parsed as XML. If data are not to be parsed, encode them
+     as “CDATA sections,” by surrounding them with
+     “<![CDATA[“ and “]]>” tags.
+      
+     Online Data: The <online> element has two sub elements, <url>, and
+     <onlineDescription> (optional).  <url> tags may have an optional
+     attribute named function, which may be set to either “download” or
+     “information”. If the URL provides only information about
+     downloading the object but does not directly return the data
+     stream, then the function attribute should be set to
+     "information". If accessing the URL directly returns the data
+     stream, then the function attribute should be set to "download".
+     If the function attribute is omitted, then "download" is implied
 
-*** Backing up and restoring your Morpho catalogue
+**** Backing up and restoring your Morpho catalogue
 
 - one option is metacat, but requires overhead of install/manage that server too
 - just copy the .morpho folder to your backup drive
@@ -5220,7 +5263,7 @@ You can see this if you then open it up again in morpho and then under the docum
 - next time want to test backups or bring this up to sync just overwrite .morpho and restart morpho?
 
 - test upgrading to morpho 1.10, just use uninstaller (tools/morpho1.8/Uninstaller, java -jar uninstaller.jar) then install newer version  
-** 2014-05-09-cwt-lter-data-submission-template-critique
+*** 2014-05-09-cwt-lter-data-submission-template-critique
 #+name:cwt-lter-data-submission-template-critique-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-05-09-cwt-lter-data-submission-template-critique.md :exports none :eval no :padline no
 ---
@@ -5284,7 +5327,7 @@ I do like the extra metadata Column Name:
 - non tabular sheet is ok
     
 #+end_src
-** 2014-05-17-using-additional-header-rows-for-metadata
+*** 2014-05-17-using-additional-header-rows-for-metadata
 #+name:using-additional-header-rows-for-metadata-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-05-17-using-additional-header-rows-for-metadata.md :exports none :eval no :padline no
   ---
@@ -5488,15 +5531,15 @@ I do like the extra metadata Column Name:
       
 #+end_src
 
-** 2014-04-xx-using-morpho-for-cataloguing-postgis-servers-org
-*** Adding regarding the Data Location and Backups
+*** 2014-04-xx-using-morpho-for-cataloguing-postgis-servers-org
+**** Adding regarding the Data Location and Backups
   
 These data are quite large and also geospatial, so I store these 
 on a PostGIS server at the ANU library. The original data are stored
 on a PostGIS server at NCEPH and the code I used to compute the
 indices is on github.  So all I want to do with Morpho is document the
 data, not import it.
-*** notes
+**** notes
 https://knb.ecoinformatics.org/#external//emlparser/docs/eml-2.1.1/./eml-physical.html#PhysicalDistributionType
 PhysicalDistributionType 
 	
@@ -5594,7 +5637,7 @@ scope	optional	document
     above, under the general access discussion.
 <<<<<<< HEAD
 
-** 2014-04-24-using-reml-to-input-large-number-of-column-descriptions
+*** 2014-04-24-using-reml-to-input-large-number-of-column-descriptions
 #+name:using-reml-to-input-large-number-of-column-descriptions-header
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-24-using-reml-to-input-large-number-of-column-descriptions.md :exports none :eval no :padline no
   ---
@@ -5735,7 +5778,7 @@ scope	optional	document
 =======
 >>>>>>> 97232c527e5291321d5a3bfd72d5b616c3f608b1
 
-** 2014-06-14-testing-aekos-data-portal
+*** 2014-06-14-testing-aekos-data-portal
 #+name:testing-aekos-data-portal-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-06-14-testing-aekos-data-portal.md :exports none :eval no :padline no
   ---
@@ -6198,7 +6241,7 @@ scope	optional	document
   
   
 #+end_src
-** 2014-06-15-my-feed-filesize-is-larger-than-512k-need-to-reduce-its-size-in-order-for-feedburner-to-process-it
+*** 2014-06-15-my-feed-filesize-is-larger-than-512k-need-to-reduce-its-size-in-order-for-feedburner-to-process-it
 #+name:using-additional-header-rows-for-metadata-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-06-15-my-feed-filesize-is-larger-than-512k-need-to-reduce-its-size-in-order-for-feedburner-to-process-it.md :exports none :eval no :padline no
   ---
@@ -6220,7 +6263,7 @@ scope	optional	document
 
 #+end_src
 
-** 2014-06-15-reflecting-on-aekos-data-portal-test
+*** 2014-06-15-reflecting-on-aekos-data-portal-test
 #+name:reflecting-on-aekos-data-portal-test-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-06-15-reflecting-on-aekos-data-portal-test.md :exports none :eval no :padline no
   ---
@@ -6263,7 +6306,7 @@ scope	optional	document
       
 #+end_src
 
-** 2014-07-12-r-eml-pgis-setting-up-the-software-stack
+*** 2014-07-12-r-eml-pgis-setting-up-the-software-stack
 #+name:r-eml-pgis-setting-up-the-software-stack-header
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-07-12-r-eml-pgis-setting-up-the-software-stack.md :exports none :eval no :padline no
   ---
