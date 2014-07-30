@@ -2713,7 +2713,7 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
   ##   } 
   ## require(EML)
   
-  reml_boilerplate <- function(data_set, outfile = NA, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA, desc = "")
+  reml_boilerplate <- function(data_set, outfile = NA, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA)
   {
   
     # next create a list from the data
@@ -2731,19 +2731,19 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
   # print helpful comments
   cat(
   sprintf('
-  # you just got a cheaters unit_defs
+  # you just got a cheater\'s unit_defs
   # we can get the col names easily
-  col_defs <- names(data_set)
+  col_defs <- names(dat)
   # then create a dataset with metadata
-  ds <- data.set(data_set,
+  ds <- data.set(dat,
                  col.defs = col_defs,
                  unit.defs = unit_defs
                  )
   # now write EML metadata file
-  eml_config(creator=%s)
+  eml_config(creator="%s")
   eml_write(ds,
-            file = %s,
-            title = %s
+            file = "%s",
+            title = "%s"
             )
   
   # now your metadata has been created
@@ -2823,8 +2823,12 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
   # name:reml_boilerplate-test
   require(devtools)
   load_all()
-  analyte <- read.csv("data/civst_gend_sector_full.csv")
+  #require(disentangle)
+  fpath <- system.file("extdata/civst_gend_sector_additional_variables.csv", package = "disentangle")
+  analyte <- read.csv(fpath)
+  
   str(analyte)
+  head(analyte)
   unit_defs <- reml_boilerplate(
     data_set = analyte,
     created_by = "Ivan Hanigan <ivanhanigan@gmail.com>",
@@ -3819,6 +3823,8 @@ categories:
   # and number of cases
   civst_gend_sector$number_of_cases[sample(1:nrow(civst_gend_sector), 2)] <- NA
   civst_gend_sector$Survey.year[sample(1:nrow(civst_gend_sector), 4)] <- NA
+  # some integer codes
+  civst_gend_sector$ordinal_variable <-  as.character(round(sample(rnorm(10000,2.5,1), nrow(civst_gend_sector))))
   str(civst_gend_sector)
   #debug(data_dict)
   data_dict(
@@ -3834,7 +3840,9 @@ categories:
                                     show_levels = -1)
   
   dataDictionary
-  
+  write.csv(civst_gend_sector,
+            file.path("inst/extdata", gsub(".csv","_additional_variables.csv", basename(fpath)))
+            , row.names = F)
 #+end_src
 *** man-R-data_dictionary
 #+name:R-data_dictionary

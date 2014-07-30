@@ -9,7 +9,7 @@
 ##   } 
 ## require(EML)
 
-reml_boilerplate <- function(data_set, outfile = NA, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA, desc = "")
+reml_boilerplate <- function(data_set, outfile = NA, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA)
 {
 
   # next create a list from the data
@@ -27,19 +27,19 @@ reml_boilerplate <- function(data_set, outfile = NA, created_by = "Ivan Hanigan 
 # print helpful comments
 cat(
 sprintf('
-# you just got a cheaters unit_defs
+# you just got a cheater\'s unit_defs
 # we can get the col names easily
-col_defs <- names(data_set)
+col_defs <- names(dat)
 # then create a dataset with metadata
-ds <- data.set(data_set,
+ds <- data.set(dat,
                col.defs = col_defs,
                unit.defs = unit_defs
                )
 # now write EML metadata file
-eml_config(creator=%s)
+eml_config(creator="%s")
 eml_write(ds,
-          file = %s,
-          title = %s
+          file = "%s",
+          title = "%s"
           )
 
 # now your metadata has been created
