@@ -1935,7 +1935,7 @@ fill.col(d, 'suburb')
   # http://blog.i2pi.com/post/52812976752/joshs-postgresql-database-conventions
   
   dat  <- read.csv(textConnection(
-  "All names,  should be lowercase with underscores, ., R does support , AnYSortOF casing that you’d like, but it makes some programming painful %
+  "All names,  should be lowercase with underscores, ., R does support , AnYSortOF casing that you’d like, but it makes some programming painful, also avoid symbols (eg. % & !)
   table,,,,,
   column,,,,,
   sequence,,,,,
