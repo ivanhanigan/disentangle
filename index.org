@@ -1912,6 +1912,53 @@ fill.col(d, 'suburb')
 12 Pennelope     Pringles   Higgins       4.0
 #+end_src
 
+** names_lcu
+*** R-names_lcu
+#+name:names_lcu
+#+begin_src R :session *R* :tangle R/names_lcu.r :exports none :eval no
+  ################################################################
+  # name:names_lcu
+  names_lcu <- function(x){
+    names(x)<-gsub("\\.","_",names(x))
+    names(x)<-gsub("_+","_",names(x))
+    names(x)<-tolower(names(x))
+    return(names(x))
+  }
+#+end_src
+*** test-names_lcu
+#+name:names_lcu
+#+begin_src R :session *R* :tangle tests/test-names_lcu.r :exports none :eval no
+  ################################################################
+  # name:names_lcu
+  
+  # kudos
+  # http://blog.i2pi.com/post/52812976752/joshs-postgresql-database-conventions
+  
+  dat  <- read.csv(textConnection(
+  "All names,  should be lowercase with underscores, ., R does support , AnYSortOF casing that you’d like, but it makes some programming painful %
+  table,,,,,
+  column,,,,,
+  sequence,,,,,
+  index,,,,,
+  constraint,,,,,
+  role,,,,,
+  etc,,,,,,
+  "))
+  names(dat)
+  gsub("\\.", "_", tolower(names(dat)))
+  names(dat) <- names_lcu(dat)
+  names(dat)
+  
+  
+#+end_src
+*** man-names_lcu
+#+name:names_lcu
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:names_lcu
+
+#+end_src
+
 * Data Output
 * Data Documentation
 ** COMMENT data-documentation-blogposts
