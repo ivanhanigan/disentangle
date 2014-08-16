@@ -2825,7 +2825,8 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
   load_all()
   #require(disentangle)
   fpath <- system.file("extdata/civst_gend_sector_additional_variables.csv", package = "disentangle")
-  analyte <- read.csv(fpath)
+  analyte <- read.csv(fpath, colClasses=c(ordinal_variable = "character"))
+  analyte <- read.csv(fpath, stringsAsFactor = F)
   
   str(analyte)
   head(analyte)
@@ -5024,7 +5025,7 @@ You can see this if you then open it up again in morpho and then under the docum
   
 #+end_src
 
-*** 2014-04-29-using-r-eml-to-input-large-numbers-of-variables-part-2
+** 2014-04-29-using-r-eml-to-input-large-numbers-of-variables-part-2
 #+name:using-r-eml-to-input-large-numbers-of-variables-part-2-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-29-using-r-eml-to-input-large-numbers-of-variables-part-2.md :exports none :eval no :padline no
   ---
@@ -5114,7 +5115,7 @@ You can see this if you then open it up again in morpho and then under the docum
   - the R EML package succeeded to write the file
   - I needed to pay careful attention to the type of the variables in the data.frame before running the R EML functions
 #+end_src
-*** 2014-04-29-workaround-for-installing-morpho-on-a-windows-network
+** 2014-04-29-workaround-for-installing-morpho-on-a-windows-network
 #+name:workaround-for-installing-morpho-on-a-windows-network-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-29-workaround-for-installing-morpho-on-a-windows-network.md :exports none :eval no :padline no
   ---
@@ -5154,7 +5155,7 @@ You can see this if you then open it up again in morpho and then under the docum
   We think you can also create a junction (symlink) so that .morpho/ can point to a different location (perhaps another network storage with bigger capacity and automated backup).
 #+end_src
 
-*** 2014-05-02-morpho-has-an-issue-with-zero-length-strings-as-missing-data
+** 2014-05-02-morpho-has-an-issue-with-zero-length-strings-as-missing-data
 #+name:morpho-has-an-issue-with-zero-length-strings-as-missing-data-header
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-05-02-morpho-has-an-issue-with-zero-length-strings-as-missing-data.md :exports none :eval no :padline no
   ---
@@ -5227,41 +5228,41 @@ You can see this if you then open it up again in morpho and then under the docum
       
 #+end_src
 
-*** advanced EML for data integration
-**** Adding the data location 
-     https://im.lternet.edu/node/1119
-     This element is found at these locations (XPath):
-     /eml:eml/dataset/distribution
-     /eml:eml/dataset/[entity]/physical/distribution 
-      
-     The <distribution> element appears at the dataset and entity
-     levels and contains information on how the data described in the
-     EML document can be accessed. The <distribution> element has one
-     of three children for describing the location of the resource:
-     <online>, <offline>, and <inline>.
-      
-     Offline Data: Use the <offline> element to describe restricted
-     access data or data that is not available online. The minimum that
-     should be included is the <mediumName> tag, if using the <offline>
-     element.
-      
-     Inline Data: The <inline> element contains data that is stored
-     directly within the EML document. Data included as text or string
-     will be parsed as XML. If data are not to be parsed, encode them
-     as “CDATA sections,” by surrounding them with
-     “<![CDATA[“ and “]]>” tags.
-      
-     Online Data: The <online> element has two sub elements, <url>, and
-     <onlineDescription> (optional).  <url> tags may have an optional
-     attribute named function, which may be set to either “download” or
-     “information”. If the URL provides only information about
-     downloading the object but does not directly return the data
-     stream, then the function attribute should be set to
-     "information". If accessing the URL directly returns the data
-     stream, then the function attribute should be set to "download".
-     If the function attribute is omitted, then "download" is implied
+** advanced EML for data integration
+*** Adding the data location 
+    https://im.lternet.edu/node/1119
+    This element is found at these locations (XPath):
+    /eml:eml/dataset/distribution
+    /eml:eml/dataset/[entity]/physical/distribution 
+     
+    The <distribution> element appears at the dataset and entity
+    levels and contains information on how the data described in the
+    EML document can be accessed. The <distribution> element has one
+    of three children for describing the location of the resource:
+    <online>, <offline>, and <inline>.
+     
+    Offline Data: Use the <offline> element to describe restricted
+    access data or data that is not available online. The minimum that
+    should be included is the <mediumName> tag, if using the <offline>
+    element.
+     
+    Inline Data: The <inline> element contains data that is stored
+    directly within the EML document. Data included as text or string
+    will be parsed as XML. If data are not to be parsed, encode them
+    as “CDATA sections,” by surrounding them with
+    “<![CDATA[“ and “]]>” tags.
+     
+    Online Data: The <online> element has two sub elements, <url>, and
+    <onlineDescription> (optional).  <url> tags may have an optional
+    attribute named function, which may be set to either “download” or
+    “information”. If the URL provides only information about
+    downloading the object but does not directly return the data
+    stream, then the function attribute should be set to
+    "information". If accessing the URL directly returns the data
+    stream, then the function attribute should be set to "download".
+    If the function attribute is omitted, then "download" is implied
 
-**** Backing up and restoring your Morpho catalogue
+*** Backing up and restoring your Morpho catalogue
 
 - one option is metacat, but requires overhead of install/manage that server too
 - just copy the .morpho folder to your backup drive
@@ -5271,7 +5272,276 @@ You can see this if you then open it up again in morpho and then under the docum
 - next time want to test backups or bring this up to sync just overwrite .morpho and restart morpho?
 
 - test upgrading to morpho 1.10, just use uninstaller (tools/morpho1.8/Uninstaller, java -jar uninstaller.jar) then install newer version  
-*** 2014-05-09-cwt-lter-data-submission-template-critique
+*** notes from package vignette
+
+#+name:ntoes
+#+begin_src R :session *R* :tangle no :exports none :eval no
+
+  #### name:source####
+  #require(devtools)
+  #install_github("EML", "ROpenSci")
+  require(EML)
+  require(XML)
+  xml_files <- dir("~/.morpho/profiles/hanigan/data/hanigan", full.names=T)
+  xml_files
+  xml_i <- xml_files[14]
+  xml_i
+  d1 <- xmlTreeParse(xml_i, useInternal=T)
+  str(d1)
+  # do
+  top <- xmlRoot(d1)
+  str(top)
+  names(top[[1]])
+  # top [[1]] # prints the whole thing
+  for(i in 1:length(names(top[[1]][["creator"]][["address"]]))){
+  #i <- 1
+  print(xmlValue(top[[1]][["creator"]][["address"]][[i]]))
+  }
+  
+  my_address <- new("address", 
+                    deliveryPoint = "Long Term Ecological Research Network (ANU) and Australian SuperSite Network (JCU) College of Medicine, Biology and Environment.",
+                    city = "Canberra",
+                    administrativeArea = "ACT",
+                    postalCode = "O200",
+                    country = "AU")
+  me <- as.person("Ivan Charles Hanigan <ivan.hanigan@gmail.com>")
+  contact <- as(me, "contact")
+  contact@address = my_address
+  contact@organizationName = "LTERN"
+  contact@phone = "02 6125 0349"
+  
+  publisher <- new("publisher", 
+      organizationName = "ANU",
+      address = my_address)
+  
+  creator <- c(as("Ivan Charles Hanigan", "creator"))
+  
+  pubDate <- "2013" 
+  title <- "Meteorological Data for Australian Postal Areas"
+  
+  gcmd <- read.csv("~/Dropbox/references/gcmd-8-sciencekeywords.csv", skip = 1, stringsAsFactor = F)
+  str(gcmd)
+  names(table(gcmd$Topic))
+  names(table(gcmd$Term))
+  
+  gcmd_keywords <- tolower(
+      paste("Atmopsheric Phenomena", subset(gcmd, Topic == "ATMOSPHERE" & Term == "ATMOSPHERIC PHENOMENA")[,4], sep = " > ")
+      )
+  
+  
+  keys <- eml_keyword(list(
+   "GCMD Keywords" = gcmd_keywords)
+                      )
+  keys
+  
+  coverage <- eml_coverage(
+    dates            = c('2012-06-01', '2013-12-31'),
+    geographic_description = "Australia",
+    NSEWbox          = c( 42.55,  42.42, -72.1, -72.29, 160, 330))
+  
+  
+  abstract <- "Making a time series of weather for Postal Areas"  
+  
+  rights <- "Permission should be sought from the principal investigator"
+  
+  methods <- new("methods", methodStep = c(
+                                new("methodStep", description = "get postal areas"),
+                                new("methodStep", description = "get weather"),
+                                new("methodStep", description = "join weather and poa")              
+                                ))
+  methods
+  additionalMetadata <- top[[2]]
+  hf205 <- eml_read(system.file("examples", "hf205.xml", package="EML"))
+  additionalMetadata <- hf205@additionalMetadata # extracted from previous eml file
+  
+  
+  
+  #                 associatedParty = other_researchers,
+  dataset <- new("dataset", 
+                  title = title,
+                  creator = creator,
+                  contact = contact,
+                  pubDate = pubDate,
+                  intellectualRights = rights,
+                  abstract = abstract,
+  
+                  keywordSet = keys,
+                  coverage = coverage,
+                  methods = methods)
+                 #,
+  #                dataTable = c(dataTable))
+  
+  
+  eml <- new("eml",
+             packageId = uuid::UUIDgenerate(),
+             system = "uuid", # type of identifier
+             dataset = dataset,
+             additionalMetadata = additionalMetadata)
+  eml
+  ## eml     <- eml(dataset = dataset,
+  ##                 title = title,
+  ##                 creator = creator,
+  ##                 contact = contact,
+  ##                 pubDate = pubDate,
+  ##                 associatedParty = other_researchers,
+  ##                 intellectualRights = rights,
+  ##                 abstract = abstract,
+  ##                 keywordSet = keys,
+  ##                 coverage = coverage,
+  ##                 methods = methods
+  ##                ,
+  ##                 additionalMetadata = additionalMetadata
+  ##               )
+  #eml
+  slotNames(eml)
+  eml@dataset@distribution
+  eml@dataset@distribution@online@url <- "http://nesstar.ada.edu.au/webview/index.jsp?object=http://nesstar.ada.edu.au:80/obj/fStudy/au.edu.anu.ada.ddi.01230" 
+  #eml@dataset@distribution@online@onlineDescription <- ""
+  
+  outfile <- "~/weather_by_poa.xml"
+  eml_write(eml, file=outfile)
+  
+  install_github("RHTMLForms", "omegahat")
+  eml_validate(outfile)
+  
+
+  # first try
+  #### name:source####
+  #require(devtools)
+  #install_github("EML", "ROpenSci")
+  require(EML)
+  require(XML)
+  xml_files <- dir("~/.morpho/profiles/hanigan/data/hanigan", full.names=T)
+  xml_files
+  xml_i <- xml_files[grep("15.3",xml_files)]
+  xml_i
+  file.copy(xml_i, "test.xml")
+  d1 <- eml_read("test.xml")
+  str(d1)
+  # do
+  top <- xmlRoot(d1)
+  str(top)
+  names(top[[1]])
+  # top [[1]] # prints the whole thing
+  for(i in 1:length(names(top[[1]][["creator"]][["address"]]))){
+  #i <- 1
+  print(xmlValue(top[[1]][["creator"]][["address"]][[i]]))
+  }
+  
+  my_address <- new("address", 
+                    deliveryPoint = "Long Term Ecological Research Network (ANU) and Australian SuperSite Network (JCU) College of Medicine, Biology and Environment.",
+                    city = "Canberra",
+                    administrativeArea = "ACT",
+                    postalCode = "O200",
+                    country = "AU")
+  me <- as.person("Ivan Charles Hanigan <ivan.hanigan@gmail.com>")
+  contact <- as(me, "contact")
+  contact@address = my_address
+  contact@organizationName = "LTERN"
+  contact@phone = "02 6125 0349"
+  
+  publisher <- new("publisher", 
+      organizationName = "ANU",
+      address = my_address)
+  
+  creator <- c(as("Ivan Charles Hanigan", "creator"))
+  
+  pubDate <- "2013" 
+  title <- "Meteorological Data for Australian Postal Areas"
+  
+  gcmd <- read.csv("~/Dropbox/references/gcmd-8-sciencekeywords.csv", skip = 1, stringsAsFactor = F)
+  str(gcmd)
+  names(table(gcmd$Topic))
+  names(table(gcmd$Term))
+  
+  gcmd_keywords <- tolower(
+      paste("Atmopsheric Phenomena", subset(gcmd, Topic == "ATMOSPHERE" & Term == "ATMOSPHERIC PHENOMENA")[,4], sep = " > ")
+      )
+  
+  
+  keys <- eml_keyword(list(
+   "GCMD Keywords" = gcmd_keywords)
+                      )
+  keys
+  
+  coverage <- eml_coverage(
+    dates            = c('2012-06-01', '2013-12-31'),
+    geographic_description = "Australia",
+    NSEWbox          = c( 42.55,  42.42, -72.1, -72.29, 160, 330))
+  
+  
+  abstract <- "Making a time series of weather for Postal Areas"  
+  
+  rights <- "Permission should be sought from the principal investigator"
+  
+  methods <- new("methods", methodStep = c(
+                                new("methodStep", description = "get postal areas"),
+                                new("methodStep", description = "get weather"),
+                                new("methodStep", description = "join weather and poa")              
+                                ))
+  methods
+  additionalMetadata <- top[[2]]
+  hf205 <- eml_read(system.file("examples", "hf205.xml", package="EML"))
+  additionalMetadata <- hf205@additionalMetadata # extracted from previous eml file
+  
+  
+  
+  #                 associatedParty = other_researchers,
+  dataset <- new("dataset", 
+                  title = title,
+                  creator = creator,
+                  contact = contact,
+                  pubDate = pubDate,
+                  intellectualRights = rights,
+                  abstract = abstract,
+  
+                  keywordSet = keys,
+                  coverage = coverage,
+                  methods = methods)
+                 #,
+  #                dataTable = c(dataTable))
+  
+  
+  eml <- new("eml",
+             packageId = uuid::UUIDgenerate(),
+             system = "uuid", # type of identifier
+             dataset = dataset,
+             additionalMetadata = additionalMetadata)
+  eml
+  ## eml     <- eml(dataset = dataset,
+  ##                 title = title,
+  ##                 creator = creator,
+  ##                 contact = contact,
+  ##                 pubDate = pubDate,
+  ##                 associatedParty = other_researchers,
+  ##                 intellectualRights = rights,
+  ##                 abstract = abstract,
+  ##                 keywordSet = keys,
+  ##                 coverage = coverage,
+  ##                 methods = methods
+  ##                ,
+  ##                 additionalMetadata = additionalMetadata
+  ##               )
+  #eml
+  slotNames(eml)
+  eml@dataset@distribution
+  eml@dataset@distribution@online@url <- "http://nesstar.ada.edu.au/webview/index.jsp?object=http://nesstar.ada.edu.au:80/obj/fStudy/au.edu.anu.ada.ddi.01230" 
+  #eml@dataset@distribution@online@onlineDescription <- ""
+  
+  outfile <- "~/weather_by_poa.xml"
+  eml_write(eml, file=outfile)
+  
+  install_github("RHTMLForms", "omegahat")
+  eml_validate(outfile)
+  
+
+
+
+
+
+#+end_src
+
+** 2014-05-09-cwt-lter-data-submission-template-critique
 #+name:cwt-lter-data-submission-template-critique-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-05-09-cwt-lter-data-submission-template-critique.md :exports none :eval no :padline no
 ---
@@ -5335,7 +5605,7 @@ I do like the extra metadata Column Name:
 - non tabular sheet is ok
     
 #+end_src
-*** 2014-05-17-using-additional-header-rows-for-metadata
+** 2014-05-17-using-additional-header-rows-for-metadata
 #+name:using-additional-header-rows-for-metadata-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-05-17-using-additional-header-rows-for-metadata.md :exports none :eval no :padline no
   ---
@@ -5539,15 +5809,15 @@ I do like the extra metadata Column Name:
       
 #+end_src
 
-*** 2014-04-xx-using-morpho-for-cataloguing-postgis-servers-org
-**** Adding regarding the Data Location and Backups
+** 2014-04-xx-using-morpho-for-cataloguing-postgis-servers-org
+*** Adding regarding the Data Location and Backups
   
 These data are quite large and also geospatial, so I store these 
 on a PostGIS server at the ANU library. The original data are stored
 on a PostGIS server at NCEPH and the code I used to compute the
 indices is on github.  So all I want to do with Morpho is document the
 data, not import it.
-**** notes
+*** notes
 https://knb.ecoinformatics.org/#external//emlparser/docs/eml-2.1.1/./eml-physical.html#PhysicalDistributionType
 PhysicalDistributionType 
 	
@@ -5645,7 +5915,7 @@ scope	optional	document
     above, under the general access discussion.
 <<<<<<< HEAD
 
-*** 2014-04-24-using-reml-to-input-large-number-of-column-descriptions
+** 2014-04-24-using-reml-to-input-large-number-of-column-descriptions
 #+name:using-reml-to-input-large-number-of-column-descriptions-header
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-04-24-using-reml-to-input-large-number-of-column-descriptions.md :exports none :eval no :padline no
   ---
@@ -5786,7 +6056,7 @@ scope	optional	document
 =======
 >>>>>>> 97232c527e5291321d5a3bfd72d5b616c3f608b1
 
-*** 2014-06-14-testing-aekos-data-portal
+** 2014-06-14-testing-aekos-data-portal
 #+name:testing-aekos-data-portal-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-06-14-testing-aekos-data-portal.md :exports none :eval no :padline no
   ---
@@ -6249,7 +6519,7 @@ scope	optional	document
   
   
 #+end_src
-*** 2014-06-15-my-feed-filesize-is-larger-than-512k-need-to-reduce-its-size-in-order-for-feedburner-to-process-it
+** 2014-06-15-my-feed-filesize-is-larger-than-512k-need-to-reduce-its-size-in-order-for-feedburner-to-process-it
 #+name:using-additional-header-rows-for-metadata-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-06-15-my-feed-filesize-is-larger-than-512k-need-to-reduce-its-size-in-order-for-feedburner-to-process-it.md :exports none :eval no :padline no
   ---
@@ -6271,7 +6541,7 @@ scope	optional	document
 
 #+end_src
 
-*** 2014-06-15-reflecting-on-aekos-data-portal-test
+** 2014-06-15-reflecting-on-aekos-data-portal-test
 #+name:reflecting-on-aekos-data-portal-test-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-06-15-reflecting-on-aekos-data-portal-test.md :exports none :eval no :padline no
   ---
@@ -6314,7 +6584,7 @@ scope	optional	document
       
 #+end_src
 
-*** 2014-07-12-r-eml-pgis-setting-up-the-software-stack
+** 2014-07-12-r-eml-pgis-setting-up-the-software-stack
 #+name:r-eml-pgis-setting-up-the-software-stack-header
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-07-12-r-eml-pgis-setting-up-the-software-stack.md :exports none :eval no :padline no
   ---
@@ -6345,22 +6615,30 @@ scope	optional	document
   
   - First I needed devtools and this required RCurl linux package dependencies
   
+  #### Code
       sudo apt-get install libcurl libcurl-devel libcurl4-gnutls-dev
   
+  <p></p>
   
   - Now trying to install EML
   
+  #### Code
       require(devtools)
       install_github("EML", "ropensci")
   
+  <p></p>
+  
   - then XML Depends
   
+  #### Code  
       sudo apt-get install libcurl4-openssl-dev libxml2-dev
       sudo apt-get install r-cran-xml
   
+  <p></p>
   
   - rJava can be difficult, I was really dreading this but eventually stackoverflow to the rescue!
   
+  #### Code  
       sudo apt-get install openjdk-7-*
       sudo apt-get install r-cran-rjava
       update-java-alternatives -l
@@ -6370,19 +6648,28 @@ scope	optional	document
       install.packages("rJava")
       library(rJava)
   
+  <p></p>
+    
   - now complaining about ‘RHTMLForms’ and ‘RWordXML’
   
+  #### Code:
       install_github("RHTMLForms", "omegahat")
       install.packages("RWordXML", repos="http://www.omegahat.org/R", type="source")
   
+  <p></p>
+    
   - on we go
   
+  #### Code  
       install.packages(c("knitr", "rfigshare", "testthat", "RCurl", "dataone", "rrdf"))
   
+  <p></p>
+    
   ## RGDAL 
   
   - Spatial toolbox
   
+  #### Code  
       sudo apt-get update
       sudo apt-get upgrade
       sudo apt-get install libgdal1-dev libproj-dev
@@ -6390,10 +6677,13 @@ scope	optional	document
       sudo R
       install.packages("rgdal")
   
+  <p></p>
+    
   ## PostgreSQL 9.3 
   
   - following comes from [http://technobytz.com/install-postgresql-9-3-ubuntu.html](http://technobytz.com/install-postgresql-9-3-ubuntu.html)
   
+  #### Code:
       sudo apt-get update
       sudo apt-get -y install python-software-properties
       wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
@@ -6412,10 +6702,13 @@ scope	optional	document
       sudo services postgresql restart
       sudo ufw allow from my.ip.address.0/24 to any port 5432
   
+  <p></p>
+    
   ## PostGIS 2.0
   
   - following comes from [http://technobytz.com/install-postgis-postgresql-9-3-ubuntu.html](http://technobytz.com/install-postgis-postgresql-9-3-ubuntu.html)
   
+  #### Code:
       sudo apt-get update
       sudo apt-get install postgresql-9.3-postgis-2.1 -f
       sudo su
@@ -6437,6 +6730,7 @@ scope	optional	document
       grant select on table raster_columns to public_group;
       grant select on table raster_overviews to public_group;
   
+  <p></p>
   
   ## For transforming AGD 66 to GDA94
   
@@ -6456,10 +6750,10 @@ scope	optional	document
       where srid=4202;
       \q
       exit
-  
+  <p></p>
   
   ## make a spatial dataset
-       
+  #### Code       
       require(devtools)
       install_github("swishdbtools", "swish-climate-impact-assessment")
       require(swishdbtools)
@@ -6478,14 +6772,77 @@ scope	optional	document
                   sql
                   )
   
+  <p></p>
   
-  ![images/gisforum_locations.png](images/gisforum_locations.png)
+  ## This can now be shown in Quantum GIS
+
+  ![images/gisforum_locations.png](/images/gisforum_locations.png)
   
   
+  ### TODO:
   
+  - add EML for this using R
+  - finesse with Morpho (requires further Java shennanigans)
+  - publish something to KNB using R dataone package
     
   
   
+#+end_src
+
+** 2014-07-30--R-doesnt-respect-quotes-around-numbers-with-read-csv
+#+name:-R-doesnt-respect-quotes-around-numbers-with-read-csv-header
+#+begin_src R :tangle no :exports none :eval no :padline no
+  "
+  ~/projects/ivanhanigan.github.com.raw/_posts/2014-07-30--R-doesnt-respect-quotes-around-numbers-with-read-csv.md 
+  
+  ---
+  name: -R-doesnt-respect-quotes-around-numbers-with-read-csv
+  layout: post
+  title: -R-doesnt-respect-quotes-around-numbers-with-read-csv
+  date: 2014-07-30
+  categories:
+  -
+  ---
+  
+  #### Code:-R-doesnt-respect-quotes-around-numbers-with-read-csv
+  R: respect quotes around numbers (treat as character) with read.csv()
+  http://stackoverflow.com/questions/22923756/r-respect-quotes-around-numbers-treat-as-character-with-read-csv
+  
+  colClasses.
+  
+  I'll reiterate that I don't actually like this solution, even thought it's pretty simple. Quotes denote text fields in a .csv, and they don't seem to be respected in this case. The LibreOffice .csv import has a checkbox for 'Treat quoted fields as text,' which I'd think is analogous to as.is = T in R. Obviously not! #end_rant
+  
+  read columns of quoted numbers as factors
+  http://r.789695.n4.nabble.com/read-columns-of-quoted-numbers-as-factors-td2954660.html
+  "    
+  L <- readLines('myfile.dat')
+  L2 <- gsub('"(\\d+)"', "!\\1", L) # insert !
+  DF <- read.table(textConnection(L2), header = TRUE)
+  
+  # remove !
+  ix <- sapply(DF, is.factor)
+  DF[ix] <- lapply(DF[ix], function(x) factor(gsub("!", "", x)))
+  
+  str(DF) 
+  "
+  ???
+  "
+  
+  fpath<-system.file("extdata/civst_gend_sector_additional_variables.csv", package = "disentangle")
+  dat <- read.csv(fpath)
+  str(dat)
+  indir <- dirname(fpath)
+  setwd(indir)
+  dir()
+  require(swishdbtools)
+  load2postgres("civst_gend_sector_additional_variables.csv",
+                "public", "civst_etc", pguser = "ivan_hanigan",
+                db="postgis_hanigan", ip = 'localhost')
+   system("cat sqlquery.txt \"civst_gend_sector_additional_variables.csv\" | psql -h localhost -U ivan_hanigan -d postgis_hanigan")
+  
+  ch  <- connect2postgres2("postgis_hanigan")
+  dat <- dbReadTable(ch, "civst_etc")
+  str(dat)
 #+end_src
 
 * Exploratory Data Analysis
@@ -10272,3 +10629,106 @@ alias br="build_r"
 \noindent{\textbf{ Conclusion }} 
 - So what is the main 'take-home' message?
 - How do you rate the paper overall?
+** Blogging
+http://charliepark.org/jekyll-with-plugins/
+Charlie Park
+
+    about me
+    projects
+    archives
+
+Jekyll + Plugins + Github + You
+June 15, 2011
+
+    jekyll
+    code
+    github
+
+Github’s Pages is a great “it just works” resource.
+
+Except for when it doesn’t work.
+
+So, for some reason, tags aren’t fully-implemented in Jekyll. They kind of work, but there’s no tag archive page. I went over this in my post on getting tags to work in Jekyll. The problem with that, though, is that Github disables any plugins you’re using when it processes/creates your blog (that’s what the --safe tag does).
+
+How, then, do you get your blog (with tags) to load up on Github?
+
+(I’m operating under the assumption here that you already have a Jekyll-powered blog set up on Github Pages, such that when you push commits to Github, it regenerates your blog for you.)
+
+I’m going to lay out how to do this, and then how to automate the whole process so you can do it in just a few keystrokes.
+1. Split Your Blog in Two
+
+The first step is to clone your repo into a duplicate local copy. In my case, I took my local copy ~/applications/charliepark.github.com and cloned it to ~/applications/charliepark.github.com.raw.
+
+This leaves you with the “raw” directory and the original directory (both identical).
+2. Remove Your Old Content
+
+In Finder, go into your original directory (again, in my case: ~/applications/charliepark.github.com) and delete all of the content. You do not want to do this via the command line, as it’ll either be tedious (you’d need to remove each directory / file) or it’ll be too aggressive, and you’ll lose your .git directory. The point here: You don’t want to lose your .git directory, as that’s how your local copy will talk to your repo at Github.
+
+You should now have the “raw” directory (again, a clone of what you have at Github) and the now-empty (apart from your .git directory) original repo.
+3. Regenerate Your Blog, in the “raw” Directory
+
+This is pretty straightforward. Just cd to the raw directory … in my case:
+
+cd ~/applications/charlie.github.com.raw
+
+… and run the jekyll command.
+
+This will regenerate your blog, in the ~/applications/charlie.github.com.raw/_site directory. You’ve probably already done this step once or twice before. (Note: You don’t want to run jekyll --server, as the point here is just to generate the blog, not to fire up a server.)
+4. Copy the _site Directory Over To Your Original Repo
+
+This is simple.
+
+cp -r ~/applications/charliepark.github.com.raw/_site/* ~/applications/charliepark.github.com
+
+Once you’ve run that command, you’ll now have: 1. Your “raw” directory 2. A subdirectory within the “raw” directory (_site), with the generated HTML 3. Your original directory, whose contents should now mirror the _site subdirectory of the “raw” directory
+5. Add .nojekyll
+
+When you add a file titled .nojekyll to your repo, Github won’t process your files as Jekyll files. I don’t think this step is strictly necessary, as we’re just sending the straight-up HTML files. But it can’t hurt. In your original directory (~/applications/charliepark.github.com), run:
+
+touch .nojekyll
+
+6. Commit and Push Your Repo
+
+Add the files to your original directory’s git repo:
+
+git add .
+
+Commit the new version of the repo:
+
+git commit -am "Converts to flat HTML files."
+
+(Note: Your commit flags (-am) might differ from mine.)
+
+Push the code to Github:
+
+git push
+
+7. Your Site Should Be Live
+
+You can now go to your site (http://yourusername.github.com) and see your site.
+8. Automate The Whole Thing
+
+Once you’ve checked that it works, and that everything’s okay, it’s a good idea to automate the whole thing.
+
+I added a shortcut to my ~/.bash_profile file:
+
+alias build_blog="cd ~/applications/charliepark.github.com.raw; jekyll;cp -r ~/applications/charliepark.github.com.raw/_site/* ~/applications/charliepark.github.com;cd ~/applications/charliepark.github.com;git add .;git commit -am 'Latest build.';git push"
+alias bb="build_blog"
+
+So, now, once I’ve written a new post, or edited a post, or just want to get the site refreshed for some other reason, all I have to do in my command line is type bb, and it’ll regenerate the site, copy it over, run the git commits, and push it live to Github. I can now finish my post and then push it live to the site in about a second.
+
+And it has tags.
+Corrections?
+
+I’m always half-expecting that some aspect of one of my writeups is totally broken. If you try this and have any issues, let me know (@charliepark). Similarly, if you try it and it works, let me know.
+
+I would really enjoy connecting with you on Twitter.
+My Most Popular Posts
+
+You’ll like these.
+
+    Slopegraphs
+    A Slopegraph Update
+    Beautiful Buttons for Twitter Bootstrappers
+    Tags in Jekyll
+
