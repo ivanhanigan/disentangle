@@ -2648,6 +2648,8 @@ Also this guys attempt was interesting (I like TraMineR too!)
   date: 2013-10-14
   categories:
   - Data Documentation
+  tags:
+  - morpho
   ---
   
   In this Case Study I will use Morpho to compare directly with reml.
@@ -2936,6 +2938,8 @@ title: morpho-and-reml-boilerplate-streamline-the-process-of-metadata-entry
 date: 2013-10-29
 categories:
 - Data Documentation
+tags:
+- morpho
 ---
 
 
@@ -3346,6 +3350,8 @@ dir(<span style="color: #2aa198;">"data"</span>)
   date: 2013-11-27
   categories:
   - research methods
+  tags:
+  - morpho
   ---
   
   I asked my colleague [Marco Fahmi](https://twitter.com/fahmiger) to
@@ -3939,6 +3945,8 @@ categories:
   date: 2014-01-21
   categories:
   - Data Documentation
+  tags:
+  - morpho
   ---
   
   # Aim
@@ -4725,6 +4733,8 @@ You can see this if you then open it up again in morpho and then under the docum
   date: 2014-04-20
   categories:
   - Data Documentation
+  tags:
+  - morpho
   ---
   
   Morpho is a pretty minimal editor for EML really.  It gives you a set
@@ -4830,6 +4840,8 @@ You can see this if you then open it up again in morpho and then under the docum
   date: 2014-04-21
   categories:
   - Data Documentation
+  tags:
+  - morpho
   ---
   
   In Eml the optional "project" module provides an overall description
@@ -5883,7 +5895,7 @@ I do like the extra metadata Column Name:
       
 #+end_src
 
-** 2014-04-xx-using-morpho-for-cataloguing-postgis-servers-org
+** TODO 2014-04-xx-using-morpho-for-cataloguing-postgis-servers-org
 *** Adding regarding the Data Location and Backups
   
 These data are quite large and also geospatial, so I store these 
@@ -6917,6 +6929,146 @@ scope	optional	document
   ch  <- connect2postgres2("postgis_hanigan")
   dat <- dbReadTable(ch, "civst_etc")
   str(dat)
+#+end_src
+
+** 2014-08-20-morpho-doesnt-respect-quote-encapsulated-strings-in-csv
+#+name:morpho-doesnt-respect-quote-encapsulated-strings-in-csv-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-08-21-morpho-doesnt-respect-quote-encapsulated-strings-in-csv.md :exports none :eval no :padline no
+---
+name: morpho-doesnt-respect-quote-encapsulated-strings-in-csv
+layout: post
+title: morpho-doesnt-respect-quote-encapsulated-strings-in-csv
+date: 2014-08-20
+categories:
+- Data Documentation
+tags:
+- morpho
+---
+
+- We discovered this known morpho bug when we try to import a textual data to morpho
+- Even if you double check that you have selected the correct format for that data. For example, delimited or fixed width, and the correct delimiter.
+- see this bug report [Bug #4636 Morpho should ignore commas inside double-quoted fields (CSV import)](https://projects.ecoinformatics.org/ecoinfo/issues/4636)
+- this unwanted Morpho behaviour is due to a comma in the cell and morpho doesn’t respect quote encapsulated strings with commas in them.
+- we do not think we can fix Morpho’s bug, and we cannot upgrade Morpho because of our Metacat version. We just need to find a workaround on that.
+ 
+![morpho-quote-encapsulated.png](/images/morpho-quote-encapsulated.png)
+
+    
+#+end_src
+
+** TODO 2014-08-21-hotwire-a-morpho-package-using-r-and-xml-editor
+#+name:hotwire-a-morpho-package-using-r-and-xml-editor-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-08-21-hotwire-a-morpho-package-using-r-and-xml-editor.md :exports none :eval no :padline no
+  ---
+  name: hotwire-a-morpho-package-using-r-and-xml-editor
+  layout: post
+  title: hotwire-a-morpho-package-using-r-and-xml-editor
+  date: 2014-08-21
+  categories:
+  - morpho
+  ---
+  
+  # Introduction
+
+  - at my workplace we have had a significant number of issues trying to use Morpho to publish ecological data
+  - I have been interested in the R EML package as an alternative and got this advice from the authors"
+  - "I'm really happy to see you combining these tools and making best use of each of their features (authoring for Morpho, automation for REML). We should think more about how to make this combination seamless." [https://github.com/ropensci/EML/issues/93](https://github.com/ropensci/EML/issues/93)
+  - That dream still seems a long way off, but here is an attempt to circumvent some of our main issues which seem to do with using Morpho to do anything with data tables 
+  - (morpho seems fine when just dealing with the documentation parts of EML)
+  
+  # Create a Minimal Morpho EML
+  
+  - I am going to use Morpho to create a new data package and just step thru all the steps,  add TBA to all the options
+  - another option was to create this using the REML example 
+  - but then there is uncertainty if it will be accepted easily by Morpho when imported
+  - seriously, just TBA and only for the required fields (these are in red)
+  - take note of the docid number, and save locally
+  - now we can import this as our template.  lets save it as a reference file
+  
+  #### Code:
+      cp ~/.morpho/profiles/hanigan/data/hanigan/XX.1 ~/tools/morpho_template_eml.xml
+  
+  <p></p>
+  
+  - this can now be imported in the File menu / import
+  - this is the 'hotwired' starting point of our morpho packages 
+  - I want to do this for others too. so change morpho profile on your computer and import the xml
+  - gives a new package with a new morpho generated docid number
+
+  # generate the EML Skeleton using the R EML package
+  
+  #### Code:
+      library(EML)
+      library(devtools)
+      install_github("disentangle", "ivanhanigan")
+      unit_defs <- reml_boilerplate(dat,titl = "myFile")
+      # you just got a quick and dirty unit_defs, these need to be made proper in morpho
+      # we can get the col names easily
+      col_defs <- names(dat)
+      # then create a dataset with metadata
+      ds <- data.set(dat,
+                     col.defs = col_defs,
+                     unit.defs = unit_defs
+                     )
+      # now write EML metadata file
+      eml_config(creator="TBA <fakeaddress@gmail.com>")
+      wd <- getwd()
+      setwd(outdir)
+      eml_write(ds,
+                file = gsub(".csv", "_eml_skeleton.xml", outfile),
+                title = gsub(".csv", "", outfile)
+                )
+      tempfile <- dir(pattern="^data_table_")
+      file.rename(tempfile, outfile)
+      # rename the CSV file.
+      setwd(wd)
+  
+  <p></p>
+  
+  
+  # now attach the data
+  - to avoid risk of morpho getting confused it is probably safe to let it start the new dataTable tags
+      
+  ![morpho-hotwire-1.png](/images/morpho-hotwire-1.png)
+  
+  - say it is a simple CSV
+  - say TBA for all required fields, for attributes add one and say it is datetime (to be quick)
+
+  ![morpho-hotwire-2.png](/images/morpho-hotwire-2.png)
+
+  - save, note the docid (41.2) and download file id (ecogrid://knb/datalibrarian2.42.1) 
+  - close
+  
+  # now replace the metadata info
+
+  - use an XML editor to go to the eml skeleton we created in morpho and also to the one created in R
+  - in the morpho generated XML find the attributeList tag within the dataTable group, mine looked like
+
+  #### Code:
+      <attributeList><attribute id="1408536821935">...
+  <p></p>
+
+  - and we now that the stuff we want to replace finishes with the closing tag </attributeList>
+  - I think the ID is irrelevant, except Morpho won't allow multiple of the same id number within an EML
+  - find the same and replace in the REML generated bit
+  - also do the <dataFormat></dataFormat> section
+
+  # add another dataset
+  - assuming you already ran reml_boilerplate for this new file
+  - use morpho menus to add another datatabe
+  - save and close morpho
+  - open with XML editor and the REML EML Skeleton
+  - transfer dataformat and attributelist stuff
+  - go to documentation and add the title of the package, save locally
+
+  # share it with colleagues 
+  - go to documentation menu > access info and set to public = no
+  - now go to their (windows?) machine and log in as the same morpho profile, 
+  - log in to the metacat and download the new package for work
+
+    
+
+  
 #+end_src
 
 * Exploratory Data Analysis
