@@ -1986,6 +1986,50 @@ fill.col(d, 'suburb')
 
 #+end_src
 
+** R-do call rbind data frame
+#+begin_src R :session *R* :tangle no :exports none :eval no
+#### name:asdf####
+locs1 <- read.csv(textConnection("location
+P23 Langfords A
+P23 Langfords B
+P23 Langfords B (ground)                 
+P24 Johnstons Track A                    
+P24 Johnstons Track A (fell out of track)
+P24 Johnstons Track A (ground)           
+P24 Johnstons Track B                    
+P25 Cultivation A                        
+P25 Cultivation B"), strip.white = T)
+locs1
+locs <- str_split(locs1[,1], pattern= "\\(")
+locs <- do.call(rbind.data.frame, locs)
+names(locs) <- c("var1", "var2")
+locs
+# close!
+                    var1                  var2
+1        P23 Langfords A       P23 Langfords A
+2        P23 Langfords B       P23 Langfords B
+3       P23 Langfords B                ground)
+4  P24 Johnstons Track A P24 Johnstons Track A
+5 P24 Johnstons Track A     fell out of track)
+6 P24 Johnstons Track A                ground)
+7  P24 Johnstons Track B P24 Johnstons Track B
+8      P25 Cultivation A     P25 Cultivation A
+9      P25 Cultivation B     P25 Cultivation B
+locs$var2[-grep("\\)",locs$var2)] <- NA
+locs
+                    var1               var2
+1        P23 Langfords A               <NA>
+2        P23 Langfords B               <NA>
+3       P23 Langfords B             ground)
+4  P24 Johnstons Track A               <NA>
+5 P24 Johnstons Track A  fell out of track)
+6 P24 Johnstons Track A             ground)
+7  P24 Johnstons Track B               <NA>
+8      P25 Cultivation A               <NA>
+9      P25 Cultivation B               <NA>
+
+#+end_src
+
 * Data Output
 * Data Documentation
 ** COMMENT data-documentation-blogposts
