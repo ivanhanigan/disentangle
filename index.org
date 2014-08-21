@@ -7009,15 +7009,18 @@ tags:
   title: hotwire-a-morpho-package-using-r-and-xml-editor
   date: 2014-08-21
   categories:
+  - Data Documentation
+  tags:
   - morpho
   ---
   
   # Introduction
 
   - at my workplace we have had a significant number of issues trying to use Morpho to publish ecological data
-  - I have been interested in the R EML package as an alternative and got this advice from the authors"
+  - I have been interested in the R EML package as an alternative and got this advice from the authors
   - "I'm really happy to see you combining these tools and making best use of each of their features (authoring for Morpho, automation for REML). We should think more about how to make this combination seamless." [https://github.com/ropensci/EML/issues/93](https://github.com/ropensci/EML/issues/93)
-  - That dream still seems a long way off, but here is an attempt to circumvent some of our main issues which seem to do with using Morpho to do anything with data tables 
+  - That dream still seems a long way off (and I suspect will see a re-write of morpho in R's "shiny apps" language)
+  - but here is an attempt to circumvent some of our main issues which seem to do with using Morpho to do anything with data tables 
   - (morpho seems fine when just dealing with the documentation parts of EML)
   
   # Create a Minimal Morpho EML
@@ -7033,11 +7036,14 @@ tags:
       cp ~/.morpho/profiles/hanigan/data/hanigan/XX.1 ~/tools/morpho_template_eml.xml
   
   <p></p>
-  
-  - this can now be imported in the File menu / import
+
+  # Import to morpho
+  - this skeletal eml can now be imported in the File menu / import
   - this is the 'hotwired' starting point of our morpho packages 
   - I want to do this for others too. so change morpho profile on your computer and import the xml
   - gives a new package with a new morpho generated docid number
+  - add the package title, with enough identification in the title to allow quick reference
+  - SET THE ACCESS TO NOT PUBLIC BEFORE SAVING 
 
   # generate the EML Skeleton using the R EML package
   
@@ -7076,12 +7082,13 @@ tags:
   ![morpho-hotwire-1.png](/images/morpho-hotwire-1.png)
   
   - say it is a simple CSV
-  - say TBA for all required fields, for attributes add one and say it is datetime (to be quick)
+  - say the name for the file for title, TBA for all other required fields, for attributes add one and say it is datetime (to be quick)
 
   ![morpho-hotwire-2.png](/images/morpho-hotwire-2.png)
 
-  - save, note the docid (41.2) and download file id (ecogrid://knb/datalibrarian2.42.1) 
-  - close
+
+  - note the docid (41.2) and download file id (ecogrid://knb/datalibrarian2.42.1) 
+  - save locally and close
   
   # now replace the metadata info
 
@@ -7092,21 +7099,31 @@ tags:
       <attributeList><attribute id="1408536821935">...
   <p></p>
 
-  - and we now that the stuff we want to replace finishes with the closing tag </attributeList>
+  - and we know that the stuff we want to replace finishes with the closing tag </attributeList>
   - I think the ID is irrelevant, except Morpho won't allow multiple of the same id number within an EML
   - find the same and replace in the REML generated bit
-  - also do the <dataFormat></dataFormat> section
+
+  ![morpho-attributelist.png](/images/morpho-attributelist.png)
+
+  And paste:
+
+  ![morpho-dataformat.png](/images/morpho-dataformat.png)
+
+  #### Also do the 
+      <dataFormat></dataFormat> section
+
 
   # add another dataset
   - assuming you already ran reml_boilerplate for this new file
   - use morpho menus to add another datatabe
-  - save and close morpho
+  - save locally and close morpho
   - open with XML editor and the REML EML Skeleton
   - transfer dataformat and attributelist stuff
-  - go to documentation and add the title of the package, save locally
+  - go to documentation and make minor mod (space in abstract?), save locally
 
   # share it with colleagues 
-  - go to documentation menu > access info and set to public = no
+  - go to documentation menu > access info and set/verify to public = no add user
+  - save to metacat
   - now go to their (windows?) machine and log in as the same morpho profile, 
   - log in to the metacat and download the new package for work
 
