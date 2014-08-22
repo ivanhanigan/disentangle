@@ -7000,7 +7000,7 @@ tags:
     
 #+end_src
 
-** TODO 2014-08-21-hotwire-a-morpho-package-using-r-and-xml-editor
+** 2014-08-21-hotwire-a-morpho-package-using-r-and-xml-editor
 #+name:hotwire-a-morpho-package-using-r-and-xml-editor-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-08-21-hotwire-a-morpho-package-using-r-and-xml-editor.md :exports none :eval no :padline no
   ---
@@ -7130,6 +7130,91 @@ tags:
     
 
   
+#+end_src
+
+** TODO xxx-adding-value-labels-to-reml-boilerplate
+#+name:adding-value-labels-to-reml-boilerplate-header
+#+begin_src markdown :tangle no :exports none :eval no :padline no
+  ---
+  name: adding-value-labels-to-reml-boilerplate
+  layout: post
+  title: adding-value-labels-to-reml-boilerplate
+  date: 2014-08-22
+  categories:
+  -
+  ---
+  
+  #### Code:adding-value-labels-to-reml-boilerplate
+  #For sake of argument, imagine a data.frame looking something like this:
+  
+  
+  dat = data.frame(river=c("SAC", "SAC", "AM"),
+                   spp = c("king", "king", "ccho"),
+                   stg = c("smolt", "parr", "smolt"),
+                   ct =  c(293, 410, 210L))
+  
+  xtable::xtable(dat)
+  
+  
+  
+  #In case our column header abbreviations are not obvious to others (or our future selves), we take a moment to define them:
+  
+  
+  col_metadata = c(river = "http://dbpedia.org/ontology/River",
+                   spp = "http://dbpedia.org/ontology/Species",
+                   stg = "Life history stage",
+                   ct = "count")
+  
+  
+  
+  # Define the units used in each column.  In the case of factors, we define the abbreviations in a named string.
+  
+  
+  unit_metadata =
+    list(river = c(SAC = "The Sacramento River", AM = "The American River"),
+         spp = c(king = "King Salmon", ccho = "Coho Salmon"),
+         stg = c(parr = "third life stage", smolt = "fourth life stage"),
+         ct = "number")
+  
+  # automated?
+  #dat <- dat[,-4]
+  dat
+  get_vals <- function(indat){
+  str <- list()
+  for(i in 1:ncol(indat)){
+    #i = 1
+    if(is.numeric(indat[,i])){
+      v <- names(indat)[i]
+      str[[i]] <- paste(v,' = "number"',sep='')
+    } else {
+      x <- indat[,i]
+      vals <-  names(table(x))
+      v <- names(indat)[i]
+      #v
+      str[[i]] <- paste(
+      v, ' = c(',
+      paste(vals, sep = '', collapse = ' = "TBA",')
+      ,' = "TBA")', sep = '')
+      }
+    }
+  #str
+  str2 <- ""
+  for(n in 1:(length(str)-1)){
+    str2 <- paste(str2, str[[n]], ",\n")
+  }
+  str2 <- paste(str2, str[[length(str)]], "\n")
+  #cat(str2)
+  str3 <- paste("
+  unit_metadata =
+    list(",str2,")", sep = "")
+  #cat(str3)
+  eval(parse(text = str3))
+  return(unit_metadata)
+  }
+  
+  u1 <- get_vals(dat)
+  u1
+      
 #+end_src
 
 * Exploratory Data Analysis
