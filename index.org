@@ -7182,18 +7182,19 @@ tags:
   
 #+end_src
 
-*** COMMENT get_vals-code
+*** COMMENT reml_boilerplate2-code
 #+name:get_vals
-#+begin_src R :session *R* :tangle no :exports none :eval no
+#+begin_src R :session *R* :tangle reml_boilerplate2.r :exports none :eval no
   #### name:get_vals####
   # this is a test
-  dat$dates <- as.Date(rep("2014-08-23", nrow(dat)))
-  str(dat)
+  #dat$dates <- as.Date(rep("2014-08-23", nrow(dat)))
+  #str(dat)
   #.dataframe <- analyte
-  get_vals <- function(.dataframe){
-  str <- list()
+  #str(analyte)
+  reml_boilerplate2 <- function(.dataframe){
+  strng <- list()
   for(i in 1:ncol(.dataframe)){
-    # i = 1
+    # i = 6
     .variable <- names(.dataframe)[i]
     #.dataframe[,.variable]
       if(is.character(.dataframe[ ,.variable])){
@@ -7203,52 +7204,58 @@ tags:
     if(is.factor(.dataframe[,.variable])){
       x <- .dataframe[,.variable]
       vals <-  names(table(x))
-      # symbols pollute the string to parse
+      # symbols may pollute the string to parse
       vals <- make.names(vals)
+      vals <- tolower(vals)  
+      vals <- gsub("\\.","_",vals)
+      vals <- gsub("_+","_",vals)    
       v <- .variable
       #v
-      str[[.variable]] <- paste(
+      strng[[.variable]] <- paste(
       v, ' = c(',
       paste(vals, sep = '', collapse = ' = "TBA",')
       ,' = "TBA")', sep = '')
     } else if(is.numeric(.dataframe[,.variable])){
       v <- .variable
-  #    str[[.variable]] <- paste(v,' = "number"',sep='')
-      str[[.variable]] <- '"number"'
+      strng[[.variable]] <- paste(v,' = "number"',sep='')
+  #    strng[[.variable]] <- '"number"'
       
     } else if(
       !all(is.na(as.Date(as.character(na.omit(.dataframe[,.variable])), origin = "1970-01-01")))
       ){
       v <- .variable    
-  #    str[[.variable]] <- paste(v,' = "YYYY-MM-DD"',sep='')
-      str[[.variable]] <- '"YYYY-MM-DD"'
-      
-      } 
+      strng[[.variable]] <- paste(v,' = "YYYY-MM-DD"',sep='')
+  #    strng[[.variable]] <- '"YYYY-MM-DD"'
+  
+    } else if (all(is.na(.dataframe[ ,.variable]))){
+      v <- .variable        
+      strng[[.variable]] <- paste(v,' = "', names(.dataframe)[i], '"', sep='')
     }
-  #str
-  str2 <- ""
-  for(n in 1:(length(str)-1)){
-    str2 <- paste(str2, str[[n]], ",\n")
+  }  
+  #strng
+  strng2 <- ""
+  for(n in 1:(length(strng)-1)){
+    strng2 <- paste(strng2, strng[[n]], ",\n")
   }
-  str2 <- paste(str2, str[[length(str)]], "\n")
-  #cat(str2)
-  str3 <- paste("
+  strng2 <- paste(strng2, strng[[length(strng)]], "\n")
+  #cat(strng2)
+  strng3 <- paste("
   unit_metadata =
-    list(",str2,")", sep = "")
-  #cat(str3)
-  eval(parse(text = str3))
-  unit_metadata
+    list(",strng2,")", sep = "")
+  #cat(strng3)
+  eval(parse(text = strng3))
+  #unit_metadata
   return(unit_metadata)
   }
   
-  u1 <- get_vals(dat)
-  u1
+  #u1 <- get_vals(analyte)
+  #u1
       
 #+end_src
 
-*** reml_boilerplate2-code
+*** reml_boilerplate1-code
 #+name:reml_boilerplate
-#+begin_src R :session *R* :tangle R/reml_boilerplate2.r :exports reports :eval no
+#+begin_src R :session *R* :tangle R/reml_boilerplate.r :exports reports :eval no
   ################################################################
   # name:reml_boilerplate
    
@@ -7259,7 +7266,7 @@ tags:
   ##   } 
   ## require(EML)
   
-  reml_boilerplate2 <- function(data_set, outfile = NA, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA)
+  reml_boilerplate <- function(data_set, outfile = NA, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA)
   {
   
     # next create a list from the data
@@ -7336,7 +7343,8 @@ tags:
     )
   unit_defs
   analyte2 <- analyte
-  analyte <- dat
+  names(analyte)
+  #analyte <- analyte2[,-c(6)]
   unit_defs <- get_vals(analyte)
   unit_defs
     # we can get the col names easily
@@ -7348,7 +7356,7 @@ tags:
                    )
     # now write EML metadata file
     eml_config(creator="TBA <fakeaddress@gmail.com>")
-  outfile <- "testing43211234.csv"
+  outfile <- "testingAbcd12234.csv"
     eml_write(ds,
               file = gsub(".csv", "_eml_skeleton.xml", outfile),
               title = gsub(".csv", "", outfile)
