@@ -7184,7 +7184,7 @@ tags:
 
 *** COMMENT reml_boilerplate2-code
 #+name:get_vals
-#+begin_src R :session *R* :tangle reml_boilerplate2.r :exports none :eval no
+#+begin_src R :session *R* :tangle R/reml_boilerplate2.r :exports none :eval no
   #### name:get_vals####
   # this is a test
   #dat$dates <- as.Date(rep("2014-08-23", nrow(dat)))
