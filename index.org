@@ -7369,6 +7369,19 @@ tags:
   # dir("data")
 #+end_src
 
+** COMMENT integer-code
+#+name:integer
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:integer####
+  is.integer(cars[,1])
+  cars$x <- cars[,1]/cars[,2]
+  str(cars)
+  for(i in 1:ncol(cars)){
+    print(ifelse(all(cars[,i]%%1==0), "integer", "fraction"))  
+  }
+  
+#+end_src
+
 * Exploratory Data Analysis
 ** transformations tracker
 see the file at [[transformations-tracker.org][transformations-tracker.org]]
