@@ -1669,7 +1669,7 @@ http://stackoverflow.com/questions/15686451/dates-from-excel-to-r-platform-depen
 #+name:xy2shp
 #+begin_src R :session *R* :tangle no :exports none :eval no
   # func
-
+  
   if(!require(ggmap)) install.packages('ggmap'); require(ggmap)
   if (!require(rgdal)) install.packages('rgdal'); require(rgdal)
   epsg <- make_EPSG()
@@ -1699,11 +1699,25 @@ http://stackoverflow.com/questions/15686451/dates-from-excel-to-r-platform-depen
 *** COMMENT sptransform-code
 #+name:sptransform
 #+begin_src R :session *R* :tangle no :exports none :eval no
-#### name:sptransform####
+  #### name:sptransform####
   require(disentangle)
   require(rgdal)
   epsg <- make_EPSG()
-  
+  # load
+  d <- read.table(tc <- textConnection(
+  "ID  POINT_Y   POINT_X
+  1  150.5556 -35.09305
+  2  150.6851 -35.01535
+  3  150.6710 -35.06412
+  4  150.6534 -35.08666
+  "), header = TRUE); close(tc)
+  # do
+  str(epsg)
+  epsg[grep("UTM", epsg$note),"note"]
+  ## Treat data frame as spatial points
+  pts <- SpatialPointsDataFrame(cbind(d$V2,d$V3),d,
+  proj4string=CRS(epsg$prj4[epsg$code %in% '4283']))
+    
   # defin inputs
   datadir <- "data_provided/pr_bg_data_20140612/Data_tables/site_data/"
   flist<-dir(datadir)
@@ -1748,7 +1762,7 @@ http://stackoverflow.com/questions/15686451/dates-from-excel-to-r-platform-depen
   
   bb <- morpho_bounding_box(latlong)
   print(xtable(bb), type = "html")
-
+    
 #+end_src
 
 ** TODO reshape
