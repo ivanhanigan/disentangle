@@ -38,6 +38,120 @@ categories:
     
 #+end_src
 
+** COMMENT 2014-06-18-data-dictionary-function-needed-upgrade-to-my-misc-package
+#+name:data-dictionary-function-needed-upgrade-to-my-misc-package-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-06-18-data-dictionary-function-needed-upgrade-to-my-misc-package.md :exports none :eval no :padline no
+  ---
+  name: 2014-06-18-data-dictionary-function-needed-upgrade-to-my-misc-package
+  layout: post
+  title: data-dictionary-function-needed-upgrade-to-my-misc-package
+  date: 2014-06-18
+  categories:
+  - disentangle
+  ---
+  
+  - Recently I got a lot of files with columns that are all missing.  I had to modify the 'data\_dictionary' function to cope with these so have released version 1.1
+  - [Windows Version is Downloadable Here](http://ivanhanigan.github.io/disentangle/lib/disentangle_1.1.zip)
+  - Linux and Mac users can just run this R code
+  
+  #### R Code:
+      require(devtools)
+      install_github("disentangle", "ivanhanigan")
+  
+  <p></p>
+  
+  - In my 'disentangle' package of miscellaneous tools, the data\_dictionary function is designed to produce descriptive summary statistics in a familiar way to the FREQUENCIES command for SPSS
+  - I chose to emulate the SPSS output because I think it is a pretty decent summary statistics table, and there are loads of users who have already been introduced to this style of output
+  - I wrote it because I had not got exactly what I wanted from the reporttools or stargazer packages which also have similar summary stats functions
+  - I chose to call it data\_dictionary because I think that the alternatives (like 'frequencise' or 'code\_book' are not as immediately intuitive as to what you get) 
+  - the function I wrote returns a data.frame with the variable name, a simplified type (character, number or date)
+  
+  #### Code:data-dictionary-function-needed-upgrade-to-my-misc-package
+      # functions
+      require(devtools)
+      install_github("disentangle", "ivanhanigan")
+      require(disentangle)
+      require(xtable)
+  
+      # load
+      fpath <- system.file("extdata/civst_gend_sector.csv", package = "disentangle")
+      fpath
+      civst_gend_sector <- read.csv(fpath)
+      civst_gend_sector$datevar <- as.Date(round(rnorm(nrow(civst_gend_sector), Sys.Date(),10)), origin = "1970-01-01")
+      civst_gend_sector$missing_blahblah_variable  <- NA
+  
+      # check
+      str(civst_gend_sector)
+  
+      #do
+      data_dict(civst_gend_sector, "civil_status")
+      data_dict(civst_gend_sector, "datevar")
+      data_dict(civst_gend_sector, "number_of_cases")
+      data_dict(civst_gend_sector, "missing_blahblah_variable")
+      
+      dataDictionary <- data_dictionary(civst_gend_sector,
+                                        show_levels = -1)
+      
+      print(xtable(dataDictionary), type = "html", include.rownames = F)
+  
+  <p></p>
+  
+  <!-- html table generated in R 3.1.0 by xtable 1.7-1 package -->
+  <!-- Wed Jun 18 22:41:49 2014 -->
+  <TABLE border=1>
+  <TR> <TH> Variable </TH> <TH> Type </TH> <TH> Attributes </TH> <TH> Value </TH> <TH> Count </TH> <TH> Percent </TH>  </TR>
+    <TR> <TD> civil_status </TD> <TD> character </TD> <TD> divorced/widowed </TD> <TD>  </TD> <TD> 6 </TD> <TD align="right"> 33.33 </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> married </TD> <TD>  </TD> <TD> 6 </TD> <TD align="right"> 33.33 </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> single </TD> <TD>  </TD> <TD> 6 </TD> <TD align="right"> 33.33 </TD> </TR>
+    <TR> <TD> gender </TD> <TD> character </TD> <TD> female </TD> <TD>  </TD> <TD> 9 </TD> <TD align="right"> 50.00 </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> male </TD> <TD>  </TD> <TD> 9 </TD> <TD align="right"> 50.00 </TD> </TR>
+    <TR> <TD> activity_sector </TD> <TD> character </TD> <TD> primary </TD> <TD>  </TD> <TD> 6 </TD> <TD align="right"> 33.33 </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> secondary </TD> <TD>  </TD> <TD> 6 </TD> <TD align="right"> 33.33 </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> tertiary </TD> <TD>  </TD> <TD> 6 </TD> <TD align="right"> 33.33 </TD> </TR>
+    <TR> <TD> number_of_cases </TD> <TD> number </TD> <TD> Min. </TD> <TD> 0 </TD> <TD>  </TD> <TD align="right">  </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> 1st Qu. </TD> <TD> 5 </TD> <TD>  </TD> <TD align="right">  </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> Median </TD> <TD> 9 </TD> <TD>  </TD> <TD align="right">  </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> Mean </TD> <TD> 15.17 </TD> <TD>  </TD> <TD align="right">  </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> 3rd Qu. </TD> <TD> 17 </TD> <TD>  </TD> <TD align="right">  </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> Max. </TD> <TD> 50 </TD> <TD>  </TD> <TD align="right">  </TD> </TR>
+    <TR> <TD> datevar </TD> <TD> date </TD> <TD> Min. </TD> <TD> 2014-05-26 </TD> <TD>  </TD> <TD align="right">  </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> 1st Qu. </TD> <TD> 2014-06-07 </TD> <TD>  </TD> <TD align="right">  </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> Median </TD> <TD> 2014-06-15 </TD> <TD>  </TD> <TD align="right">  </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> Mean </TD> <TD> 2014-06-14 </TD> <TD>  </TD> <TD align="right">  </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> 3rd Qu. </TD> <TD> 2014-06-18 </TD> <TD>  </TD> <TD align="right">  </TD> </TR>
+    <TR> <TD>  </TD> <TD>  </TD> <TD> Max. </TD> <TD> 2014-07-05 </TD> <TD>  </TD> <TD align="right">  </TD> </TR>
+    <TR> <TD> missing_blahblah_variable </TD> <TD> missing </TD> <TD> NA's </TD> <TD>  </TD> <TD> 18 </TD> <TD align="right"> 100.00 </TD> </TR>
+    </TABLE>
+  
+  
+#+end_src
+
+
+** COMMENT 2014-06-24-data-dictionary-function-needed-further-upgrades-to-my-misc-package
+#+name:data-dictionary-function-needed-upgrade-to-my-misc-package-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-06-24-data-dictionary-function-needed-further-upgrades-to-my-misc-package.md :exports none :eval no :padline no
+  ---
+  name: 2014-06-24-data-dictionary-function-needed-further-upgrades-to-my-misc-package
+  layout: post
+  title: data-dictionary-function-needed-further-upgrades-to-my-misc-package
+  date: 2014-06-24
+  categories:
+  - disentangle
+  tags:
+  - software
+  ---
+  
+  - I've been enjoying summarising datasets with my data\_dictionary function
+  - There was a bug when a date variable had any missings.  
+  - I have modified the function to cope with these so have released version 1.2
+  - [Windows Version is Downloadable Here](http://ivanhanigan.github.io/disentangle/lib/disentangle_1.2.zip)
+  - Linux and Mac users can just run this R code
+  
+  #### R Code:
+      require(devtools)
+      install_github("disentangle", "ivanhanigan")
+  
+#+end_src
 * Introduction
 This project is my collection of notes and customised software tools for data management, manipulation and analysis.
 
@@ -253,6 +367,42 @@ Scroll down the list and find the PostgreSQL ODBC Driver.
 
 ** Database Input
 *** TODO readOGR2
+*** PostGIS geomFromText
+COPY yourNewTableName (lat, long, name, other)
+FROM '/path/yourCSVfile.csv' CSV;
+
+SELECT addgeometrycolumn('public','yourNewTableName ','the_geom',4326,'POINT');
+
+4.Populating the geometry column from your lat, long with UPDATE function with GeometryFromText function of PostGIS.
+
+UPDATE yourNewTableName SET the_geom = GeometryFromText('POINT('||lat||' '||long||')',4326);
+
+or ie
+
+SELECT ST_GeomFromText('MULTIPOLYGON(((-71.1031880899493 42.3152774590236,
+-71.1031627617667 42.3152960829043,-71.102923838298 42.3149156848307,
+-71.1023097974109 42.3151969047397,-71.1019285062273 42.3147384934248,
+-71.102505233663 42.3144722937587,-71.10277487471 42.3141658254797,
+-71.103113945163 42.3142739188902,-71.10324876416 42.31402489987,
+-71.1033002961013 42.3140393340215,-71.1033488797549 42.3139495090772,
+-71.103396240451 42.3138632439557,-71.1041521907712 42.3141153348029,
+-71.1041411411543 42.3141545014533,-71.1041287795912 42.3142114839058,
+-71.1041188134329 42.3142693656241,-71.1041112482575 42.3143272556118,
+-71.1041072845732 42.3143851580048,-71.1041057218871 42.3144430686681,
+-71.1041065602059 42.3145009876017,-71.1041097995362 42.3145589148055,
+-71.1041166403905 42.3146168544148,-71.1041258822717 42.3146748022936,
+-71.1041375307579 42.3147318674446,-71.1041492906949 42.3147711126569,
+-71.1041598612795 42.314808571739,-71.1042515013869 42.3151287620809,
+-71.1041173835118 42.3150739481917,-71.1040809891419 42.3151344119048,
+-71.1040438678912 42.3151191367447,-71.1040194562988 42.3151832057859,
+-71.1038734225584 42.3151140942995,-71.1038446938243 42.3151006300338,
+-71.1038315271889 42.315094347535,-71.1037393329282 42.315054824985,
+-71.1035447555574 42.3152608696313,-71.1033436658644 42.3151648370544,
+-71.1032580383161 42.3152269126061,-71.103223066939 42.3152517403219,
+-71.1031880899493 42.3152774590236)),
+((-71.1043632495873 42.315113108546,-71.1043583974082 42.3151211109857,
+-71.1043443253471 42.3150676015829,-71.1043850704575 42.3150793250568,-71.1043632495873 42.315113108546)))',4326);
+
 *** PSQL dump and restore
 #+name:psql-dump-restore
 #+begin_src sh :tangle no :exports reports :eval no
@@ -272,11 +422,380 @@ Scroll down the list and find the PostgreSQL ODBC Driver.
   "C:\Program Files\PostgreSQL\8.3\bin\pg_dump" -h ip_address -U username -i -t schema.table database | "C:\Program Files\PostgreSQL\8.3\bin\psql" -h ipaddress -U username database
   
   #To copy to a CSV file
+  psql -h ip -d database -U user -c "\copy (select max(maximum_temperature_in_24_hours_after_9am_local_time_in_degrees) from WEATHER_BOM.bom_daily_data_1990_2010) TO '~/maxtemp_recently.csv' WITH DELIMITER ',' CSV HEADER"
   
+  and then if this works go for broke, or something from this cheatsheet
+  
+  http://www.gistutor.com/postgresqlpostgis/10-intermediate-postgresqlpostgis-tutorials/39-how-to-import-or-export-a-csv-file-using-postgresql-copy-to-and-copy-from-queries.html
+  
+  # DEPRECATED
   "C:\Program Files\PostgreSQL\8.3\bin\psql" -h ip_address -d weather -U username -c "COPY \"schema\".\"table\" TO STDOUT WITH CSV HEADER;" > "J:\workdir\filename.csv"
   
   "C:\Program Files\PostgreSQL\8.3\bin\psql" -h ip_address -d weather -U username -c "COPY (select * from schema.table where var = X) TO STDOUT WITH CSV HEADEsR;" > "J:\workdir\filename.csv"
 #+end_src
+** THREDDS
+** 2014-06-19-testing-thredds-server-with-r-code-from-tasmanian-tpac
+#+name:testing-thredds-server-with-r-code-from-tasmanian-tpac-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-06-19-testing-thredds-server-with-r-code-from-tasmanian-tpac.md :exports none :eval no :padline no
+---
+name: 2014-06-19-testing-thredds-server-with-r-code-from-tasmanian-tpac
+layout: post
+title: testing-thredds-server-with-r-code-from-tasmanian-tpac
+date: 2014-06-19
+categories:
+- research methods
+---
+
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+<title>THREDDS Reproducible Research Report </title>
+
+<!-- Styles for R syntax highlighter -->
+<style type="text/css">
+   pre .operator,
+   pre .paren {
+     color: rgb(104, 118, 135)
+   }
+
+   pre .literal {
+     color: rgb(88, 72, 246)
+   }
+
+   pre .number {
+     color: rgb(0, 0, 205);
+   }
+
+   pre .comment {
+     color: rgb(76, 136, 107);
+   }
+
+   pre .keyword {
+     color: rgb(0, 0, 255);
+   }
+
+   pre .identifier {
+     color: rgb(0, 0, 0);
+   }
+
+   pre .string {
+     color: rgb(3, 106, 7);
+   }
+</style>
+
+<!-- R syntax highlighter -->
+<script type="text/javascript">
+var hljs=new function(){function m(p){return p.replace(/&/gm,"&amp;").replace(/</gm,"&lt;")}function f(r,q,p){return RegExp(q,"m"+(r.cI?"i":"")+(p?"g":""))}function b(r){for(var p=0;p<r.childNodes.length;p++){var q=r.childNodes[p];if(q.nodeName=="CODE"){return q}if(!(q.nodeType==3&&q.nodeValue.match(/\s+/))){break}}}function h(t,s){var p="";for(var r=0;r<t.childNodes.length;r++){if(t.childNodes[r].nodeType==3){var q=t.childNodes[r].nodeValue;if(s){q=q.replace(/\n/g,"")}p+=q}else{if(t.childNodes[r].nodeName=="BR"){p+="\n"}else{p+=h(t.childNodes[r])}}}if(/MSIE [678]/.test(navigator.userAgent)){p=p.replace(/\r/g,"\n")}return p}function a(s){var r=s.className.split(/\s+/);r=r.concat(s.parentNode.className.split(/\s+/));for(var q=0;q<r.length;q++){var p=r[q].replace(/^language-/,"");if(e[p]){return p}}}function c(q){var p=[];(function(s,t){for(var r=0;r<s.childNodes.length;r++){if(s.childNodes[r].nodeType==3){t+=s.childNodes[r].nodeValue.length}else{if(s.childNodes[r].nodeName=="BR"){t+=1}else{if(s.childNodes[r].nodeType==1){p.push({event:"start",offset:t,node:s.childNodes[r]});t=arguments.callee(s.childNodes[r],t);p.push({event:"stop",offset:t,node:s.childNodes[r]})}}}}return t})(q,0);return p}function k(y,w,x){var q=0;var z="";var s=[];function u(){if(y.length&&w.length){if(y[0].offset!=w[0].offset){return(y[0].offset<w[0].offset)?y:w}else{return w[0].event=="start"?y:w}}else{return y.length?y:w}}function t(D){var A="<"+D.nodeName.toLowerCase();for(var B=0;B<D.attributes.length;B++){var C=D.attributes[B];A+=" "+C.nodeName.toLowerCase();if(C.value!==undefined&&C.value!==false&&C.value!==null){A+='="'+m(C.value)+'"'}}return A+">"}while(y.length||w.length){var v=u().splice(0,1)[0];z+=m(x.substr(q,v.offset-q));q=v.offset;if(v.event=="start"){z+=t(v.node);s.push(v.node)}else{if(v.event=="stop"){var p,r=s.length;do{r--;p=s[r];z+=("</"+p.nodeName.toLowerCase()+">")}while(p!=v.node);s.splice(r,1);while(r<s.length){z+=t(s[r]);r++}}}}return z+m(x.substr(q))}function j(){function q(x,y,v){if(x.compiled){return}var u;var s=[];if(x.k){x.lR=f(y,x.l||hljs.IR,true);for(var w in x.k){if(!x.k.hasOwnProperty(w)){continue}if(x.k[w] instanceof Object){u=x.k[w]}else{u=x.k;w="keyword"}for(var r in u){if(!u.hasOwnProperty(r)){continue}x.k[r]=[w,u[r]];s.push(r)}}}if(!v){if(x.bWK){x.b="\\b("+s.join("|")+")\\s"}x.bR=f(y,x.b?x.b:"\\B|\\b");if(!x.e&&!x.eW){x.e="\\B|\\b"}if(x.e){x.eR=f(y,x.e)}}if(x.i){x.iR=f(y,x.i)}if(x.r===undefined){x.r=1}if(!x.c){x.c=[]}x.compiled=true;for(var t=0;t<x.c.length;t++){if(x.c[t]=="self"){x.c[t]=x}q(x.c[t],y,false)}if(x.starts){q(x.starts,y,false)}}for(var p in e){if(!e.hasOwnProperty(p)){continue}q(e[p].dM,e[p],true)}}function d(B,C){if(!j.called){j();j.called=true}function q(r,M){for(var L=0;L<M.c.length;L++){if((M.c[L].bR.exec(r)||[null])[0]==r){return M.c[L]}}}function v(L,r){if(D[L].e&&D[L].eR.test(r)){return 1}if(D[L].eW){var M=v(L-1,r);return M?M+1:0}return 0}function w(r,L){return L.i&&L.iR.test(r)}function K(N,O){var M=[];for(var L=0;L<N.c.length;L++){M.push(N.c[L].b)}var r=D.length-1;do{if(D[r].e){M.push(D[r].e)}r--}while(D[r+1].eW);if(N.i){M.push(N.i)}return f(O,M.join("|"),true)}function p(M,L){var N=D[D.length-1];if(!N.t){N.t=K(N,E)}N.t.lastIndex=L;var r=N.t.exec(M);return r?[M.substr(L,r.index-L),r[0],false]:[M.substr(L),"",true]}function z(N,r){var L=E.cI?r[0].toLowerCase():r[0];var M=N.k[L];if(M&&M instanceof Array){return M}return false}function F(L,P){L=m(L);if(!P.k){return L}var r="";var O=0;P.lR.lastIndex=0;var M=P.lR.exec(L);while(M){r+=L.substr(O,M.index-O);var N=z(P,M);if(N){x+=N[1];r+='<span class="'+N[0]+'">'+M[0]+"</span>"}else{r+=M[0]}O=P.lR.lastIndex;M=P.lR.exec(L)}return r+L.substr(O,L.length-O)}function J(L,M){if(M.sL&&e[M.sL]){var r=d(M.sL,L);x+=r.keyword_count;return r.value}else{return F(L,M)}}function I(M,r){var L=M.cN?'<span class="'+M.cN+'">':"";if(M.rB){y+=L;M.buffer=""}else{if(M.eB){y+=m(r)+L;M.buffer=""}else{y+=L;M.buffer=r}}D.push(M);A+=M.r}function G(N,M,Q){var R=D[D.length-1];if(Q){y+=J(R.buffer+N,R);return false}var P=q(M,R);if(P){y+=J(R.buffer+N,R);I(P,M);return P.rB}var L=v(D.length-1,M);if(L){var O=R.cN?"</span>":"";if(R.rE){y+=J(R.buffer+N,R)+O}else{if(R.eE){y+=J(R.buffer+N,R)+O+m(M)}else{y+=J(R.buffer+N+M,R)+O}}while(L>1){O=D[D.length-2].cN?"</span>":"";y+=O;L--;D.length--}var r=D[D.length-1];D.length--;D[D.length-1].buffer="";if(r.starts){I(r.starts,"")}return R.rE}if(w(M,R)){throw"Illegal"}}var E=e[B];var D=[E.dM];var A=0;var x=0;var y="";try{var s,u=0;E.dM.buffer="";do{s=p(C,u);var t=G(s[0],s[1],s[2]);u+=s[0].length;if(!t){u+=s[1].length}}while(!s[2]);if(D.length>1){throw"Illegal"}return{r:A,keyword_count:x,value:y}}catch(H){if(H=="Illegal"){return{r:0,keyword_count:0,value:m(C)}}else{throw H}}}function g(t){var p={keyword_count:0,r:0,value:m(t)};var r=p;for(var q in e){if(!e.hasOwnProperty(q)){continue}var s=d(q,t);s.language=q;if(s.keyword_count+s.r>r.keyword_count+r.r){r=s}if(s.keyword_count+s.r>p.keyword_count+p.r){r=p;p=s}}if(r.language){p.second_best=r}return p}function i(r,q,p){if(q){r=r.replace(/^((<[^>]+>|\t)+)/gm,function(t,w,v,u){return w.replace(/\t/g,q)})}if(p){r=r.replace(/\n/g,"<br>")}return r}function n(t,w,r){var x=h(t,r);var v=a(t);var y,s;if(v){y=d(v,x)}else{return}var q=c(t);if(q.length){s=document.createElement("pre");s.innerHTML=y.value;y.value=k(q,c(s),x)}y.value=i(y.value,w,r);var u=t.className;if(!u.match("(\\s|^)(language-)?"+v+"(\\s|$)")){u=u?(u+" "+v):v}if(/MSIE [678]/.test(navigator.userAgent)&&t.tagName=="CODE"&&t.parentNode.tagName=="PRE"){s=t.parentNode;var p=document.createElement("div");p.innerHTML="<pre><code>"+y.value+"</code></pre>";t=p.firstChild.firstChild;p.firstChild.cN=s.cN;s.parentNode.replaceChild(p.firstChild,s)}else{t.innerHTML=y.value}t.className=u;t.result={language:v,kw:y.keyword_count,re:y.r};if(y.second_best){t.second_best={language:y.second_best.language,kw:y.second_best.keyword_count,re:y.second_best.r}}}function o(){if(o.called){return}o.called=true;var r=document.getElementsByTagName("pre");for(var p=0;p<r.length;p++){var q=b(r[p]);if(q){n(q,hljs.tabReplace)}}}function l(){if(window.addEventListener){window.addEventListener("DOMContentLoaded",o,false);window.addEventListener("load",o,false)}else{if(window.attachEvent){window.attachEvent("onload",o)}else{window.onload=o}}}var e={};this.LANGUAGES=e;this.highlight=d;this.highlightAuto=g;this.fixMarkup=i;this.highlightBlock=n;this.initHighlighting=o;this.initHighlightingOnLoad=l;this.IR="[a-zA-Z][a-zA-Z0-9_]*";this.UIR="[a-zA-Z_][a-zA-Z0-9_]*";this.NR="\\b\\d+(\\.\\d+)?";this.CNR="\\b(0[xX][a-fA-F0-9]+|(\\d+(\\.\\d*)?|\\.\\d+)([eE][-+]?\\d+)?)";this.BNR="\\b(0b[01]+)";this.RSR="!|!=|!==|%|%=|&|&&|&=|\\*|\\*=|\\+|\\+=|,|\\.|-|-=|/|/=|:|;|<|<<|<<=|<=|=|==|===|>|>=|>>|>>=|>>>|>>>=|\\?|\\[|\\{|\\(|\\^|\\^=|\\||\\|=|\\|\\||~";this.ER="(?![\\s\\S])";this.BE={b:"\\\\.",r:0};this.ASM={cN:"string",b:"'",e:"'",i:"\\n",c:[this.BE],r:0};this.QSM={cN:"string",b:'"',e:'"',i:"\\n",c:[this.BE],r:0};this.CLCM={cN:"comment",b:"//",e:"$"};this.CBLCLM={cN:"comment",b:"/\\*",e:"\\*/"};this.HCM={cN:"comment",b:"#",e:"$"};this.NM={cN:"number",b:this.NR,r:0};this.CNM={cN:"number",b:this.CNR,r:0};this.BNM={cN:"number",b:this.BNR,r:0};this.inherit=function(r,s){var p={};for(var q in r){p[q]=r[q]}if(s){for(var q in s){p[q]=s[q]}}return p}}();hljs.LANGUAGES.cpp=function(){var a={keyword:{"false":1,"int":1,"float":1,"while":1,"private":1,"char":1,"catch":1,"export":1,virtual:1,operator:2,sizeof:2,dynamic_cast:2,typedef:2,const_cast:2,"const":1,struct:1,"for":1,static_cast:2,union:1,namespace:1,unsigned:1,"long":1,"throw":1,"volatile":2,"static":1,"protected":1,bool:1,template:1,mutable:1,"if":1,"public":1,friend:2,"do":1,"return":1,"goto":1,auto:1,"void":2,"enum":1,"else":1,"break":1,"new":1,extern:1,using:1,"true":1,"class":1,asm:1,"case":1,typeid:1,"short":1,reinterpret_cast:2,"default":1,"double":1,register:1,explicit:1,signed:1,typename:1,"try":1,"this":1,"switch":1,"continue":1,wchar_t:1,inline:1,"delete":1,alignof:1,char16_t:1,char32_t:1,constexpr:1,decltype:1,noexcept:1,nullptr:1,static_assert:1,thread_local:1,restrict:1,_Bool:1,complex:1},built_in:{std:1,string:1,cin:1,cout:1,cerr:1,clog:1,stringstream:1,istringstream:1,ostringstream:1,auto_ptr:1,deque:1,list:1,queue:1,stack:1,vector:1,map:1,set:1,bitset:1,multiset:1,multimap:1,unordered_set:1,unordered_map:1,unordered_multiset:1,unordered_multimap:1,array:1,shared_ptr:1}};return{dM:{k:a,i:"</",c:[hljs.CLCM,hljs.CBLCLM,hljs.QSM,{cN:"string",b:"'\\\\?.",e:"'",i:"."},{cN:"number",b:"\\b(\\d+(\\.\\d*)?|\\.\\d+)(u|U|l|L|ul|UL|f|F)"},hljs.CNM,{cN:"preprocessor",b:"#",e:"$"},{cN:"stl_container",b:"\\b(deque|list|queue|stack|vector|map|set|bitset|multiset|multimap|unordered_map|unordered_set|unordered_multiset|unordered_multimap|array)\\s*<",e:">",k:a,r:10,c:["self"]}]}}}();hljs.LANGUAGES.r={dM:{c:[hljs.HCM,{cN:"number",b:"\\b0[xX][0-9a-fA-F]+[Li]?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+(?:[eE][+\\-]?\\d*)?L\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\b\\d+\\.(?!\\d)(?:i\\b)?",e:hljs.IMMEDIATE_RE,r:1},{cN:"number",b:"\\b\\d+(?:\\.\\d*)?(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"number",b:"\\.\\d+(?:[eE][+\\-]?\\d*)?i?\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"keyword",b:"(?:tryCatch|library|setGeneric|setGroupGeneric)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\.",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\.\\.\\d+(?![\\w.])",e:hljs.IMMEDIATE_RE,r:10},{cN:"keyword",b:"\\b(?:function)",e:hljs.IMMEDIATE_RE,r:2},{cN:"keyword",b:"(?:if|in|break|next|repeat|else|for|return|switch|while|try|stop|warning|require|attach|detach|source|setMethod|setClass)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"literal",b:"(?:NA|NA_integer_|NA_real_|NA_character_|NA_complex_)\\b",e:hljs.IMMEDIATE_RE,r:10},{cN:"literal",b:"(?:NULL|TRUE|FALSE|T|F|Inf|NaN)\\b",e:hljs.IMMEDIATE_RE,r:1},{cN:"identifier",b:"[a-zA-Z.][a-zA-Z0-9._]*\\b",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"<\\-(?!\\s*\\d)",e:hljs.IMMEDIATE_RE,r:2},{cN:"operator",b:"\\->|<\\-",e:hljs.IMMEDIATE_RE,r:1},{cN:"operator",b:"%%|~",e:hljs.IMMEDIATE_RE},{cN:"operator",b:">=|<=|==|!=|\\|\\||&&|=|\\+|\\-|\\*|/|\\^|>|<|!|&|\\||\\$|:",e:hljs.IMMEDIATE_RE,r:0},{cN:"operator",b:"%",e:"%",i:"\\n",r:1},{cN:"identifier",b:"`",e:"`",r:0},{cN:"string",b:'"',e:'"',c:[hljs.BE],r:0},{cN:"string",b:"'",e:"'",c:[hljs.BE],r:0},{cN:"paren",b:"[[({\\])}]",e:hljs.IMMEDIATE_RE,r:0}]}};
+hljs.initHighlightingOnLoad();
+</script>
+
+<!-- MathJax scripts -->
+<script type="text/javascript" src="https://c328740.ssl.cf1.rackcdn.com/mathjax/2.0-latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<style type="text/css">
+custom.css
+</style>
+
+
+
+</head>
+
+<body>
+<div id="toc">
+<div id="toc_header">Table of Contents</div>
+<ul>
+<li>
+<a href="#toc_0">THREDDS Reproducible Research Report </a>
+<ul>
+<li>
+<ul>
+<li>
+<a href="#toc_1">Introduction</a>
+<ul>
+<li>
+<a href="#toc_2">Code</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>
+<a href="#toc_3">THREDDS</a>
+<ul>
+<li>
+<ul>
+<li>
+<a href="#toc_4">Code</a>
+</li>
+</ul>
+</li>
+<li>
+<a href="#toc_5">Outputs from running TPAC&#39;s code</a>
+</li>
+<li>
+<a href="#toc_6">TPAC&#39;s source code</a>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</div>
+
+
+<h1 id="toc_0">THREDDS Reproducible Research Report </h1>
+
+<p><a href="mailto:ivan.hanigan@anu.edu.au">ivan.hanigan@anu.edu.au</a></p>
+
+<h3 id="toc_1">Introduction</h3>
+
+<ul>
+<li>This is an example of a Reproducible Research Report in R.</li>
+<li>The report is the output of a knitr document and creates HTML output.</li>
+<li>you can access the source code at <a href="https://github.com/gis-forum/thredds-tpac">https://github.com/gis-forum/thredds-tpac</a></li>
+<li>see the &#39;main.Rmd&#39; file</li>
+<li>required the following install function on ubuntu </li>
+</ul>
+
+<h4 id="toc_2">Code</h4>
+
+<pre><code>install.packages(&quot;ncdf&quot;, type = &quot;source&quot;, configure.args=&quot;--with-netcdf-include=/usr/include&quot;)
+</code></pre>
+
+<h2 id="toc_3">THREDDS</h2>
+
+<ul>
+<li>THREDDS is a web service for exposing gridded data</li>
+<li>This example uses the R package &#39;ncdf&#39; to subset some data from the grids</li>
+<li>The code came from our colleagues from TPAC who use it to access and analyse data in THREDDS </li>
+<li>Lu sent this to Ivan on 2014-06-19</li>
+</ul>
+
+<h4 id="toc_4">Code</h4>
+
+<pre><code>https://github.com/gis-forum/thredds-tpac
+</code></pre>
+
+<h3 id="toc_5">Outputs from running TPAC&#39;s code</h3>
+
+<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfgAAAH4CAYAAACmKP9/AAAACXBIWXMAAAsSAAALEgHS3X78AAAgAElEQVR4nO3de5gtV13g/e9JQk4gCdcEEEgoSBzCRRBERQTSAww4XBwQzOAzMkR0vLyAN3BgEEhAZlBE4BUcfMEhAcQBBhXE0Ywg6Qgqr1zFW0ACxSUQkkAgEJKQkDN/rGp7n9XVe9Wqy67atb+f5+nn9Nrr9tvVffbqWqtWFUiSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSJEmSpuY44NDC1w8s5N0ryrtHD/0dU7V1fQ9tSVN1c+A64BnR63cB/jdwBfD3wAuAGy3kH1299lHgy1XZYiH/eOAc4AvARcCvA0clYmlaZ7+Y27R5CvAO4EtVmd8Fbt+gXUk9igf4sxby/hP9D/AHCR9sf9tDW8rzAcLP8X5jBzKgqbzHp1dxLA6WtwC+WL3+58Anqu9fvlDmFdVrlwB/UX3/aeCIKn+7eu2DwIXV969NxNK0Tl3Mbdo8uPDe3g98pPr+bzn8jxlJA1sc4K8G/nQh7zXAtcAN9DfAazxTGfyGNOZ7PACcBjyL8P8mHiyfUr12TpU+BvgU4f/d8YQz6KuBywn/LwH+K/BWwln8d1b1PwQcWZW5nDAbdqt9YkrVScXcps0fqPI/XLV/BPDJ6rUHJ9rWgI5IF9GMfRD4XnZ/D76H8J/0hqjcQ4G/Br5GmGr8c+A+Vd5PEv4jX0b40DqxKncIOIO9U/SnVumLgF8APkc4Y/k5wof0h4CvE84Y7lzVuUdV5xMLMd2veu0DHdqt8yDgPdV7uIww7bj4h86tCGcunwGujI7FbasYLge+r4rt8VVeAbytyrsceBNwh4V2l+UvtvtYwozI16rYbrPP+/gA8F3V938NPKFBP11/Nr9QHZfPAL/K4WdvTd9ffNyW/e7Vvccmvytdfk6LjgT+CXgRYao9dkr173urf68hnOEeA3w/8PDq+z8gHFeAX65iKasyEI77t6oyn6j6/b59YkrVScXcps07AFcB5xGO6w3AX1V17tSwD0k9WDyD//Xq37sAxxL+876cMBjvnMGfBHyjeu184H1VXsnuX+sXVK89B/iN6vs/qvL3G+APEc4gLozSnyB8gBwifPBB3gCf027sNlWZGwgf8jvv62LgJtV7/ZvqtY8S/hDYGShuw+7A8XXCIHeI8GF9HPB5wnrnH7H7QfjJ6rin8nfavZ7wR8UHCT+rQ4RZlzqPIJwtHgLOJgxcqX66/Gy+RVhDfiNhDfYQYfqZjPcXH7fU717de8wZ4HN/TrEjCH+APBR4O3vPhn+xeu31VfrGC/GeCfx89f2bCNPzX6ve4/dU5c+u8v/bQpu/v1C/TqpOKuY2bcaOYvd3xzN4aYUWB/jHVf/+R+CB1fc/wuED/OmED7rnVvV3Lsw5BJxQvXYXwtnJV6t/r2T3rGfZAH9a9drOQPp7hA/uf83hH9K5A3zTdmP/ZiH/5Oq1lxGmTE8FHlbl/zO7Fxi9oXpvP87uwHGIMAV6K8L65M9Wr/2P6pidALyb3VmOVP5iu/eq+v2P7P6hsZ94+jrVT5efzSHg/tVrp1TH5BrC71vO+1s8bk1+9+L3mDPA5/6clnklewfL2xPObA8Bf0n4w2Sn358GfmUh/ReEP2IOES5UuxXhj+1DwH9eaPNV1Ws/t08cOXXqYu7a5rGEmaVDwP/BWeJRefA320eAbxI+AHfOGt4XlbmA8B/7OMKH3WfZHdx2/v0Y4UrgmxI+KJ9FmN5d5mLCX/lUbcLuh+lOOnW1cN/tfogwJX1K9e/fEc7mn0kYMO5elXsPu3+wPLFq738stHMN8GLCB/W1wHdUrz+ZMO1/GWGghDCQpvJ3XMHuxYrvr/69yT7vpU7Tftocw8vZnZa9iLCMcBD49ox+4+PW5Hevi9yfU66LgX9L+L26B+Fn97+rvEsIsxMAf0z4Y+bBhJmRWxKm76+s8k9caPOW1b9XEGZvrln4ekSDOild2rwtYfnmUcCfAY9h73KfVqiP/yRaX9cSpnvvRzhjuIxwlrHo+wkftFcC5wK/Bfw2u2dQOxYHmhs36Ltu21xqK92Bhe/3++O0Tbs7vkSYjTgD+HeEM/ZfJFws9V2ENUeAryTauYrDP9h21jr/X8KH+aLPENZdl+XvWGzzUCKGOqk4drQ5hkcSfj47cS1+tjTtNz5uTX/36jT5Xcn9ObXxF+xeJwDwzurfTwO3rr5/P7vH7UPAD1V5l1evLW43u2317xcJ1zgcXMg7okGdlLZt3p1wwe5JhGWanyD8gaAReQav9wH3JEzR76xxLnos4cP71YTB7m/YewXvPQlnuV8mfGj+CssvZMu180FxMuHM4QCw1WP7Ox5DGESuJazJnkiYZjxY9fdPVbmHszsYvI6wlvvEJe3u1DsOeFf1dQrh6uPjGuR3tTPYDtnPLYBHVt9/N+ED/1rg4x36bfK7t2PnPXb5Xen7+DyccEb7wip9CuEizs8SzubfU73+4Cr+G7F7X4p/XMi/D+H37ZaEmYBvEv4wP5Pw/na+/rhBnZQ2bR5DWM8/iTCd/0Qc3KVRLK7B3wH44YX0zpnk4hr8zl7Znau2v7BQ/naED6adM5CnEz7MDhE+HJddZFcuxPS7HH7BTlzmRoTZhUOEKcGL2L3ILF6Dz2k39pAq/2rCVOrbCIPUt4B7EwabnT2+Ox/AhwjTrSdw+NXZi04g/PFzCPhfhA/NQ9X7OL5Bfl27p7H8egLY3bv8LsKHc6qfNsdwZ8372uq4vZfddecXN3z/+x231O9e3Xts8rvS9ue0TN169kmE2YdDhCWPne+fuVDmzxb6+FT1/YfZnRHZuQbiU8Cl1fe/sySOnDpN1+BTbe5cy3OIsFz39wtfj0m0LalH8QB/0kL6oVWZxQH+WMKH/JWEweRnCRcM7Xzo71wp/DnC1PzN2f2QfDL9DPAQBt9/IAwef1m13fcAD2Gr1d8QLhi8it0p0x23JlxYd3FV5jx2t9HtN3AA3LUqewXhA/L1HD7luSy/7QD/KMJV4V8HHt2gny4D/CcIWyZLwu/Cizh8mj73/UH6d2+/95j6Xenyc9rPfoPl9xH+6Pk6YeB+NrtLPRDOhl9FuFL/MuB/cvjWx+MJ2zIvJkzrv4z0zWOa1mk6wKfafD67nyHx15kN2pYkTVDdVeuSJsA1eEmSZsgBXpIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSVKWA2MHsELHA09gs96zJGlc3wDeCBxadcebNNidce21H3nj0Uff6KixA5m//zV2ABvkLZnlz+i5vXXxj5nl7zZy/ZkoE/lFZvkmctuMy7cR9xG1eeAApwIX9dBTliNW3eGYjjjiiBvGjkGSpFXYqAFekqRN4QAvSdIMuR6tHsRr7j+8gj4UpNbUY3NdY+9b32vm8Zr8EH2soXJN2ky1X8QvTOMaDM/gJUmaIQd4SZJmyCl69cApeU3d0FOmdVPwc5B6X4njWETpMrP7uH6bNpJtZr7HPfXr2oiXzs5O9DEMz+AlSZohB3hJkmbIAV6SpBlyDV4jcY19L7ewaWomuJWviNJl1wbj99jH9RTT+L/sGbwkSTPkAC9J0gw5wEuSNEOuwauF3FvT1q23x3VSa/K55ddBvE7X5Lazfa/tbcrjY4deS57gWvUUlCPULzr2Gf8s4xgatT+N3wfP4CVJmiEHeEmSZsgpetF9urtN/dw6c5iSj+U+CW4Ic1z60EYro3TRsb099dfntsSewUuSNEMO8JIkzZADvCRJM+QavMh/3KvrtPPhz7KZjo9N3VRFlC471m/TRm75ZAwNftZd++yJZ/CSJM2QA7wkSTPkAC9J0gy5Bj+63Fu0TsEQMfVx+9tNEO+d73or2bncinZq4jV71+iB9J70MpFeF8U0fv6ewUuSNEMO8JIkzZBT9GtvFVPVqduZjjGd7hS+cnSdMo3Lx+2lttHV5W/gtH0ZpYsRYkgp4hfin13dLabPjtLT+Nl6Bi9J0gw5wEuSNEMO8JIkzdCBsQNYoTOuu+6jbzjqqCOPHrYb135XwzX4wG1u/ei6ZjrEI0SnsY47qnIFfRTxC22u11he58ABTgUuygmrD57BS5I0Qw7wkiTNkAO8JEkz5D743qX2jKsfHlcNqe819Tbr6dO43enaK3IrtDnO0/zZeAYvSdIMOcBLkjRDGzXAD79FTpKkadioNfjrr//WN1c/yLsmP011++j92UxTan2zj/XyIfaxdzXNdd2VKsYOAJr9bqSeVeDjYiVJUk8c4CVJmqGNmqKfBqfsp2Fdj/sm3po2Nd1ZN/05xSl37VEm8osGderK9Gp9t815Bi9J0gw5wEuSNEMO8JIkzdCU1+BPBK4DvjJ2IMNyTV6avzZbrVSriNJlIr+ruP01MpUz+POA21Tf3x74S+AS4FLgXcC3jRSXJElraSoD/MOBG1ff/wbwSeCmwHHA3wKvHCkuSZLW0hSn6L8beARwVZV+EfCJ8cKRJGn9TGmAvx3wOeAfCKsoH6tevzvwxZFi6kG8pl53i1RJzTW5DWjq1qF96+NxsIkYy6iP10X5d4zSZ+ZHtHJFizplqkDi9yNZfz6mMsD/BfAm4NbA1cDJwP8BHgS8DXjmeKFJkrR+pjLAn179ezRhcD+xSl8NPBp47xhBSZK0rqYywO/4JmG9/RPAQeBDwLdGjegwbmGTVGcFTw8roj7O6trgBLbllYn0Vps2M99X3GesaBFDmzoDmMoAfzfgJYRtcWcD5wD3B24A3g48Fbi8QTs3JVyRX+d+hw4dOtA5UkmS1sBUtsm9BvgCcDHw/urrdsC/Aq4FXtGwnSOAW+zzdc8bbrhhKu9XkqRBTeUM/j7AYwh3rns24Sz+G8CXgGcAH2/YzleAV++Td1faTfhIkrR2pjLAXwmcAFwIPIEwuO84hXBmP4I2a+6pW8+6jq/9NLlt8Rk99znFx8+m3mMc8xo8Grasea1IrRUP/b7atD/wun0Zpc+tKbOVqJPbR5FIN9GmzgpMZcr61YTb1d4XeHP12snAywlr8C8ZKS5JktbSVM7gnwdcwOEX0h0DfB54JPCBMYKSJGldTWWAP0R4qMyiBwAvHiEWSZLW3lQG+DovBV47dhDS6oxxfUbumv4q1uxTfTSJue84B1gvL6N0kd/Ecn3EPIG98rEykS4S9eP8VHqNTWUNXpIk9WjKA/xzxw5AkqR1NeUp+qY3t+lRH1OkboNTX9pMM8fT13EbfW+za9Jm39PlE9zaF98etWjTRpTes42u6+1w13RKPqXIzE+Vn5Epn8FLkqSWHOAlSZohB3hJkmZoymvwK+B6ueYmtT7ddQtaXf4E18R7l7n+XfbQZdxGvCYf58fprR5i6KrMLF8k0m300caa8gxekqQZcoCXJGmGHOAlSZqhDV+Db/J4TmlVprCWndo3P4UYZ6LMLF90bD+5r34Ciom0MROewUuSNEMO8JIkzdCGT9E7Ja8u+njq2dSNMSU/wJPbOkssVeRuYasTlyky24jLt9L1driRolv1WuUAbXZVjh1APc/gJUmaIQd4SZJmyAFekqQZ2rA1+N9n496yRrSKR7XOUc/rwOuqTOQXXTuoO64T3DoXK6J0mUjn1p8Rz+AlSZohB3hJkmbIAV6SpBlyQVoazRh7zOd469kma/SpteWoje0ouzi7cTQrU3asX9S9uOLrHcpEftGgTqqNDeYZvCRJM+QAL0nSDG3YFP3jgKMX0t6qVjm6TmdPYTp8CjHkarF1q4zSe56klnBBbvuJdB/iNuMYUuXXUdlDnaLn/DXiGbwkSTPkAC9J0gw5wEuSNEMbtgbvrWq1o24tOnUr2TluMdsQ5YrbH6K/VJtxfpFZv65OSpM2+xb3mRtDkVk/zo/rN+ljJJ7BS5I0Qw7wkiTNkAO8JEkz5IL0yv1wlI734sf5Ke7lb6fNo1tdc19bZSK/iNJnZba33TyUfX06St8xM4a+86H/teQmfXZVJNKp8rEykW7Sxkg8g5ckaYYc4CVJmqENm6LPvVVtk+ny3Clyp+TXh1Py7cS3hc18kltS1F5ZU6TutWVS5YvM/Nz+IT0lP4YyMz9VPlZklm/SRh9tLlM2KDN0DA15Bi9J0gw5wEuSNEMO8JIkzdCGrcHn3qp2FevdXdfkpanLXWPvob0iSpeJdNf2upYfQtxnk214cZ1Y0TKWKSmj9FYPbRY9tDEAz+AlSZohB3hJkmbIAV6SpBnasDX4deA+92biPeqpW8822dMet9FHm1PX5pa9sfg4xPveO+5z3yNqr6gpUmZ2maofp+M+u/bXxAWZfRaZ5SH/9rhxH236zJWKISVZPvr9i8sXfV9TMhzP4CVJmiEHeEmSZmjDpujjW9XGnB5fH7lTy3H5uun11JR7H9PZU5faptnk/0ju0kY85Zl7q9sWiihdJsrH+XH93PbqxNvYTk/kd1U3HV9ktpFbvswsv4o2i/iF1O9f3e/jNKftPYOXJGmGHOAlSZohB3hJkmbowNgBrNDLrrnmw087ePDoI9s34Rr9+lqHLW1t1vin8L6GfjxsrMU2vDKRTpWPbWXWj7e41UltUSsSffQh7iM3P1Z2zG+jyMxPle/BgQOcClw0fE+H8wxekqQZcoCXJGmGHOAlSZqhDdsHn/u42HhPcN0eYdfl10OTffBjW0VMHde/y5rXilQffe9j72HPcZFZvkykU+X7kGqz6Fi/rkyqzdw+Uvlt9vqnrl3IVSbSRU2dutcmwDN4SZJmyAFekqQZ2rAp+q6cjteQhlhG6PoktwZPbktKva9EjGWi+aJBCKkyXfuI6/d9W9k+FFG6bFCnSZku5Yc4TnEMRSI/Ja6/RqZ8Bn8icPOxg5AkaR1NZYC/C3A+cE/gJOCvgS8Al1av32G80CRJWj9TGeBfB3wY+BjwcuCDwHHA8cBHgN8eLzRJktbPVG5V+zXgVOCLwD8Dj6j+BTgB+CRw0459vOyaa57ztIMHj+pwq1oFqTXUswfoIzbEo1unuHWuq9SWtdzjOIVj1OS6gszb5ZaJ4nF+qnybteX48bB9KxuUieOOt6AVA/S5rP8mbRZROveWv3E61X4TUZ1Nv1Xte4H/QPiD43zgIQt5D2d3sJckSQ1M5Sr6HwfeAfwn4OPAbwH/njDgnwb84HihSZK0fqYywH8euG/1dXfCGf03CBM27wSuHS80SZLWz1QGeIBDwPurL4CDwPXAt0aLqJG629cumuHe+TJav9yO8s/so5Mh1ti79tl1/TmxH/z5DdaWnxSli7MTFeKYc/ekN1mzzz0uXff793Hr28R+/5Ll6dRacbwO3GZteQrWYT9/3+Vj2w3a69rHQKYywN8NeAlhW9zZwDnA/YEbgLcDTwUub9DOndh/RHWrnSRpY0zlIrvXEPa9X8zuWfztgH9FmJ5/RcN2PsXuVH/89T/7DVmSpOmayja5q4GTgeuAK4BjCWvwEO5o93HgFh376GGb3BSeJpdaEqiTG2PuFrUxtrTF+ti+FccZH+sV/6zPPXvva/GUafaUfSw6bvHySxGXbzI9npju3tNmmz66SiwzlYnqQ0xd5z4VLY6hjNJF60j2l4pxClP68XbDIkqXifw2Em1s+ja5Kwn73b8KPIHdwR3gFMKZvSRJamgqA/yrgfMIU+lvrl47mXBXu7cT1uclSVJDU7nI7nnABRx+Id0xhO1zjwQ+MEZQkiStq6mswdd5MvDaHtubya1q+1gXnsLtRofektam/67bvbpKbWlrUie11S6xPawPZSJdxOnUVrwBHpu7HWWXUTq1lhyXTykatBFfT5ES178gs36dooc2Vi2+LmArShddO+j+f2bT1+DrvHTsACRJWldTHuAlSVJLUx7gnzt2AJIkraupXGRXp+nNbTI8Djh6IT3D28jWmsKa+9iarGf3/ejU1L76KP1j0dreOU1+bgOsoS8qW9QpOuZn3z63hTiGsmN7cf24/SYxpNrMrZ9ak6+rn7sXfwqK3AqZjxIe+v/YgKZ8Bi9JklpygJckaYamPEW/Auv4JLgmMU1tSr7NdrK+t0o1qT/0treEokmhrrcJjstH05XxrWpbidosUuX7XhqpE8eUuCVv6jawuerqx33GZVL5dW0uim/Zmuq/D+UAba6jcuwAAs/gJUmaIQd4SZJmyAFekqQZ2rA1+N/n8Lfc5tGrXeX2OcXrAOaq6zp/7nauaO35rCZ95MaYuv3t2curlw262EoVSK3rxzH08bjYkbc2lVF6q0GdovcolitX0Efqlr+rePxsEb+wvtvecnkGL0nSDDnAS5I0Qw7wkiTN0Iatwce3qo1Ncb079XjYqe15rzPGHvRVSK25p/ag59avqxNLrV/HMZx9eLKI0mWiudoymWucRWb9uL899QcQ9xHHkCpfJ15/TrU5hfXsvq0ipjJKF4n8WFx+jXgGL0nSDDnAS5I0Qw7wkiTN0IatwU9Bap1/DmvubaT2a6/ifuWxaC24jLKL3Bhy998O8bOOYzh7efEiSpcNuojLxG3katJn1zaKRPnUWnFcf4riNfo2699llC5aRdKv3PdRJNIz4hm8JEkz5AAvSdIMbdgUfepWtWM8PnYOU+7RtO+5UXZRU2Wrj9uRrliZyI8fQZqqX6Q6rGmvjzZy2kulAbYTIcR9pNT10bX9VJm4z3jadzuzfpxuIq5TRunUNrhcTdqLj0MxQB/L+mvTR5EoX2aWb2OINlvwDF6SpBlygJckaYYc4CVJmqENW4PPtYpb16a2f01wjX47Wtd9XZRfRulGj0GNpbbNpbS59e3EjnXZplLH28S26jOzjbjPVP1Ue03EfcZtbifScfm4vZS6tehUG7l99KGM0n2v+/chjmkrShdDB1B3/VDqttPjPKLWM3hJkmaoyQB/JPBtwIGBY5EkST1ZNsDfHjgfuJIwv/BdwHuAO60gLkmS1MGyNfhzgL8H/i1wIfAR4H3Aa4CHDh/aEOLHxXa9bewQJrYOXKeI0k9K5BdruOe9zlZm+XKAGFJ9FB3bi+vH7cfpOluZdbrmN1Ek0hd0rB+nVyHVZzmRNhflPvK2yb74MkoXTYPZ0cfn0zQ/45YN8A8gXKl0TZW+Hvg1pvlUYUmStGDZFP0/Ewb5Rd8LfHK4cCRJUh+WncH/LOHertvALavvHwj86PBhDSW+Ve3Zh2c/Pyp+VtetWk2swZR8LJ5yL9o0MsSxXKbNzzI17ZbY+lJE6TKRTt3qtom4zVjRsb269rcy20z1kdJkDjF3e1fqdqdlon6cH9fvq06f9dv0EYv7TJVPTcHH6SbbC3NjiMtnq/t/un5T9BcAdwEeTVh//wLwFOCSFcQlSZI6SN3o5kvsfXSIJEmauLoB/itLyh8CrgLuMEw4kiSpD3UDfFH9+2TgkcBzgE8R9r+/APi9lUQ2iLdy+HWF0brJWfG6bB/r42u4xt777XObrHfnPqq363FtU3/g202WUbpoUCZOx+I2Un2k2msibiNOD7FVKiWOIVZk9hmXbxNz3EacjpUd84cwdJ9FzWtbA/fZSvTZsD1KEHssO4P/BcJV85+v0pcAZxL2wp8zeGSSJKm1ZdvkDgCnRK+dQpimlyRJE7bsIrsXA28H/j/gIsLg/lPA81YQlyRJ6mDZAP+bwIcJ93d9KGGq/lHAX60grpGk9kqv43p6E30/irXNLX5TZfo+9i3W08tEftFze23EbcbpIrO9uHyT+nGZOIYxHkGauhVtKqYiUT7OT9Wvey1Ol4k2h5Dqs8gsn9LL78I096BPQWqb3HuqL0mStEaWDfDvW5J3v74DkSRJ/Vk2wP/8wvcHCHvfnwK8ctCIRrUpU/Lx9HTXbW+pKfkm7edOmWfeRrZs0GQRpeM624n6ZzboI0fcP6S3CMV1UrcC7UPRc/kySqemceveU9/vM3dKfqtBm6k2cpWZ7cfl68RtNKnTRdxfnTiGPbd47niL6T3i9mra347aTC0JrUjuGfz5wLsJG8olSdJELdsmV+ckxnnysSRJypBzBn8UcC/gt4YLR5Ik9WHZAP/LhPvOL/oK8LnhwhnbXNbcE2tMZaJ8Eeen1rRSa+418eyJIbInhljme4zTyfZrpNZ1c/uI8+P6TfqI03GMqTZztykVNa/FfcRlthLl43TqkaF9rK/33eZWx/ow/G2H4/w43USbOn0ro3QxdIe5a/yMs8WxRt0Av/Paa9l7J7vjCPvhbzpkUJIkqZu6Af6a6t8jF75f5AV2kiRN3LIz+D8DHrbCWCRJUk+WrcE7uK+FBns6y777TF2r0GAPet1rOYqBy9c5PUqXifKp/FgRpbd7aDNXav27D2XHPuP6dYpEm7mPrO2qbPhaF0XP7a2LMkrv2Rffsb09+TXtx/veU22sSN0A/wHCA2VesKTefYcJR5Ik9aFugP9p4FPA09l7FT3AsYNGJEmSOqsb4D9S/ft66q+i/wxeRT+iFtNPRZQuE+Xj/Nwpr1T7bdooemgzt8+UYoT6udvgUvlxDG2mx+M2cmNocyvanP6btNHH0+GWKRu8lttmSh/tlT20sWrlwO0XNa9N5Na0Ma+ilyRphryKXpKkGVp2L/r9BvcnDhGIJEnqz7JtcqcBvwDcbOG1GwPfC7yh5zgeAHwQuLrndkfQcYvGHg0eVdh3DGUiv+jWfC/KsQPoQdlDndw2isz83PbbxJDbR1y/iVQfQ6/B55bvQ9lDG8UAbXbpf7/XhlRG6ec3KDMRy87gXw8cDXwWOB74Y+C2wI8PEMd7CNvzHjRA25IkbZxlA/w9gWcAZxMG+t8FfhB41kCx/DTwk8Cbge8YqA9JkjbCsin6Swjzwe8BblF9XUmzOeI2Pgv8KHA/4LeB64A3AudVeZIkqaFlA/x/A94FfDvwp9X3XydMpQ/pfYQ1+QcBjyU8tvZGwO0H7reBvsvW3sMAABotSURBVNfX66T+fuohhqJrA3GMicfNll3766GNooc+4jZS5bv218djUYtEOrUHPS7ftsyQyprXikQ6devauM24fq64vbHaUL5y7ADaWzbAv5owsF9GuKzgn4BbEtbmh3aIcOuACwgX+t1rBX1KkjQby9bgIUyNXwNcD/we8BrgjAHi+CXgin3yDrF7dz1JktTAsjP4OjcmDPK/03McL6l57SDhD4tv9dzXmlnFskCkSEzB58ZUNHitTKS76rs9yH8PcflY7m1om7SZyu/afp2yY34s90lwTdooWrTRRZP+ykR6DOWK+ysalClTbSQ+v1L1U+KnStbp2kdPcgf4odyNMMhfSrhq/xzg/sANwNuBpwKXN2jnGODu++TdpnOUkiStiakM8K8BLiRcuf9+wgD/eOAmwAuBVwA/0qCdmwI/vE/et3cPU5Kk9VA3wJ+wpPzNluR1cR/gMYStcc8mnMV/A/gSYS/+xxu2cyn779N/GXDvTlFKkrQm6gb4y1YeRdhffwLhLP4JhMF9xynAxSPEVKNuC1tiPbrM7SOx5WyPFjE1aqNL/RVcN1BG6XhdNl4ni8vXKRLpVBu5+W3WkosWdbooG5QpMtvMLd8khq6Krg1kbh2F/rd+ptqri2EOilSB6GcTP/66zOyv7tGwuW2sSN0Af/zKowhb8s4jTMu/uXrtZOAXCVPzzxwhJkmS1lbdAP/1lUcBzyP8XbR4Id0xwOeBRzL8zXUkSZqVqVxkd4hwp7xFDwBePEIskiStvakM8HVeCrx23BAGuC1s2b3J3m1H77NujWnRWQPEUCTyy8z2Uu+hiVSfRSKdqt9mf3fcZtxnV3H7sTb9xW3GbcTpuHwft+wdW9nwtUXFCmJI6TuGvtuDmt+vjvfpiNtbY6k72UmSpDU05QH+uWMHIEnSupryFP0rxg6g3RahxJazPeWH0PMT6Z6UKtDDUkaZmR5i2jZuM3V70zidUibyU092q2sjTqduoxm/x9RxbBNTrEiku+qjvbJjm2X0f2C7Y3uN+hygzb77LAaIIaUcuP26/2NFos52/2E0MeUzeEmS1JIDvCRJM+QAL0nSDE15DX4EubeJnYmtRDrl+VE6Xrc9s6ZOmUjHisbRBKm15VR/fcQQl0/1mdt+G308ejWlyCxfJtJt9H39RK6tBmXKRDpWJNKp+k3Ebaby++gzp79V9Nmm/VX8v2rBM3hJkmbIAV6SpBlygJckaYY2bA3+wigd7xdv89jTrnvOM+uXUXbR5lGvPT/eNd4nX3RrrlbZc/2iRRu5t7+N+2jTZ6zJvvRlfZYd26+rH/eRm58rdb+CNn3G5cue69e1l+ojbjPVxxDiPraidLHi/tsoMvuIy6fyYe9nw3aizxXxDF6SpBlygJckaYY2bIo+JTEdXif55KLUFPoZifyzE/l1/Xec9o/TRaK5WNf6deI24j5S21L6iCHuM5a7NStuL85vEkOT6eplfcTpVPtN2ozFbXZtr035rm2WPZevq9M1P+6zzW2I4zZSMXQVtx/330ebq4ihTZ0V8AxekqQZcoCXJGmGHOAlSZqhDV+Db7HmHovrFIk+kuvjb2kRREriUZZlonqcXyTSqfqrkLudrE7u7SaLzPJbUbps0F5cJhVDnG7Sx6ImxyBuM9VHKp2ra/06Zc/li1ZRLG9jO1E+dU1IG2XPbfbd3hBtxu2tEc/gJUmaIQd4SZJmyAFekqQZ2vA1+ISyQZkit9F4TT5ec8+8LqAuP96bH5eJ07n7ZYtE+bj9OnEbcTpuI3Wb2Nz933H7TaTqxDGkyheZ6f1eG1KbaxmKzPJlZv3c9vsQ95mKIc4ve+gzt424fm5+mz5z68cxxOXj/Cba1FkWwxrzDF6SpBlygJckaYacol9UjNFpD1v11lE5cPtFi/wys06czr1tbLzsEPe/1SKGvg3dfp0ys3wxQAyd+4i2w9bd0rocOoae669Lnynl2AGsjmfwkiTNkAO8JEkz5AAvSdIMuQZ/mAbrZrEykY4VmeXj/Lh+nG4TQ+6jVuP262JIyW0jd7tWqr24/yZ9xun4uDVps6sis3yZWT/Oj+s3kWojTsflc2Ooy4/byJWsH99yOr6WJkrXtZfqo8zMT7XXxhBt5igHaPP5ifwnRemiQZupbbwj8QxekqQZcoCXJGmGHOAlSZqhDV+DTz26NZVPg8fDZtYv86o3anM70UfXR6vG7TXJz133j9OpPrej9FaivTbi93B6onxun2WDMqk2h+hz6BiS9RPr322UqT7j8j30mavMzC8GiaKbMpFf9NBGSrzGHq+fp9bomyh7aKMHnsFLkjRDDvCSJM3Qhk/Rx9Ns8dTfGQ3aiJ8Gl5KY9m+yNW9R2UOZIq/L7PZT0/Ft2uza3lYPMaSeshenc9tP1W/SRm6bTfrs2keZmb+nvRGmx2NFlC4T5VP5qleOHcB68wxekqQZcoCXJGmGHOAlSZqhDVuDP428v2ly19eh0da6nPpFnB+tP2636CJuc08fCak+m6y5p9avY2WDNrtKxdB3/a791bVRduwjrp/qbwir6CO3z7Jj+3X1U312Lb+OyhW0mXpMcx99TIRn8JIkzZADvCRJM+QAL0nSDG3YGvw6Sqy5lw2aKKL0VqJ8qs24vSYxdBX3GRsihrjPuI84f+j+65QD99l3+3V9pMQxxPXj/D767NvY/a9KOcE+X7eKIKbJM3hJkmbIAV6SpBlygJckaYY2bA3+wszyXfe0N5F5X+2tKF3WlIlfKxJt1rWRI9V+3b74+LU4nbtPPs4vM9Nt+kiJ+8it38QQbQ7dfjlC/bhOMUAfXdsreu4zFUOcXoWihxjiz4rtNoFkKAduf0CewUuSNEMO8JIkzdBmTdF/Gjh6SX4RvzCBx1KmFA3KlIn00OLpdtg7zVYm0vHtJU+P0kVWRPXTeluZbZaJ8qn6k5Bahmrxf6BsE0fPyo75ueWLRPn497dJnb6temob9r7HMWLYYJ7BS5I0Qw7wkiTNkAO8JEkztFlr8GMoE/nFCmJI9VH2XD9Vvk2b8Zr7Vmb7cXt9iPtYSz1cZ1Jm5sfpomN/dfXj25NuZ/aRqy6GlLLnGFKKRBryY6prY5ntzPKrUI4dwHA8g5ckaYYc4CVJmiEHeEmSZmjKa/A3Aw4AX1lZj2WULlbWc3tlzWtFgzLLyufqWr9O3d75RWVmDKn8pmU2TdlDG89PtFlE6Scl2ovX1+P2FBQTbDOuX3Zsr40x+hzJVM7g7wq8G3grcCvgHcAXgcur1283XmiSJK2fqQzwv024nPdTwMeq728GHA/8A/DfxwtNkqT1c2DsACrfAO5U/ftV4Fjg6irvBOAiwoDfxcuueQ5PO3gUR/7LK11vd9qmTjxdmbv9qw9lz+0VK+5vKEX8Qu5tXOPyufkjKAdoI047pT6N5Z+iQZlyxX320V8fbQzsQMmphHFspaZyBn8ZcA/g7oQ/Ou61kHdv4OIxgpIkaV1N5SK7XwX+lHDW/v8AfwD8CXAk8Fjgx8YLTZKk9TOVAf5VwDuBq4AvAOcDjyYM8PdnEnOZkiStj6kM8ACfWPj+QsIFd9cD3+qthzdw+FUHZZQfb8/ZatBm3EaRyI+3f8XlBxGt/RYr/nupaFCmTNSJ8/voc+VWcdw7Pv61TKTrxI8APbdBnU1TtqhT9BzDGMqxA9hsUxng7wa8BLgUOBs4h3DmfgPwduCphC1zKbcHXrZP3nd2jlKSpDUxlQH+NYSz9kuA9xMG+McDNwFeCLwC+JEG7VwKPGufvOcAd+4cqSRJa2AqA/x9gMcA1wHPJpzFfwP4EvAM4OMN27kO+OQ+eV/tFqIkSetjKgP8lYT97hcCTyAM7jtOYahtcttROt6THitb9FFE6TNbtNG7Ve/HrlsXjvosEk2k8nuRWr9OGeFa0DIzhrh8nL4g1X6TGDRJ5dgB9KQcO4D1MZV98K8GzgPuC7y5eu1k4OWENfiXjBSXJElraSpn8M8jnDssXkh3DPB54JHAB8YISpKkdTWVAf4Q8K7otQcAL15pFPF2n3Klve+j67RxnTGm5NuUWdR3zH0c175/Nk3eY9Tn66I624nqRZQuo/RZifLxbWfBbXFDKaN0MUIMYyvHDmC9TWWKvs5Lxw5AkqR1NeUBXpIktTTlAf65YwcgSdK6msoafJ1XjB3AHmWLOkXXTtusPQ+xbr9uUsfgjJrX3tKxz7jN3PZa/NxStz6Ot36eGaXLKL0dpePHG8fltTpllC5GiEFrZcpn8JIkqSUHeEmSZsgBXpKkGTqQLjIbL7vmjjzt4AGO/JdXzoxKpG5VuwpFIr2x+r6uoG4NPpa7hj7FvfpRTGWUvR2l4zV3rY9i7AB6UI4dwDAOlJwKXLTqfj2DlyRphhzgJUmaoSlvk1u9IkqXDerEZbpOcca3Cj0z0d8QikT+EDGk+uxdk+n3KdzSN5YZ03aUjp8Wd26LEPpWJvKLFcQwB2Uiv1hBDLnKsQOYN8/gJUmaIQd4SZJmyAFekqQZ2qw1+Cdy+Dt+UpRfJtLx+iXsXePcyowprh/3USTSQygT6VgxSBQdDb1+3sYKbiG8HaXjx7vG+atQDly/6Nj+pihb1Cl6jkEr5Rm8JEkz5AAvSdIMOcBLkjRDm7UG/yDgRgvpcoA+4nX9lDiG7Z7bh+7raLn14/JlD22m1tTr+hhakVuhh+sCyii9HaXjNfe4fN/9T0HZoEwxcAxzVY4dgLrwDF6SpBlygJckaYY2a4r+0yx/x/H0ZhNllP6xRPkiSm9H6TOj9BBPuCsT+UVme6nyue01USbScZ9xfhNxG53F2+QSU/bbNa/1favZsmP9dVFmli8GiEFaMc/gJUmaIQd4SZJmyAFekqQZ2uw1+LMz6xc1r50TpVNr8GWi/lZm/SZSdYrM9lLlU/311UaX+qn+m5bJklhzPzdK190aOS4TK6J0mSivemUiv1hBDFJHnsFLkjRDDvCSJM2QA7wkSTO0WWvwL8wsX0TpeL0c1vNWoEXH+uUA/eW22aaPodsoM8tvR+kmj3YtEn3mxqB2yszyxQAxSAmewUuSNEMO8JIkzdBmTdHnKqP0vx6hz1ixJn3k9Ne0zDJFIt2kv64xpNpLTcE36b9JGU1P2aBMMXAM2jiewUuSNEMO8JIkzZADvCRJM+Qa/NhSt7Y9M5Ff9BPGYcoV9JnqY4z24zpFZptxfpNtb9KOMkoXI8SgWfEMXpKkGXKAlyRphhzgJUmaIdfgp+7cRP6na17bTqS3ovRZjaMJyszyQ7RZdKzf5FGscR8pcQxxWspRRulihBi01jyDlyRphhzgJUmaIafo1825A7RZRuligD5Snh+ly0T5rSj9pER7TcR9pmKQpAnzDF6SpBlygJckaYYc4CVJmiHX4DfRdiI/Xs+OFT3EUCbSKduJdOzsBuVzY5CkCfMMXpKkGXKAlyRphhzgJUmaIdfglb8mX0bp+LGoW1H69AYxxHW2G9TJcW7P7UmrVkbpYoQYtFY8g5ckaYYc4CVJmiGn6LVXkciPn2C3HaXLRBr2TtvHywBxm0WUPjPRx7kNYpDWWZnIL1YQgybNM3hJkmbIAV6SpBlygJckaYamuAZ/LHAT4MvAt0aOZTOdm0inlA3qx2WKKL0VpeM1+rh83J606coWdYqeY9CopnIGfyzwcuBy4OvApcC1wEeBnwEOjBeaJEnrZypn8K8CjgO+H/gm8KvARwjXUv8acCLwgrGCkyRp3UxlgH80cCrwpSr9FODvgBcBPwr8JQ7wkiQ1NpUB/jLgHsAFVfoU4Lrq+zsCNxojKA1oO0pvRenUI2tjZdtAJP2LMkoXI8Sg3kxlgH8m8DbgDwkX1j0O+C/A7YE/Bf7zeKFJkrR+pjLA/yHwT8CjgIPAw4H3A8cD9wUuHC80SZLWz1QGeAiD+OJAfhD4Bg7umym+He4do3SZSEvqrkzkFyuIQa1NZZvc3YA/IeyYLoDzgSsJW+beBJzQsJ0jgVvs83Wwz4AlSZqyqZzBv4Zwpn4JYWr+HODxhBvevBB4BfAjDdq5LfCyffLufAAOdQ9VkqTpm8oNZK4GTiZcOX8F4cY336jyTgQ+TjgL7+KM6+ANR8HRHdvRELYS6XiKPvb8KF12iEVSM8XYAayHAyWnAhetut+pnMFfSZiGvxB4AruDO4QtcxePEZRWaDuRv7WCGCTlKaN0MUIM2tdU1uBfDZxHuGL+zdVrJxNuX/t24CUjxSVJ0lqayhn88wg3ubl84bVjgM8DjwQ+MEZQkiStq6kM8IeAd0WvPQB48QixSJK09qYywNd5KfDasYPQSLajdBmltxL5klavjNLFCDHoX0xlDV6SJPVoygP8c8cOQJKkdTXlAf4VYwcgSdK6mvIavLSrjNLnjhCDpDxlIr9YQQwbbMpn8JIkqSUHeEmSZsgpeknSOMpEfrGCGGbMM3hJkmbIAV6SpBlygJckaYZcg5ckTVPZoEwxcAxrzDN4SZJmyAFekqQZ2qQB/sLrXZKQJK3e18YOYFP8APCssYOYgbsC/33sIGbgxsCfjB3ETJw/dgAz4XHsx1uAE8cMYJPO4CVJ2hgO8JIkzZADvCRJM+QAL0nSDDnAS5I0Q5s4wH+JZvdH0nJXAReOHcQM3AB8ZOwgZuKDYwcwEx7Hfvwd8M2xg5AkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSS38CXDaPnmnAV+PXrsAOLTwdd5woa2V3OP4bVWdK4H3AXcZLrS1knMcn8Hhv4s7Xw8YMsA1kfv7+FOEO1d+A9heUnfT5B7HxxLuXPll4PXAscOFtlbqjuOyseS+wIeAK4BzgBuvIMZZeQjwGsKBrfsFPhL4K+D66PXPAPcHiurrNoNFuB7aHMcDhNtcPh24LfBS4Pxhw5y8NsfxZuz+HhbAA4F/YLM/DNocx1MJtwp9COH38ZXAu4cNc/LaHMfTCAPSFnAC8AfAyweNcvqWHcf9xpKjCH9s/gRwe+BdwLOHDHKO96K/N3At4S/2Ok8DPhe9djRwa+D/J/wASuCLw4S3Ntocx/sCNyEM7JcA/wX4uaECXBNtjuNX2f09LAlnoT8DXD1EgGuizXG8CriGcDZ6FeH4fXmoANdEm+P4KOBthBmQywn/r390oPjWxX7HcdlYcjrhd/B3gIuBFwJnDh7pTH2OvX9ZnUKYZroze//SvwL4I+ATwO8R/sJS3nE8k/BB8Grg48BbgZOGD3Et5BzHRfcD3jJgXOsm9zj+DOEs6wbC4HSroQNcEznH8ZcJZ6s77kQ4pk7T7z2Oy8aSH+fw/8u3IvyRcGCo4OZ4Br+fIwi/pE8nrA8vOhH4NPAqwl+r3wLevNLo1kfqOP4g8GHCcfwiHsf9LDuOOw4AvwH8yqqCWkPLjuNpwHMJ06XHAq8lrHtqr2XH8Z3A44DvJgxKv1q9fpOVRbc+lo0lJwBfWyh7JeGM//hVBjgX8V9WPwn8bvX9Cex/xgRwHOEHc8Iwoa2VnOP4FMI03o4bV/kex3a/j6dz+PFU3nH8JcJ06I6DhCn7mw0Z4JrI/X386arOJYR14+sJ6/Wbrm4mZNHiWPKTHH7CcyvgOgY80d6kM/gHE84uLydMHx9ZfX8/wl+mD1oo+03CD2XZHwGbatlx/HRU9gbCVJ7Hca9lx3HHY4E3rj60tbLsOB7J4YPQgSo92JToGlt2HI8H3gHcgXCx4vnAPxI+I3W4ZWPJJ4G7L+TdlbBGf8OqgpuT+C+rWxF+Qe8A3JNw0O9A+Kv+AYR1kwdV5V5CuMJRecfxIOEv/P9QlXspnoHuyDmOEAahEjh5dSGuhZzjeHfgK8BDq3K/iVfR78g5jnclXKj4AMLv4wWEaxu09zguG0uOIlxc93jCmf3bgbNWFunMLJs6iaegDhCuVP444QrmPyDs51becQT4HsJWua8R9ojeYbjQ1krucfxOwoeBZ5uHyz2OP0S4cOxKwoVPXjwb5B7HpwCXVvXOwt/LHfFxTI0l9wU+AnyJcD3IQSRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJkiRJklbsOOAQcMKK+rsv8IGF9PXAUZlt3Bz4Sm8RSdrXEWMHIGltfAp43thBSGrGAV6arx8CPgZ8Ffh94MTq9dOA9wLPAC4mDNwPXqh3JlBWX0+q/gW4E/CC6vs/A44ELgIeArxvof79ovTTgM9WX0+OYnwg8GHgKuA84PZZ71CSpBlaNkV/J8JU+L8BbgmcA7ypyjsN+DrwLOAmwK8Bf1XlfQdwGfA9wO2A97A7wO83RR8P6IvpBwJfBh5EGLz/nN0p+lsBlwOPBm4BvBI4v9E7lyRpxpYN8D8PnLuQPhH4JuGs+zTCWf3O+vk9gAur7/8r8OKFej9ItwH+5cCLFvLuz+4A/yTgrQt5xxDO5I+seT+SMjlFL83TbdkdmCGclX+T3Wn6SwgDNAv/QjjL/vRC+jMt+j4QxXHRQvqTC9+fBDyM3eWAC6sYb92iT0mR3CtgJa2HS4B7LaRPBA4SpsRvTjjzr/MF4OSF9EkN+1v8LLnDwvefB05ZSN8p6uudwOOq9JHAvavYJUnaWDtT9KcQBu2dr4PVa18lXAB3C+B1wFuqeqexOyUfp78LuJQwHf9twDbLp+hvDtwVuA74TsK6+ja7U/T3J6zBP5Cwpv9O4Ioq77ZVX48gLDP8OuHiP0mSNtrOAB9//USV/zjCVfRXAn/I7tT3sgEe4KcIZ94fq77/++r1eIB/c9X2ccBvAl8DPgo8nsPX5J9KuIL+c8CPVf/ueFjV/lXAu4E7N3vrkiQpx2nA6Qvph+GV7ZIkrb3vI5y93xq4MfAO4JdGjUiSJPXiWYQb4HwOeDVhr7wkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSZIkSdIs/F/nCwWW9uqpZwAAAABJRU5ErkJggg==" alt="plot of chunk unnamed-chunk-2"/> <img src="data:image/png;base64,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" alt="plot of chunk unnamed-chunk-2"/> <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAfgAAAH4CAYAAACmKP9/AAAACXBIWXMAAAsSAAALEgHS3X78AAAgAElEQVR4nOzde3hcVb0+8Pe7Jre2KTcpLdDL7LXHguGoR3tE9AhU5XC/KYiCCigiyqXQdiYtCIaiD21nT1MoFCgXCyqI3FWuAoeCIPzUnnNULLfZe9JQgVKhUNI2t1nr98dMStomaZJmsmcm7+d58mQyM5l5M53Od6+11wUgIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIiIqkEjYAfowDkAVgNawgxAREdHgPApgfP7yvgCeA5AF0A7gCQB7h5SLiIioJKmwA+QdAWBU/vIiAAGAXQDUAvgrgGtDykVEREQ7wQKI5i/7APbrdtueAN4b7kBERESlrFha8ACwD4AKAP/Ah8UeAA4AsDaMQERERKWqIuwAec8AuBPAXgA2A5gM4DEAhwB4AMCcIXiOsQC+AUCG4LGIiIj6YxOA25HrqR5WxVbsqpAr7uMAPA/gMwCqATzbz9/fDcApvdx2IHID+X63kxmJiIj663QAZyB3+nlYFUsLvks7gHT+C8hN4/vzAH7fAFjfy20TkBuZf+Og0xEREQ3MgWE9cbEV+G09CODfAazp5/03ALi7l9s+D063IyKiEaJYCnwLgJoero8AWI3cuYtiyUpERFT0imUU/WcA/AnAfQCmItedPgG57vZP5S8TERFRPxVLgX8JwMEA/gjgYeTOWfwLuXPq7+YvExERUT8VU7d3FsBVyI1yvxnAqciNqiciIqIBKqYC38UH8GUA3wNQidy8eCIiIhqAYizwQK5r/kZwShsREdGgFMs5eCIiIhpCLPBERERliAWeiIioDLHAExERlSEW+EGa2Dhxj6mpqXuGnYOIiKgnxTqKvmhFk9FDlVUbbdbu34GOUQBuCjsTERHRtljgB0gpdYAYeceKleHf3ZeIiKh/2EU/QNZYAQAFxdeOiIiKFovUYBlI2BGIiIh6wwI/UJIr7FYsCzwRERUtFvgBUlblCjwsXzsiIipaLFIDlW/Bb/lORERUhFjgB8uywBMRUfFigR+grnPvHEVPRETFjEVqoCwH2RERUfFjgR+ornPvnCZHRERFjAV+kCysUqJY5ImIqCixwA+U5Sh6IiIqfizwA2TFCgTSNR+eiIioGLHAD1T+3LtVXOiGiIiKF4vUYHEePBERFTEW+AHaMrCO5+CJiKiIscAPVNc8eK5FT0RERYxFaoC2LHDDefBERFTEWOAHiXPgiYiomLHAD1TX4DoOsiMioiLGAj9QwrXoiYio+LHAD86XABzCVjwRUWlzk+5/OilnStg5CoEFfoCstWJhXQDRsLMQEdHOsWIPU1a5YecoBBb4gRKIQCJhxyAiIuoLC/wAKVFiYVngiYioqLHADwILPBFR2SjbsVQs8ANlIQJRAinbNwUREZU+FvgByk+PYwueiIiKGgv8QFnwHDwRERU9FvhBEIiy4EI3REQlr4zXM2GBH7iuLvqyfVMQEY0kVpVng40FfqByR3t83YiIykA5LztejIVKAOyC4sy2FQt7XNgZiIiIelIsRXQ0gEsAvAqgFcD7ANoBvAagAUB1eNG2ZsVKfoqcAJgWdh4iIqKeFEuBvw7AFwGcDWAfAFUAxgP4DnJF9Lrwom0jN4q+bLt0iIhGlDIeZFcRdoC8EwHUAXij23XvAHgWwF8BZACcFUKu7QhkbNgZiIiIdqRYWvAZAEf1ctuRAJqHMUvfFMaCI+iJiMqCElW2n+fF0oI/G8A9AOIA/g7gAwC1AA4AsDuA48OLtg2OoiciohJQLAX+LwBiAA5Fbp/1PQGsB3AjgKcBdPbzcWqQOyjoyXgMxRKzAoHNXyrjczdERFTaiqXAA7ki/uQ21x2EXFHub4HfBcDXerntowD+Nbho22FhJyIqBxYCU56f6cVU4HvyIIB/B7Cmn/d/G8DcXm5bDGDvnQ1krRXJvRfK8g1BRETloVgKfAty3evbigBYDcCieLJ2zYEnIqISx5XsCu8zAP4E4D4AUwFMyH+tB/Cp/OWiYW35viGIiKg8FEuBfwnAwQD+COBhAAcid77cAHgXQ3fufKcpdJtSIWzJExFRcSqWbm8AyAK4CsDvANwM4FTkVrQrOiIi1lqIsL4TEZW0D2dGlZ1iKvBdfABfBvA9AJUANocbZ2tcppaIiEpBMRZ4INc1f2P+q7hYCATC1jsRURko4/VMirXAF7uyfUMQEVF5KJZBdqVj64F1o2PJ2KdDy0JERDutXKfKscAP1NZr0ddmkf1cmHGIiGjwyrW4AyzwREREZYkFfqBky0p2ZXvUR0Q0YpTxIDsW+MEp2zcEERGVBxb4ASrn8zVERFQ+WOAHSFklAuFytUREZWCr5cfLDAv84PG1IyKiosWFbgYov1Rt2R7xERGNKBZSrgPt2AodOBZ4IiIqemzB91NsQeyAbCQbCTsHERFRf7DA91O2IvtpANVbunM4uI6IqORZsWW7XSy76HeSsuU7ApOIiEoXW/D9pIwSowyQmxjHAyMiohI23hs/ZjRGLwVwKoDHws5TCCxUAyfdvxuYvXRSXxViHiIiGoBYKlY3BmMeA/AXAFVh5ykUtuAHRwQiFhaipAIGe4UdiIiIdkyn9IXGmOOUVd8AAKPMNWFnKhS24PtL5QfXWUh+LnxOmc6fJCIqJ3qB3lV7+m5Y7D554+Qj03PSa8LOVGhswe8kK3brpWuJiKioOAud/aBwsxV7dSaeuSdAsNXtVpXnHiMs8P1lchPjugr6llY8W/BEREVLe/o0AOdIRL4TzArSfd53kZ6KTuwSzAn+MkzxCooFfoCUVWKlTCdNEhGViWhDtEbGyNUAsqbFHNE0r6m1t/tGbORAJ+VMsllbLUoqkRt8V/JY4AdnS6tdQYkt11USiIhKkG7UH7dZuwzA/CAR/K63+6lKZU3WAMAuyipYsfsD+PNw5Sw0Fvh+smJFiZJum81s6aIv1/M3RESlxvGcs2FwqmTlG8HcoLlfv2S3rE1aU8hsw40FfqAEWy1raIXFnYgobLElsWrTZhoFUtmm2o5ZM3fN5kE8DAv8iGS3Wn1eAIzr4XoiIhpmsWTMtW32Fghu8uP+7QP9/fzgaaDMaiLnwQ/Uh6PmubMcEVHIdEp/1Yi5LSvZHwTxYMDFHcB2s6Gcq5zxuKv0P+PL6milkLod4Qm6HxgJhBvOEBENr70b9h5dU1tzvbX2vUh15MvBjKBt0A8mkC27yglEOmRpLB37YRrpdUOXePixwA+E3Xod+i3XsbwTEQ2b2ILYAUaZGwWS8hP+/Tv7eBZW5RY62fJ5Xhaf6izwA7fVP3y3lj0RERWY67knGGvqlVHfT89N/2NnHmtzx2ZbqSq3v8GWx+lrFvj+2nr0fPfhdmItR9ITERXStGXTKtdvWL/AwOy5STYdvnbu2o1D+PC7AXin64dymR1VFkcpw2mrjWaIiKjg3EY39u6Gd38Piz9mEpkz1iaGtLhDIKd3Xch/K4vayBZ8f+XPv2+7cp2yXMmOiKhQdFIfazvtxVIhPwhmBX8v2BN1jbHKnYcvi4YcC/wAWLGybc/NlpGXREQ0ZGJLYtXZ1uwSK7bVttgv97WW/JArk03EWOAHZ9v94MvizUBEVAxiyZhr2szPoHBzJp75RQgR2EU/kuTXoe/pJhZ3IqIh4iSdrxkxFxox32uKN708rE+enyZnYcVWlv54Kxb4AeIgOyKioTe9YXrF62Nen2eUcVWVOjqYEWwIKwsH2Y00vS1oU0YDMoiIwjBp4aR9mlXzcmvtbzPxzI+G63lVlbLo3PJj2S1gxgI/EKaHf/SyeBsQEYVDJ/VJAGZlTfZ7q+esfinsPPnB1GzBF9g4AB0A3gs7CLDdaPktRd1aKyKs8UREA3IXIrpJ/xiCOmRx9Oq5q98PO1K3hWoFwJcA3Blqnp1ULEcpjwIYn7+8L4DnALwF4G0ATwDYO6Rc29tm1LwSbjRDRDQQ0WR0grPaeRAK7wbx4JRgbhB+ce9OIAZmTNgxdlaxFPgjAIzKX14EIACwC4BaAH8FcG1IuXaM0+SIiPpNJ/XRStSvIxKZHcSDq1GEK4mwi75wPgPgaABdSxHOB5AOL06eYREnIhqsacumVb674d0UgD0rTeWxr8x55YOwM20n30VfLrOliukoZR/kDjj+ASDa7foDAKwNI9B21PZFvlw2JSAiKhTXc/dav2H9AwJZHcSDbxVlce+Sa8wpEdlXe7oh7Dg7o1gK/DPIDWZoAXAwgIX56w8B8ABy3fbhUhBYnA3Bx7a6nqPoiYh6FU1GD4XFbxTUT4NE0FhMXfLSIb1lEViMBjBlOPMMtWLpoj80/70KwGTkRtADwGYAxwF4NoxQPfgogCy4VC0RUd8aoJwxzlwIDqzsqDz25UtefmfHvxQegegtq5VaiIhESn0jsWIp8F3akTvfngZQDeB/kCuo/eUAuLuX2yYCeHGn0vVUyKWYjkeJiMI3aeGkfSql8lZRco8f908MO09/WNjDrLWvAFtOvRZbfRywYvkD6gCkkJsWdzmA5QA+D8AA+A2A8wH8qx+PkwHwH73cthg7Md3OGiv5Ce9srRMR9SKaih4RMZHLoXC+H/dXhp1nsARSUeot+GI5B38TgDcB/BPAn/Nf+wCYCqANwDXhReubtVbKZWtBIqJBsxA36dYrqPMjKnJcCRb3D9c3sUosbCTMMEOhWFrwnwZwInIr112CXCt+E4B3AMQBvBpasi6y1bl22eoWIqIRbMriKXtXpCqWW2UfCWYHx5fkiUsLUaKk67SrtTZS6quUFksLfgOAPQG8D+AbyBX3Li5yLfuipKAECvuEnYOIKAzRRdGDKjoq7sva7PxiXbhmMERJsTSAB61Y/oAbkVuu9mQAv85fNxnALACnApgTUq4tlFViczMqtjqks7ACi4+Ek4qIKCQWolN6Jgy+DMEJTYmmt8OONFBSJRYdXT9022NErFhrIwIxIUUbEsVS4H8M4GlsPZCuBsAbAI4B8JcwQvVAun3l5LYVLJaeECKigosmoxMkJcsheDSYHRxbJq32rRpvCkpZsSX9dxVLYbLIbSqT6XbdqwCSKJ7iDvR+vr1YXkciooLSKf2ZCCL3KyivnLrkga2XqOUgu5FEehlYl7ueBZ6IypuFuCn3AlgcnUX2K02JprfCjjTEtv5ct6gD8H/hxdl5LPADs/08eHbRE1GZ0wv0rkjhZgPzUmZK5hicMqAFyEqChRWBdH2mA7nTxCWNBb6frNieO6IEIijxuRRERL1wU+40GFxrxPw4E888HnaeQsl/ju/R7aqSb7ixwA9Mz7vJ2dJ/IxARbaUBStfqH1vYaRWq4jg/7vdnNdFSJkB+ynOZ7DHCAj8wHGRHRGVvYuPEPao6q24B8ELJLlzTD6pD2W7L0Qqw1d9Z8p/rJf8HDJsPl6NV2GZJQ/B1JKIyEU1G/70yW/mgKLkxSAQLy7W496J7I67kP9fZgh+Y7bvoc9MqSv6NQEQjXG7hmnoAB6sOdUL6kvS6sCMNMwFg8zvJCQBlrS3pbnoWpv6SPs/H8HUkopJVt7SuVnv6Fxb2I5NbJp84Aot7T6aEHWBnsQU/MD0Vebbgiahk6Ub98daNrTcAmJ9JZB7MbLXe2IhSFgPrumOB768PR1X29AZggSeikuN4zlkw+CYMTg3mBs1h5wlZ2e0SygI/ONv+4/N1JKKSMd4bP2Y0Rl8nkH/tPnb3I1aes7Jjx79V9nKf6xYfh6Ay5CxDgoVpcLY90iuLNwMRlb/YgtgBxpobRSTpJ/zfhJ0nTNIh1lZuNUlAIPgmgNdCijSk2LXcT/mRlT0RABFnkfPJuoa6quHMREQ0EG7KPSMbyV5rsuabI72494Bd9LTdQZEAgMqqKzaN2XQOgHLbgIGIStzeDXuPHjV21DXGmpZRLaOOWDVvVXvYmYoQB9mNWKbviXJWbEWFqeDrSURFJZqK7q+suhkGizP1mXvDzlPEyqq4Ayzwg7X9G8GistN08vUkoqKhU/qbsPi+suqMdH3aDztPkasBUJ2/LNt8L0ksSP0kIqd2Xdzqhq6tBQUSqY7w9SSi0E1snDiqOlt9tbW2Q1Wrw9Mz0m1hZyoB7KIfwf4t/32r18zKh3sIZ02WrycRhUov0lORxc0G5tpMInNX2HkoPCxIA5cFEOn6QSBbXsOIZQueiMLjJt2vW2PPg8VZmfpMWUz1KiRVpayxpsebhjtLIbAgDdy2Oysdk/++l1Emsu2diYgKLdoQrVG1qtFYE7Et9vCmeU2tYWei8JXFUcow2+ocjVh5IX/tx8VIo/b0YaGkIqIRKZaMuapWPQbg2Ux95hwWd+rCFvzAbTsI420AsLArBFIF4FHt6b8KxJvUMumeFfNWdA5/RCIaCZyUc7Kx5kIj5uymeNPLYecpI2Ux2I4t+J1klVUAICLWGjtbIrK/WPkfC3tbc23za27SvWC8N35M2DmJqHzElsSqnZSzRKwc2R5pP5zFnXrCAj9ErLViK6zyZ/lpv94/WxnlwuI3VuyC0Ri92vGcK1zP3SvsnERU2qZ4UxzbZh9TRv0lSATfWzNrzeawM5UhtuBHmK7Bdb3+w0cQ2fJ6puek1wT1wUWqQ0UV1A0CucDCNumkvt5tdGMFT0tEZcdNuSdGEPmFiJzr1/s/DztPuVNQJV3oWeAHbvuFbpB7I1hrt3s905ek1/kJ/1JVraYA+AkEX7VZ+4r29D1RL/rZ4YlMRKWsrqGuSid1o7HmxI3YeEQ6nl4VdqYyV9KFvQsL/BCy2L7Ad0nPSG8IEsH89kh7VKxcBOAzCuoF7emntaeP6TpQICLqzkk5U1rHtj4K4MVMInPm2sTajWFnKheqXW077blLWXwe97fA16BM/uACEACwsBKxkR2+nmtmrdns1/vX7L7L7jEA3wUwAcCDepH+u5t0z+SWs0TUxfGc48TIHVC4MKgPfhZ2HiotPRUkAXA+gO67Dv0AwOsAEui2ihsB6HbgM5CFblaes7IjSATLg5bgYxb267DosGKXt9a2Bq7nJmJLYrsUJi4RFbvpDdMrXM/1BHJKzZiaI4JZwd/DzkSlp6cCPxdAPbYu8DcBuBBAHMDMYchVino8B79D82AyicxdQTz4NCyOAdBkYeebNpN2PCc5tXHqvkMflYiKlbvIndQ8pvlRCF4LEsG3V523qiXsTCNQWfRY91SQvg/gbAB3dLtuI3IF/+z87bQ9Ecieg/9t2KA+eDhIBF+wYr9kYVcK5AednZ0rtad/FlsQO2AIsxJREXJT7lHGmF/biJ3tx/0bw85Dpa2nAj8ewIu93P//AEwsXJyi1uNgDAsr3X6ID8UTZeKZZzKJzFEi8kUInoPF0SZiHtVJfb+Tcg4ZiucgouIxvWF6hU7p+dba0yPVkSMzszN/DTsTlb6elqp9DcAnAPyzh9s+DaCpkIFK2JB36fhxfyWAk6YsnPIxJWquiBwqVm7RKf06DJYGG4P7MQ89boVERKVhauPUfZs7m5cDeCBIBBeHnYcAdBs8HXaQndFTC/46AEuRK/LdfQrAEgDXFzpUKRHIltewUG+G1XNWv5RJZM4wnWY6gN/DYl8ADU6t86xO6R9MbJw4qhDPS0SF5SSdwzuyHXcrqLlBPLgu7DwjTUtNS2/T5AZ/urWI9NSCvxHAWADPAlgN4A0A+wDQAH6CXPGnEDRd3NQE4LxoMjpBRGaJyNGwOLPKVH3H9dwHKzsqr3v5kpffCTsnEe3AXYg4Tc7lIrIfsjgqPTf9ftiRaCvVYQcYCj0VeAsgBeAWAP8OwAHQjNz5938NX7QSYyEiMizdOU31TW8BqK9bWndF6+bWs2BxpoU9pL2i/VDHc/4ZkchCrnRFVJymeFOcitUVywH8zE/4l4Wdh8pXb9O6qgCsB/AUgJ8BeAIs7j3Lr0BnZfjP1aw6b1VLEA+urhldczCARyD4iEDGGWuu0Z6+PZaMfXq4MxFR7/Qi/eUKW3GHFZvgWvJUaL0tdPMUgKkAvjK8cUqXskoQ0tzJVeetagkSQaOqVgcJ5DcWdncAo4yYy7WnH3KSzuFh5CKivAYo7ekGGJybrcweFcSDP4cdicpfTwX+duSmyj0A4G/DG6cESfEsiJCekW7zE/6yKS1TDoTgXgjGA9goIme4nrtCp/Q3pzdM7+m0DBEViHOVM17X6gch2BDEg5ObZja9F3YmGhl6KvA/BOADuB/A8cMbB0CuFbwLim8jnJ5HW269SUxRFPsV81Z0BvHg9mB2cJCI3AFgMoC1sDi4eUzz09rTF9UtrasNOydRuYt5semqXT1glLkiiAeLIb18jhAVQE+tuQ3IDbC7C8NXsEYDuAjAmQCmIDcGIAsgA+CXABYAaBumLIMSxjn4HRJYH/4DAB7Qnj4MwBwI3gIwqXVT68Nu0v2DqTJLMhdl1oaclKi8NEA5tc7Fxpr/aK9oP2bNrDXvhh2JtqfalO2xCpaJ3kbR39Xt8nC4DsC+yC2F+yJyBxm7APgYcuviXwfgrGHKMnhFvOVrkAieAPBEzIt9zlo71yr7vrHGoAO3OkmnWSKyKJgdvBp2TqJSF7syNs5UmuUCedpP+F9lq72EFfFnen8USzf4iQDOAPA0gHcAdOS/PwvgmwBOCC/aDnSdgy+ic/F9SSfSz/v1/gnW2h+JSEwgFQBWW2uv0J6+O+bFPhd2RqJS5SSdg22F/a1Yme8nfI/FncJULAU+A+CoXm47Erl5+MWpe2EvkSIPAJlE5m9BIjhVIvJDBeWIlYlW7AvGmtN1Uv/eWeQcj4aieX8QFTcL0Z6eIyKJiIoc59f7z4Udiag/Zx8iAPYC8BYK12V/NoB7kNuO9u8APgBQC+AAALsjnMF+A1OiXTn+LD8N4OzYwthEIyYOhU/D4lfKqAN1rU5Yz94aqY78Mj0jXdRjIIjCsv+V+3+kw+v4mRX7QhAPTmCrnYpFXwV+X+QGuB0IoB3AfwFYDOB05FrcQ+kvAGIADgUQRW4d4PXILZv7NIDOfj7OZOQGCPZkKoBXdiplD6y1km+4Sym14LeVnpNeA+Ci2JWxcbbSXmhhj4LglwB2M63mv7Wnf2sqzDJO8SH6kLvI/XxHtmORUWZOJp55BomwExF9qK8Cvxy5AW9HAXgZuaVqXwBwE4DDCpClE8CT3X6uzl+XHcBjNCN3INKTxQD2Hlw0AMM34DBU6UvS6wBcGlsSS5pWc66IfF0gvzIw70in3O8m3ZWI4Gp/tv962FmJQmMhziJnljX2SyJyQiaeeTvsSETb6usc6xcAXAagNf9zJ4CFAAoxCKsOwMMAbkWuBf8UciPpWwDciSLe2UdBdbXapVS76XuSnpHeENQHC9oj7Z8HsBnAeSLylFHmBWvsUsdzbtON+uNh5yQabpPnT95dp/S9yqrRQUtwnJ/wWdxLlKpRZd1w66vAv4Zcke/uswCCAuS4CcCbyO1B/+f81z7Idau3AbimAM85JEp9v+AdWTNrzWa/3r8m05L5D2vt/4qRmQJ5Dxa326z9nk7q3zuec1w5HdwQ9UZ7+rCKiopHIJjvJ/yfYB5M2JmIetNXF/0MAPcCWAFgj/zlgwF8qwA5Po3cVLkOAJcAuBzAJuSmysUBlML87PIucPNgMsj8Dg14yKl1TobgcoH8r4X9iVj5il6kZ1rP3pCZkrkXpwzotApR8bMQvUjPsNYeaa09sSnR9FbYkYh2pK8C/zSA/QAch9z59zcBnIfcaPqhtgG5bviXAXwDueLexUWuZV+s5MMLw7NdbKhyhf4uWNytPX0UBFdY2OaIjfzIwEzXq/XTSOGOzR9svvXNeW9u2vEDEhW36OLobiqlbgbwYmZK5lgewI4gJTxwGui7wP8NwKnInRcvtBsBPArgZAC/zl83GcCsfIY5w5Bhp1hsGU0/MghsgOBhAA87KecQY81lADaJknpjTd2o2lGPaU8/USEVS1+Nv8qthqkk6YX6P6RDrrFiL8uvBklUMvoq8Hch1z3+AxR+HfgfI9dj0L0Q1AB4A8AxyE2jK2oCkXI/H9+bTDzzDIBn3JQ7zRp7sUBGK6jLLOyunbbzVzqlX4moSONrs14rxPgNooJwPOd8AMe1m/aTXq9//Y2w8xANVF8F/jAA/w7gNACvY+u56PsPcQ4LYNuj41cBJIf4eXZGb6MtR2RR74kf91cCOHnKwikfs8rOBTBZiUrCYEPWZpPa0x0wWBTMCYr+gI1GrtiS2C62zd4E4DV/in80u+SpVPVV4M8fthSlTbp9Z7EHsHrO6pcAnBGdH43aCpuwYj8Fi8URFfmHFTtTe/oKEbnGn+0/ylW/qJjEFsU+lW3LLrVi5zXFmx4LOw8VlmpTFpGwUxROXwX+xWFLQWWp6eKmJgDnRZPRCSIyy1hTL5ClouRJa+wPdUrPtSl78x5j97hz5TkrO8LOSyObTukfGGNOipjIKfmVHYlKWl8F/oU+bjtoqIOULLvNdjO0nab6prcA1E+eP3n3isqKC2DwgIVdrqC+BuCb699fv0J7+t5KU3nTK3Ne+SDsvDSy7Ldwv7EdquMGWLw+uWXyUSvmrejv0thERa2vAn9Rt8sCYCJy0+SuLWii0sXivgPNFzevB3BF3dK6xtZNrd83MI+KlV9XdVYd31bZdlSH6nhQp/Qfs5HsktUzV78Zdl4qf47nfKLDdlwP4MogETwUFGQdL6JwDLQF/xSA/0Zu5zfqzpb2ZjPDadV5q1oANMaWxJbaNntme2X772HxsOpUJ9sKOy1iI7doT79hxDMSroIAACAASURBVKSa4k0vh52XypOTcr4nVk6FwanB3KB4t6QmGqT+bBfb3STk1oqnPIEoC1vyCyKEIb8F7bLpDdNvaR7b/HVTaX4Hiz9WRCrOzprsBGXUj7WnqyFYHMSDZ8POS+Whbmldbdumtutg8PZuu+52JMd/UK9KfAnugbTgKwB8EsDSwsUpeSX9ZghL/pzn7bC4w13kntCZ7bxTIC8pqMs60GEqbMUs7ekGEVnqf+D/lut/02DFFsQOaN3YeqON2IWZ2Znfhp2HqJD6KvA/ArBxm+veAzBSR5dyOlehCawP/wEAD2hPH2bF3hBB5G0bsQsqTMWbneg8V9fq2dazP49UR36e7wEg6hc36Z6ZlewZttN+s6m+qSnsPBQ+NVpZ01a+7YWeCnzXdT9Dbh347mqRW11ul0KGKiVW8qvXSXltFxu2/LKgT8S82Odsp/1ph3RYCzu/M9LpVXVWnWnazJNO0nk4m81enx+8R9SjvRv2Hj2qdtS11toNo1pGHbFq3qr2sDNRaRCRPcLOsDN6KvBd+79Hul3ujgPsaNikE+nnAZzgeM4nlFVzqzqr9kQEC4NJwaFOk/PVisqKe7Wn/4osFnOgFG1rysIpH4uoyE0QNAaJ4L6w8xANp572g6/Ifz3e7XL3r28MW7pS0DW4zkKsHZlr0Q+HTCLzt6A+OE0q5FzJyjf0av0UImgLZgdfVlC/sRG7RHv6F84i55NhZ6Xi4HjOtypUxfWRSOT0IM7iTiNPTwW+y+G9XP/tQgQpWflu+RGxVWwR8Gf5ab/eP1sZdZoY+aJO6ecNzD6ZKZmTBLIQBjN1Sv9OL9JfDjsrhWNi48RRbtK9SUQOkmo5gpsc0UjV1yC7/QHMBLBrt+tGAfgsgF8UMlSpEmGRHy75pURnxq6MjbOV9kK9Wv8/A7MsUh05B5sxzip7oeM5lyqoZZNaJt3D1clGBmehs59k5WYDsyQTz9wddh6iMPXVgv85gCrkdpIbC+BBABMAnDUMuUqJALn94MMOMhKlL0mv8xP+papafUmsfMS0mT+aiPlaC1oul6ycaGGnNI9pftpNuheM98aPCTsvFY5O6VNFyU0Ske9k6lncifoq8J9Abj/4y5Er9L8EcDyAuYWPVZT6M02ORT4k6RnpDUF9sKA90v4FMdI5BmOekQq5wFSYZTUba75oYTeOwZhHHM+5wvXcvcLOS0Mn2hCt0Ul9PSwONS3mcH+Wnw47E5WHUm+49VXg3wJQh9xc+N3zXxvy19H2SvqNUC7WzFqz2a/3r9l9l90Pstb+U3Wq37fWtl5hq+xDQTw4FMCfLewvdFJf7za6sbDz0s5xG92YqlWPQeGZIBH8oGleU08zf4h6FNkc2VHDbXTd0rraYQlTAH0V+CsBPAFgMoBH8pcfBfCXYchVSvp6DSkkK89Z2REkguVBS3CQtXYlOnC/m3KXQPC3IBEcYSLmNpu1813P/bWz0Dkw7Lw0cE7S+ZrN2uXW2O8H8eBXYeehsvSFto1tx4QdYrD6GmR3I3KFfR2AeQBeArAHcufmqWdsxRebeTAZZO6GxT3a00eJyHKd0qttp10QzAm+ppP6o6Jktuu5V1jYa4J48DCEqxYWs9iSWLVtsylY1LRF2g5fk1izOexMRMWor9bn35Bbsa4VQCeAO5DbKnbDMOQqRWzJFzOBDeqDh4N48CULu1yULNaevktFVG2QCH5gKs0ZAvmcTumn3aR7Zl1DXVXYkWl7H238qLZt9jEj5k9+vX/2mlks7kS96aso3YXcILvqYcpSkrYZhMEWfAnIxDPPBIngaBFZaIz5kfb0g9IpH/UT/qU1o2uOtsru2jqm9SnXcxOxJTEuy1wkXM/9Sjab/Xmn6fxhJp7hVF2iHeirwB8G4CvItdjTAF7u9kXbY3EvMX7cXxkkgpOzJpuw1p6tPf1k28a2LwTx4OrJGycfamH/advsb52Us3DSwkn7hJ13pKprqKvSSX2VFXv85pbNh6+es/qlsDPRCFLCW4H3dQ7+/GFLURp6PC+7zQp2JftGGMnyBeOM6PxoVFWohPb0pc22eXHQEtyJebjDSTn/Vakqb9SefluJSqXj6VVhZx4pnJQzZbPdfKuy6jY/7t8adh6iUtJXC/7F/NdLAN4B8I9u19GHPh52ABoaTRc3NQWJ4DxjzclW7Gf1WP28m3RP32PsHiuCRHCsUuoaY8wlOqnvd1LOIWHnLXfOIud4MXKHgrrAr2dxp6EXqd3hNLmS1leB3xfAU8h10a8CMA3AHwA4w5CrlETy3wVswZeFpvqmtzKJTH1nR+eRVtno+g3rn9cpfW7nhs6XgvrgWyZrZsLiJJ3UT+ikPgkNHGA5lKYtm1bpJt2UMurkmjE1R/gJn40KokHo64NpOXKt9Y8AeB/A/wF4AcBNw5CLKHTNFzevD+LBFTWja6bDokbVqudcz01Uq+p3MonMhe0V7aeIko/pWv2M67nnTGycOCrszKXOXeROWr9h/aNGmZf9hH/6qvNWtYSdiahU9VXgvwDgMny4J3wngIUAPlfoUKUov1UsW/BlaNV5q1qCRNCoqtXnAWzoUB3/rZN6Xm1rrfhx/6emxRwGAFXZqsfdlHvpxMaJe4QcuSTppD7aGPNrCzszE8/cHHYeIgCwUrrL1fZV4F9Drsh391kA3HqRRqT0jHSbn/CXTW6Z/DkovNpe2f6Q9vSi7OjsHn7CXxa0BIdY2FVVnVV3OZ5zdXR+NBp25lIwvWF6hfb0AgDfqjJVR2QSmb+FnYmoHPQ1in4GgHsBrEBuBbt7ARwM4FuFj1V6RES4J/zIkN969nZY3OGm3OMrVeWd2tOrIpFI8rVZr90H4D4n6RysImqx9vQmpVQqPTv9v2HnLkZTG6fu25xtvhWCe4NEMFI3siIqiL4K/NMA9gNwHHLn398EcB5ym9CMRGU92pIGQWB9+L8B8Bvt6cOyndkbdFK/rYyan65P/wHAH2KpWJ2xZrb29Hhr7ZJMfeb3YccuFtFU9IiObEdDREXO4wEQ0dDrq8ADwLsAnkNuRP2bAN4ueKISVupbC9LgBYngCQBPRBdFDxLIldrTWWvsgnQ8/ScAZ01aOGmfikjFha7nXmJhb5zcMvmufE/AyHMXIu5qdx4sPirVcmR6RprLX1Mo3tn0jh2DMX3fyZbu2Kq+Cvz+AO4EMBHAauR2lXsDwNfB1eyIetQ0u+kFACc4nvMJEZnreu4eMFjoz/GfAjAntiS2i2k1328e0/y0Tum7akbV3DKSRopPWTxl78jqyK0G5neZRObSsPMQlbMdTZN7FMDeyM2B3we53eVuGYZcpYij6GmLTCLzt6A+OA0RnA/Baa7nrtBJfWz6gvQHmfpMqmZjzRcF8l7rptaHXc/9qXOVMz7szIWmPX1YRUfFfTD4USaRuTbsPETlrq8W/MeQO//ekf+5A8AiAD8sdKgSxeJO2/Fn+WkAZ8cWxiZaZWc7KecS5aklq6asuhun4DZY/Fx7+ijVoW5zks5qiciiYHbwati5h9RdiOjV+jIA/5atzB7VNLPpvbAjEY0EfRX4BwGcBGBZt+tOBvBYQRMRlaH0nPQaADNjV8bGZSuyM/RqPct6dtmoy0f9YtW8VQ8DeNhZ6BwoRn6iPa0UVGM6kX4+7Nw7y7nKGY/VuBXAY0E8+BqEg1WpxJTwZjN9ddFvRm7/978CeCD//ToAY5A7N9/1RUT9lL4kvS5Tn7lMVavDxMq41trWP+qUvnDvhr1HZ+Zk/uQn/K9LRC42MN/Wnn7M8ZzjSnUpXHeh+0XVrh6wsJcHieAqFnei4bWjaXJPD1eQMlCyR3k0/PIjxxdMbJx4dWW28qxRtaOecTznfsnKtflu/XNjV8bGmQpzvq7V9UhiuapRt6dnpNvCzr5DDVDuWPcSa+2n2yPtx6yZtebdsCMRjUR9FfhfAhgHYNcebksXJk5RY+uDhtyaWWs2A7h22rJpy9ZvWP8tRPC49vQTArkqnUi/DaBhvDc+OVpGf8e0mv/Wnv4tsrghmBu8H3b2nsSujI0zlWa5MWZFJpE5ia12KmaqRVnUhp2icPoq8Fcjt5rdauTWoe8uVrBEpayE50tSuFaes7IDwHI04DZnjHMSgPsdz/mLUirlz/ZfB3Dt9IbpN7w+5vWTTMQ84CbdlWLlqvy5/aLgpJxDrLELRcnsYHbwR9SHnYho5+X3GSlJfRX4s5DbWOaFYcqyrXHIjdzniFsaOebBZJC5Gxb3aE8fZa29Tad0BoKFK2aveBXArwH8Wi/SX7bGXud4zrsSkUXBrODvoWW2EJ3Sc8XIQZWdlce+XP/yO6FlIaIt+irwLyO3sM1weBTAGQDWIrdq3l0ADgKQBfAMgG8jt5JeMSvJgVBUpAQ2QJAbXZ9yDhEji52U8wEE8zOzM38NZgdPAnjSWeR8UrKScJPuriKyOJ1IrxjOmFNTU/fsTHX+DBZ/9BP+ieySJyoefRX4CwD8GcD92H79+cuHOMcRALr20l6E3I51hyPXgp+P3Gj+k4b4OYlKQiaeeQbAM27KnWaNvVR7ulqULPBn+3/MzM78FcDpeoGebJW9SKf0j62x12eimftwCrKFzOUucj+fzWYXWdj6TH3mD+ySJyoufRX4FIDXkesi39Ga9UPpMwCOBrAx//N8jMxBfURb8eP+SgBfm7JwyscU1Fzt6XnWWi9Tn/l9MDdoBjBr8vzJu1dUVPxAr9ZPI4U7Nn+w+dY35725aUiDWIjjObOtsdNVpzo+c0lm3ZA+PhENib4K934APgpg/TBl2QfAGgD/ABAF8Er++gOQ67ovfiW8IAKVjtVzVr8E4Izo/GhUVaiE9vRlAmn0W/zfNF/cvB7A/NiSWGO2LXv6qNpRj2lPP1EhFUtfjb/6r5197omNE/eo8qpuESUr/Q/84zEPZuf/IqIiVsKf630V+NsAHAngV8OQ4xnkFs3ZC7kFdiYjt2LeIcgtsjNnGDLsyI7OLZbsm4BKU9PFTU0AzosmoxNEyUxdq+fYlF065YMpv1oxY0UbgJvQgFvcse7xnbbzVzqlX4moSONrs14LBvN8US/62Uhn5CoRuTgdH95z/USFENk1Ygt7IitcfRX4gwBcBMADsO1uV/sPcY5D89+rkCvu4/I/b0ZuPfxn+/k4ewGY1cttXwC3u6Uy1FTf9BaAOZPnT969orLiguba5ud1St9iPjC3Ns1ravXhPwDgATfp/mfWZj3t6XYRSeW7/HfMQvQifREs/stUmRMzF2VKo0eNaITb0TS54TYGgI8Pz7n/GUAEwJ4A+tO9uBHAE73c9lGwlU1lLN89f0Xd0rrG1k2t31e16lkn6dw5asyoG1adt6rFr/efA/BcNBXdP2Iis7Wn9xUrS/yE/1hvo9+ji6O7qZS6GcDfgynBcYUeuEdEQ6c/BS+CXMv4LRRuNbcDkJsa9zEAGQAXIrfZDZA7H5/BzhfnxchtffuNwfyy9vS7AHbv7XaBvGFhK4JEUPbbflJpiC2JVds2e6aFPQvAQ+2R9mu6LxsbTUYnKKUuhMXnrdib9xi7x535BXcAADqlPyNGltiIvTQ/LY+orExsnDiqKlvV9yBUiwdE5Bw/4Q+2B/hm5AaL+4P8/UHra+72vgCeArABwCrk9oT/AwCnADmWAbgXQA2A7wC4AcB/FOB5CsaidFc7ovKUnpFu8xP+ssktkz8PQbq6s/oh13O9KYun7A3kuvaDeHBxpak8VqyMW//++hXa07P2W7jfWDfpXiBWftJZ2flVFnca0QRHd5rOj4QdYzD6KvDLAbwI4CMA3gfwf8itandTAXJ8Crlpee3IDbg7D7kiHynAcxVKBXgKgIrQinkrOoN4cLuf8D8P4NlIZ+RO7enrpnhTHAB4Zc4rHwSJoHH3XXefbmHbO1THWit2phj53uqZq4t9gSmiQhvOaeJDqq8C/wUAlwFozf/cCWAhcsvXDrXXkFvYpstvkZuDf0UBnqtQRocdgKhPAusn/N8EieBQAPdFELnB9dyfx1KxOgB4//33Pw7gNCPmK2LlXKPMjW7SvSmaig71oFqiUlKyq5T2dWTyGnJF/sFu130WuVXmhloCwH0AZgM4AbnR7mcD+D1yi94UAy7BSWUjSARPAHgiuih6kBi5Uif16Kxk96yMVB736qxX/5m/26Nuyp2mrGrQnq4SK435gXpEI0plpLIke2f7OjKZAeBWAPcA2AO5c+TLkSvCQ+1xAFMBXIXc1DggN2r+cwAWAEgW4DmHWske5dHIVd1Z/Q+xsgnAi2Ll5c5s503RZLRr2ir8uL8ySASnRiKRhFX2VO3px92UeyIa+H6n0lfxfkVZN9x6+k86MX/908itZvcgcgX2YQCfQK5VXQhvIrdT1gfdrmvLX1cMC90QlRVnkfPJdtX+GIBfBvXBrKA+OE0iMiOCyLd0Sv+39vQxXVsgvzbrtSCIB+dXSMWp1tpP6lr9tOM5Z8eWxKpD/jOIqBc9FfjXAeySv/wOcq34nwK4BdtvOkNEJcjxnLMlK4uUUl8P6oOHu673Z/lpv94/W2XV6QAO055+1vGcU7pa7K/GX/1XkAjmbW7ZfISIVJo286T29MWT50/udQopEYWjZEcHFiEBR9FTkatbWlfbuqn1eoG8tduuux3Vfd57d+k56TUAZk5NTd2zw3RcqMfq2fBwQ01Lze2r5q1qz29gcx3uwjKnyflqRWXFvTqp/w8GV+U3viEqH52l+dneW4H/ArZfnra7FUMfpeSV5BuARg7Xc/+tdWPrMit2QZAIftef38lvUHNZbEnMM63m3Nba1ufcpPvzTRs33fLmvDc34RRkM8jcDeDumBebbpW9xvXc940yi/Jb2RJRSHor8NcBfe4SFR36KCWPBZ6Klvb0d6zYb1uxp2XimdUD/f30jPQGAAsmNk68ujJbedao2lFPa0/fp6rV0vxtSCfSKwCscD3332AQ1yn9EQiu4kI5ROHorcB/Arl94ImohI33xo8ZjdFLAayv+aDmyFXzVrXvzOOtmbVmM4Brpy2btmz9hvXfMm3m967nPiEdcnX6kvQ6APAT/osAzowtjE20Yi9yPOdSBbVsUsuke1bMW9E5BH8W0bCykdJcqZRTXfrJwpb1dAoqP7FUrG4MxjymRD0QJIKZO1vcu1t5zsqOIBEsD1qCzxtr/moqzf06qa+KLYxN7LpPek56jV/vxyUrJ1rYKc1jmp92POf88d74MUOVg2hnVHykn9PkBNMKHKUgeirwTyO3ah0NjOJ69FQs3KR7urX2uiyy3/bj/gMFe6J5MJn6zN1BPDhYlDxmlLnNTbo3uY1urOsuwdzg/SARLFQ16ktiZdMYjHlUJ/W82JWxcX09NFGxsNaeHXaGweipi376cIcgoqGR3x3rGiNmU6QqcsTqGavbhuWJBdaH/wiAR5yUc4hk5Sqd1Bus2AWZROZvQG7zGwA/QwNudWqdY0yl+aX2tC8RafRn+em+n4CIBorT5IjKhLPQ2U+ycrMVe3UmnrknrByZeOYZAM/EkrFPG5jLHM+pjCCyMJ1IPw8g1+pH5ncAfhfzYp8zWTPf9VxjjFmUmZP5U1i5ifpQkqdoeQ5+6LB7nkKjPX2aKLlRIvKdMIt7d+n69P8EieBrxpiLs8ieoz39mPb0YVvdJ5F+PkgEX7PKXgbBWa7nPtp9BT0iGjy24IcOP5Bo2EUbojWqVl0FwJgWc0TTvKbWHf7SMFs9Z/VLAM6Mzo9GVYVKaE9fJpBGP+7/FpJrGQWzg1cBnONc5YxXHeoCndJzJCW3VH9Q/auhHBxINEhswY9wLPA0rHRSf1TVqt8LZEWQCM4txuLeXdPFTU1BIjjPWPN1I+bzTsp5Tqf0N6c3TN/S0MhclFnrJ/xLa0bXHG1hd2sd0/qUk3TisSWxXfp6bKICY4EvZwLZ4T+wQFjkaVg4nnMKBLdA4Xt+wr8z7DwD0VTf9FYmnpmT7cweA8BtHtv8nOu553TfuGbVeatagnhw9eSNkw8VkTdsm/2tk3IWTlo4aZ8Qo1OZqXqnqiQLd3+xi37osLhTwcWWxKpNm2kUSGVbpO2I/MIzJan54ub1AK6oW1rX2Lqp9fu2zf5Be/rOmtE1N646b1ULAOQXxrkDwB1OyvmvSlV5o/b020pUKh1Prwr1D6ARoz8NvGLEFjxRiYglY65ts49Z2Of9hP/9Ui7u3a06b1VLkAgaVbU6WERaWje3PqlT+sfb7lCXiWceDxLBsUqpa4w1P9JJfb+Tcg4JKzdRsWOBJyoBOqW/asTclpXsDzKJzC/DzlMI6RnpNj/u3zj5g8n/CcCPVEQeclLOwmgyOmGr+81O/2+QCL5psmYmLE7SSf2ETumvdm1pSzTUDExJtuDZRT+02E1PQ6quoa5qc+1mDxZjN7dsPjy/TWtZy3fL3w6LO9yUezwEd+qUftF0mFTTxU1NXffLX75wYuPEPapN9bm6Vs8ST36RbcneVuwDDomGA494hxYLPA2Z6PxodHPt5seUqP8JEsF3R0Jx34rA+gn/N37Cnw7B/apCLXM859ZoKrp/97utmbXmXT/u/9S0mMMAQNWqJ9yUe+nExol7hBOcyo0Iz8ETX08aIq7nnqAi6vZINnK+H/dvCztP2ILZwZNBIjjCKnuDWFmgPX13LBn7dPf7NM1ravUT/rKgJTjEGvtSVWfVXY7nXB2dH42GFJsoVOyi77/+HMGxBU87ZdqyaZXrN6xfYGD23CSbDl87d+3GsDMVk6bZTS8AOFE36o+bTnOx9vQu1tqFmfrMH7bcaR5MgOBeAPc6KecQFVGLdVJvVBG1KD07/b+hhaeiM2qfUbZ1Qz/O5tjSnAfPAj+0WOBp0PQCPXn9B+tvtbC3ZxKZW8LOU8yCWcHfAZzmNrox6ZQ5OqkbRMkiP+4/0v1+W9bFT8XqjDFx7em98mv1Px5OcipJJVrg2aU8tFjgaVB0Uh8LhV9Zay9ice8/f5af9uv9s5VVZ1prD9ee/oOTck7edkR9Op5eFSSC73aYju8DOMz13BXa06d1X0WPqNywwA8tFngakOkN0yuclLMQwDcqbeWRXVur0sCk56TXBIlgZoVUfAUGn3THuM+5SffMacumVXa/3+tzXn8jE8/MkWo5XiD7No9pflqn9IV1S+tqw8pOJUDYgie+njQAsYWxic21zY8oq4KgPvjWK3Ne+SDsTKXu1fir/8rUZy6TGjnCwk5Y/8H6Z52kc97Exomjut8vPSO9wU/4Xs3Gmi+KkfdbN7U+7HruT52rnPFhZScaaixIQ4steOoXN+kemVXZu4w1CT/hLws7T7lJz0hvCOqDBe2qfToEUmWqVmhPz9l205pV81a1+/X+rUE8ONTCPq861G1O0lmmk/qjYWWnIlSi5+B5/mloscBTn6Y3TK94fczr84wybqQqcmR6RnpD2JnKWX4532unLZu27L333/umbbWPOZ7zeKVULnk1/uq/ttxRYAMEDwF4yFnoHChKfqo9rYwyi/Ij94lKDlvw/cdpcrRTJi2ctE9zbfNDBuaNTDzzDRb34bPynJUdfr1/q7/R/09Y/L3Tdt6vk7pxauPUfbe9b2ZO5k9+wv+6RORiZdTp2tOPOZ5zHCz/f5ebsW+M7V/LnOfgCXw9qRdOyvmvKqm6V0QuydRnloadZ8SaB5Opz9wdxINDRMnjnZ2dt7mee2MsGXO3vas/y08HieBcgXwbwGd0Sj+tk/q7dQ11VSEkJxowdtEPLR7h09buQkQ36R/Dos4ae2RQH7wfdiRCbhlc+I8AeMRJOYcI5Gqd1O+JyAI/4b/Y/a5+wn8bwI/He+PH1KL2u61jWp/Snv4tsrghmMt/z5GA28USwAJP3UST0QnOaudBKLwbxINTWAyKUyaeeSZIBMcqqEYL26CT+v6oF/3stvdbm1i70a/3r5m8cfKhAlltI/YB13O92MLYxDBy0/Ap1d3kWOCHFgs8AQBcz/1SBJH7YdAQxIOrS/Uc3kiSrk//T5AIvmaUuVggP3Q85xHXc7+07f1WzFvR6Sf8OzOJzBetso+aiLne8ZxbXc/9tzByE/WGBX6IbTvflkaYBiid0j+2sOd3ZDuOzszJ/CnsSDQwTfGmlzOJzJm20/7Qiv2q4zlPOYuc43saZBfMDp4M4sFxUFgMoN7xnAdiXmz68KemQirVLvqR1OJcDGBvAN8YzC9rT68FsNcO7tYB4HEANVvmTQreh+BNWKyDYJ1YedOKXWezdl1kVORNjqQuH67n7mVhlwN4MogHi9lqLw/RZHSCKJkpRr4AhWuDycFdOAXZnu6rF+jJiGAmBJ+0xl6fiWbu6+2+FL7pDdMrmmubO/px10eCRHD0IJ/mZgDzAfiD/P1BY4Hvp34W+PeDRLBb9yuii6O7IYsJYmScQPaysBNEZFz+sSbAIrfwhkAAbIZgHSzWQrDWWrsOgrWi5C3TadY1RZvW8cOiOEWT0UMjiCwQkVnpRPr5sPPQ0Js8f/LulRWV51vYYyzsLaNaRt22at6q9t7uG4lEfigiR0NwR7tqX56fk0/F5C5E9Grd2Y97PhwkgmMG+Sws8MNg5wp8Ur8FwY6WsdwQJIJdB/P4ABBtiNZEdomMs9ZOgMVeYmWchZ0AwXhYdB0UfHhaRbAWFuus2A97BlTucofqeJsfKMOgAcoZ48yF4MDqjuqzXr7k5XfCjkSFNd4bP2YMxpwDwddh8auN2HjT2kTP2/rGlsSqs23Z0wVyOgSPV6Diuq0W2KFwscCXjaIv8APSAOXs7oxTHWocgL3yBwLjxMheVtkJAPaCwSgIBBbWim3p6hlQVq0zYtZC8JbJmnWjsqPeZmEauKmpqXt2onO5GPmDn/A9dsmPLLElsWrbbs+w1n5XRB7MRrLXNs1seq/HOzdAuWPd46215wnkZRVRi1+b9VowzJFpW/0v8A8FieDYQT4LC/wwKK8CP0B1S+tq29raJsBiLxiMcCyHlAAAIABJREFUAzDBih2f7yUYD4s9AHSdKmizsOuUVeuMMm8qo9ZBYV3WZN/M2uzbe+2217qV56zsz3mrsqVT+gtixLPKJoJ48GzYeSg80xumVzSPbf46DM6FwjO2wl6VuSiztrf7u0n3P63YWbBoy+9hv3I481I3LPBlY6gLfAuA/9/encfHdZUHH/89Z0aSFzkLjiyLOLbmzsQxDoFE5i3QvrRpKVtYQtnSAoWwNyUkEEt24C01aftJYo/sgAmQsCRAKUsatjSBAqUQXuDl09aTDUJINCPZTuJFCbFjeZE09zzvH/eOPZa1WdvMSM83n/nEM3Pn3qOxfJ97zj3neYaWmDysXi/UQ3p/zzU9RybYzopbvWF1ffHUYpNXv0RVl+Jp8vglDrcUYYnHNwlSXzaR8PeC7IlvFewBduPoRdjb0NCw+8H3P9hX2Z9oCimSzqY71OmLkiTfYcOt5ihF0p3p13j8Bx3u1xpqtnB1YcdIm7d2tq5y6tqBZ4rK1nxH/gc2CjTDxhvghTsL7YVXT/AoFuDLCLCIKID6KdzvVAf4/cCJvXXlBuDZCA1AXtGccy7X5/vuG+k+Xa1b2bnyjP6wv8klXBPKUqeu2YtvQmlGaBaVxtKtAoRD5asJUHrFyy5R2asJ7c2353ur9SS36tpVi/vr+r+A8l/dB7uv55op/f00s0iwOXixeOlQ9HH1urF7fffvRtp2xQ0rWhJh4gqUP1T0c8845RnfmOsjZDNm/D34fyt0FF4zwaPM+QC/APggcCmwAqgHQqAb+ApwPdA/yWNMdYDfB5w2dLtCXyHBNXgUSd+QTvvQtyGsceqeq+hCQboVzalorj6sv2eu1QBv2dCyoGFewxLqo5UFwBInrsWrbxI9urqgxAN7SysLBNmtor0Ie0Vkd/h02DtTIyWtm1tfkAgTN4SEV/es67l7Jo5pal/r5tYXuNCtF5GBUMPretb13DvStudsPGfRoBt8D8rrcdxeF9Z9fq6dH2acBfgZ8UXgTOCfgF8DTwOnAM8C1gG9wLsmeYyZCfDtBTdaD7T1utZWl3BrBGlT0fOBU1B2Kppz4nJhMsyNOFFnrrmNRGtPa5OILIlXEjSLyNGRgXhlwfyyWwVPA7uAXlXtFSe7gL0aaq+o7J5QqlhFgs7gQ8CLBXlHnJfcmJMSbAnOI+RqYBHCptHmbay5eU3d7w/8/i9F5d3AL7z6rT3renbPXGvnkHEGeFG5I78uf/EEjzLnA/w+YDXw+DDvLSLqyZ8xyWNMdh38LmBp2UsH4rYdZ6wAP5zMxswydbpGVdtwtKGcBuxCyanTbQ0DDTmb5T624PrgVBVdKoloJEC9tsQ5B5qAliE5B44ocZ4BZLeq9qLsRdjtk743tS/VW5hXWJRMJj+PcF/hQOGfbEjeTFZ6SzpDyDpFU158Z097zw9G3Dia7/EyFb1CVB4LXbi5p73noRls7uy3ARc0BmPmFrEAPzn3ADcCXxjmvTcCHwbaJnmMqQ7wIZAYul2hozAl3+mKG1a0JIqJNkHaVLUNYTHwhIjkgG0+6XOjzdQ1o8tszTTooC7RojbjiFYTiDbHowNNwP9GmY/wFMpjwF4V7XXier36aGTAaS8D7O4/0r931zW7DlX4RzI1ZOWWlWcWw2I70IbwicKBwndGu4AMNgbPw7EWqBeVLfl1+V/MXGtnsXEGeEW/293R/doJHmXOB/jnAbcDh4EHiHrHjcC5wOnAa4DJLiWZ6gA/rKkK8MPJXJtpKtYX25y6NqILnmai0Y+cotvqEnW5h696+LHpOv5ckc6mrwAuCjW8tGddz+54dnSThNKkokvUaQtCU3xR0ILShLKgPOeAw+31+N1OXS+wNyTcnXTJXofbazPvTcnKzpVnDPrBKxFe7NTddNqpp31ttAl2Z285Owh9eBXKOYLcmO/L/5uNLE2CBfgZkwT+BGglGo5/iugLuRsYzyQIgIXAC0d477L4/6+fSOPGGeC10FGY0QI+y69bfnqyPtkmXtoUbQOWAfsFuRfY5sXnutu7t89km2pVcH1wKgk+r+hvu1d0XzPRtMCrP7W6ceDgQLMmtBlPU2n+gBff5NQ1q+piIK5goQMO16tor6rucri9OHpFZLcTtze5P9k7UjpUM3tktmZO8Uf83yK8FuHL/oC/ZbQJpCs7V55R1OL7gT9X0S8l6hP/3HVF12QnIs894wzwKN8prCv8xQSPYgE+djpRj7T8HnYifn08vZ7FwLtHeO9VRJP3JpRusFoD/HAyWzOnFI8UL3DOtaG0Aa2K9glyn6puS5DIda3rmvFftmqW7kyvwXOjd/7vu9u7fzRTx11z85q6vfv2NiUksSThEi14mrzzTc67Fi++SZAmoKFsIuFTR1cTwF5BduPpVXTvvIXzds2qnANz0LIty+bXhXXvEuStgnwz6ZM3jTaTvmVDy4L5i+ZfivJm4K5isXjTjg/veGoGm1zbLMDPiHOB24hmzXcDVwJ3xu+1xq9Ntq0zMUTvCx2FE+7LV4PmbPPCRm08H2hTp20oaeCwIPeraE5DzXUf6n5kLg73pTal3i/IxYM6eOnO9TuHm+hZNVZdu2rx4cThJS7hmvBH8ww0ITQruvS4nAOOw2icc8DpXpReQXYDe32d7+1+qrt3Lv5914I1N6+p27d/31u8+PeKyo/qi/VbR51oexuJVE/qdeLkMjz34vn4aEl2TGy8AR6+XegovG6CR5nzAf7nwH8SLZN7AfBV4LXA/2ABftos27JsfjJMPsepa4uX7a1EGUR4QEVziWIi1xV0PTRbK9hltmZOCQfCz4pKYXnf8r//6TU/He+toJqwbMuy+XW+bomKtoiXo3MG4guCKOfAsRrnx3IOwF5gN0qvqu51SbdrJnMOmDJRMaPXi8gHROW/BnRgy1gXoemN6T9F+CDCfo/v7O7ovn+mmltzomWw+xlmRdQQ3yp0FCZ0excL8BwkCr6l2ugXAx8Fng+cRXUE+Mfjz48mLHQUkhPZf7VYvWF1ff+i/vOANarapug5IqKi8htFc+o0t+LpFb+p9WDYuqn1fBH5tBP3j/n2/Pcr3Z6Ki3MOuKRrIizLMxDlflh6Qs4BOIAQrSZQ7RVkt6LRyoIEuy2XwxRTJL05/XL1uhahK5FIbBqrWE2wJThPQ10ryDNwfKKwtvDjmWpuLQmywUPAOWNsZgF+Eu4l6r3fHj8X4FvAg8DnsABfUWtuXlP3+77fr5ZQ1uBoA1arqojKQypRgp6GAw0P1MpksHQ2/T5VfaNTd2nX+q5HK92eWpTZmjklPBy2SEKOX00gNKG0oHEa5/KcA/GcARXtVXSvqOwq5Ryo9QvGmZTalHqROFmHss+F7vquq7t+M9r2mY2ZZSr6QS9+jVN3U741f/tsHZU7aVEP/nHGHp39ZqGj8IYJHmXOB/iXEAX0XxP13vcSzaT/IVEbz6c2Anyx0FGom8j+a85tJDKFzCp1ukbRNoTzBEmgPKJozovP0cd91TSsu/pTqxuPHDxyk4o+vqJvxUcsqMyMzNZMA4dp8vilCEvESRM+mjNQdqvg2K0tiSYNOnG9Hr8bYW/CJ3oHGdw90Dewx3IORDKbMm1e/NVAAuH6Qnvhv0fbvvWG1tNc0b0P5TUq+rUjfUdumfPf5fhT1VqAn6QW4I+B7xGtgwdoILoX3wasn+T+LcBPtw241ILU2eJkjai0KfochHkIefGSA3J90ndvJYruBFuC8yhyE3BdYV3hzjE/YCqjLOcACZq8+BZRafLqm0Skhehi4GjOAUEOAlHOAYlzDmi4K+mSvQzQ2/WRrt4K/0TTrrWzdZWoXC1Ik8Nluzq6fjra9pmtmYawP3yrIJei/Kcruhvnwvc0nDU3r6l76umnxjPyeHuho/DGCR7GAvwMmIkAP1joKNRPZP+zliKZbCYIJYzy76PPFaQR6EGiBD2J+sS9XVd0PT3mviYolU29S0TeQpFLbWbx7NKcbV64SBctRVii6JJSWWMvvglYIl6iFNeCCDII7FWiOQMIe9Vrr8Ptdkm3p9ZzDqQ6UysE6UB5FsoNhY7CXaOmzd6AS52SepWEcjlCl1O3ea4tn81szTT4fj+eUUYL8FXOAnwVab2utdXVuba4p38BUXGhR4UoFe9UFN1pzjYvXMCCT4vKk6efevp6K8E5t5VyDiSTySYXuhbvogqGgrR4/JJhcg7sQ6LVBCh7xckuPL2a0N66Yt2uaq30lvp4qpkiV4nKHwryqfyK/L+Odc89k8280OOvUtFQkM1jDffPFq0bWue5Rnd4HJvaEH2Vm4kAP1DoKDRMZP8mmgwUJsM28VJKxXsasAdlm6K5OleXG2+a18z1mXO9858VkU35jvx3p7XhZlZatmXZM5I+uUSQJUS3BpaWlTReSlQZLjqHCodQeoHdlJYbCrvFy55K5RxYft3y0+uSdZd7/CuAL8zvm//PY41QBJuDlRrqWoTlovLJQkfh+ydbPKuWtGxoWTC/cf54bhnaLPoqNxMBvr/QUZg3kf2b4bVual3qcG3i4qI7cAbKk+Jkm3rNeXxuaCnNdGf67V79pVrUd/R8uKenMi03c8myLcvm1w/UN/mEb3HqmhCaVLVFkCUn5ByIAuZeNJpMKCK7UHq9+F4Xul0D9QO9j1716Hh6lePSnG1euFAWvhflEkG+eqjv0OfHmlyX+niq2Q24K1T0RSLyhYYDDV+r5dsXI1n9qdWNRw4dGc9IjAX4KjepAJ/Oph9T9JljbGYBfgbEBTraBGlDaCP6e30KyAkSKDpvXt+8t87GE5KZBTbgWhe2LnFJ14RGIwNxnoFoZEDi4kVAfLvgAPHIgIr2IuzGs0ed9vpBv2e8qWkzWzMNOqBvx/MOj/838fKpwtWF/aN9Jg6A70Z5o6LfTsxLfHY658vMtMzWzCm+34/6HcQsk12Vm4kAf6TQUZg/kf2byWnd3PoC593XBPkXRdNERXeeFuQeFc35QZ+z3rypRedsPGfRYHKwRUJpwtGkXlsQlsQXAktRTgNKOQf6Fd0bFzDapaK9zrten/C7isVi75LTlvRuO32bD7YHlwB/Kyp3I3wi35HfO1obLtxwYXLHoh2XiMp7FP3VoB/cWu1pnccjXjo49gWS5aKvehbgZ6mgM3gLynuduneWzwKOU9GeLyptwBqgVZCDit6raM4lXC7/oXx+Nt9jNHNLKeeAJrRZvTaLkyaUJYoujScRLlHVKBmXHM0xMg/4kqL34NiT8IleSciep8On9wy3pDW1KfVSEbkSYbfDbe5q73pwRn/IKbRsy7Jn1If1I+f4L6nRAD/rsq5VmAWKGbRsy7L5DWHDJ1R10DW4lw4tlxkPJf4sfgBx0R3X+Fz12qZe/0/QGaTZxJFS0R0vPtdzoOdhK8JialH8b+DR+DGmzLWZJuppCiXMiJcr8fxRKOF3XNEdaKRxycJNCxeW5xxQicoaC/IDr36Zx/8gyAb3qGhnd3v3z8Y+YnVpPNIoA3Vj38lT0ZrsDFuANzUp2BysJOTzHn9jd0f3beP93J6OPQf3sOeXwC9Lr7VuaJ0nC+Q54qQt4RNr043pszWrIcoDguQQcvkV+d9aek8z28QJbnqJ0oLf0bq59QUudOtVVNXp33ev7b6vtG1ztnnhKYlTmjXU5tCFTSiHBLnZq28SlSuCbHAHcAjhIZRB4omEguzGsUe99oqTPRLKHubTWw3164sUK17eezrV5FXJBM3EEP2hQkdh4UT2b8YvvSl9iYq+H+VdhXWFR6bjGKWiO159tFZfdJWIKPAgnpzH5xafuvg3trbezEbBluA8Qq5WdKFzblN+bf6XY31m1bWrFg/WDf6toi9T1a958d9zuEUq0WoCUWlSdClQyjkwryznwH6EXSi9SFziOJpQuNfVud3TNbEv9fFUswzK7rG2E5U78uvyF0/wMHYPfgbMRIA/XOgoLJjI/s3Y4qQUW1Q1oQf1ypnOc3/hhguT20/Zfq54KZXXPVdUnKIPiUQJemqp6I4xY8lsyqRVdL2iK+Jh+B+N9ZllW5bNr/f1b0d5q6LfH0wMfubRqx79/WifWX7d8tNdnWsWL02CRHMGRErLC1solXON5g0cjssa70bZg9CLsocEe3zR9/a09vSOd7RtxQ0rWhLFxHgmC/5boaPwmvHscxgW4GfAZNfBPwqcOcZmFuCnSWZTJu3F3wLcXOgofLXS7TkqLroTJsM2UWlDOQ+hDngEIefVbysmivdP5bpmY2bayi0rzywWi2tV9AKH25rvy393zHkqG3DBwuAvEP4W5QF1ekN3e/f2ybaldUPrvMQpiSZf9C0iR/MMLCW6GCgtN4yG3stzDogeHRmI8w/sds7VaaiPACGUFTw6kQX4KmcBvkalOlNvEJUrvfj39LT3PFTp9oypVHQnIW1Hi+7AfEULDpdD2dawsOG+B9//YF+lm2rMyYhzUFwpIn+q6E0r+lZ8fTxVGVOdqT8WLx8CDnp8Z8+6nntnoLnRv8XTU01u0DWp02Y8zQhN4mWJirbESw0vAvqBkVdACXcW2guvnmArLMDPAAvwNSazNdMQDoRZQRYOuIHLa70XnNmUSYeEpax85wvSiLK91NNPzkveM5uSiJjZK04Qc5movFadfsnVu1vHM2kuc33mXJ/wa4ElKvqJ8Qz5T7cgGxwBBoHGETeyAF/1LMDXkBXZFakkyVtRbsmvy3+50u2ZLqnO1Aqnrs2rbxORC4BTVfQx511OE7qtOFDMjTdTmTEzbdmWZfPrwrp3OXVv8c7fPn/+/JvHMzK1csvKMwfDwSsd7g8U/ezyvuW3jWckYDrEAb6fqODVSO4qdBReNcFDWICfARbga0S6M/1aVW134t5by0k0Jio++bUJUprBfzqwB8h58bnkQDI3V+t3m+q05uY1dfv273uLou9B+OFAYuCTY02sg2gkQPv1far6WhH5RsOChltm+tZVkA0OA4eB0+OX+oGhRcO+V+govHKCh7AAPwNmIsBbJrtJWL1hdf2RhUeuV9FnHOLQ+4fLojVXpT6eanbFuKePtAFNKE+KSE7RXJgMc9s/tH1Xpdtp5rgNuNSi1OtE5QOC/Feo4eahxaCGs3rD6vr+hf1vVtF3qurdTtwnx0qfO1WCbHBY0YOCLAZQ1YKIBEM2swBf5SzAV7FUZ2qFILfi+UphXeGWSrenFqy6dtXi/vr+trJUvC0I+/DkRCSHI5dfm99Z6XaauSndmX6Fql4FPOKLftO4akEoEnQGFwnyAUV7UDZPV66LkiAbHAL6gKb4pTyQHrLZ9wsdhYsmeAhLVVsDLA3tNEllU68WL1eT5G8K7YUHKt2eWvHQRx56EvhR/ACi4hmJMHGBx6+RUC4JssFZwAFRuUfRXChhbnvH9u6KNdrMGfn2/PeB76c2pV7k6twnU9nU7xOS2DjqbTdBCxTuAu5KbUz9gXPun4JsIN75LT1re341bY1V/GjdXaU2U9XWZKMnaLI9+J1EFcpGYz34k3DhhguTOxt3Xqfo0nkL5l1my8amxzkbz1k0IAPni8gaQdoUTQly0Iu/z3mXUzRX6Ch0WdEdM50ymzJtXvzVgIjI9fn2/LbxfC69JZ3Roq5FCBS9sbu9+86p/F2Ne/D7iOIDDNODV/Tfuzu6XzHBQ9gQ/QywAF9F0pvTZ2mot4qT2/Lt+c9Wuj1zTcuGlgULGxc+NyRcE9/TTwMDwP0IuTAMc9sPbf+dFd0xU621s3WVqFwtIou9950963ruHs/n0tn0Eo+/XJALgVvn9c37l6nIGhlPsnuCY+f3LiBTvo0gP8h35F8+wUNYgJ8BUxXge4DWETazAD8O6c70K7z6j+K4rLyYhams1g2t89widx6wJr6vv1LRUNFfO4kS9JzVd9ZDlVrOZGaXeN5NB8o5KDcUOgrfH0/PvDnbvLBRG9+p6F8K8l31enPh6sL+ibYjXia3B1gev/QIcHb5Nhbgq99UBfgTru7K9Bc6CvMm1rzZ78INFyZ3NO74ByDlGtz7LKlL9Vtz85q6/fv3nxe6sJSV71kAgjyoaE5Vt1nRHTMZqY+nmilylai8UNEbu/u6bx/PyFF8i+8NHv8+h/sf8fKJrvVd4yqTWy7IBv3A4xzruJ0Q4IEfFjoKLzvZfccswM+AqQrwDwMrR9jMAvwI4lzWt+L4TqG98OlKt8dM3IUbLkxub9y+2qlr8863CfJsUXFe/e+cc9s01Jyb7x6ohnKgpnYsv2756XXJustV9eUInz/9lNO/Mt4LxyAb/DnClcATorI535H/9XiPG2SDAVXdWbY07sRzvPKjwrrCS8e7zyEswM+AKQnwgvy21IsZhgX4YaQ2pV6K8LGEJi7vWteVq3R7zDS4jURmR+acUOOiO8J5QD1CF7DNi8/1P91//65rdh2qdFNNdWvONi9cKAvfq6pvdOq+1p/s//x401SnNqeeK17aFV2UIPHxro6un471mSAbDBLdei2NzFqAr0GTDfA7gLOAB4HVwHZgxZDNLMCXu41Eqif1MRE5h5D3TOY+malBigRbgrPFS5vHtwnyXKKiO90Ot01Fc/Pmz7vXVk+Y4WS2Zhp0QN/u1V8qKne4ee7T472tl+pMrRCVDwLPUdHPdC/v/vZIJWSDbFBU9H5BLohfGm6U9j8KHYWXTPBHsXXwNWgvJwZ4E1txw4qW5PbkrcBd+Y78RyvdHlMB0Zrmh4lOmF8vvXz2lrODoi+2icpFRw4d+UiQDRYBO4BtDpfzob/HLgZNfIvns9zGF4LtwSW+39+VzqbvlkH5xFipmuOytB9aft3y0xOJxGXB9uBuNvEvA8mBLw4zGiCClN/zV8BTKjkbvVKTnWEL8CdLULTs/0PfNQSbgxfLoPyTOr2i0FH470q3x1SXR656pAAUgNtLrwXXB8slKW2hhn8mCWkPssGpgjyOsk1FcwOJgdx4cpubWehNhAUKX0X5Wroz/Rpf778RZIP7nHebx5pUFxdqurZ1Q+uWxKLE2+rD+h8FncEP6wfqPxUnioLovD30bD4rckJYgJ8g8eJVZsXvwNTZgAsag4/iec5gOHjRjnVWBc2MT+Hqwg6iXvx3Sq+dtfGsZ9ZJXRvCHzYUGz4QZIPTgb2qmnO4HEJupvKVmyogaJ78d4HvBpuDF4eEn0tvSj9Kko35q/Jdo32055qeI8Bn2cDn043piwfqBr6ezqYfKlLcwokBvtSDT5QduyY7bxbgT1bcb1fUEoCUSX081SyDcivCjwprC2+wrGhmsnau3/k40fKlO0uvpbPpJcLRe/rvCbJBk6K/F5EcntygDubiz5lZrLC28GPgx62bW1/gQrcpLhizsbuj+/5RP3gNPk/+28C3g87gfyc0sRkAYUHpjCWIzpbze01elUzQVE2y+zXwbEF+EP8SlKcvHCh0FIaWGZz1MtnMhap6XZgIPzSt+aKNGcayLcueUR/WtwGlVLzPRNinqvc4cTktai4eITCzVLAlOI8i64GFPuE3jvs8FBW38UAvcbGZeKVUCjg2YVr4SaG98GcTbJ5NsqsZGk23ULSI8GOUieYnrn0bcKnG1Ie9+ucNJAdeafdITSXEv3f/ET8ACK4PTnXi2nzCt0lC3hhkg+XAAeBeFc0lXTIXzwUws0DhqsIDwFszmzJp8bI+lU1tECedcU9/ZB9DaARFuwRpAoiD+3FUa7PYjAX4ifN47kTYUumGVELm2kyTr/O3CnJ3viP/OhuSN9UknoX/k/gBwOpPrW48fPDwBSLSVgyLrw6yQUqQQx5/v8PlVHWbFd2pbV3ruvLAe+PEWmuDzuD/iMon8u35O4b9ez0XYTuISvk8+QInZrKrSRbgxy/65Yh/SURFh5lGX5NXeScrtSn1IkU3iUp7fl3+F3RUukXGjC1eb/9/4wdQVnRHwzZxcnXQGWTIMoDygIrmvPfbtqe2PzzSGmpTnR6+6uHHgKtWdq48Y1AHrww6g3Y6uWn5geXfKK+lcOFvLpQdjTsoC/5KVHjmLKCutJ0gjhpkAX6CFPWSFNVwDl3sR/er1gF/lJDEqx9uf/iJSjfJmMmIM+v9v/gBRAlW/IB/jlPXhvDB9Pb0OZrVUEV/47zLaVK3Ld+//LdWdKf6xeeoj2a2Zk7x/f6yHQt33J3uTH9J6uVLXVd09R945gEhSp1TOpGHqvqQiDwLWFS2qwQ1yAL8RMncKqO56tpViwezg7eo6K8K7YWLbRjTzFZxgpX/jh9AXHSnb/+zQwnbJJS/2d64fXUqm4omZInmEpLYdmrjqb+2ojvVKc6At3HZlmVb68K6d9HPT4LO4F/3HNzzpXrqYci697iY0p+UvVST5zsL8CcvGqIX+cGQ12ftP+xMNvPCQR3c4p1f393e/TMbkjdzTRy474kfX4C4OuKpO57lvGsLfXjpU08/9ex0Np3w6n/nxOVUNOcP+AfiNdimCsRZ7G5cc/Oam/ft3/eWOq27c8gmKiKqon5ISLcAP0dE6+BVHxuS+2CQsns2s4Iiqc2pq7z6PxORi7vbuy2piDGxeIj+gfjxJQA24FYsWHGOOGlD+UvX6K4NskE9Qpd6zSUkkTvYd/A+K7pTWfEF2xdbNrTcNr9x/kHg/Pit0vm9v0Zz2xzHAvxJUlQlXic35K0isyjAL79u+enJzuQXBLkn35d/9XjqMxsz512D38723wK/Bf4FiOauZIOMw7WFEr52QeOCDUE2WKhoQURy6jVXr/X3/m797w5UtO1zUOLUhBKCotsEuZDoHP5KQYauo6/JaF/NAb6JqFe8r9INGY44USmKltLVKjooyIIKN2tKpDam/sCJ+wSej+TX538y9ieMMSOKiu48AjwCfKP08orsilTCJ9pE5BWDMvjhUtEdFc250OVUNWdFd6ZXuD8UGkFESl22fkF+oujLIa46ErEAPwn/Drwd2AOcCdwGvAAIgZ8Bfw3sqljrItG9d+KIPuQOjagUa/NXoIwiweYX2h8uAAAVK0lEQVTgClV9eajhX/Ss79ld6SYZM1tt79jeDXQD3yy9lt6cPku8tHnn/1RErgqywWmCPK5oTkVzDQMNubIiKWaSfKOPztrHRmRV0UOCfEPR9wL1ULujl9US4F8GzI//vJko0cBLiXrw1wE3Aq+vTNOGF7pQk77s6xN2A4sr1qBJar2h9TTX6T6H8mB3a/erbN2vMTMvvza/E9gJfLf02oobVrQkiok2QV7YX9f//iAbPAPoVTTnxOV80ue6P9i9p2KNrmGLFyyWI4eOgBJSCvVAVEvsaDWxAYSBSrVxMqolwJf7X8BFwMH4+XXAqJWCZljUk/cydFnFvuHqx9aCYGPwPBmUT6roRwvrCv8x9ieMMTNl+4e27wLuih9AlEmyWF9s896vkUF5V5ANlojKUyqaUzRX9MVtVnRnbGFfKDiGJrop6QWWAQNobXZ4qinAPxN4FPgN0Ar8Ln79XKKh++ri0PKBm2GWVdSEVDZ1OfDqAT/w+p3r7IRgTC3o+khXL/CD+AHEE2OTyTVOXVsykXxLkA3OBPYfLboT6jYrunO8cH4o9MeJy0r3WKOemgJPEgX4cJhJ1TWhWgL8z4CvA0uAw8Byol/cPyaqD72+ck07wdFUtZKUY9d1Hl9LNYMzWzOnaL9+DngkvyJ/kQ3JG1Pbdnx4x1MMU3QnkUhc4PFtOF4fZIMVivaJyL3qNZdMJrfN5aI7/pAXEmVzq0BLSczKgn5Yq4m9qiXAlzIG1RMF96b4+WHg1cDPx7mfBHDKCO81MEUzIQW5OyyGXYlEwpW9WDO/AJnNmQvC/vBTKnpNT3vP0IQ9xphZIp6F/9P4AURFd44cPnK+E9dWDIt/H2SDADgsyP3ANnWaKzxd6JoLS2N9gxdXdHBsIp0iqHjRo+d0JRSRmjm/l6uWAF8yQHS/vXTP/b9H2XY4ZxJnmRrGMuAXE2xXOVX0Vz0f7uk5e8vZwbFX0VoI8kFn8Dfe+9cnfOJNXeu7Hq10e4wxMysuuvNzyjpOy7Ysm5/U5HOdujY864LG4Gw2MYjwgKLbEpLIdS3v+t1sG+nzR7y45PEBXlEfB3QPICKhx1f9uX041RbgJ2sH8JIR3nsTcMYk9l3+F3zila0cvW9Tlc7ZeM6iQTd4E8rO5X3LX2GFMowxJXEK11/FDyAuunPYn+cSrs2rvyK9Pb1KO9WLym9QtnnxuRV9Kx6s5XOJb/ASJ7opDcerePEIUb0RBUWLZUP4NaVaAvyqcWzz0LS3YjwEFRUPMBAOaCIuMiSIKlqVvwSpbOo5gzr4GeDaQkfhrgJz9pabMWac4qI7/xM/gKjozpP7nzzX4dpE5L07Fu1YncqmRFQeUqfbEj6Rqz9Y/+sHr3mwJpaVNR5plIG6AQQ5NkQfZzkRlQ0q+n3gCFXceRtNtQT4LcArgEPAUyNss2zmmjMKRb2eOFzj8VqNV3mpztS7ReWv8PyVzaA1xkxGnMP93vhxC0RFd3Y27lwlXto8/m1HGo+cl86mE8DDKprTUHN6SO+vxqI7vt4fu9MeUSFaBB/2hT91jQ6iuWBVd24fj2oJ8BcBnwP6gcsr3JZRxckPThiir7bgvvpTqxv7D/V/Gs/e00497eVWxtIYMx3iIfpfx48vA7AB17qodaVT1+bEvUkX6j8F2aAByCuac87l+nzffXs69hwcZdfTzg94iSuIHO3Be/HeqTs6gVrRQzbJbvK+DlxQ6UaMy/CT6armHnzm+sy5Rw4e+awmdGP32u47Kt0eY8wccw2+h56HiG6tfhUARdI3pNMaapt6fU0jjX+/MLtwoSDdpVS89WH9PTNZdEfrVAAE8aWl7oIMXfLcb+vgJ+/H8aOqefEqIuU9+JBoeV5VBPj0pvSloYRv16K+pWddT0+l22OMMQAImidfWiV1W+nl1utaW13CrXHqXjboBtcH2eAUlJ2lVLxhMsz1fKhnWoqO+TovMigoWjqn+/iRONpslcFqG6Edr2oK8DWjNCGjztcNeucHOfbLULFfgpYNLQvmN86/UVWfnt83/2W1MsnFGDO39Xy4pwfooazoTmZjZpk6XaOqf+JC96EgG5wG7ELJKZprKDZsm4qiOzqgIiJwbIi+KCrq5eg8q0MIA7ZMbvb7JFEhHEqT7IqHik8kGhN3KPomBK3UMM6KjSuelXCJzyFsKXQUvlWJNhhjzFSJc3Q8SlnRndZNrUuduDUO9/yB5MBlQTZYDDwhIjn1mtN63XayRXe0ToUipTwmAEWP92W3YUOUwRpKUnocC/Dj5MV/z6nbLCpHUxn2XNNzJL05/Qk8b6pUcE9lU291uHe7hHvbXE45aYyZ3XrW9exmSNGdlZ0rzxhgYI0T1yaD8o4gGzQD+4CcotvqEnW5h696+LGR9ukHvCRcApGj9+AHBfEoGj/3CIPUaKysyUZXXFkwFy+qKKKiKjO3Dn7ZlmXzG4oNW1W0X+rlZY9c8Uj/TB3bGGOqwcPtDz/BcEV36pNtzru2Ylh8c5ANlgFPC3IPRAl6utu7twPMr5svxbBYWuYMMIjgETS5OKnar4+r6gBy7J58LbEAf7LKEt2U8zJz6+BTG1PnSCif9/it3e3d/zoTxzTGmFoQF905btJ2ZmvmlOKR4gXOuTZReV2QDVoV7SsWiz0IX3HqfqyibwOKCPuApV1XdPWns+kLVfT5grytUj/PZFiAnwCPP3EdfDR0P+2CzuCvUC6ThLyjcFWha+xPGGPM3NZ1RdfTwN3xA4DmbPPCRhrP994/ISLPB3C4d3v1q4BmgHxHfi/Knc2dzf9ZkYZPkgX4cUr65KCXuIqgG+Z+u6CCTFvxltYNrfPcQncDivg+/9JqzApljDG1Yk/HnoN72PMLgPSm9PMBisXirkRdYmWUrDYm6B4qm5BnoizAj9OgDPqjeed1+KF4jz+pGZzjFWwJztNQb1an11viGmOMmR6J+kRIWBuVQcfDAvzJ+wUht5eeFF1RnXcwTWvgU5tSbyTkCjzv6O7o/t10HMMYYwzdCU0cHnSDelwPvoZZgB8nJ670V7532KItynaEZ0zV8TJbMw3ar50o8/oT/S99tOPRw1O1b2OMMcd45xXlKw+3P/xEKpuaFcEdLMCPmxRFR10o4dg3Vdd8mesz54b94eecuE35jvx3pmavxhhjhlNa+w4gUr2lv0+WBfhxkjpR9TpSoZkpE2SDN3v170T4q3x7fvt0HssYYwxwfIVQP9I8q1pjAX6cEpLwRYojvi8qOplkdi0bWhbMa5z3GUX3JeYlXtl1RZclrjHGmBkgXnwpUdlMJy2bThbgx+nw4GGtc3UjvT2pX4ZUZ2oFyhedui/l1+W/OJl9GWOMOTne+VA0TmRyLC99zbMAP06u3unRogTloql3YbwOPvrVOIlh/HQ2/Zeq+n4c78qvzT88xc02xhgzBvHHEpXNZFbS6WYBfpxkcNRMdd6r17js4LisuXlN3b79+64DlsxbMO8VD77/wb4paKYxxpiTJE5C1XhYXkdIZlaDLMCPk9SLMshIk+zCk9lXenP6rKeefuqL6vRr3e3d7VPTQmOMMRPhxfujQ/QOtUl2c0ziUML7uhNS0Jf48d63SW9KX6JeL1ev7+5eb4lrjDGm0iQUX+q1C+Itk90c4+qdevUjpan1IqNf8a3esLr+8MLDn/R4tE9fYrnkjTGmahztvc1U4bCZYAF+nNyAU4aZRC9eFDf6EP3ZW84OjoRHbnXqvpBfl//ydLXRGGPMyStPdIOgXv2s6MG7SjegVvTN6zs2AWMo4R4v/tsoyseOv/Zr7Wx9WTEsfsU590EL7sYYU32OKwGu8X+zgPXgx8n1Ox3x21Ie6+noeSjIBsdeu41Eenv6GpSzpUFeHtcjNsYYU2Uc7qDHPwVRXnrxNsluTklK0kO0RnLoe4oeN0S/IrsildyevBXllvy6/N/NVBuNMcacvPy6/C+AXwClKdMW4OcSt8Cp7x9+Fr0gR99INaZeKUh70Rf/Zvv67b+dsQYaY4yZtPLzea2ze/Dj1PWBrgPAO4e7shOVEEDRAUHe7pP+YgvuxhhTg6Ilz9aDn1ME1aweBBYc93JC1PtogsaRviOv3/WxXYdnyy+HMcbMNZKQBzz+sUq3YypYgD8ZwlPD9uAl6sHvumbXIa6Z+WYZY4yZGvm1+Z3Azkq3YypYgD8J3e3dPxrudUFOKlWtMcYYM93sHvwUOG4NpTHGGFMFLMBPgdIkO2OMMaZaWICfJIc7iLCj0u0wxhhjytk9+Enqau96EHiw0u0wxhhjylkP3hhjjJmFLMAbY4wxs5AFeGOMMWYWsgBvjDHGzEIW4I0xxphZyAK8McYYMwtZgDfGGGNmIQvwxhhjzCxkAd4YY4yZhSzAG2OMMbOQBXhjjDFmFrIAb4wxxsxCUukGzKDnAF8HDk3w8wHQMHXNmdUSgJXQHZsQXWTbdzU2iR++0g2pAfZdjZ8DHgX2T+MxTgX+CNg7jccwk/STSjegRpwGfLvSjagR5wA3VboRNeJFwD9UuhE14g3A5ZVuRI34W+BNlW7EdLEhemOMMWYWsgBvjDHGzEIW4I0xxphZyAK8McYYMwtZgDfGGGNmoWSlG1BDtlW6ATWiCNxf6UbUiIPAQ5VuRI3YBxQq3YgasQcYrHQjasRO4OlKN8IYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMbPU84Ac8BRwKzC/ss2pan8O3EuUoe3nwLmVbU5NWAX0VboRVa4F+B5RxrFfAedUtjlV7X1AD3AI+CnR75c53vc48Xux8/wclCT6x/Ju4EzgP4CPVLJBVawFOAC8ETgV+EfgNxVtUfVLAL8kSu9rhidEaaLXAkuBLcBPKtqi6pUBBoAXE31XNwL/WdEWVZcXA58DlOMDvJ3n56gXA78te34h8HBlmlL1LgH+X9nzesADp1emOTXhg8BtWIAfzf8i+jco8fMG4DmVa05VayEa5Xg+sAjIArdXtEXVpZ3ooucgxwd4O8/PUe8iOgGXLAb6OXayMccsApaUPf9jouIg9l0NL01UaCbAAvxoLgW+A3yW6KR7O3BWJRtU5S4j6qF64Amic5Y53qMcH+Bn7XneysWO7gyiYeeSp4l6posq05yqdgDYS/SP4mLgq8CVRCcbczxHNFS4FqtkNZYm4DXAPcCriCqlfaOiLapeq4CPAn8ILARuIbqfbEY3a8/zVi52dE8BjWXPTyHqbdmkqOEtJgpcy4HXAv9T2eZUrXcDjwN3EZ1czMgOAT8DPhM/byc6GZ9B1EM1x7yaaAJZ6VbZR4H9RHNi9leqUTVg1p7nrQc/ugLHzwR/FtFkDF+R1lS3BuCHRPeyno8F99H8GVGv9AmiYedE/OcXVLJRVWr7kOeeaFTIbmucKBE/SiR+XvNDzdPMzvNzVBJ4DHgD0RXed4ENFW1R9bqEaIlc65BHYqQPzGGLgWXx4zlAGP+5oZKNqlINwG7gLUTf2xai5V/mROcC+4iWqy4GtmKz6Icz9B68nefnsOcRBa4nie5n2Ul4eBuJelZDHzYEPbozsN7oWP6AaKncAaIh6GWVbU5Vex3R5M2ngTuIln2Z4w0N8GDneWOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxsygnwI6wuO1wP9M8/E/DLws/vMTw7ShbwqPVQSSwPOY3p/rfODX07j/kVwC/E0FjmuMMaYKNQKnxY8dwKvKnjcBF03jsc8A7gVc/PwJ4E/Ljl96TJVSgF/M9P5clQrw9fFxF1bg2MZMCzf2JsaYEfQB++KHH/J8BfAP8XargF8AnUSB+OfAC4H/Bg4AHy/b54uAe4CDwL8DZ45w7EuBL8fHLTlQdvzS49lEIw1/B9wfb/ceoBs4DPwKOKdsH28CHgGeBD4DNAA/BBJAPt7fP5Rt/zrgd8B+4JtEFzaln/nnQDvwWHy8Pyv73GhtGM4tQEfZ82uArfGfR/vORjrO0O9lAPgW8JdjtMMYY8wc0wNcWPa8fCh7FRACbwaeEb++h+gi4AVEw+lNRL3jJ4BXA6cDNwI/GeF4/5eot1vyRHzMoZ5NFOhvBc4FzgL6gT8mGgW4Fbg53nZlvJ8XAkHcznfF7w03RJ+K9/2S+Oe6Ffh62c/cB1wNLAA2Ar+M3xutDSP14F/H8d/FffHnR/vORjvO0O8FohGQO4Y5tjHGmDmsh9ED/KNl710P3DTksxng7cDtZa/PI+qVJoYcK0EUuBaVvfYEx48g7CO6oHh2vG1D2T6Xx39eCGQ5FpT/jmO9YoDnEgVHGD7AfxD4Ytn2TUQ94UT8M++PP0PcjofG0YaRAvyi+Oc7lejiY3d8nNG+s9GOM/R7Id72yWGObUxNSo69iTFmCpRPeCsSBajy5xD1OF9KFPBLBoAlwK6y1xYTBc8DQ47xZo4Nw0MU9FuBnUTBrHSsdwOviPfRX7afZUTD8yX3jfoTwdIhbe2N21sapt/NsZ+tWLbdaG0YyQGi2xwvIQrE3yIaFRntO+sd4zjl3wtEtxIaiS4MjozRHmOqnt2DN6Z67AJ+RBSUW4E0UUDbPfJHjvM4UaArPUoXFeXB9Y3AK4lm3/858LWy9/YQBfmSFwJ/PcrxdhPdZihpIuoRPxE/1xE+N1obRnNn/LnXcqzXPtp3NtZxikOel1YfyDjbY0xVswBvTPW4i2jC2EVE94yvJ5qANzRQPkk0VL2Ik7eYKPAfJurlfgCYH7/3TaKA/nyiYfCPx+0oaRyyr38jujf+YqL7353AtzkxcJ5MG0ZzJ3Ax0VyBn8WvjfadnexxzgQOxdsbU/MswBtTPXYDbwU2AduBNcDbhtkuBP6LqLd6sv6ZaFj6UaJg/I9EAf2viYb3ryLq6d4D/Ab4VPy5bxItBSxfRpYH3gl8Om7vKcDlk2zDaLqJRinu4NhFxGjf2ckeJ010G8AYY4ypmHaiYDzX/JLonvt0uIbonr0xxhhTMUMT3cx2C4lWKTwK1E3D/i3RjTHGmKrxEY6lqp3t/oJoQt3F07T/S4DLpmnfxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjDHGGGOMMcYYY4wxxhhjjKki/x81b0h8H/cwEAAAAABJRU5ErkJggg==" alt="plot of chunk unnamed-chunk-2"/> </p>
+
+<h3 id="toc_6">TPAC&#39;s source code</h3>
+
+<pre><code class="r">library(ncdf)
+library(stringr)
+
+##build list of urls. Simple example - change climate models, decades, months here
+
+list.of.urls &lt;- c()
+
+  for(model in c(&quot;CCSM4&quot;, &quot;GFDL-CM3&quot;,&quot;CNRM-CM5&quot;) ){
+  for(decade in c(&quot;1960&quot;,&quot;1970&quot;) ){
+    for(month in c(&quot;01&quot;,&quot;02&quot;,&quot;03&quot;) ){
+      path.for.file &lt;- sprintf(&quot;http://cfa0.rdsi.tpac.org.au/thredds/dodsC/products/Daily/C96-5k_%s_rcp85/cfa-C96-5k_%s_rcp85.%s%s.nc&quot;, model, model, decade, month)
+      list.of.urls &lt;- append(list.of.urls, path.for.file)
+      print(path.for.file)
+    }
+  }
+}
+
+
+# set working directory
+setwd(&quot;~/tools/thredds&quot;)
+
+#use above or this approach
+#load in list of target files as characters.  The &quot;[[1]]&#39; at the end save it as a single dataframe, not as a list of dataframes...
+#list.of.urls &lt;- read.table(&quot;Saved_URL_C96-5k_GFDL.txt&quot;,colClasses=&quot;character&quot;)[[1]]
+#check it loads correctly
+##print(list.of.urls)
+
+#test it is possible to read in one file
+dataset &lt;- open.ncdf(list.of.urls[1]) ##lu: I get an error here, but it works for the guys at UTAS
+##Error in R_nc_open: Invalid argument
+
+
+print(dataset$var$tmaxscr$dim[[1]]$name)
+long &lt;- dataset$var$tmaxscr$dim[[1]]
+        print(long)
+
+print(dataset$var$tmaxscr$dim[[2]]$name)
+lat &lt;- dataset$var$tmaxscr$dim[[2]]
+        print(lat)
+
+print(dataset$var$tmaxscr$dim[[3]]$name)
+time &lt;- dataset$var$tmaxscr$dim[[3]]
+        print(time)
+
+start.time &lt;- as.POSIXct(str_split(time$units, pattern=&quot; &quot;)[[1]][3], format=&quot;%Y-%m-%d&quot;, tz=&quot;&quot;)
+if(str_split(time$units, pattern=&quot; &quot;)[[1]][1]==&quot;minutes&quot;){
+        print(paste(&quot;Time is in: &quot;,time$units))
+        print(paste(&quot;Converting to &#39;seconds since...&#39; for better compatability with R&quot;))
+                time.vals.in.secs &lt;- time$vals*60
+} else {
+        print(paste(&quot;The value of time$units is not &#39;minutes since %Y-%m-%d %H:%M:%S&#39;, please check &#39;time$units&#39; to confirm value and use a new script accordingly (i.e. save-as this one with a new name and alter that).&quot;))
+}
+
+time.to.plot &lt;- as.POSIXct(time.vals.in.secs, origin=start.time, tz=&quot;&quot;)
+
+print(paste(&quot;So far we have only downloaded the &#39;catelog&#39; of what is in the netcdf file.  To access the actual variables of interest we need to use the &#39;get.var.ncdf(nc,varid=var.name)&#39; function/command. &quot;))
+print(paste(&quot;Lets extract &#39;Maximum screen temperature&#39; &quot;))
+        #to find out which variables are available, simply type &quot;dataset&quot; variable into the console (or the name of your &#39;variable &lt;- open.ncdf(&quot;filename&quot;)&#39; if you haven&#39;t used &#39;dataset&#39; like I did above)
+
+# get the maximum temperature screen attributes
+tmaxscr.att &lt;- dataset$var$tmaxscr
+# get the maximum temperature screen values per time-step
+tmaxscr.vals &lt;- get.var.ncdf(dataset, varid=&quot;tmaxscr&quot;)
+
+# values have been compressed from &#39;float&#39; to a less dense data format &#39;short&#39; and need to be rescaled back into &#39;float&#39; before use to maintain precision.
+        ####-----NOTE----------####
+        #R auotmatically applies rescaling and offset conversion from short to float, IF present in the original netcdf file.
+        # If you need to do it manually for some reason, it would look like this:
+
+                #get the offset
+                        #tmaxscr.offset &lt;- tmaxscr.att$addOffset
+
+                #get the scale factor
+                        #tmaxscr.scalefactor &lt;- tmaxscr.att$scaleFact
+
+                #apply model to return &#39;short&#39; to &#39;float&#39;
+                        #tscr_model=tmaxscr.scalefactor*tmaxscr.vals+tmaxscr.offset
+
+print(paste(&quot;Lets plot the first layer with values (which happens to be the 4th timestep)&quot;))
+
+image(
+        x=tmaxscr.att$dim[[1]]$vals,
+        y=tmaxscr.att$dim[[2]]$vals,
+        z= tmaxscr.vals[,,4],
+        xlab=&quot;Longitude&quot;,
+        ylab=&quot;Latitude&quot;,
+        main=paste(tmaxscr.att$longname, time.to.plot[4])
+        )
+
+#-----------------------------------------------------------------------------------
+#given the successful test, load in all the files
+#-----------------------------------------------------------------------------------
+
+# set the target cell to plot through time - select a lat long by index position (useful?)
+        lat.index &lt;- 20
+            target.lat &lt;- lat$vals[lat.index]
+        long.index &lt;- 20
+                target.long &lt;- long$vals[long.index]
+
+# search for a single point BUT MUST MATCH values exactly. Look in the environment pane
+  my.target.lat &lt;- -37
+  my.target.lat.index &lt;- which(lat$vals==my.target.lat)
+
+# search for a region
+  my.target.region.lat &lt;- data.frame(min=-37,max=-36)
+  my.target.region.long &lt;- data.frame(min=146,max=147)
+  my.target.region.lat.index &lt;- which(
+                                     lat$vals&gt;=my.target.region.lat$min &amp;
+                                     lat$vals&lt;=my.target.region.lat$max
+                                     )
+
+  my.target.region.long.index &lt;- which(
+                                     long$vals&gt;=my.target.region.long$min &amp;
+                                     long$vals&lt;=my.target.region.long$max
+                                     )
+
+#plot region
+image(
+  x=tmaxscr.att$dim[[1]]$vals[my.target.region.long.index],
+  y=tmaxscr.att$dim[[2]]$vals[my.target.region.lat.index],
+  z= tmaxscr.vals[my.target.region.long.index,my.target.region.lat.index,4],
+  xlab=&quot;Longitude&quot;,
+  ylab=&quot;Latitude&quot;,
+  main=paste(tmaxscr.att$longname, time.to.plot[4])
+)
+
+# remove existing tmaxscr.year and time.year variables
+rm(tmaxscr.year)
+rm(time.year)
+
+# process each monthly file in a loop to get timeseries of whole year
+
+for(i in 1:length(list.of.urls) ){
+    print(paste(&quot;File Number &quot;, i))
+    print(paste(list.of.urls[i]))
+    print(paste(&quot;Extract &#39;Tmaxscr&#39; through time at lat=&quot;, target.lat,&quot;; long=&quot;, target.long))
+
+        dataset &lt;- open.ncdf(list.of.urls[i])
+        #extract the all time-steps of Maximum screen temperature variable at the target location
+        tmaxscr.month.raw &lt;- get.var.ncdf(
+                dataset,  #variable of the netcdf categlog
+                varid=&quot;tmaxscr&quot;,  #name of the target layer/level
+                start=c(long.index,lat.index,1),  #first value of dimensions of interest.  In this case we only want a single point through time, so we give that single point as the index of the target point.
+                count=c(1,1,-1)  #This is the number of points in each dimension of interest.  We only want 1 longitiude and 1 latitude value, through all time-steps.  There is a special case where -1=&#39;all values of a dimension&#39; instead of having to define exactly how many (such 10 time steps, 120 timesteps).
+                )
+
+        #Not all time steps have values in these data files, only every 4th layer has values.  The others are all NA.  It is convenient to exclude these for plotting and analysis.
+
+        not.na.index &lt;- which(is.na(tmaxscr.month.raw)==FALSE)
+
+        tmaxscr.month &lt;- tmaxscr.month.raw[not.na.index]
+
+        #add these monthly values to the yearly values
+        if(exists(&quot;tmaxscr.year&quot;)==TRUE){
+                tmaxscr.year &lt;- c(tmaxscr.year, tmaxscr.month)
+                } else {
+                tmaxscr.year &lt;- tmaxscr.month
+                }
+
+    #lat and long are the same for all files, as they are on the same grid, so as we have extract those above already, these dont need to be re-done.
+
+    #HOWEVER, each file has a different starting time or &quot;time origin&quot;, so this needs to be found/calculated.
+
+    time &lt;- dataset$var$tmaxscr$dim[[3]]
+                start.time &lt;- as.POSIXct(str_split(time$units, pattern=&quot; &quot;)[[1]][3], format=&quot;%Y-%m-%d&quot;, tz=&quot;&quot;)
+                print(start.time)
+
+                        if(str_split(time$units, pattern=&quot; &quot;)[[1]][1]==&quot;minutes&quot;){
+                                print(paste(&quot;Time is in: &quot;,time$units))
+                                print(paste(&quot;Converting to &#39;seconds since...&#39; for better compatability with R&quot;))
+                                        time.vals.in.secs &lt;- time$vals*60
+                        } else {
+                                print(paste(&quot;The value of time$units is not &#39;minutes since %Y-%m-%d %H:%M:%S&#39;, please check &#39;time$units&#39; to confirm value and use a new script accordingly (i.e. save-as this one with a new name and alter that).&quot;))
+                        }
+
+                        time.month.raw &lt;- as.POSIXct(time.vals.in.secs, origin=start.time)
+                                print(head(time.month.raw))
+                        # but this is all timesteps, including those that are just NA&#39;s.  So we only those that match real values these with the tmaxscr values we have already.
+                        time.month &lt;- time.month.raw[not.na.index]
+                                print(head(time.month))
+                                if(exists(&quot;time.year&quot;)==TRUE){
+                                        time.year &lt;- c(time.year, time.month)
+                                        } else {
+                                        time.year &lt;- time.month
+                                        }
+
+        }
+
+tmaxscr.celsius &lt;- tmaxscr.year-273
+fractional.year &lt;- difftime(
+        as.POSIXct(time.year),
+        as.POSIXct(time.year)[1],
+        units=&quot;days&quot;
+        )/365
+
+plot(
+        fractional.year,
+        tmaxscr.celsius,
+        xlab=&quot;Time (Fractional year)&quot;,
+        ylab=paste(&quot;Temperature *C&quot;),  #if you are a LaTeX user, you can use latex commands in the figures labels, but only on your own computer.  NECTAR instances DO NOT have LaTeX installed, as it is too big and gobbles up all the working storage space.
+        type=&quot;l&quot;,
+        col=&quot;forestgreen&quot;
+        )
+
+</code></pre>
+
+</body>
+
+
+
+#+end_src
+
 * Data Input - Local
 ** Download File from HTTPS
 *** download-file-https-code
@@ -1070,6 +1589,22 @@ So I thought what's the other 10?  Here's a few contenders for my work:
 
 #+end_src
 
+** R-google-dym
+*** COMMENT dym-code
+#+name:dym
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:dym####
+  # https://github.com/samcarlos/didYouMean
+  # http://scweiss.blogspot.com.au/2014/05/didyoumean-function-using-google-to.html
+  # git clone https://github.com/samcarlos/didYouMean.git ~/tools/didYouMean
+  setwd("~/tools/didYouMean")
+  source("didYouMean.R")
+  
+  didYouMean("gorecge washington")
+  
+  didYouMean("number per metre squared")
+#+end_src
+
 ** 2014-02-27-yearmon-class-and-interoperability-with-excel-and-access
 #+name:yearmon-class-and-interoperability-with-excel-and-access-header
 #+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-02-27-yearmon-class-and-interoperability-with-excel-and-access.md :exports none :eval no :padline no
@@ -1158,7 +1693,7 @@ http://stackoverflow.com/questions/15686451/dates-from-excel-to-r-platform-depen
 #+name:xy2shp
 #+begin_src R :session *R* :tangle no :exports none :eval no
   # func
-
+  
   if(!require(ggmap)) install.packages('ggmap'); require(ggmap)
   if (!require(rgdal)) install.packages('rgdal'); require(rgdal)
   epsg <- make_EPSG()
@@ -1183,6 +1718,75 @@ http://stackoverflow.com/questions/15686451/dates-from-excel-to-r-platform-depen
     proj4string=CRS(epsg$prj4[epsg$code %in% '4283']))
   writeOGR(pts, 'test.shp', 'test', driver='ESRI Shapefile')
   
+#+end_src
+
+*** COMMENT sptransform-code
+#+name:sptransform
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:sptransform####
+  require(disentangle)
+  require(rgdal)
+  epsg <- make_EPSG()
+  # load
+  d <- read.table(tc <- textConnection(
+  "ID  POINT_Y   POINT_X
+  1  150.5556 -35.09305
+  2  150.6851 -35.01535
+  3  150.6710 -35.06412
+  4  150.6534 -35.08666
+  "), header = TRUE); close(tc)
+  # do
+  str(epsg)
+  epsg[grep("UTM", epsg$note),"note"]
+  ## Treat data frame as spatial points
+  pts <- SpatialPointsDataFrame(cbind(d$V2,d$V3),d,
+  proj4string=CRS(epsg$prj4[epsg$code %in% '4283']))
+    
+  # defin inputs
+  datadir <- "data_provided/pr_bg_data_20140612/Data_tables/site_data/"
+  flist<-dir(datadir)
+  #flist
+  #change this
+  fname <- "Site_data.txt"
+  
+  # define outputs
+  outdir <- "ljbb_plot_details"
+  outfile <- "ljbb_plot_details.shp"
+  
+  # load
+  dat <- read.csv(
+    file.path(datadir, fname)
+    , header=TRUE)
+  
+  # clean
+  dat$Date.of.last.fire <-  as.Date(dat$Date.of.last.fire, "%d/%m/%Y")
+  #head(dat)
+  names(dat) <- tolower(gsub("\\.", "_", names(dat)))
+  # to match up with the site_number from the spotlighting data
+  dat$site_number <- paste("site_", dat$site_number, sep = "")
+  
+  # TODO check coordinate system code at spatialreference.org
+  # EPSG:20256: AGD66 / AMG zone 56
+  srid <- CRS(epsg$prj4[epsg$code %in% '20256'])
+  #srid
+  pts <- SpatialPointsDataFrame(cbind(dat$easting,dat$northing),dat,
+    proj4string=srid)
+  setwd(outdir)
+  writeOGR(pts, dsn = outfile, layer = gsub(".shp","", outfile), driver = "ESRI Shapefile")
+  setwd("..")
+  
+  #### and the csv
+  write.csv(pts@data, file.path(outdir, gsub(".shp", ".csv", outfile)), row.names = F)
+  
+  #### Bounding Box in lat/long ####
+  # work out the lat longs
+  latlong  <-  spTransform(pts, CRS("+init=epsg:4283"))
+  #summary(latlong@data[,c("easting", "northing")])
+  #str(latlong)
+  
+  bb <- morpho_bounding_box(latlong)
+  print(xtable(bb), type = "html")
+    
 #+end_src
 
 ** TODO reshape
@@ -1269,54 +1873,54 @@ http://r.789695.n4.nabble.com/R-pkgs-reshape2-a-reboot-of-the-reshape-package-td
 
 #+name:reshapes
 #+begin_src R :session *R* :eval no
-#### name:reshapes####
-
-
-# tools
-require(reshape2)
-sort_df<-function (data, vars = names(data), decreasing=F) {
-    if (length(vars) == 0 || is.null(vars)) 
-        return(data)
-    data[do.call("order", c(data[, vars, drop = FALSE], decreasing = decreasing)), , drop = FALSE]
- }
- 
-# load
-d<-as.data.frame(rbind(
- c(1,1970,3,3,8,12,23,20,26,25,25,16,8,4),
- c(2,1970,5,4,10,13,26,20,27,28,27,18,9,5)
- ))
-d$climate <- 'frst' 
-names(d)<-c('ID','Year','1','2','3','4','5','6','7','8','9','10','11','12','climate')
-str(d)
-
-# do
-d2 <- melt(d,id=c('ID','Year', 'climate'))
-str(d2)
-d2$variable <- as.numeric(as.character(d2$variable) )
-sort_df(d2)
-
-
-
-
-
-
-#OR
-
-# load
-t<-"ID,Year,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,climate
-1,1970,3,3,8,12,23,20,26,25,25,16,8,4,frst
-2,1970,5,4,10,13,26,20,27,28,27,18,9,5,frst
-"
-t<-read.csv(textConnection(t))
-
-library(reshape)
-
-#convert wide form to long form
-t2<-melt(t,id.var=c("ID","climate","Year"))
-names(t2)<-c("ID","Surf","Year","Month","Value")
-
-#turn named months into indices
-t2$Month<-match(t2$Month,month.abb)
+  #### name:reshapes####
+  
+  
+  # tools
+  require(reshape2)
+  sort_df<-function (data, vars = names(data), decreasing=F) {
+      if (length(vars) == 0 || is.null(vars)) 
+          return(data)
+      data[do.call("order", c(data[, vars, drop = FALSE], decreasing = decreasing)), , drop = FALSE]
+   }
+   
+  # load
+  d<-as.data.frame(rbind(
+   c(1,1970,3,3,8,12,23,20,26,25,25,16,8,4),
+   c(2,1970,5,4,10,13,26,20,27,28,27,18,9,5)
+   ))
+  d$climate <- 'frst' 
+  names(d)<-c('ID','Year','1','2','3','4','5','6','7','8','9','10','11','12','climate')
+  str(d)
+  
+  # do
+  d2 <- melt(d,id=c('ID','Year', 'climate'))
+  str(d2)
+  d2$variable <- as.numeric(as.character(d2$variable) )
+  sort_df(d2)
+  
+  
+  
+  
+  
+  
+  #OR
+  
+  # load
+  t<-"ID,Year,Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,climate
+  1,1970,3,3,8,12,23,20,26,25,25,16,8,4,frst
+  2,1970,5,4,10,13,26,20,27,28,27,18,9,5,frst
+  "
+  t<-read.csv(textConnection(t))
+  
+  library(reshape)
+  
+  #convert wide form to long form
+  t2<-melt(t,id.var=c("ID","climate","Year"))
+  names(t2)<-c("ID","Surf","Year","Month","Value")
+  
+  #turn named months into indices
+  t2$Month<-match(t2$Month,month.abb)
 #+end_src
 
 *** TODO reshape more
@@ -1399,6 +2003,150 @@ fill.col(d, 'suburb')
 10 Pennelope      cashews   Higgins       2.0
 11 Pennelope    beer nuts   Higgins       5.6
 12 Pennelope     Pringles   Higgins       4.0
+#+end_src
+
+** names_lcu
+*** R-lcu
+
+#+begin_src R :session *R* :tangle R/lcu.r :exports none :eval no
+  ################################################################
+  # name:lcu
+  lcu <- function(x){
+    x <- make.names(x)
+    x<-tolower(x)  
+    x<-gsub("\\.","_",x)
+    x<-gsub("_+","_",x)
+    return(x)
+  }
+#+end_src
+
+*** R-names_lcu
+#+name:names_lcu
+#+begin_src R :session *R* :tangle R/names_lcu.r :exports none :eval no
+  ################################################################
+  # name:names_lcu
+  names_lcu <- function(x){
+    names(x)<-lcu(names(x))
+    return(names(x))
+  }
+#+end_src
+*** test-names_lcu
+#+name:names_lcu
+#+begin_src R :session *R* :tangle tests/test-names_lcu.r :exports none :eval no
+  ################################################################
+  # name:names_lcu
+  require(devtools)
+  load_all()
+  # kudos
+  # http://blog.i2pi.com/post/52812976752/joshs-postgresql-database-conventions
+  
+  dat  <- read.csv(textConnection(
+  "All names,should be lowercase with underscores,.,R does support ,AnYSortOF casing that you’d like, but it makes some programming painful,2/1 avoid number at start also avoid symbols (eg. % & !)
+  table,,,,,
+  column,,,,,
+  sequence,,,,,
+  index,,,,,
+  constraint,,,,,
+  role,,,,,
+  etc,,,,,,
+  "), header = F, stringsAsFactor=F)
+  strng <- dat[1,]
+  strng
+  lcu(strng)
+  
+  dat  <- read.csv(textConnection(
+  "All names,  should be lowercase with underscores, ., R does support , AnYSortOF casing that you’d like, but it makes some programming painful,2/1 avoid number at start also avoid symbols (eg. % & !)
+  table,,,,,
+  column,,,,,
+  sequence,,,,,
+  index,,,,,
+  constraint,,,,,
+  role,,,,,
+  etc,,,,,,
+  "), header = T, stringsAsFactor=F)
+  names(dat)
+  gsub("\\.", "_", tolower(names(dat)))
+  names(dat) <- names_lcu(dat)
+  names(dat)
+  
+  
+#+end_src
+*** man-names_lcu
+#+name:names_lcu
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:names_lcu
+
+#+end_src
+
+** R-do call rbind data frame
+#+begin_src R :session *R* :tangle no :exports none :eval no
+#### name:asdf####
+locs1 <- read.csv(textConnection("location
+P23 Langfords A
+P23 Langfords B
+P23 Langfords B (ground)                 
+P24 Johnstons Track A                    
+P24 Johnstons Track A (fell out of track)
+P24 Johnstons Track A (ground)           
+P24 Johnstons Track B                    
+P25 Cultivation A                        
+P25 Cultivation B"), strip.white = T)
+locs1
+locs <- str_split(locs1[,1], pattern= "\\(")
+locs <- do.call(rbind.data.frame, locs)
+names(locs) <- c("var1", "var2")
+locs
+# close!
+                    var1                  var2
+1        P23 Langfords A       P23 Langfords A
+2        P23 Langfords B       P23 Langfords B
+3       P23 Langfords B                ground)
+4  P24 Johnstons Track A P24 Johnstons Track A
+5 P24 Johnstons Track A     fell out of track)
+6 P24 Johnstons Track A                ground)
+7  P24 Johnstons Track B P24 Johnstons Track B
+8      P25 Cultivation A     P25 Cultivation A
+9      P25 Cultivation B     P25 Cultivation B
+locs$var2[-grep("\\)",locs$var2)] <- NA
+locs
+                    var1               var2
+1        P23 Langfords A               <NA>
+2        P23 Langfords B               <NA>
+3       P23 Langfords B             ground)
+4  P24 Johnstons Track A               <NA>
+5 P24 Johnstons Track A  fell out of track)
+6 P24 Johnstons Track A             ground)
+7  P24 Johnstons Track B               <NA>
+8      P25 Cultivation A               <NA>
+9      P25 Cultivation B               <NA>
+
+#+end_src
+
+** R find-missing-rows-code
+#+name:find-missing-rows
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:find-missing-rows####
+  
+  fpath <- system.file(file.path("extdata", "civst_gend_sector_full.csv"), package = "disentangle")
+  fpath  
+  dat <- read.csv(fpath)
+  str(dat)
+  
+  dat[13,] <- rep(NA, ncol(dat))
+  
+  for(j in 1:ncol(dat)){
+  #  j = 1
+    dat[, j] <- gsub("\\#N/A", NA, dat[,j])
+    dat[, j] <- gsub("^$", NA, dat[,j])
+  }
+  # head(dat)
+  # tail(dat)
+  invalid <- apply(dat, 1, function(x) all(is.na(x)))
+  invalid[1:20]
+  dat[invalid,]
+  dat <- dat[!invalid,]
+    
 #+end_src
 
 * Data Output
@@ -2063,6 +2811,8 @@ Also this guys attempt was interesting (I like TraMineR too!)
   date: 2013-10-14
   categories:
   - Data Documentation
+  tags:
+  - morpho
   ---
   
   In this Case Study I will use Morpho to compare directly with reml.
@@ -2189,9 +2939,9 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
 - the package REML will create a EML metadata document quite easily
 - I will assume that a lot of the data elements are self explanatory and take column names and factor levels as the descriptions
 
-*** reml_boilerplate-code
+*** DEPRECATED, SEE BELOW reml_boilerplate-code
 #+name:reml_boilerplate
-#+begin_src R :session *R* :tangle R/reml_boilerplate.r :exports reports :eval no
+#+begin_src R :session *R* :tangle no :exports reports :eval no
   ################################################################
   # name:reml_boilerplate
    
@@ -2202,13 +2952,9 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
   ##   } 
   ## require(EML)
   
-  reml_boilerplate <- function(data_set, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA, desc = "")
+  reml_boilerplate <- function(data_set, outfile = NA, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA)
   {
   
-    # essential
-    if(is.na(titl)) stop(print("must specify title"))
-    # we can get the col names easily
-    col_defs <- names(data_set)
     # next create a list from the data
     unit_defs <- list()
     for(i in 1:ncol(data_set))
@@ -2217,10 +2963,56 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
         if(is.numeric(data_set[,i])){
           unit_defs[[i]] <- "number"
         } else {
-          unit_defs[[i]] <- names(table(data_set[,i]))          
+          unit_defs[[i]] <- names(data_set)[i]
         }
       }
-    # unit_defs
+  
+  # print helpful comments
+  cat(
+  sprintf('
+  # you just got a cheater\'s unit_defs
+  # we can get the col names easily
+  col_defs <- names(dat)
+  # then create a dataset with metadata
+  ds <- data.set(dat,
+                 col.defs = col_defs,
+                 unit.defs = unit_defs
+                 )
+  # now write EML metadata file
+  eml_config(creator="%s")
+  eml_write(ds,
+            file = "%s",
+            title = "%s"
+            )
+  
+  # now your metadata has been created
+  # if you want to add this to morpho and metacat it will needs something like
+  </dataFormat>
+    <distribution scope="document">
+      <online>
+        <url function="download">ecogrid://knb/hanigan.34.1</url>
+      </online>
+    </distribution>
+  </physical>', created_by, outfile, titl)
+  )
+  
+  
+    return(unit_defs)
+  
+   }
+#+end_src
+*** COMMENT snip-code
+#+name:snip
+#+begin_src R :session *R* :tangle no :exports none :eval no
+#### name:snip####
+
+
+    # essential
+    if(is.na(outfile)) stop(print("must specify outfile"))
+    if(is.na(titl)) stop(print("must specify title"))
+    # we can get the col names easily
+    col_defs <- names(data_set)
+
     
     ds <- data.set(data_set,
                    col.defs = col_defs,
@@ -2258,27 +3050,34 @@ I've been using a [fictitious dataset from a Statistics Methodology paper by Rit
     ##        ...) at eml_write.R#27
     ## 1: eml_write(dat = ds, file = paste(titl, "xml", sep = "."), title = titl)
     dat <- ds
-    eml_write(dat, file = paste(titl, "xml", sep = "."), title = titl)
+    eml_write(dat, file = paste(outfile, "xml", sep = "."), title = titl)
     setwd(oldwd)
-    sprintf("your metadata has been created in the '%s' directory", data_dir)
-    }
+    sprintf('your metadata has been created in the %s directory\nif you want to add this to morpho and metacat it will needs something like\n </dataFormat>\n <distribution scope="document"> <online>\n<url function="download">ecogrid://knb/hanigan.34.1</url>\n </online></distribution>\n</physical>', data_dir)
+    #}
 #+end_src  
 *** reml_boilerplate-test-code
 #+name:reml_boilerplate-test
 #+begin_src R :session *R* :tangle no :exports reports :eval no
   ################################################################
   # name:reml_boilerplate-test
+  require(devtools)
+  load_all()
+  #require(disentangle)
+  fpath <- system.file("extdata/civst_gend_sector_additional_variables.csv", package = "disentangle")
+  analyte <- read.csv(fpath, colClasses=c(ordinal_variable = "character"))
+  analyte <- read.csv(fpath, stringsAsFactor = F)
   
-  analyte <- read.csv("data/civst_gend_sector_full.csv")
-  reml_boilerplate(
+  str(analyte)
+  head(analyte)
+  unit_defs <- reml_boilerplate(
     data_set = analyte,
     created_by = "Ivan Hanigan <ivanhanigan@gmail.com>",
     data_dir = "data",
     titl = "civst_gend_sector_full",
-    desc = "An example, fictional dataset"
+    outfile = 'testing1234'
     )
-  
-  dir("data")
+  unit_defs
+  # dir("data")
 #+end_src
 *** Results: This loads into Morpho with some errors
 - Notably unable to import the data file
@@ -2302,6 +3101,8 @@ title: morpho-and-reml-boilerplate-streamline-the-process-of-metadata-entry
 date: 2013-10-29
 categories:
 - Data Documentation
+tags:
+- morpho
 ---
 
 
@@ -2712,6 +3513,8 @@ dir(<span style="color: #2aa198;">"data"</span>)
   date: 2013-11-27
   categories:
   - research methods
+  tags:
+  - morpho
   ---
   
   I asked my colleague [Marco Fahmi](https://twitter.com/fahmiger) to
@@ -3095,21 +3898,34 @@ categories:
   data_dict <- function(.dataframe, .variable, .show_levels = -1)
   {
   
+  summary2 <- function(x){
+    summa <- summary(x, digits = nchar(max(x))+3)
+    return(summa)
+  }
+  
     if(is.character(.dataframe[ ,.variable])){
       .dataframe[,.variable]  <- factor(.dataframe[,.variable])
     }
     if(all(is.na(.dataframe[ ,.variable]))){
-      summa <- summary(.dataframe[,.variable])
+      summa <- summary2(.dataframe[,.variable])
       summa <- as.data.frame(t(summa[2]))
       summa[,1]  <- as.numeric(as.character(summa[,1]))
     } else {
-      summa <- summary(.dataframe[,.variable])
+      summa <- summary2(.dataframe[,.variable])
     }
-    summa  <- as.data.frame(
+  # if there are some missing obs in a date var you get a malformed
+  # summa with less names than levels
+    if(length(as.character(summa)) != length(names(summa))){
+      summa <- as.character(summa)
+    }
+  
+    
+    summa <- as.data.frame(
       cbind(
         c(.variable, rep("", length(summa) - 1)),
-        names(summa),
-        as.vector(as.character(summa))
+        names(summa)
+        ,
+        as.vector(summa)
         )
       )
     summa[,1]  <- as.character(summa[,1])
@@ -3143,7 +3959,7 @@ categories:
     summa <- summa[,c(1,4,2,3,5,6)]
     } else if (
      !all(
-        is.na(as.Date(as.character(.dataframe[,.variable]), origin = "1970-01-01"))
+        is.na(as.Date(as.character(na.omit(.dataframe[,.variable])), origin = "1970-01-01"))
         )
       ){
     # if date
@@ -3159,6 +3975,18 @@ categories:
     summa$type <- c("date", rep("", nrow(summa) - 1))
     summa$cnt <- NA
     summa$pct  <- NA
+    # summa
+    if(
+      length(which(is.na(.dataframe[,.variable]))) > 0
+      ){
+      summa$V3[-which(summa$V2 == "NA's")] <- as.character(
+          as.Date(as.character(
+          summa$V3[-which(summa$V2 == "NA's")]
+          ), origin = "1970-01-01")
+          )    
+    } else {
+      summa$V3 <- as.character(as.Date(as.numeric(as.character(summa$V3)), origin = "1970-01-01"))    
+    }
     summa <- summa[,c(1,4,2,3,5,6)]
     } else if (all(is.na(.dataframe[ ,.variable]))){
       
@@ -3176,6 +4004,9 @@ categories:
   }
   
 #+end_src
+
+#+RESULTS: R-data_dictionary
+
 *** data_dictionary-code
 #+name:data_dictionary
 #+begin_src R :session *R* :tangle R/data_dictionary.r :exports none :eval no
@@ -3184,7 +4015,7 @@ categories:
     out <- matrix(NA, nrow = 0, ncol = 3)
     for(i in 1:ncol(dataframe)){
     #  i = 1
-      print(i)
+    #  print(i)
     out2 <- data_dict(
       .dataframe = dataframe
       ,
@@ -3206,24 +4037,56 @@ categories:
   # name:R-data_dictionary
   require(devtools)
   install_github("disentangle", "ivanhanigan")
+  # or
+  load_all()
   require(disentangle)
   fpath <- system.file("extdata/civst_gend_sector.csv", package = "disentangle")
   fpath
   civst_gend_sector <- read.csv(fpath)
   civst_gend_sector$datevar <- as.Date(round(rnorm(nrow(civst_gend_sector), Sys.Date(),10)), origin = "1970-01-01")
-  civst_gend_sector$missing_blahblah_variable  <- NA
+  civst_gend_sector$missing_variable  <- NA
+  civst_gend_sector$Survey.year  <- as.integer(rep(2012, nrow(civst_gend_sector)))
   str(civst_gend_sector)
   #data_dict
   data_dict(civst_gend_sector, "civil_status")
+  class(civst_gend_sector$datevar)
   data_dict(civst_gend_sector, "datevar")
   data_dict(civst_gend_sector, "number_of_cases")
-  data_dict(civst_gend_sector, "missing_blahblah_variable")
-  
+  data_dict(civst_gend_sector, "missing_variable")
+  data_dict(civst_gend_sector, "Survey.year")
   dataDictionary <- data_dictionary(civst_gend_sector,
                                     show_levels = -1)
   
   dataDictionary
   #write.csv(dataDictionary, "~/dataDictionary.csv", row.names = F)
+  
+  # with randoms in date variable
+  civst_gend_sector$datevar[sample(1:nrow(civst_gend_sector), 5)] <- NA
+  # and civil status
+  civst_gend_sector$civil_status[sample(1:nrow(civst_gend_sector), 7)] <- NA
+  # and number of cases
+  civst_gend_sector$number_of_cases[sample(1:nrow(civst_gend_sector), 2)] <- NA
+  civst_gend_sector$Survey.year[sample(1:nrow(civst_gend_sector), 4)] <- NA
+  # some integer codes
+  civst_gend_sector$ordinal_variable <-  as.character(round(sample(rnorm(10000,2.5,1), nrow(civst_gend_sector))))
+  str(civst_gend_sector)
+  #debug(data_dict)
+  data_dict(
+            .dataframe=civst_gend_sector
+            ,
+            .variable="datevar"
+            ,
+            .show_levels = -1
+            )
+  #undebug(data_dict)
+  
+  dataDictionary <- data_dictionary(civst_gend_sector,
+                                    show_levels = -1)
+  
+  dataDictionary
+  write.csv(civst_gend_sector,
+            file.path("inst/extdata", gsub(".csv","_additional_variables.csv", basename(fpath)))
+            , row.names = F)
 #+end_src
 *** man-R-data_dictionary
 #+name:R-data_dictionary
@@ -3245,6 +4108,8 @@ categories:
   date: 2014-01-21
   categories:
   - Data Documentation
+  tags:
+  - morpho
   ---
   
   # Aim
@@ -4031,6 +4896,8 @@ You can see this if you then open it up again in morpho and then under the docum
   date: 2014-04-20
   categories:
   - Data Documentation
+  tags:
+  - morpho
   ---
   
   Morpho is a pretty minimal editor for EML really.  It gives you a set
@@ -4136,6 +5003,8 @@ You can see this if you then open it up again in morpho and then under the docum
   date: 2014-04-21
   categories:
   - Data Documentation
+  tags:
+  - morpho
   ---
   
   In Eml the optional "project" module provides an overall description
@@ -4652,6 +5521,275 @@ You can see this if you then open it up again in morpho and then under the docum
 - next time want to test backups or bring this up to sync just overwrite .morpho and restart morpho?
 
 - test upgrading to morpho 1.10, just use uninstaller (tools/morpho1.8/Uninstaller, java -jar uninstaller.jar) then install newer version  
+*** notes from package vignette
+
+#+name:ntoes
+#+begin_src R :session *R* :tangle no :exports none :eval no
+
+  #### name:source####
+  #require(devtools)
+  #install_github("EML", "ROpenSci")
+  require(EML)
+  require(XML)
+  xml_files <- dir("~/.morpho/profiles/hanigan/data/hanigan", full.names=T)
+  xml_files
+  xml_i <- xml_files[14]
+  xml_i
+  d1 <- xmlTreeParse(xml_i, useInternal=T)
+  str(d1)
+  # do
+  top <- xmlRoot(d1)
+  str(top)
+  names(top[[1]])
+  # top [[1]] # prints the whole thing
+  for(i in 1:length(names(top[[1]][["creator"]][["address"]]))){
+  #i <- 1
+  print(xmlValue(top[[1]][["creator"]][["address"]][[i]]))
+  }
+  
+  my_address <- new("address", 
+                    deliveryPoint = "Long Term Ecological Research Network (ANU) and Australian SuperSite Network (JCU) College of Medicine, Biology and Environment.",
+                    city = "Canberra",
+                    administrativeArea = "ACT",
+                    postalCode = "O200",
+                    country = "AU")
+  me <- as.person("Ivan Charles Hanigan <ivan.hanigan@gmail.com>")
+  contact <- as(me, "contact")
+  contact@address = my_address
+  contact@organizationName = "LTERN"
+  contact@phone = "02 6125 0349"
+  
+  publisher <- new("publisher", 
+      organizationName = "ANU",
+      address = my_address)
+  
+  creator <- c(as("Ivan Charles Hanigan", "creator"))
+  
+  pubDate <- "2013" 
+  title <- "Meteorological Data for Australian Postal Areas"
+  
+  gcmd <- read.csv("~/Dropbox/references/gcmd-8-sciencekeywords.csv", skip = 1, stringsAsFactor = F)
+  str(gcmd)
+  names(table(gcmd$Topic))
+  names(table(gcmd$Term))
+  
+  gcmd_keywords <- tolower(
+      paste("Atmopsheric Phenomena", subset(gcmd, Topic == "ATMOSPHERE" & Term == "ATMOSPHERIC PHENOMENA")[,4], sep = " > ")
+      )
+  
+  
+  keys <- eml_keyword(list(
+   "GCMD Keywords" = gcmd_keywords)
+                      )
+  keys
+  
+  coverage <- eml_coverage(
+    dates            = c('2012-06-01', '2013-12-31'),
+    geographic_description = "Australia",
+    NSEWbox          = c( 42.55,  42.42, -72.1, -72.29, 160, 330))
+  
+  
+  abstract <- "Making a time series of weather for Postal Areas"  
+  
+  rights <- "Permission should be sought from the principal investigator"
+  
+  methods <- new("methods", methodStep = c(
+                                new("methodStep", description = "get postal areas"),
+                                new("methodStep", description = "get weather"),
+                                new("methodStep", description = "join weather and poa")              
+                                ))
+  methods
+  additionalMetadata <- top[[2]]
+  hf205 <- eml_read(system.file("examples", "hf205.xml", package="EML"))
+  additionalMetadata <- hf205@additionalMetadata # extracted from previous eml file
+  
+  
+  
+  #                 associatedParty = other_researchers,
+  dataset <- new("dataset", 
+                  title = title,
+                  creator = creator,
+                  contact = contact,
+                  pubDate = pubDate,
+                  intellectualRights = rights,
+                  abstract = abstract,
+  
+                  keywordSet = keys,
+                  coverage = coverage,
+                  methods = methods)
+                 #,
+  #                dataTable = c(dataTable))
+  
+  
+  eml <- new("eml",
+             packageId = uuid::UUIDgenerate(),
+             system = "uuid", # type of identifier
+             dataset = dataset,
+             additionalMetadata = additionalMetadata)
+  eml
+  ## eml     <- eml(dataset = dataset,
+  ##                 title = title,
+  ##                 creator = creator,
+  ##                 contact = contact,
+  ##                 pubDate = pubDate,
+  ##                 associatedParty = other_researchers,
+  ##                 intellectualRights = rights,
+  ##                 abstract = abstract,
+  ##                 keywordSet = keys,
+  ##                 coverage = coverage,
+  ##                 methods = methods
+  ##                ,
+  ##                 additionalMetadata = additionalMetadata
+  ##               )
+  #eml
+  slotNames(eml)
+  eml@dataset@distribution
+  eml@dataset@distribution@online@url <- "http://nesstar.ada.edu.au/webview/index.jsp?object=http://nesstar.ada.edu.au:80/obj/fStudy/au.edu.anu.ada.ddi.01230" 
+  #eml@dataset@distribution@online@onlineDescription <- ""
+  
+  outfile <- "~/weather_by_poa.xml"
+  eml_write(eml, file=outfile)
+  
+  install_github("RHTMLForms", "omegahat")
+  eml_validate(outfile)
+  
+
+  # first try
+  #### name:source####
+  #require(devtools)
+  #install_github("EML", "ROpenSci")
+  require(EML)
+  require(XML)
+  xml_files <- dir("~/.morpho/profiles/hanigan/data/hanigan", full.names=T)
+  xml_files
+  xml_i <- xml_files[grep("15.3",xml_files)]
+  xml_i
+  file.copy(xml_i, "test.xml")
+  d1 <- eml_read("test.xml")
+  str(d1)
+  # do
+  top <- xmlRoot(d1)
+  str(top)
+  names(top[[1]])
+  # top [[1]] # prints the whole thing
+  for(i in 1:length(names(top[[1]][["creator"]][["address"]]))){
+  #i <- 1
+  print(xmlValue(top[[1]][["creator"]][["address"]][[i]]))
+  }
+  
+  my_address <- new("address", 
+                    deliveryPoint = "Long Term Ecological Research Network (ANU) and Australian SuperSite Network (JCU) College of Medicine, Biology and Environment.",
+                    city = "Canberra",
+                    administrativeArea = "ACT",
+                    postalCode = "O200",
+                    country = "AU")
+  me <- as.person("Ivan Charles Hanigan <ivan.hanigan@gmail.com>")
+  contact <- as(me, "contact")
+  contact@address = my_address
+  contact@organizationName = "LTERN"
+  contact@phone = "02 6125 0349"
+  
+  publisher <- new("publisher", 
+      organizationName = "ANU",
+      address = my_address)
+  
+  creator <- c(as("Ivan Charles Hanigan", "creator"))
+  
+  pubDate <- "2013" 
+  title <- "Meteorological Data for Australian Postal Areas"
+  
+  gcmd <- read.csv("~/Dropbox/references/gcmd-8-sciencekeywords.csv", skip = 1, stringsAsFactor = F)
+  str(gcmd)
+  names(table(gcmd$Topic))
+  names(table(gcmd$Term))
+  
+  gcmd_keywords <- tolower(
+      paste("Atmopsheric Phenomena", subset(gcmd, Topic == "ATMOSPHERE" & Term == "ATMOSPHERIC PHENOMENA")[,4], sep = " > ")
+      )
+  
+  
+  keys <- eml_keyword(list(
+   "GCMD Keywords" = gcmd_keywords)
+                      )
+  keys
+  
+  coverage <- eml_coverage(
+    dates            = c('2012-06-01', '2013-12-31'),
+    geographic_description = "Australia",
+    NSEWbox          = c( 42.55,  42.42, -72.1, -72.29, 160, 330))
+  
+  
+  abstract <- "Making a time series of weather for Postal Areas"  
+  
+  rights <- "Permission should be sought from the principal investigator"
+  
+  methods <- new("methods", methodStep = c(
+                                new("methodStep", description = "get postal areas"),
+                                new("methodStep", description = "get weather"),
+                                new("methodStep", description = "join weather and poa")              
+                                ))
+  methods
+  additionalMetadata <- top[[2]]
+  hf205 <- eml_read(system.file("examples", "hf205.xml", package="EML"))
+  additionalMetadata <- hf205@additionalMetadata # extracted from previous eml file
+  
+  
+  
+  #                 associatedParty = other_researchers,
+  dataset <- new("dataset", 
+                  title = title,
+                  creator = creator,
+                  contact = contact,
+                  pubDate = pubDate,
+                  intellectualRights = rights,
+                  abstract = abstract,
+  
+                  keywordSet = keys,
+                  coverage = coverage,
+                  methods = methods)
+                 #,
+  #                dataTable = c(dataTable))
+  
+  
+  eml <- new("eml",
+             packageId = uuid::UUIDgenerate(),
+             system = "uuid", # type of identifier
+             dataset = dataset,
+             additionalMetadata = additionalMetadata)
+  eml
+  ## eml     <- eml(dataset = dataset,
+  ##                 title = title,
+  ##                 creator = creator,
+  ##                 contact = contact,
+  ##                 pubDate = pubDate,
+  ##                 associatedParty = other_researchers,
+  ##                 intellectualRights = rights,
+  ##                 abstract = abstract,
+  ##                 keywordSet = keys,
+  ##                 coverage = coverage,
+  ##                 methods = methods
+  ##                ,
+  ##                 additionalMetadata = additionalMetadata
+  ##               )
+  #eml
+  slotNames(eml)
+  eml@dataset@distribution
+  eml@dataset@distribution@online@url <- "http://nesstar.ada.edu.au/webview/index.jsp?object=http://nesstar.ada.edu.au:80/obj/fStudy/au.edu.anu.ada.ddi.01230" 
+  #eml@dataset@distribution@online@onlineDescription <- ""
+  
+  outfile <- "~/weather_by_poa.xml"
+  eml_write(eml, file=outfile)
+  
+  install_github("RHTMLForms", "omegahat")
+  eml_validate(outfile)
+  
+
+
+
+
+
+#+end_src
+
 ** 2014-05-09-cwt-lter-data-submission-template-critique
 #+name:cwt-lter-data-submission-template-critique-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-05-09-cwt-lter-data-submission-template-critique.md :exports none :eval no :padline no
@@ -4920,7 +6058,7 @@ I do like the extra metadata Column Name:
       
 #+end_src
 
-** 2014-04-xx-using-morpho-for-cataloguing-postgis-servers-org
+** TODO 2014-04-xx-using-morpho-for-cataloguing-postgis-servers-org
 *** Adding regarding the Data Location and Backups
   
 These data are quite large and also geospatial, so I store these 
@@ -5695,7 +6833,833 @@ scope	optional	document
       
 #+end_src
 
+** 2014-07-12-r-eml-pgis-setting-up-the-software-stack
+#+name:r-eml-pgis-setting-up-the-software-stack-header
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-07-12-r-eml-pgis-setting-up-the-software-stack.md :exports none :eval no :padline no
+  ---
+  name: r-eml-pgis-setting-up-the-software-stack
+  layout: post
+  title: r-eml-pgis-setting-up-the-software-stack
+  date: 2014-07-12
+  categories:
+  - disentangle
+  ---
+  
+  ## r-eml
+  
+  - this is the R package for authoring EML
+  
+  ## pgis
+  
+  - This is a spatial database
+  
+  ## System Description
+  
+  - Ubuntu 12.04 LTS
+  - Macpro Tower
+  
+  ## EML is a useful beast
+  
+  ### setting-up-the-software-stack
+  
+  - First I needed devtools and this required RCurl linux package dependencies
+  
+  #### Code
+      sudo apt-get install libcurl libcurl-devel libcurl4-gnutls-dev
+  
+  <p></p>
+  
+  - Now trying to install EML
+  
+  #### Code
+      require(devtools)
+      install_github("EML", "ropensci")
+  
+  <p></p>
+  
+  - then XML Depends
+  
+  #### Code  
+      sudo apt-get install libcurl4-openssl-dev libxml2-dev
+      sudo apt-get install r-cran-xml
+  
+  <p></p>
+  
+  - rJava can be difficult, I was really dreading this but eventually stackoverflow to the rescue!
+  
+  #### Code  
+      sudo apt-get install openjdk-7-*
+      sudo apt-get install r-cran-rjava
+      update-java-alternatives -l
+      sudo update-java-alternatives -s java-1.7.0-openjdk-amd64 
+      sudo R CMD javareconf
+      R
+      install.packages("rJava")
+      library(rJava)
+  
+  <p></p>
+    
+  - now complaining about ‘RHTMLForms’ and ‘RWordXML’
+  
+  #### Code:
+      install_github("RHTMLForms", "omegahat")
+      install.packages("RWordXML", repos="http://www.omegahat.org/R", type="source")
+  
+  <p></p>
+    
+  - on we go
+  
+  #### Code  
+      install.packages(c("knitr", "rfigshare", "testthat", "RCurl", "dataone", "rrdf"))
+  
+  <p></p>
+    
+  ## RGDAL 
+  
+  - Spatial toolbox
+  
+  #### Code  
+      sudo apt-get update
+      sudo apt-get upgrade
+      sudo apt-get install libgdal1-dev libproj-dev
+      gdal-config --version
+      sudo R
+      install.packages("rgdal")
+  
+  <p></p>
+    
+  ## PostgreSQL 9.3 
+  
+  - following comes from [http://technobytz.com/install-postgresql-9-3-ubuntu.html](http://technobytz.com/install-postgresql-9-3-ubuntu.html)
+  
+  #### Code:
+      sudo apt-get update
+      sudo apt-get -y install python-software-properties
+      wget --quiet -O - https://www.postgresql.org/media/keys/ACCC4CF8.asc | sudo apt-key add -
+      sudo sh -c 'echo "deb http://apt.postgresql.org/pub/repos/apt/ precise-pgdg main" >> /etc/apt/sources.list.d/postgresql.list'
+      sudo apt-get update
+      sudo apt-get install postgresql-9.3 pgadmin3
+      sudo -u postgres psql
+      create role user_name login password 'passwd';
+      show hba_file ;
+      #/etc/postgresql/9.3/main/pg_hba.conf
+      \q
+      sudo nano /etc/postgresql/9.3/main/pg_hba.conf
+      # add users to listen for at the firewall
+      sudo nano /etc/postgresql/9.3/main/postgresql.conf
+      # listenaddresses = *
+      sudo services postgresql restart
+      sudo ufw allow from my.ip.address.0/24 to any port 5432
+  
+  <p></p>
+    
+  ## PostGIS 2.0
+  
+  - following comes from [http://technobytz.com/install-postgis-postgresql-9-3-ubuntu.html](http://technobytz.com/install-postgis-postgresql-9-3-ubuntu.html)
+  
+  #### Code:
+      sudo apt-get update
+      sudo apt-get install postgresql-9.3-postgis-2.1 -f
+      sudo su
+      su - postgres
+      createdb postgis_ltern
+      psql -d postgis_ltern -U postgres  
+      CREATE EXTENSION postgis;  
+      CREATE EXTENSION postgis_topology;  
+      CREATE ROLE public_group;
+      CREATE ROLE ivan_hanigan LOGIN PASSWORD 'password';
+      GRANT public_group TO ivan_hanigan;
+      grant usage on schema public to public_group;
+      GRANT select ON ALL TABLES IN SCHEMA public TO public_group;
+      grant execute on all functions in schema public to public_group;
+      grant select on all sequences in schema public to public_group;
+      grant select on table geometry_columns to public_group;
+      grant select on table spatial_ref_sys to public_group;
+      grant select on table geography_columns to public_group;
+      grant select on table raster_columns to public_group;
+      grant select on table raster_overviews to public_group;
+  
+  <p></p>
+  
+  ## For transforming AGD 66 to GDA94
+  
+  - A special transformations grid file is required to be added to the PROJ.4 files for reprojecting the Australian projections AGD66 to GDA94.
+  - Thanks to [Joe Guillaume](https://github.com/josephguillaume) and [Francis Markham](http://stackoverflow.com/users/103225/fmark) for providing this solution.
+  
+  #### Code: transformations grid for Australian projections
+      cd /usr/share/proj
+      wget http://www.icsm.gov.au/gda/gdatm/national66.zip  
+      unzip national66.zip
+      mv "A66 National (13.09.01).gsb" aust_national_agd66_13.09.01.gsb
+      su - postgres 
+      psql -d mydb
+  
+      UPDATE spatial_ref_sys SET
+      proj4text='+proj=longlat +ellps=aust_SA +nadgrids=aust_national_agd66_13.09.01.gsb +wktext'
+      where srid=4202;
+      \q
+      exit
+  <p></p>
+  
+  ## make a spatial dataset
+  #### Code       
+      require(devtools)
+      install_github("swishdbtools", "swish-climate-impact-assessment")
+      require(swishdbtools)
+      require(ggmap)
+       
+      ch  <- connect2postgres2("postgis_ltern")
+       
+      location_names <- c("linnaeus way acton canberra act", "biology place acton canberra act")
+      locations <- geocode(location_names)
+      locations <- cbind(location_names, locations)
+       
+      dbWriteTable(ch, "anu_gisforum_locations", locations, row.names = F)
+      sql <- points2geom("public", "anu_gisforum_locations", col_lat = "lat", col_long = "lon")
+      cat(sql)
+      dbSendQuery(ch,
+                  sql
+                  )
+  
+  <p></p>
+  
+  ## This can now be shown in Quantum GIS
+
+  ![images/gisforum_locations.png](/images/gisforum_locations.png)
+  
+  
+  ### TODO:
+  
+  - add EML for this using R
+  - finesse with Morpho (requires further Java shennanigans)
+  - publish something to KNB using R dataone package
+    
+  
+  
+#+end_src
+
+** 2014-07-30--R-doesnt-respect-quotes-around-numbers-with-read-csv
+#+name:-R-doesnt-respect-quotes-around-numbers-with-read-csv-header
+#+begin_src R :tangle no :exports none :eval no :padline no
+  "
+  ~/projects/ivanhanigan.github.com.raw/_posts/2014-07-30--R-doesnt-respect-quotes-around-numbers-with-read-csv.md 
+  
+  ---
+  name: -R-doesnt-respect-quotes-around-numbers-with-read-csv
+  layout: post
+  title: -R-doesnt-respect-quotes-around-numbers-with-read-csv
+  date: 2014-07-30
+  categories:
+  -
+  ---
+  
+  #### Code:-R-doesnt-respect-quotes-around-numbers-with-read-csv
+  R: respect quotes around numbers (treat as character) with read.csv()
+  http://stackoverflow.com/questions/22923756/r-respect-quotes-around-numbers-treat-as-character-with-read-csv
+  
+  colClasses.
+  
+  I'll reiterate that I don't actually like this solution, even thought it's pretty simple. Quotes denote text fields in a .csv, and they don't seem to be respected in this case. The LibreOffice .csv import has a checkbox for 'Treat quoted fields as text,' which I'd think is analogous to as.is = T in R. Obviously not! #end_rant
+  
+  read columns of quoted numbers as factors
+  http://r.789695.n4.nabble.com/read-columns-of-quoted-numbers-as-factors-td2954660.html
+  "    
+  L <- readLines('myfile.dat')
+  L2 <- gsub('"(\\d+)"', "!\\1", L) # insert !
+  DF <- read.table(textConnection(L2), header = TRUE)
+  
+  # remove !
+  ix <- sapply(DF, is.factor)
+  DF[ix] <- lapply(DF[ix], function(x) factor(gsub("!", "", x)))
+  
+  str(DF) 
+  "
+  ???
+  "
+  
+  fpath<-system.file("extdata/civst_gend_sector_additional_variables.csv", package = "disentangle")
+  dat <- read.csv(fpath)
+  str(dat)
+  indir <- dirname(fpath)
+  setwd(indir)
+  dir()
+  require(swishdbtools)
+  load2postgres("civst_gend_sector_additional_variables.csv",
+                "public", "civst_etc", pguser = "ivan_hanigan",
+                db="postgis_hanigan", ip = 'localhost')
+   system("cat sqlquery.txt \"civst_gend_sector_additional_variables.csv\" | psql -h localhost -U ivan_hanigan -d postgis_hanigan")
+  
+  ch  <- connect2postgres2("postgis_hanigan")
+  dat <- dbReadTable(ch, "civst_etc")
+  str(dat)
+#+end_src
+
+** 2014-08-20-morpho-doesnt-respect-quote-encapsulated-strings-in-csv
+#+name:morpho-doesnt-respect-quote-encapsulated-strings-in-csv-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-08-21-morpho-doesnt-respect-quote-encapsulated-strings-in-csv.md :exports none :eval no :padline no
+---
+name: morpho-doesnt-respect-quote-encapsulated-strings-in-csv
+layout: post
+title: morpho-doesnt-respect-quote-encapsulated-strings-in-csv
+date: 2014-08-20
+categories:
+- Data Documentation
+tags:
+- morpho
+---
+
+- We discovered this known morpho bug when we try to import a textual data to morpho
+- Even if you double check that you have selected the correct format for that data. For example, delimited or fixed width, and the correct delimiter.
+- see this bug report [Bug #4636 Morpho should ignore commas inside double-quoted fields (CSV import)](https://projects.ecoinformatics.org/ecoinfo/issues/4636)
+- this unwanted Morpho behaviour is due to a comma in the cell and morpho doesn’t respect quote encapsulated strings with commas in them.
+- we do not think we can fix Morpho’s bug, and we cannot upgrade Morpho because of our Metacat version. We just need to find a workaround on that.
+ 
+![morpho-quote-encapsulated.png](/images/morpho-quote-encapsulated.png)
+
+    
+#+end_src
+
+** 2014-08-21-hotwire-a-morpho-package-using-r-and-xml-editor
+#+name:hotwire-a-morpho-package-using-r-and-xml-editor-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-08-21-hotwire-a-morpho-package-using-r-and-xml-editor.md :exports none :eval no :padline no
+  ---
+  name: hotwire-a-morpho-package-using-r-and-xml-editor
+  layout: post
+  title: hotwire-a-morpho-package-using-r-and-xml-editor
+  date: 2014-08-21
+  categories:
+  - Data Documentation
+  tags:
+  - morpho
+  ---
+  
+  # Introduction
+
+  - at my workplace we have had a significant number of issues trying to use Morpho to publish ecological data
+  - I have been interested in the R EML package as an alternative and got this advice from the authors
+  - "I'm really happy to see you combining these tools and making best use of each of their features (authoring for Morpho, automation for REML). We should think more about how to make this combination seamless." [https://github.com/ropensci/EML/issues/93](https://github.com/ropensci/EML/issues/93)
+  - That dream still seems a long way off (and I suspect will see a re-write of morpho in R's "shiny apps" language)
+  - but here is an attempt to circumvent some of our main issues which seem to do with using Morpho to do anything with data tables 
+  - (morpho seems fine when just dealing with the documentation parts of EML)
+  
+  # Create a Minimal Morpho EML
+  
+  - I am going to use Morpho to create a new data package and just step thru all the steps,  add TBA to all the options
+  - another option was to create this using the REML example 
+  - but then there is uncertainty if it will be accepted easily by Morpho when imported
+  - seriously, just TBA and only for the required fields (these are in red)
+  - take note of the docid number, and save locally
+  - now we can import this as our template.  lets save it as a reference file
+  
+  #### Code:
+      cp ~/.morpho/profiles/hanigan/data/hanigan/XX.1 ~/tools/morpho_template_eml.xml
+  
+  <p></p>
+
+  # Import to morpho
+  - this skeletal eml can now be imported in the File menu / import
+  - this is the 'hotwired' starting point of our morpho packages 
+  - I want to do this for others too. so change morpho profile on your computer and import the xml
+  - gives a new package with a new morpho generated docid number
+  - add the package title, with enough identification in the title to allow quick reference
+  - SET THE ACCESS TO NOT PUBLIC BEFORE SAVING 
+
+  # generate the EML Skeleton using the R EML package
+  
+  #### Code:
+      library(EML)
+      library(devtools)
+      install_github("disentangle", "ivanhanigan")
+      unit_defs <- reml_boilerplate(dat,titl = "myFile")
+      # you just got a quick and dirty unit_defs, these need to be made proper in morpho
+      # we can get the col names easily
+      col_defs <- names(dat)
+      # then create a dataset with metadata
+      ds <- data.set(dat,
+                     col.defs = col_defs,
+                     unit.defs = unit_defs
+                     )
+      # now write EML metadata file
+      eml_config(creator="TBA <fakeaddress@gmail.com>")
+      wd <- getwd()
+      setwd(outdir)
+      eml_write(ds,
+                file = gsub(".csv", "_eml_skeleton.xml", outfile),
+                title = gsub(".csv", "", outfile)
+                )
+      tempfile <- dir(pattern="^data_table_")
+      file.rename(tempfile, outfile)
+      # rename the CSV file.
+      setwd(wd)
+  
+  <p></p>
+  
+  
+  # now attach the data
+  - to avoid risk of morpho getting confused it is probably safe to let it start the new dataTable tags
+      
+  ![morpho-hotwire-1.png](/images/morpho-hotwire-1.png)
+  
+  - say it is a simple CSV
+  - say the name for the file for title, TBA for all other required fields, for attributes add one and say it is datetime (to be quick)
+
+  ![morpho-hotwire-2.png](/images/morpho-hotwire-2.png)
+
+
+  - note the docid (41.2) and download file id (ecogrid://knb/datalibrarian2.42.1) 
+  - save locally and close
+  
+  # now replace the metadata info
+
+  - use an XML editor to go to the eml skeleton we created in morpho and also to the one created in R
+  - in the morpho generated XML find the attributeList tag within the dataTable group, mine looked like
+
+  #### Code:
+      <attributeList><attribute id="1408536821935">...
+  <p></p>
+
+  - and we know that the stuff we want to replace finishes with the closing tag </attributeList>
+  - I think the ID is irrelevant, except Morpho won't allow multiple of the same id number within an EML
+  - find the same and replace in the REML generated bit
+
+  ![morpho-attributelist.png](/images/morpho-attributelist.png)
+
+  And paste:
+
+  ![morpho-dataformat.png](/images/morpho-dataformat.png)
+
+  #### Also do the 
+      <dataFormat></dataFormat> section
+
+
+  # add another dataset
+  - assuming you already ran reml_boilerplate for this new file
+  - use morpho menus to add another datatabe
+  - save locally and close morpho
+  - open with XML editor and the REML EML Skeleton
+  - transfer dataformat and attributelist stuff
+  - go to documentation and make minor mod (space in abstract?), save locally
+
+  # share it with colleagues 
+  - go to documentation menu > access info and set/verify to public = no add user
+  - save to metacat
+  - now go to their (windows?) machine and log in as the same morpho profile, 
+  - log in to the metacat and download the new package for work
+
+    
+
+  
+#+end_src
+
+** TODO xxx-adding-value-labels-to-reml-boilerplate
+*** adding-value-labels-to-reml-boilerplate-header
+#+begin_src R :tangle no :exports none :eval no :padline no
+  ---
+  name: adding-value-labels-to-reml-boilerplate
+  layout: post
+  title: adding-value-labels-to-reml-boilerplate
+  date: 2014-08-22
+  categories:
+  -
+  ---
+  
+  #### Code:adding-value-labels-to-reml-boilerplate
+  #For sake of argument, imagine a data.frame looking something like this:
+  
+  
+  dat = data.frame(river=c("SAC", "SAC", "AM"),
+                   spp = c("king", "king", "ccho"),
+                   stg = c("smolt", "parr", "smolt"),
+                   ct =  c(293, 410, 210L))
+  
+  xtable::xtable(dat)
+  
+  
+  
+  #In case our column header abbreviations are not obvious to others (or our future selves), we take a moment to define them:
+  
+  
+  col_metadata = c(river = "http://dbpedia.org/ontology/River",
+                   spp = "http://dbpedia.org/ontology/Species",
+                   stg = "Life history stage",
+                   ct = "count")
+  
+  
+  
+  # Define the units used in each column.  In the case of factors, we define the abbreviations in a named string.
+  
+  
+  unit_metadata =
+    list(river = c(SAC = "The Sacramento River", AM = "The American River"),
+         spp = c(king = "King Salmon", ccho = "Coho Salmon"),
+         stg = c(parr = "third life stage", smolt = "fourth life stage"),
+         ct = "number")
+  
+  # automated?
+  #dat <- dat[,-4]
+  dat
+  
+#+end_src
+
+*** COMMENT reml_boilerplate2-code
+#+name:get_vals
+#+begin_src R :session *R* :tangle R/reml_boilerplate2.r :exports none :eval no
+  #### name:get_vals####
+  # this is a test
+  #dat$dates <- as.Date(rep("2014-08-23", nrow(dat)))
+  #str(dat)
+  #.dataframe <- analyte
+  #str(analyte)
+  reml_boilerplate2 <- function(.dataframe){
+  strng <- list()
+  for(i in 1:ncol(.dataframe)){
+    # i = 6
+    .variable <- names(.dataframe)[i]
+    #.dataframe[,.variable]
+      if(is.character(.dataframe[ ,.variable])){
+        .dataframe[,.variable]  <- factor(.dataframe[,.variable])
+      }
+  
+    if(is.factor(.dataframe[,.variable])){
+      x <- .dataframe[,.variable]
+      vals <-  names(table(x))
+      # symbols may pollute the string to parse
+      vals <- make.names(vals)
+      vals <- tolower(vals)  
+      vals <- gsub("\\.","_",vals)
+      vals <- gsub("_+","_",vals)    
+      v <- .variable
+      #v
+      strng[[.variable]] <- paste(
+      v, ' = c(',
+      paste(vals, sep = '', collapse = ' = "TBA",')
+      ,' = "TBA")', sep = '')
+    } else if(is.numeric(.dataframe[,.variable])){
+      v <- .variable
+      strng[[.variable]] <- paste(v,' = "number"',sep='')
+  #    strng[[.variable]] <- '"number"'
+      
+    } else if(
+      !all(is.na(as.Date(as.character(na.omit(.dataframe[,.variable])), origin = "1970-01-01")))
+      ){
+      v <- .variable    
+      strng[[.variable]] <- paste(v,' = "YYYY-MM-DD"',sep='')
+  #    strng[[.variable]] <- '"YYYY-MM-DD"'
+  
+    } else if (all(is.na(.dataframe[ ,.variable]))){
+      v <- .variable        
+      strng[[.variable]] <- paste(v,' = "', names(.dataframe)[i], '"', sep='')
+    }
+  }  
+  #strng
+  strng2 <- ""
+  for(n in 1:(length(strng)-1)){
+    strng2 <- paste(strng2, strng[[n]], ",\n")
+  }
+  strng2 <- paste(strng2, strng[[length(strng)]], "\n")
+  #cat(strng2)
+  strng3 <- paste("
+  unit_metadata =
+    list(",strng2,")", sep = "")
+  #cat(strng3)
+  eval(parse(text = strng3))
+  #unit_metadata
+  return(unit_metadata)
+  }
+  
+  #u1 <- get_vals(analyte)
+  #u1
+      
+#+end_src
+
+*** reml_boilerplate1-code
+#+name:reml_boilerplate
+#+begin_src R :session *R* :tangle R/reml_boilerplate.r :exports reports :eval no
+  ################################################################
+  # name:reml_boilerplate
+   
+  # func
+  ## if(!require(EML)) {
+  ##   require(devtools)
+  ##   install_github("EML", "ropensci")
+  ##   } 
+  ## require(EML)
+  
+  reml_boilerplate <- function(data_set, outfile = NA, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA)
+  {
+  
+    # next create a list from the data
+    unit_defs <- list()
+    for(i in 1:ncol(data_set))
+      {
+        # i = 4
+        if(is.numeric(data_set[,i])){
+          unit_defs[[i]] <- "number"
+        } else {
+          unit_defs[[i]] <- names(data_set)[i]
+        }
+      }
+  
+  # print helpful comments
+  cat(
+  sprintf('
+  # you just got a cheater\'s unit_defs
+  # we can get the col names easily
+  col_defs <- names(dat)
+  # then create a dataset with metadata
+  ds <- data.set(dat,
+                 col.defs = col_defs,
+                 unit.defs = unit_defs
+                 )
+  # now write EML metadata file
+  eml_config(creator="%s")
+  eml_write(ds,
+            file = "%s",
+            title = "%s"
+            )
+  
+  # now your metadata has been created
+  # if you want to add this to morpho and metacat it will needs something like
+  </dataFormat>
+    <distribution scope="document">
+      <online>
+        <url function="download">ecogrid://knb/hanigan.34.1</url>
+      </online>
+    </distribution>
+  </physical>', created_by, outfile, titl)
+  )
+  
+  
+    return(unit_defs)
+  
+   }
+#+end_src
+*** COMMENT reml_boilerplate3-code
+#+name:get_vals
+#+begin_src R :session *R* :tangle R/reml_boilerplate3.r :exports none :eval no
+  
+  reml_boilerplate3 <- function(.dataframe, enumerated = NA){
+  strng <- list()
+  for(i in 1:ncol(.dataframe)){
+  # i = 1
+    .variable <- names(.dataframe)[i]
+    #.dataframe[,.variable]
+      if(is.character(.dataframe[ ,.variable])){
+        .dataframe[,.variable]  <- factor(.dataframe[,.variable])
+      }
+  
+    if(is.factor(.dataframe[,.variable])  & i %in% enumerated){
+      x <- .dataframe[,.variable]
+      vals <-  names(table(x))
+      # symbols may pollute the string to parse
+      vals <- make.names(vals)
+      vals <- tolower(vals)  
+      vals <- gsub("\\.","_",vals)
+      vals <- gsub("_+","_",vals)    
+      v <- .variable
+      #v
+      strng[[.variable]] <- paste(
+      v, ' = c(',
+      paste(vals, sep = '', collapse = ' = "TBA",')
+      ,' = "TBA")', sep = '')
+    } else if(is.factor(.dataframe[,.variable])){
+      
+      strng[[.variable]] <- paste(
+        .variable, ' = "TBA"', sep = ''
+        )
+  
+    } else if(is.numeric(.dataframe[,.variable])){
+      v <- .variable
+      strng[[.variable]] <- paste(v,' = "number"',sep='')
+  #    strng[[.variable]] <- '"number"'
+      
+    } else if(
+      !all(is.na(as.Date(as.character(na.omit(.dataframe[,.variable])), origin = "1970-01-01")))
+      ){
+      v <- .variable    
+      strng[[.variable]] <- paste(v,' = "YYYY-MM-DD"',sep='')
+  #    strng[[.variable]] <- '"YYYY-MM-DD"'
+  
+    } else if (all(is.na(.dataframe[ ,.variable]))){
+      v <- .variable        
+      strng[[.variable]] <- paste(v,' = "', names(.dataframe)[i], '"', sep='')
+    }
+  }  
+  #strng
+  strng2 <- ""
+  for(n in 1:(length(strng)-1)){
+    strng2 <- paste(strng2, strng[[n]], ",\n")
+  }
+  strng2 <- paste(strng2, strng[[length(strng)]], "\n")
+  #cat(strng2)
+  strng3 <- paste("
+  unit_metadata =
+    list(",strng2,")", sep = "")
+  #cat(strng3)
+  eval(parse(text = strng3))
+  #unit_metadata
+  return(unit_metadata)
+  }
+  
+  #u1 <- get_vals(analyte)
+  #u1
+      
+#+end_src
+
+
+*** reml_boilerplate-test-code
+#+name:reml_boilerplate-test
+#+begin_src R :session *R* :tangle no :exports reports :eval no
+  ################################################################
+  # name:reml_boilerplate-test
+  library(EML)
+  require(devtools)
+  load_all()
+  #require(disentangle)
+  fpath <- system.file("extdata/civst_gend_sector_additional_variables.csv", package = "disentangle")
+  analyte <- read.csv(fpath, colClasses=c(ordinal_variable = "character"))
+  analyte <- read.csv(fpath, stringsAsFactor = F)
+  
+  str(analyte)
+  analyte$datevar <- as.Date(analyte$datevar)
+  analyte$ordinal_variable <- as.character(analyte$ordinal_variable)
+  analyte$fractions <- sample(rnorm(1000,0.1,0.1), nrow(analyte))
+  
+  str(analyte)
+  head(analyte)
+  unit_defs <- reml_boilerplate(
+    data_set = analyte,
+    created_by = "Ivan Hanigan <ivanhanigan@gmail.com>",
+    titl = "civst_gend_sector_full",
+    outfile = 'testing1234'
+    )
+  unit_defs
+  analyte2 <- analyte
+  names(analyte)
+  #analyte <- analyte2[,-c(6)]
+  unit_defs <- reml_boilerplate2(analyte)
+  unit_defs
+  
+  unit_defs <- reml_boilerplate3(analyte, enumerated = c(1,2,3,8))
+  unit_defs
+  
+  
+  
+  
+    # we can get the col names easily
+    col_defs <- names(analyte)
+    # then create a dataset with metadata
+    ds <- data.set(analyte,
+                   col.defs = col_defs,
+                   unit.defs = unit_defs
+                   )
+    # now write EML metadata file
+    eml_config(creator="TBA <fakeaddress@gmail.com>")
+  outfile <- "testingAbcd12234.csv"
+    eml_write(ds,
+              file = gsub(".csv", "_eml_skeleton.xml", outfile),
+              title = gsub(".csv", "", outfile)
+              )
+    tempfile <- dir(pattern="^data_table_")
+  tempfile
+    file.rename(tempfile, outfile)
+    # rename the CSV file.
+  
+  # dir("data")
+#+end_src
+
+** COMMENT integer-code
+#+name:integer
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:integer####
+  is.integer(cars[,1])
+  cars$x <- cars[,1]/cars[,2]
+  str(cars)
+  for(i in 1:ncol(cars)){
+    print(ifelse(all(cars[,i]%%1==0), "integer", "fraction"))  
+  }
+  
+#+end_src
+
 * Exploratory Data Analysis
+** transformations tracker
+see the file at [[transformations-tracker.org][transformations-tracker.org]]
+** COMMENT R-csv-fingerprint-code
+#+name:R-csv-fingerprint
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:R-csv-fingerprint####
+  http://flowingdata.com/2014/08/14/csv-fingerprint-spot-errors-in-your-data-at-a-glance/
+  
+  OR
+  
+  >>
+  >> Code below goes some way towards doing what you may want...takes a
+  >> dataframe containing T/F values for missing or present data, and plots
+  >> it as a graphical grid.  Automatically scales depending on the size of
+  >> the dataframe - however, it doesn't scale the font size yet, I'll have
+  >> to look into that.
+  >>
+    
+   require(grDevices)
+  
+   #Plot Function
+   misstable <- function(atable){
+   op <- par(bg = "white")
+   plot(c(0, 400), c(0, 1000), type = "n", xlab="", ylab="",
+       main = "Missing Data Table")
+  
+  
+   pmin=000
+   pmax=400
+   stre=pmax-pmin
+   lnames=length(atable)
+   cstep = (stre/lnames)
+   for(titles in 1:lnames){
+   text((titles-1) * cstep+pmin+cstep/2,1000,colnames(atable)[titles])
+   }
+  
+   gmax=900
+   gmin=0
+   gstre=gmax-gmin
+   rvec = as.vector(atable[[1]])
+   dnames=length(rvec)
+   step = gstre / dnames
+   for(rows in 1:dnames){
+   text(30,gmax - (rows-1)*step-step/2,rvec[rows])
+   ymax=gmax - (rows-1)*step
+   ymin=gmax - (rows)*step
+   for(col in 2:lnames-1){
+   if(atable[rows,col+1] == F){
+   tcolor = "red"
+   }
+   if(atable[rows,col+1] == T){
+   tcolor = "white"
+   }
+   rect((col) * (stre/lnames)+pmin, ymin, (col+1) * (stre/lnames)+pmin,
+   ymax,col=tcolor,lty="blank")
+   }
+   }}
+  
+  
+   # Make a quick dataframe with true/false representing data availability
+   locs=c("Australia","India","New Zealand","Sri Lanka","Uruguay","Somalia")
+   f1=c(T,F,T,T,F,F)
+   f2=c(F,F,F,T,F,F)
+   f3=c(F,T,T,T,F,T)
+   atable=data.frame(locs,f1,f2,f3)
+   atable
+   #Draw the table.
+   misstable(atable)
+  
+  dat <- read.csv("~/data/LTERN/kwrt_woodland_restoration/kwrt_birds_spring_2013_p12/kwrt_birds_spring_p12t312.csv")
+  dat[,2:ncol(dat)] <-  is.na(dat[,2:ncol(dat)])
+  dat[1:10,1:4]
+  names(dat) <- paste("V", 1:ncol(dat), sep = "")
+  misstable(dat)
+  dev.off()
+  
+#+end_src
+
 * General Purpose
 * Visualisation
 ** COMMENT QGIS
@@ -9477,3 +11441,106 @@ alias br="build_r"
 \noindent{\textbf{ Conclusion }} 
 - So what is the main 'take-home' message?
 - How do you rate the paper overall?
+** Blogging
+http://charliepark.org/jekyll-with-plugins/
+Charlie Park
+
+    about me
+    projects
+    archives
+
+Jekyll + Plugins + Github + You
+June 15, 2011
+
+    jekyll
+    code
+    github
+
+Github’s Pages is a great “it just works” resource.
+
+Except for when it doesn’t work.
+
+So, for some reason, tags aren’t fully-implemented in Jekyll. They kind of work, but there’s no tag archive page. I went over this in my post on getting tags to work in Jekyll. The problem with that, though, is that Github disables any plugins you’re using when it processes/creates your blog (that’s what the --safe tag does).
+
+How, then, do you get your blog (with tags) to load up on Github?
+
+(I’m operating under the assumption here that you already have a Jekyll-powered blog set up on Github Pages, such that when you push commits to Github, it regenerates your blog for you.)
+
+I’m going to lay out how to do this, and then how to automate the whole process so you can do it in just a few keystrokes.
+1. Split Your Blog in Two
+
+The first step is to clone your repo into a duplicate local copy. In my case, I took my local copy ~/applications/charliepark.github.com and cloned it to ~/applications/charliepark.github.com.raw.
+
+This leaves you with the “raw” directory and the original directory (both identical).
+2. Remove Your Old Content
+
+In Finder, go into your original directory (again, in my case: ~/applications/charliepark.github.com) and delete all of the content. You do not want to do this via the command line, as it’ll either be tedious (you’d need to remove each directory / file) or it’ll be too aggressive, and you’ll lose your .git directory. The point here: You don’t want to lose your .git directory, as that’s how your local copy will talk to your repo at Github.
+
+You should now have the “raw” directory (again, a clone of what you have at Github) and the now-empty (apart from your .git directory) original repo.
+3. Regenerate Your Blog, in the “raw” Directory
+
+This is pretty straightforward. Just cd to the raw directory … in my case:
+
+cd ~/applications/charlie.github.com.raw
+
+… and run the jekyll command.
+
+This will regenerate your blog, in the ~/applications/charlie.github.com.raw/_site directory. You’ve probably already done this step once or twice before. (Note: You don’t want to run jekyll --server, as the point here is just to generate the blog, not to fire up a server.)
+4. Copy the _site Directory Over To Your Original Repo
+
+This is simple.
+
+cp -r ~/applications/charliepark.github.com.raw/_site/* ~/applications/charliepark.github.com
+
+Once you’ve run that command, you’ll now have: 1. Your “raw” directory 2. A subdirectory within the “raw” directory (_site), with the generated HTML 3. Your original directory, whose contents should now mirror the _site subdirectory of the “raw” directory
+5. Add .nojekyll
+
+When you add a file titled .nojekyll to your repo, Github won’t process your files as Jekyll files. I don’t think this step is strictly necessary, as we’re just sending the straight-up HTML files. But it can’t hurt. In your original directory (~/applications/charliepark.github.com), run:
+
+touch .nojekyll
+
+6. Commit and Push Your Repo
+
+Add the files to your original directory’s git repo:
+
+git add .
+
+Commit the new version of the repo:
+
+git commit -am "Converts to flat HTML files."
+
+(Note: Your commit flags (-am) might differ from mine.)
+
+Push the code to Github:
+
+git push
+
+7. Your Site Should Be Live
+
+You can now go to your site (http://yourusername.github.com) and see your site.
+8. Automate The Whole Thing
+
+Once you’ve checked that it works, and that everything’s okay, it’s a good idea to automate the whole thing.
+
+I added a shortcut to my ~/.bash_profile file:
+
+alias build_blog="cd ~/applications/charliepark.github.com.raw; jekyll;cp -r ~/applications/charliepark.github.com.raw/_site/* ~/applications/charliepark.github.com;cd ~/applications/charliepark.github.com;git add .;git commit -am 'Latest build.';git push"
+alias bb="build_blog"
+
+So, now, once I’ve written a new post, or edited a post, or just want to get the site refreshed for some other reason, all I have to do in my command line is type bb, and it’ll regenerate the site, copy it over, run the git commits, and push it live to Github. I can now finish my post and then push it live to the site in about a second.
+
+And it has tags.
+Corrections?
+
+I’m always half-expecting that some aspect of one of my writeups is totally broken. If you try this and have any issues, let me know (@charliepark). Similarly, if you try it and it works, let me know.
+
+I would really enjoy connecting with you on Twitter.
+My Most Popular Posts
+
+You’ll like these.
+
+    Slopegraphs
+    A Slopegraph Update
+    Beautiful Buttons for Twitter Bootstrappers
+    Tags in Jekyll
+

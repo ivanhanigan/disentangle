@@ -3,21 +3,34 @@
 data_dict <- function(.dataframe, .variable, .show_levels = -1)
 {
 
+summary2 <- function(x){
+  summa <- summary(x, digits = nchar(max(x))+3)
+  return(summa)
+}
+
   if(is.character(.dataframe[ ,.variable])){
     .dataframe[,.variable]  <- factor(.dataframe[,.variable])
   }
   if(all(is.na(.dataframe[ ,.variable]))){
-    summa <- summary(.dataframe[,.variable])
+    summa <- summary2(.dataframe[,.variable])
     summa <- as.data.frame(t(summa[2]))
     summa[,1]  <- as.numeric(as.character(summa[,1]))
   } else {
-    summa <- summary(.dataframe[,.variable])
+    summa <- summary2(.dataframe[,.variable])
   }
-  summa  <- as.data.frame(
+# if there are some missing obs in a date var you get a malformed
+# summa with less names than levels
+  if(length(as.character(summa)) != length(names(summa))){
+    summa <- as.character(summa)
+  }
+
+  
+  summa <- as.data.frame(
     cbind(
       c(.variable, rep("", length(summa) - 1)),
-      names(summa),
-      as.vector(as.character(summa))
+      names(summa)
+      ,
+      as.vector(summa)
       )
     )
   summa[,1]  <- as.character(summa[,1])
@@ -51,7 +64,7 @@ data_dict <- function(.dataframe, .variable, .show_levels = -1)
   summa <- summa[,c(1,4,2,3,5,6)]
   } else if (
    !all(
-      is.na(as.Date(as.character(.dataframe[,.variable]), origin = "1970-01-01"))
+      is.na(as.Date(as.character(na.omit(.dataframe[,.variable])), origin = "1970-01-01"))
       )
     ){
   # if date
@@ -67,6 +80,18 @@ data_dict <- function(.dataframe, .variable, .show_levels = -1)
   summa$type <- c("date", rep("", nrow(summa) - 1))
   summa$cnt <- NA
   summa$pct  <- NA
+  # summa
+  if(
+    length(which(is.na(.dataframe[,.variable]))) > 0
+    ){
+    summa$V3[-which(summa$V2 == "NA's")] <- as.character(
+        as.Date(as.character(
+        summa$V3[-which(summa$V2 == "NA's")]
+        ), origin = "1970-01-01")
+        )    
+  } else {
+    summa$V3 <- as.character(as.Date(as.numeric(as.character(summa$V3)), origin = "1970-01-01"))    
+  }
   summa <- summa[,c(1,4,2,3,5,6)]
   } else if (all(is.na(.dataframe[ ,.variable]))){
     
