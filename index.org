@@ -2149,6 +2149,16 @@ locs
     
 #+end_src
 
+*** COMMENT R-24hr-time-code
+#+name:R-24hr-time
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:R-24hr-time####
+  times  <-  c("10AM", "11PM", "1PM")
+  strptime(times, "%I%p" )
+  #Or in case you don't want the date, something like: Although it depends what kind of class would you want for the object.
+  substr(strptime(times, "%I%p" ),12,13)
+#+end_src
+
 * Data Output
 * Data Documentation
 ** COMMENT data-documentation-blogposts
