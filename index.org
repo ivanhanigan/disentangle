@@ -2499,6 +2499,24 @@ locs
 
 * Data Output
 * Data Documentation
+** 2014-12-20-data-documentation-and-housekeeping
+#+name:data-documentation-and-housekeeping-header
+# ~/projects/ivanhanigan.github.com.raw/_posts/2014-12-20-data-documentation-and-housekeeping.md 
+#+begin_src markdown :tangle no :exports none :eval no :padline no
+---
+name: data-documentation-and-housekeeping
+layout: post
+title: data-documentation-and-housekeeping
+date: 2014-12-20
+categories:
+-
+---
+
+#### Code:data-documentation-and-housekeeping
+    
+#+end_src
+
+* COMMENT data documentation archives
 ** COMMENT data-documentation-blogposts
 *** 2013-10-11-two-main-types-of-data-documentation-workflow
 #+name:two-main-types-of-data-documentation-workflow-header
@@ -8140,6 +8158,10 @@ text(mp, par('usr')[3], labels = labels, srt = 45, adj = c(1.1,1.1), xpd = TRUE,
 axis(2)
 # 
 #+end_src
+
+
+** COMMENT TODO D3 stuff
+IDEAS: R SHINY AND D3JS FOR DATA VISUALISATIONS, METEOR JAVA SCRIPT MODEL FOR DATA VIZ
 
 * Statistical Modelling
 ** COMMENT Logistic Regression
