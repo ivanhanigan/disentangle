@@ -11630,6 +11630,225 @@ This is with MCHP resource repository - a general overview of this process is de
   - and pick up or put down as needed
 #+end_src
 
+** 2014-12-25-todo- detail-within-context-as-per-tuftes-gantt-alternative
+*** blog
+#+name:detail-within-context-as-per-tuftes-gantt-alternative-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-12-25-todo-detail-within-context-as-per-tuftes-gantt-alternative.md :exports none :eval no :padline no
+  ---
+  name: todo-detail-within-context-as-per-tuftes-gantt-alternative
+  layout: post
+  title: todo-detail-within-context-as-per-tuftes-gantt-alternative
+  date: 2014-12-25
+  categories:
+  -
+  ---
+  
+  - During the end of 2015 I found that the Gantt Chart by TaskJuggler was a struggle to really achieve.
+  - I decided to code up an alternative based on the theory explained on [[this link][http://urli.st/dge-project-management-boards-tools-more/6Xs-Edward-Tufte-forum-Project-Management-Graphics-or-Gantt-Charts]]
+  
+  #### Project Management Graphics (or Gantt Charts), by Edward Tufte
+      Computer screens are generally too small for an overview of big
+      serious projects. Horizontal and vertical scrolling are necessary to
+      see more than about 40 horizontal time lines for a reasonable period
+      of time. Thus, for large projects, print out the sequence on a big
+      roll of paper and put it up on a wall.
+       
+      The chart might be retrospective as well as prospective. That is, the
+      chart should show actualdates of achieved goals, evidence which will
+      continuously reinforce a reality principle on the mythical future
+      dates of goal achievement.
+       
+      Most of the Gantt charts are analytically thin, too simple, and lack
+      substantive detail. The charts should be more intense. At a minimum,
+      the charts should be annotated--for example, with to-do lists at
+      particular points on the grid. Costs might also be included in
+      appropriate cells of the table.
+       
+      About half the charts show their thin data in heavy grid prisons. For
+      these charts the main visual statement is the administrative grid
+      prison, not the actual tasks contained by the grid. No explicitly
+      expressed grid is necessary--or use the ghost-grid graph
+      paper. Degrid!
+  
+  I had been following the approach described at http://orgmode.org/worg/org-tutorials/org-taskjuggler.html and the terms there are defined:
+  
+  #### Blocker:
+      property which allows you to state that a task depends on either
+      a previous sibling ("previous-sibling") or
+      any other task by stating the task_id property of the predecessor
+  
+  
+  
+  #### Code:detail-within-context-as-per-tuftes-gantt-alternative
+      
+#+end_src
+*** COMMENT todo_in_context-code
+#+name:todo_in_context
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:todo_in_context####
+  # func
+  library(sqldf)
+  library(lubridate)
+  
+  # load
+  datin  <- read.csv(textConnection("container_task, task_id, allocate, fte, blocker, start, effort
+  Container Task 1, t0, jim, 1,   , 2014-12-01, 1m
+  Container Task 1, t1, jim, 1,   , 2014-12-20, 1m
+  Container Task 1, t2, bob, 1, t1,           , 10d 
+  Container Task 2, t3, sue, 1,   , 2014-12-01, 2w
+  Container Task 2, t4, jim, 1, t3,           , 2d
+  "),
+  stringsAsFactor = F)
+  datin$start  <- as.Date(datin$start)
+  str(datin)
+  
+  # calculate time boxes
+  timebox <- function(dat_in){
+    nameslist <- names(dat_in)
+    dat_in$effortt <- as.numeric(gsub("[^\\d]+", "", dat_in$effort, perl=TRUE))
+    dat_in$effortd <- gsub("d", 1, gsub("[[:digit:]]+", "", dat_in$effort, perl=TRUE))
+    dat_in$effortd <- gsub("w", 7, dat_in$effortd)
+    dat_in$effortd <- gsub("m", 30.5, dat_in$effortd)
+    dat_in$effortd <- as.numeric(dat_in$effortd)
+    dat_in$efforti  <-  dat_in$effortt * dat_in$effortd
+    dat_in$end  <- dat_in$start + dat_in$efforti
+    #str(dat_in)
+    dat_in <- dat_in[,c(nameslist, "efforti", "end")]
+    return(dat_in)
+  }
+  
+  datin <- timebox(datin)
+  str(datin)
+  
+  
+  # self join to collect the dependencies
+  # paste(names(datin), sep = "", collapse = ", ")
+  
+  datin2 <- sqldf("select t1.container_task,
+  t1.task_id as predecessor,
+  t2.task_id, t2.efforti,
+  t1.end
+  from datin t1
+  join
+  datin t2
+  on t1.task_id = t2.blocker
+  ")
+  
+  datin2
+  datin2$start  <- datin2$end 
+  datin2$end  <- datin2$start + datin2$efforti
+  
+  datin3 <- sqldf("select container_task,
+  task_id as predecessor,
+  task_id,
+  efforti,
+  end, start
+  from datin
+  where start not null")
+  
+  datin3$loc <- nrow(datin3):1
+  datin3
+  
+  # add loc of siblings
+  datin2 <- sqldf("select t1.*, t2.loc
+  from datin2 t1
+  join
+  datin3 t2
+  where t1.predecessor = t2.task_id
+  ")
+  datin2
+  
+  datin4 <- rbind(datin3, datin2)
+  datin4 <- datin4[order(datin4$start),]
+  
+  # ploting
+  ## smidge factors
+  
+  
+  ## layout
+    
+  ## plot
+  myPlot <- function(
+    indat = datin4
+    ,
+    smidge_lab = .15
+    ,
+    focal_date = Sys.Date()
+    ,
+    time_box = 21
+                     ){
+    m <- matrix(c(1,2), 2, 1)
+    layout(m, widths=c(1), heights=c(.9,4))
+    par(mar = c(3,8,2,1))
+    # layout.show(2)
+    yrange <- c((min(indat$loc) - smidge_lab), (max(indat$loc) + smidge_lab))
+    xrange  <- c(min(indat$start),max(indat$end))
+  
+    #### context ####
+    
+    plot(xrange, yrange, type = 'n', xlab = "", ylab = "", axes = F )
+    mtext(c(indat$container_task), 2, las =1, at = indat$loc, cex = .8)
+  
+    polygon(c(focal_date, focal_date + time_box, focal_date + time_box, focal_date), c(rep(yrange[1],2), rep(yrange[2],2)), col = 'lightyellow', border = 'lightyellow')
+    points(indat$start, indat$loc, pch = 16)
+    #text(indat$start, indat$loc - smidge_lab, labels = indat$task_id, pos = 4)
+    js <- indat$loc
+    for(i in 1:nrow(indat)){
+    # = 1
+      segments(indat$start[i] , js[i] , indat$start[i] , max(indat$loc) + 1 , lty = 3)
+      segments(indat$start[i] , js[i] , indat$end[i] , js[i] )
+    }
+    #segments(focal_date, yrange[1], focal_date, yrange[2], 'red')
+    xstart <- ifelse(wday(xrange[1]) != 1, xrange[1] - (wday(xrange[1]) - 2), xrange[1])
+    xend <- ifelse(wday(xrange[2]) != 7, xrange[2] + (5-wday(xrange[2])), xrange[2] )
+    at_dates  <- seq(xstart, xend, 7)
+    label_dates  <-
+      paste(month(as.Date(at_dates, "1970-01-01"), label = T),
+      day(as.Date(at_dates, "1970-01-01")),
+      sep = "-")
+  
+    axis(1, at = at_dates, labels = label_dates)
+    #axis(3)
+  
+    
+    #### detail ####
+    
+    plot(c(focal_date, focal_date + time_box), yrange, type = 'n', xlab = "", ylab = "", axes = F )
+    mtext(c(indat$container_task), 2, las =1, at = indat$loc, cex = .8)
+    points(indat$start, indat$loc, pch = 16)
+    text(indat$start, indat$loc - smidge_lab, labels = indat$task_id, pos = 4)
+    for(i in 1:nrow(indat)){
+    # = 1
+      segments(indat$start[i] , js[i] , indat$start[i] , max(indat$loc) + 1 , lty = 3)
+      segments(indat$start[i] , js[i] , indat$end[i] , js[i] )
+    }
+    #segments(focal_date, yrange[1], focal_date, yrange[2], 'red')
+    xstart <- ifelse(wday(focal_date) != 1, focal_date - (wday(focal_date) - 2), focal_date)
+    xend <- ifelse(wday(focal_date + time_box) != 7, (focal_date + time_box) + (5-wday(focal_date + time_box)), (focal_date + time_box))
+    at_dates  <- seq(xstart, xend, 1)
+    at_dates2  <- seq(xstart, xend, 7)
+    
+    label_dates  <-
+      paste(month(as.Date(at_dates2, "1970-01-01"), label = T),
+      day(as.Date(at_dates2, "1970-01-01")),
+      sep = "-")
+  
+    axis(1, at = at_dates, labels = F)
+    axis(1, at = at_dates2, labels = label_dates)
+    segments(min(xrange), min(yrange) - .09, max(xrange), min(yrange) - .09)
+    axis(3, at = at_dates, labels = F)
+    axis(3, at = at_dates2, labels = label_dates)
+    segments(min(xrange), max(yrange) + .09, max(xrange), max(yrange) + .09)  
+    
+  }
+  
+  myPlot(datin4, focal_date = as.Date("2014-12-10"))
+  
+  
+  
+  
+#+end_src
+
 * Research Protocols
 ** 2013-11-27-sharing-and-extending-research-protocols
 #+name:sharing-and-extending-research-protocols-header
