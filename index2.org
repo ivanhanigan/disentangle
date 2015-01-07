@@ -123,6 +123,8 @@
     ){
     # self join to collect the dependencies
     # paste(names(datint), sep = "", collapse = ", ")
+    library(sqldf)
+    library(lubridate)
      
     indat2 <- sqldf("select t1.container_task,
     t1.task_id as predecessor,
@@ -172,11 +174,8 @@
 *** R-gantt_tufte PLOT
 #+name:gantt_tufte
 #+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval no
-################################################################
-    
-  
-    
-  ## plot
+  ################################################################
+  # plot
   gantt_tufte <- function(
     indat = datin4
     ,
@@ -252,8 +251,8 @@
     segments(min(xrange), max(yrange) + .09, max(xrange), max(yrange) + .09)  
     
   }
-  ls()
-  gantt_tufte(datin2, focal_date = as.Date("2014-12-10"))
+  #ls()
+  #gantt_tufte(datin2, focal_date = as.Date("2014-12-10"))
   
 #+end_src
 *** man-gantt_tufte
@@ -277,6 +276,8 @@
 *** test go
 #+begin_src R :session *R* :tangle no :exports none :eval yes
   #### name:tat####
+  library(devtools)
+  install_github("ivanhanigan/disentangle")
   setwd("tests")
   require(knitr)
   require(markdown)
