@@ -286,9 +286,10 @@
 #+end_src
 
 #+RESULTS:
-=/home/ivan_hanigan/tools/disentangle/tests
-= 
-*** COMMENT test
+: /home/ivan_hanigan/tools/disentangle/tests
+
+
+*** COMMENT test RMD
 #+name:make_html
 #+begin_src R :session *R* :tangle tests/gantt_tufte_test.Rmd :exports none :eval yes
   Overview of Data Munging
@@ -310,15 +311,18 @@
   Introduction
   ---
 
-  This is a Reproducible Research Report (RRR) of work that was done by who, what where and why.
-  
-  The report is written as a multi-threaded computer script document, in two languages.  The first language is used for sections of ordinary text written in a human readable way. The other language is used for chunks of text written in a computer language.  The computer code is then run and the resulting pages are created. 
+  This is a Reproducible Research Report (RRR) of work that was done [who, what, where and why].
 
-  This document uses 'markdown' to write human langauge (this is a simpler way to write markup than LaTeX) and the R language for statistical computing and graphics.
+  Methods  
+  ---
+  The report is written as a multi-threaded computer script document, in two languages.  The first language is used for sections of ordinary text written in a human readable way. The second language is used for chunks of text written in a computer language.  The computer code is then run and the resulting pages are created. 
+
+  The source document can be accessed at [link to the doc]. This document uses 'markdown' to write human langauge (a simpler way to write markup than LaTeX) and the R language for statistical computing and graphics.
   
+
+  
+  ```{r echo = F, results = "hide", eval = T}
   ## load data
-  
-  ```{r echo = TRUE, results = "asis", eval = F}
   library(disentangle) 
   library(sqldf)
   library(lubridate)
@@ -335,6 +339,8 @@
   stringsAsFactor = F)
   datin$start  <- as.Date(datin$start)
   #str(datin)
+  datin <- timebox(datin)
+  datin2 <- gantt_tufte_preprocessing(datin)
   ```
   
   ## create graph 
@@ -353,14 +359,14 @@
   png("AAPL.png",width=1400,height=700, res = 100)
   gantt_tufte(datin2, focal_date = as.Date("2014-12-10"))
   dev.off()
-  
+  # browseURL("gantt_tufte_test.html")
   ```
   
   To create the alternative bitmap
   
   ![alttext](AAPL.png)
   
-  # browseURL("gantt_tufte_test.html")
+  
     
 #+end_src
 
