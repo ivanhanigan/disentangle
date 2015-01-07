@@ -62,6 +62,12 @@
       
 #+end_src
 *** todo_in_context-code
+** gantt_tufte
+*** R-gantt_tufte_test_data
+#+name:gantt_tufte
+#+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval no
+################################################################
+# name:gantt_tufte
 #+name:todo_in_context
 #+begin_src R :session *R* :tangle no :exports none :eval no
   # func
@@ -79,6 +85,13 @@
   stringsAsFactor = F)
   datin$start  <- as.Date(datin$start)
   str(datin)
+
+#+end_src
+
+*** R-gantt_tufte timebox
+#+name:gantt_tufte
+#+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval no
+################################################################
   
   # calculate time boxes
   timebox <- function(dat_in){
@@ -95,9 +108,16 @@
     return(dat_in)
   }
   
-  datin <- timebox(datin)
-  str(datin)
-  
+  # datin <- timebox(datin)
+  # str(datin)
+
+#+end_src
+
+*** R-gantt_tufte_preprocessing
+#+name:gantt_tufte
+#+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval no
+################################################################
+    
   gantt_tufte_preprocessing  <- function(
     indat = datin
     ){
@@ -144,15 +164,16 @@
     return(indat4)
   }
   
-  datin2 <- gantt_tufte_preprocessing(datin)
-  str(datin2)
-  
-  # ploting function
-  ## indat = datin4
-  ## smidge_lab = .15
-  ## focal_date = Sys.Date()
-  ## time_box = 21
-  ## end_task_ticks = F # this is the little tick marking the end of the tasks
+  #datin2 <- gantt_tufte_preprocessing(datin)
+  #str(datin2)
+
+#+end_src
+
+*** R-gantt_tufte PLOT
+#+name:gantt_tufte
+#+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval no
+################################################################
+    
   
     
   ## plot
@@ -235,18 +256,47 @@
   gantt_tufte(datin2, focal_date = as.Date("2014-12-10"))
   
 #+end_src
+*** man-gantt_tufte
+#+name:gantt_tufte
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  ################################################################
+  # arguments: gantt_tufte
+  # this is a ploting function, depends on timebox and preprocessing 
+
+  # args
+  ## indat = datin4
+  ## smidge_lab = .15
+  ## focal_date = Sys.Date()
+  ## time_box = 21
+  ## end_task_ticks = F # this is the little tick marking the end of the tasks
+
+#+end_src
+
 
       
+*** test go
+#+begin_src R :session *R* :tangle no :exports none :eval yes
+  #### name:tat####
+  setwd("tests")
+  require(knitr)
+  require(markdown)
+  knit2html("gantt_tufte_test.Rmd", options = c("toc", markdown::markdownHTMLOptions(TRUE)), stylesheet = "custom.css")
+  setwd("..")
+#+end_src
 
+#+RESULTS:
+: /home/ivan_hanigan/tools/disentangle/tests
+ 
 *** COMMENT test
 #+name:make_html
-#+begin_src R :session *R* :tangle tests/gantt_tufte_test.Rmd :exports none :eval no
+#+begin_src R :session *R* :tangle tests/gantt_tufte_test.Rmd :exports none :eval yes
   Overview of Data Munging
   ===
   
   ivan.hanigan@anu.edu.au
   
   ```{r echo = F, eval=F, results="hide"}
+  setwd("tests")
   require(knitr)
   require(markdown)
   knit2html("gantt_tufte_test.Rmd", options = c("toc", markdown::markdownHTMLOptions(TRUE)), stylesheet = "custom.css")
@@ -258,14 +308,16 @@
   
   Introduction
   ---
-    
-  This is a Reproducible Research Report (RRR) written using the R language for statistical computing and graphics. The report is made up of ordinary text written in
+
+  This is a Reproducible Research Report (RRR) of work that was done by who, what where and why.
   
-  1. 'markdown' which is a simple way to write markup language similar to LaTeX
-  1. R language for statistical computing and graphics
+  The report is written as a multi-threaded computer script document, in two languages.  The first language is used for sections of ordinary text written in a human readable way. The other language is used for chunks of text written in a computer language.  The computer code is then run and the resulting pages are created. 
+
+  This document uses 'markdown' to write human langauge (this is a simpler way to write markup than LaTeX) and the R language for statistical computing and graphics.
   
+  ## load data
   
-  ```{r echo = TRUE, results = "asis", eval = T}
+  ```{r echo = TRUE, results = "asis", eval = F}
   library(disentangle) 
   library(sqldf)
   library(lubridate)
@@ -282,18 +334,20 @@
   stringsAsFactor = F)
   datin$start  <- as.Date(datin$start)
   #str(datin)
-    
+  ```
+  
+  ## create graph 
+  ```{r echo = TRUE, results = "hide", eval = T}
   svg("AAPL.svg",width=14,height=7)
   gantt_tufte(datin2, focal_date = as.Date("2014-12-10"))
   dev.off()
-  
   ```
   
   To create the graph using SVG for web display
   
   ![alttext](AAPL.svg)
   
-  ```{r echo = TRUE, results = "asis", eval = T}
+  ```{r echo = TRUE, results = "hide", eval = T}
   
   png("AAPL.png",width=1400,height=700, res = 100)
   gantt_tufte(datin2, focal_date = as.Date("2014-12-10"))
@@ -305,7 +359,10 @@
   
   ![alttext](AAPL.png)
   
-  browseURL("gantt_tufte_test.html")
+  # browseURL("gantt_tufte_test.html")
     
 #+end_src
+
+#+RESULTS: make_html
+: 1
 
