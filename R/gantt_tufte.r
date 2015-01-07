@@ -1,101 +1,122 @@
 
+# func
+library(sqldf)
+library(lubridate)
+
+# load
+datin  <- read.csv(textConnection("container_task, task_id, allocate, fte, blocker, start, effort
+Container 1, task 0, jim,   1,   ,     2014-12-01, 1m
+Container 1, task 1, jim,   1,   ,     2014-12-20, 1m
+Container 1, task 2, bob,   1, task 1,           , 10d 
+Container 2, task 3, sue,   1,   ,     2014-12-01, 2w
+Container 2, task 4, jim,   1, task 3,           , 2d
+Container 3, task 5, jimmy, 1, task 3,           , 10d
+"),
+stringsAsFactor = F)
+datin$start  <- as.Date(datin$start)
+str(datin)
+datin
+
 ################################################################
-# name:gantt_tufte
-#+name:todo_in_context
-#+begin_src R :session *R* :tangle no :exports none :eval no
-  # func
+
+# calculate time boxes
+timebox <- function(dat_in){
+  nameslist <- names(dat_in)
+  dat_in$effortt <- as.numeric(gsub("[^\\d]+", "", dat_in$effort, perl=TRUE))
+  dat_in$effortd <- gsub("d", 1, gsub("[[:digit:]]+", "", dat_in$effort, perl=TRUE))
+  dat_in$effortd <- gsub("w", 7, dat_in$effortd)
+  dat_in$effortd <- gsub("m", 30.5, dat_in$effortd)
+  dat_in$effortd <- as.numeric(dat_in$effortd)
+  dat_in$efforti <- dat_in$effortt * dat_in$effortd
+  dat_in$end  <- dat_in$start + dat_in$efforti
+  #str(dat_in)
+  dat_in <- dat_in[,c(nameslist, "efforti", "end")]
+  return(dat_in)
+}
+
+ datin <- timebox(datin)
+# str(datin)
+# datin
+
+################################################################ 
+gantt_tufte_preprocessing  <- function(
+  indat = datin
+  ){
+  # self join to collect the dependencies
+  # paste(names(datint), sep = "", collapse = ", ")
   library(sqldf)
   library(lubridate)
+  indat
+  # self join to return dependents
+  indat2 <- sqldf("select t1.container_task,
+  t1.task_id as predecessor,
+  t2.task_id, t2.efforti,
+  t1.end
+  from indat t1
+  left join
+  indat t2
+  on t1.task_id = t2.blocker
   
-  # load
-  datin  <- read.csv(textConnection("container_task, task_id, allocate, fte, blocker, start, effort
-  Container Task 1, t0, jim, 1,   , 2014-12-01, 1m
-  Container Task 1, t1, jim, 1,   , 2014-12-20, 1m
-  Container Task 1, t2, bob, 1, t1,           , 10d 
-  Container Task 2, t3, sue, 1,   , 2014-12-01, 2w
-  Container Task 2, t4, jim, 1, t3,           , 2d
-  "),
-  stringsAsFactor = F)
-  datin$start  <- as.Date(datin$start)
-  str(datin)
-
-################################################################
+  ")
+  #where t2.task_id is not null 
+  indat2
+  # get any other containers
+  indat2_1 <- sqldf("select t1.container_task, t2.predecessor, t1.predecessor as task_id,
+  t2.efforti,
+  t2.end
+  from indat2 t1
+  join
+  indat2 t2
+  where t1.predecessor = t2.task_id")
+  indat2_1
+  indat2$start  <- indat2$end 
+  indat2$end  <- indat2$start + indat2$efforti
+  indat2_1$start  <- indat2_1$end 
+  indat2_1$end  <- indat2_1$start + indat2_1$efforti
+  indat2  <- indat2[!is.na(indat2$start) & !is.na(indat2$end) ,]
+  indat2
+  indat2_1
+  indat2 <- rbind(indat2, indat2_1)
   
-  # calculate time boxes
-  timebox <- function(dat_in){
-    nameslist <- names(dat_in)
-    dat_in$effortt <- as.numeric(gsub("[^\\d]+", "", dat_in$effort, perl=TRUE))
-    dat_in$effortd <- gsub("d", 1, gsub("[[:digit:]]+", "", dat_in$effort, perl=TRUE))
-    dat_in$effortd <- gsub("w", 7, dat_in$effortd)
-    dat_in$effortd <- gsub("m", 30.5, dat_in$effortd)
-    dat_in$effortd <- as.numeric(dat_in$effortd)
-    dat_in$efforti <- dat_in$effortt * dat_in$effortd
-    dat_in$end  <- dat_in$start + dat_in$efforti
-    #str(dat_in)
-    dat_in <- dat_in[,c(nameslist, "efforti", "end")]
-    return(dat_in)
-  }
+  indat2
+  # now you know the start of the dependents
   
-  # datin <- timebox(datin)
-  # str(datin)
-
-################################################################
-    
-  gantt_tufte_preprocessing  <- function(
-    indat = datin
-    ){
-    # self join to collect the dependencies
-    # paste(names(datint), sep = "", collapse = ", ")
-    library(sqldf)
-    library(lubridate)
-     
-    indat2 <- sqldf("select t1.container_task,
-    t1.task_id as predecessor,
-    t2.task_id, t2.efforti,
-    t1.end
-    from indat t1
-    join
-    indat t2
-    on t1.task_id = t2.blocker
-    ")
-     
-    #indat2
-    indat2$start  <- indat2$end 
-    indat2$end  <- indat2$start + indat2$efforti
-     
-    indat3 <- sqldf("select container_task,
-    task_id as predecessor,
-    task_id,
-    efforti,
-    end, start
-    from indat
-    where start not null")
-     
-    indat3$loc <- nrow(indat3):1
-    #indat3
-     
-    # add loc of siblings
-    indat2 <- sqldf("select t1.*, t2.loc
-    from indat2 t1
-    join
-    indat3 t2
-    where t1.predecessor = t2.task_id
-    ")
-    #indat2
-     
-    indat4 <- rbind(indat3, indat2)
-    indat4 <- indat4[order(indat4$start),]
-     
-    return(indat4)
-  }
+  # now get other set 
+  indat3 <- sqldf("select container_task,
+  task_id as predecessor,
+  task_id,
+  efforti,
+  end, start
+  from indat
+  where start is not null
+  ")
+  # TODO at this point need to figure out how to get proper locs
+  indat3$loc <- nrow(indat3):1
+  indat3
+  indat2 
+  # add loc of siblings
+  indatx <- sqldf("select t1.*, t2.loc
+  from indat2 t1
+  left join
+  indat3 t2
+  where (t1.predecessor = t2.task_id)
+  and t1.task_id is not null
+  ")
+  indatx
   
-  #datin2 <- gantt_tufte_preprocessing(datin)
-  #str(datin2)
+  indat4 <- rbind(indat3, indatx)
+  indat4 <- indat4[order(indat4$start),]
+  indat4 
+  return(indat4)
+}
+datin2 <- indat4
+#datin2 <- gantt_tufte_preprocessing(datin)
+#str(datin2)
 
 ################################################################
 # plot
 gantt_tufte <- function(
-  indat = datin4
+  indat = datin2
   ,
   smidge_lab = .15
   ,

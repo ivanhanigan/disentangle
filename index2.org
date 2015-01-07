@@ -65,33 +65,38 @@
 ** gantt_tufte
 *** R-gantt_tufte_test_data
 #+name:gantt_tufte
-#+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval no
-################################################################
-# name:gantt_tufte
-#+name:todo_in_context
-#+begin_src R :session *R* :tangle no :exports none :eval no
+#+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval yes
   # func
   library(sqldf)
   library(lubridate)
   
   # load
   datin  <- read.csv(textConnection("container_task, task_id, allocate, fte, blocker, start, effort
-  Container Task 1, t0, jim, 1,   , 2014-12-01, 1m
-  Container Task 1, t1, jim, 1,   , 2014-12-20, 1m
-  Container Task 1, t2, bob, 1, t1,           , 10d 
-  Container Task 2, t3, sue, 1,   , 2014-12-01, 2w
-  Container Task 2, t4, jim, 1, t3,           , 2d
+  Container 1, task 0, jim,   1,   ,     2014-12-01, 1m
+  Container 1, task 1, jim,   1,   ,     2014-12-20, 1m
+  Container 1, task 2, bob,   1, task 1,           , 10d 
+  Container 2, task 3, sue,   1,   ,     2014-12-01, 2w
+  Container 2, task 4, jim,   1, task 3,           , 2d
+  Container 3, task 5, jimmy, 1, task 3,           , 10d
   "),
   stringsAsFactor = F)
   datin$start  <- as.Date(datin$start)
   str(datin)
-
+  datin
 #+end_src
+
+#+RESULTS: gantt_tufte
+| Container 1 | task 0 | jim   | 1 |        | 2014-12-01 |  1m | 30.5 | 2014-12-31 |
+| Container 1 | task 1 | jim   | 1 |        | 2014-12-20 |  1m | 30.5 | 2015-01-19 |
+| Container 1 | task 2 | bob   | 1 | task 1 |        nil | 10d |   10 |        nil |
+| Container 2 | task 3 | sue   | 1 |        | 2014-12-01 |  2w |   14 | 2014-12-15 |
+| Container 2 | task 4 | jim   | 1 | task 3 |        nil |  2d |    2 |        nil |
+| Container 3 | task 5 | jimmy | 1 | task 3 |        nil | 10d |   10 |        nil |
 
 *** R-gantt_tufte timebox
 #+name:gantt_tufte
-#+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval no
-################################################################
+#+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval yes
+  ################################################################
   
   # calculate time boxes
   timebox <- function(dat_in){
@@ -108,16 +113,16 @@
     return(dat_in)
   }
   
-  # datin <- timebox(datin)
+   datin <- timebox(datin)
   # str(datin)
-
+  # datin
+     
 #+end_src
 
 *** R-gantt_tufte_preprocessing
 #+name:gantt_tufte
 #+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval no
-################################################################
-    
+  ################################################################ 
   gantt_tufte_preprocessing  <- function(
     indat = datin
     ){
@@ -125,59 +130,82 @@
     # paste(names(datint), sep = "", collapse = ", ")
     library(sqldf)
     library(lubridate)
-     
+    indat
+    # self join to return dependents
     indat2 <- sqldf("select t1.container_task,
     t1.task_id as predecessor,
     t2.task_id, t2.efforti,
     t1.end
     from indat t1
-    join
+    left join
     indat t2
     on t1.task_id = t2.blocker
+    
     ")
-     
-    #indat2
+    #where t2.task_id is not null 
+    indat2
+    # get any other containers
+    indat2_1 <- sqldf("select t1.container_task, t2.predecessor, t1.predecessor as task_id,
+    t2.efforti,
+    t2.end
+    from indat2 t1
+    join
+    indat2 t2
+    where t1.predecessor = t2.task_id")
+    indat2_1
     indat2$start  <- indat2$end 
     indat2$end  <- indat2$start + indat2$efforti
-     
+    indat2_1$start  <- indat2_1$end 
+    indat2_1$end  <- indat2_1$start + indat2_1$efforti
+    indat2  <- indat2[!is.na(indat2$start) & !is.na(indat2$end) ,]
+    indat2
+    indat2_1
+    indat2 <- rbind(indat2, indat2_1)
+    
+    indat2
+    # now you know the start of the dependents
+    
+    # now get other set 
     indat3 <- sqldf("select container_task,
     task_id as predecessor,
     task_id,
     efforti,
     end, start
     from indat
-    where start not null")
-     
-    indat3$loc <- nrow(indat3):1
-    #indat3
-     
-    # add loc of siblings
-    indat2 <- sqldf("select t1.*, t2.loc
-    from indat2 t1
-    join
-    indat3 t2
-    where t1.predecessor = t2.task_id
+    where start is not null
     ")
-    #indat2
-     
-    indat4 <- rbind(indat3, indat2)
+    # TODO at this point need to figure out how to get proper locs
+    indat3$loc <- nrow(indat3):1
+    indat3
+    indat2 
+    # add loc of siblings
+    indatx <- sqldf("select t1.*, t2.loc
+    from indat2 t1
+    left join
+    indat3 t2
+    where (t1.predecessor = t2.task_id)
+    and t1.task_id is not null
+    ")
+    indatx
+    
+    indat4 <- rbind(indat3, indatx)
     indat4 <- indat4[order(indat4$start),]
-     
+    indat4 
     return(indat4)
   }
-  
+  datin2 <- indat4
   #datin2 <- gantt_tufte_preprocessing(datin)
   #str(datin2)
-
+    
 #+end_src
 
 *** R-gantt_tufte PLOT
 #+name:gantt_tufte
-#+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval no
+#+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval yes
   ################################################################
   # plot
   gantt_tufte <- function(
-    indat = datin4
+    indat = datin2
     ,
     smidge_lab = .15
     ,
@@ -288,7 +316,7 @@
 #+RESULTS:
 : /home/ivan_hanigan/tools/disentangle/tests
 
-
+: 
 *** COMMENT test RMD
 #+name:make_html
 #+begin_src R :session *R* :tangle tests/gantt_tufte_test.Rmd :exports none :eval yes
@@ -310,16 +338,16 @@
   
   Introduction
   ---
-
+  
   This is a Reproducible Research Report (RRR) of work that was done [who, what, where and why].
-
+  
   Methods  
   ---
   The report is written as a multi-threaded computer script document, in two languages.  The first language is used for sections of ordinary text written in a human readable way. The second language is used for chunks of text written in a computer language.  The computer code is then run and the resulting pages are created. 
-
+  
   The source document can be accessed at [link to the doc]. This document uses 'markdown' to write human langauge (a simpler way to write markup than LaTeX) and the R language for statistical computing and graphics.
   
-
+  
   
   ```{r echo = F, results = "hide", eval = T}
   ## load data
@@ -329,18 +357,25 @@
   
   # load
   datin  <- read.csv(textConnection("container_task, task_id, allocate, fte, blocker, start, effort
-  Container Task 1, t0, jim, 1,   , 2014-12-01, 1m
-  Container Task 1, t1, jim, 1,   , 2014-12-20, 1m
-  Container Task 1, t2, bob, 1, t1,           , 10d 
-  Container Task 2, t3, sue, 1,   , 2014-12-01, 2w
-  Container Task 2, t4, jim, 1, t3,           , 2d
-  Container Task 2, t5, jimmy, 1, 201
+  Container Task 1, task 0, jim,   1,   ,     2014-12-01, 1m
+  Container Task 1, task 1, jim,   1,   ,     2014-12-20, 1m
+  Container Task 1, task 2, bob,   1, task 1,           , 10d 
+  Container Task 2, task 3, sue,   1,   ,     2014-12-01, 2w
+  Container Task 2, task 4, jim,   1, task 3,           , 2d
+  Container Task 3, task 5, jimmy, 1, task 3,           , 10d
   "),
   stringsAsFactor = F)
   datin$start  <- as.Date(datin$start)
   #str(datin)
+  datin
   datin <- timebox(datin)
+  str(datin)
+  datin
   datin2 <- gantt_tufte_preprocessing(datin)
+  str(datin2)
+  datin2
+  
+  gantt_tufte(datin2, focal_date = as.Date("2014-12-31"))
   ```
   
   ## create graph 
@@ -371,5 +406,3 @@
 #+end_src
 
 #+RESULTS: make_html
-: 1
-
