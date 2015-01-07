@@ -277,7 +277,7 @@
 #+begin_src R :session *R* :tangle no :exports none :eval yes
   #### name:tat####
   library(devtools)
-  install_github("ivanhanigan/disentangle")
+  #install_github("ivanhanigan/disentangle")
   setwd("tests")
   require(knitr)
   require(markdown)
@@ -286,8 +286,8 @@
 #+end_src
 
 #+RESULTS:
-: /home/ivan_hanigan/tools/disentangle/tests
- 
+=/home/ivan_hanigan/tools/disentangle/tests
+= 
 *** COMMENT test
 #+name:make_html
 #+begin_src R :session *R* :tangle tests/gantt_tufte_test.Rmd :exports none :eval yes
