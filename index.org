@@ -11682,10 +11682,9 @@ This is with MCHP resource repository - a general overview of this process is de
   #### Code:detail-within-context-as-per-tuftes-gantt-alternative
       
 #+end_src
-*** COMMENT todo_in_context-code
+*** todo_in_context-code
 #+name:todo_in_context
 #+begin_src R :session *R* :tangle no :exports none :eval no
-  #### name:todo_in_context####
   # func
   library(sqldf)
   library(lubridate)
@@ -11710,7 +11709,7 @@ This is with MCHP resource repository - a general overview of this process is de
     dat_in$effortd <- gsub("w", 7, dat_in$effortd)
     dat_in$effortd <- gsub("m", 30.5, dat_in$effortd)
     dat_in$effortd <- as.numeric(dat_in$effortd)
-    dat_in$efforti  <-  dat_in$effortt * dat_in$effortd
+    dat_in$efforti <- dat_in$effortt * dat_in$effortd
     dat_in$end  <- dat_in$start + dat_in$efforti
     #str(dat_in)
     dat_in <- dat_in[,c(nameslist, "efforti", "end")]
@@ -11720,55 +11719,65 @@ This is with MCHP resource repository - a general overview of this process is de
   datin <- timebox(datin)
   str(datin)
   
+  gantt_tufte_preprocessing  <- function(
+    indat = datin
+    ){
+    # self join to collect the dependencies
+    # paste(names(datint), sep = "", collapse = ", ")
+     
+    indat2 <- sqldf("select t1.container_task,
+    t1.task_id as predecessor,
+    t2.task_id, t2.efforti,
+    t1.end
+    from indat t1
+    join
+    indat t2
+    on t1.task_id = t2.blocker
+    ")
+     
+    #indat2
+    indat2$start  <- indat2$end 
+    indat2$end  <- indat2$start + indat2$efforti
+     
+    indat3 <- sqldf("select container_task,
+    task_id as predecessor,
+    task_id,
+    efforti,
+    end, start
+    from indat
+    where start not null")
+     
+    indat3$loc <- nrow(indat3):1
+    #indat3
+     
+    # add loc of siblings
+    indat2 <- sqldf("select t1.*, t2.loc
+    from indat2 t1
+    join
+    indat3 t2
+    where t1.predecessor = t2.task_id
+    ")
+    #indat2
+     
+    indat4 <- rbind(indat3, indat2)
+    indat4 <- indat4[order(indat4$start),]
+     
+    return(indat4)
+  }
   
-  # self join to collect the dependencies
-  # paste(names(datin), sep = "", collapse = ", ")
+  datin2 <- gantt_tufte_preprocessing(datin)
+  str(datin2)
   
-  datin2 <- sqldf("select t1.container_task,
-  t1.task_id as predecessor,
-  t2.task_id, t2.efforti,
-  t1.end
-  from datin t1
-  join
-  datin t2
-  on t1.task_id = t2.blocker
-  ")
+  # ploting function
+  ## indat = datin4
+  ## smidge_lab = .15
+  ## focal_date = Sys.Date()
+  ## time_box = 21
+  ## end_task_ticks = F # this is the little tick marking the end of the tasks
   
-  datin2
-  datin2$start  <- datin2$end 
-  datin2$end  <- datin2$start + datin2$efforti
-  
-  datin3 <- sqldf("select container_task,
-  task_id as predecessor,
-  task_id,
-  efforti,
-  end, start
-  from datin
-  where start not null")
-  
-  datin3$loc <- nrow(datin3):1
-  datin3
-  
-  # add loc of siblings
-  datin2 <- sqldf("select t1.*, t2.loc
-  from datin2 t1
-  join
-  datin3 t2
-  where t1.predecessor = t2.task_id
-  ")
-  datin2
-  
-  datin4 <- rbind(datin3, datin2)
-  datin4 <- datin4[order(datin4$start),]
-  
-  # ploting
-  ## smidge factors
-  
-  
-  ## layout
     
   ## plot
-  myPlot <- function(
+  gantt_tufte <- function(
     indat = datin4
     ,
     smidge_lab = .15
@@ -11776,7 +11785,9 @@ This is with MCHP resource repository - a general overview of this process is de
     focal_date = Sys.Date()
     ,
     time_box = 21
-                     ){
+    ,
+    end_task_ticks = F 
+    ){
     m <- matrix(c(1,2), 2, 1)
     layout(m, widths=c(1), heights=c(.9,4))
     par(mar = c(3,8,2,1))
@@ -11841,12 +11852,80 @@ This is with MCHP resource repository - a general overview of this process is de
     segments(min(xrange), max(yrange) + .09, max(xrange), max(yrange) + .09)  
     
   }
+  ls()
+  gantt_tufte(datin2, focal_date = as.Date("2014-12-10"))
   
-  myPlot(datin4, focal_date = as.Date("2014-12-10"))
+#+end_src
+
+      
+
+*** COMMENT test
+#+name:make_html
+#+begin_src R :session *R* :tangle tests/gantt_tufte_test.Rmd :exports none :eval no
+  Overview of Data Munging
+  ===
+  
+  ivan.hanigan@anu.edu.au
+  
+  ```{r echo = F, eval=F, results="hide"}
+  require(knitr)
+  require(markdown)
+  knit2html("gantt_tufte_test.Rmd", options = c("toc", markdown::markdownHTMLOptions(TRUE)), stylesheet = "custom.css")
+  ```
+  
+  ```{r}
+  print(Sys.Date())
+  ```
+  
+  Introduction
+  ---
+    
+  This is a Reproducible Research Report (RRR) written using the R language for statistical computing and graphics. The report is made up of ordinary text written in
+  
+  1. 'markdown' which is a simple way to write markup language similar to LaTeX
+  1. R language for statistical computing and graphics
   
   
+  ```{r echo = TRUE, results = "asis", eval = T}
+  library(disentangle) 
+  library(sqldf)
+  library(lubridate)
   
+  # load
+  datin  <- read.csv(textConnection("container_task, task_id, allocate, fte, blocker, start, effort
+  Container Task 1, t0, jim, 1,   , 2014-12-01, 1m
+  Container Task 1, t1, jim, 1,   , 2014-12-20, 1m
+  Container Task 1, t2, bob, 1, t1,           , 10d 
+  Container Task 2, t3, sue, 1,   , 2014-12-01, 2w
+  Container Task 2, t4, jim, 1, t3,           , 2d
+  "),
+  stringsAsFactor = F)
+  datin$start  <- as.Date(datin$start)
+  str(datin)
+    
+  svg("AAPL.svg",width=14,height=7)
+  gantt_tufte(datin2, focal_date = as.Date("2014-12-10"))
+  dev.off()
   
+  ```
+  
+  To create the graph using SVG for web display
+  
+  ![alttext](AAPL.svg)
+  
+  ```{r echo = TRUE, results = "asis", eval = T}
+  
+  png("AAPL.png",width=1400,height=700, res = 100)
+  gantt_tufte(datin2, focal_date = as.Date("2014-12-10"))
+  dev.off()
+  
+  ```
+  
+  To create the alternative bitmap
+  
+  ![alttext](AAPL.png)
+  
+    
 #+end_src
 
 * Research Protocols
