@@ -63,7 +63,7 @@
 #+end_src
 *** todo_in_context-code
 ** gantt_tufte
-*** R-gantt_tufte_test_data
+*** COMMENT R-gantt_tufte_test_data
 #+name:gantt_tufte
 #+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval yes
   # func
@@ -74,7 +74,7 @@
   pgListTables(ch, "public")
   
   # load
-  datin  <- read.csv(textConnection("container_task, task_id, allocated, fte, blocker, start_date, effort
+  datin  <- read.csv(textConnection("container_task_title, task_id, allocated, fte, blocker, start_date, effort
   Container 1, task 0, jim,   1,   ,     2014-12-01, 1m
   Container 1, task 1, jim,   1,   ,     2014-12-20, 1m
   Container 1, task 2, bob,   1, task 1,           , 10d 
@@ -122,7 +122,44 @@
 #+end_src
 
 #+RESULTS: gantt_tufte
-=2
+=1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==2
 ==1
 ==1
 ==2
@@ -249,14 +286,11 @@
     
 #+end_src
 
-*** COMMENT PREPROCESS data-code ETL
-#+name:get_test_data
-#+begin_src R :session *R* :tangle no :exports none :eval yes
-  library(sqldf)
-  library(lubridate)
-  library(swishdbtools)
-  ch <- connect2postgres('localhost','gantt_tufte2', 'w2p_user', p='xpassword')
-  
+*** R timebox
+
+#+name:timebox
+#+begin_src R :session *R* :tangle R/timebox.R :exports none :eval yes
+  #### name:timebox####
   # func to calculate time boxes
   timebox <- function(dat_in){
     nameslist <- names(dat_in)
@@ -266,14 +300,32 @@
     dat_in$effortd <- gsub("m", 30.5, dat_in$effortd)
     dat_in$effortd <- as.numeric(dat_in$effortd)
     dat_in$efforti <- dat_in$effortt * dat_in$effortd
-    dat_in$end  <- dat_in$start_date + dat_in$efforti
+    dat_in[is.na(dat_in$end_date),"end_date"]  <- dat_in[is.na(dat_in$end_date),"start_date"] + dat_in[is.na(dat_in$end_date),"efforti"]
     #str(dat_in)
-    dat_in <- dat_in[,c(nameslist, "efforti", "end")]
+    dat_in <- dat_in[,c(nameslist, "efforti")]
     return(dat_in)
   }
   
+#+end_src
+
+#+RESULTS: timebox
+
+*** PREPROCESS data-code ETL
+#+name:get_test_data
+#+begin_src R :session *R* :tangle no :exports none :eval yes
+  dbDisconnect(ch)
+  library(sqldf)
+  library(lubridate)
+  library(swishdbtools)
+  ch <- connect2postgres('localhost','gantt_todo', 'w2p_user', p='xpassword')
   
   
+  get_gantt_data <- function(
+    con = ch
+    ,
+    test_data = F
+    ){  
+  if(test_data != TRUE){
   #### name:get_test_data####
   datin  <- dbGetQuery(ch,
   "
@@ -282,15 +334,53 @@
   from container_task t1
   join work_package t2
   on t1.id = t2.container_id
+  where t2.status != 'DONTSHOW'
   "
   )
   str(datin)
-  
-  
+  datin_done  <- dbGetQuery(ch,
+  "
+  select t1.container_task_title, 
+  t2.*
+  from container_task_done t1
+  join work_package_done t2
+  on t1.id = t2.container_id
+  where t2.status != 'DONTSHOW'
+  "
+  )
+  str(datin_done)
+  datin  <- rbind(datin, datin_done)
+  } else {
+  # or simpler
+  datin  <- read.csv(textConnection("container_task_title, task_id, allocated, fte, blocker, start_date, effort
+    Container 1, task 0, jim,   1,   ,     2015-01-01, 1m
+    Container 1, task 1, jim,   1,   ,     2015-01-20, 1m
+    Container 1, task 2, bob,   1, task 1,           , 10d 
+    Container 2, task 3, sue,   1,   ,     2015-01-01, 2w
+    Container 2, task 4, jim,   1, task 3,           , 2d
+    Container 3, task 5, jimmy, 1, task 3,           , 10d
+    Container 3, task 6, jimmy, 1,       , 2015-02-01, 10d
+    Container 4, task 7, jimmy, 1, task 0,           , 10d
+    Container 5, task 8, sue,   1,       , 2015-01-14, 5d
+    Container 5, task 9, sue,   1, task 8, , 2d
+    Container 5, task 10, sue,   1, task 9, , 2d
+    Container 5, task 11, sue,   1, task 10, , 2d
+    Container 5, task 12, sue,   1, task 11, , 2d
+    Container 5, task 13, sue,   1, task 12, , 2d
+    Container 5, task 14, sue,   1, task 13, , 2d
+    "),
+    stringsAsFactor = F, strip.white = T)
+    datin$start_date  <- as.Date(datin$start_date)
+    str(datin)
+    datin[datin$blocker == "","blocker"] <- NA
+  datin
+  }
   datin <- timebox(datin)
-   str(datin)
-  datin  <- datin[,c('container_task_title','task_id','allocated','fte','start_date','efforti','notes','status','blocker','end')]
+  datin[1:5,c("task_id","start_date","end_date", "efforti")]
+  str(datin)
+  datin  <- datin[,c('container_task_title','task_id','allocated','fte','start_date','efforti','notes','status','blocker','end_date')]
   t(datin[1,])
+  #datin
   # dbSendQuery(ch, "drop table indat")
   # dbWriteTable(ch, "indat", datin)
   
@@ -298,14 +388,14 @@
   datin_depends <- sqldf("
   select tab1.container_task_title, tab1.task_id, 
   'depends on ' || tab1.blocker || ' from Container ' || tab2.container_task_title as depends_on,
-  tab2.end as start_date, 
+  tab2.end_date as start_date, 
   tab1.efforti
   from
   (
     select t1.container_task_title,
     t1.task_id, t1.blocker,
     t1.start_date,
-    t1.end,
+    t1.end_date,
     t1.efforti
     from indat t1
     where t1.blocker is not null
@@ -314,10 +404,11 @@
   indat tab2
   on tab1.blocker = tab2.task_id
   ", drv = "SQLite")
-  # cast(tab2.end + (tab1.efforti || ' day')::INTERVAL as date) as
+  # cast(tab2.end_date + (tab1.efforti || ' day')::INTERVAL as date) as
   # end_date
   datin_depends[1,]
-  datin_depends$end  <- datin_depends$start_date + datin_depends$tab1.efforti
+  #datin_depends
+  datin_depends$end_date  <- datin_depends$start_date + datin_depends$tab1.efforti
   names(datin_depends) <- gsub('tab1.', '', names(datin_depends))
   
   datin <- sqldf("
@@ -326,35 +417,36 @@
     t1.task_id as depends_on,  
     t1.start_date,
     t1.efforti,
-    t1.end
+    t1.end_date
     from indat t1
     where t1.blocker is null
   ", drv = 'SQLite')
-  
+  #datin
   datin <- rbind(datin, datin_depends)
   datin[1,]
-  
+  #datin
   loc  <- sqldf("select container_task_title from datin group by container_task_title", drv = "SQLite")
   loc$loc  <- nrow(loc):1
   loc
   datin <- merge(loc, datin)
-  
+  str(datin)
   loc
   dat_out <- as.data.frame(matrix(NA, nrow = 0, ncol = ncol(datin) + 1))
-  names(qc) <- c(names(datin),"loc2")
+  #names(qc) <- c(names(datin),"loc2")
   for(loci in loc$loc){
-  
+  # loci = loc$loc[1]
   qc <- datin[datin$loc == loci,]
   qc <- qc[order(qc$start_date),]
   loc2 <- seq(qc$loc[1]-1, qc$loc[1],  1/(length(qc$loc)))
-  qc$loc2  <- loc2[1:(length(loc2)-1)]
+  qc$loc2  <- loc2[(length(loc2)):2] 
   
   dat_out  <- rbind(dat_out, qc)
   
   }
   str(dat_out)
-  
-  
+  return(dat_out)
+  }
+    
 #+end_src
 
 #+RESULTS: get_test_data
@@ -364,15 +456,17 @@
 #+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval yes
   ################################################################
   # plot
+  dat_out <- get_gantt_data(test_data = F)
+  str(dat_out)
   svg("AAPL.svg",width=26,height=14)
-  #gantt_tufte <- function(
+  gantt_tufte <- function(
     indat = dat_out
     ,
     smidge_lab = .15
     ,
     focal_date = '2015-01-12' # Sys.Date()
     ,
-    time_box = 14 *2
+    time_box = 7 * 3
     ,
     end_task_ticks = F
   ,
@@ -382,19 +476,19 @@
   ,
   cex_context_points = 0.5
   ,
-  cex_detail_ylab = 0.5
+  cex_detail_ylab = 0.7
   ,
   cex_detail_points = 0.7
   ,
-  cex_detail_labels = 0.6
+  cex_detail_labels = 0.7
   #  ){
     focal_date <- as.Date(focal_date)
     m <- matrix(c(1,2), 2, 1)
     layout(m, widths=c(1), heights=c(.5,4))
-    par(mar = c(3,12,2,1))
+    par(mar = c(3,16,2,1))
     # layout.show(2)
-    yrange <- c((min(indat$loc) - smidge_lab), (max(indat$loc) + smidge_lab))
-    xrange  <- c(min(indat$start_date, na.rm = T),max(indat$end, na.rm=T))
+    yrange <- c((min(indat$loc2) - smidge_lab), (max(indat$loc2) + smidge_lab))
+    xrange  <- c(min(indat$start_date, na.rm = T),max(indat$end_date, na.rm=T))
     # xrange
     #### context ####
     
@@ -409,7 +503,7 @@
     for(i in 1:nrow(indat)){
     # = 1
       segments(indat$start_date[i] , js[i] , indat$start_date[i] , max(indat$loc) + 1 , lty = 3)
-      segments(indat$start_date[i] , js[i] , indat$end[i] , js[i] )
+      segments(indat$start_date[i] , js[i] , indat$end_date[i] , js[i] )
     }
     #segments(focal_date, yrange[1], focal_date, yrange[2], 'red')
     xstart_date <- ifelse(wday(xrange[1]) != 1, xrange[1] - (wday(xrange[1]) - 2), xrange[1])
@@ -433,10 +527,13 @@
     points(indat$start_date, indat$loc2, pch = 16, cex = cex_detail_points)
     text(indat$start_date, indat$loc2 - smidge_lab, labels = indat$task_id, pos = 4,
          cex = cex_detail_labels)
+    bumped_up <- indat[indat$start_date < focal_date & indat$end_date > focal_date,]
+    text(focal_date, bumped_up$loc2 - smidge_lab, labels = bumped_up$task_id, pos = 4,
+         cex = cex_detail_labels, col = "darkgrey")
     for(i in 1:nrow(indat)){
     # = 1
       segments(indat$start_date[i] , js[i] , indat$start_date[i] , max(indat$loc2) + 1 , lty = 3)
-      segments(indat$start_date[i] , js[i] , indat$end[i] , js[i] )
+      segments(indat$start_date[i] , js[i] , indat$end_date[i] , js[i] )
     }
     #segments(focal_date, yrange[1], focal_date, yrange[2], 'red')
     xstart_date <- ifelse(wday(focal_date) != 1, focal_date - (wday(focal_date) - 2), focal_date)
