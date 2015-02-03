@@ -8,6 +8,8 @@ gantt_tufte <- function(
   smidge_lab = .15
   ,
   focal_date = '2015-01-18' # Sys.Date()
+  , 
+  show_today = TRUE
   ,
   time_box = 7 * 2.5
   ,
@@ -33,7 +35,7 @@ gantt_tufte <- function(
   ){
   focal_date <- as.Date(focal_date)
   m <- matrix(c(1,2), 2, 1)
-  layout(m, widths=c(1), heights=c(.5,4))
+  layout(m, widths=c(1), heights=c(.75,4))
   par(mar = c(3,16,2,1))
   # layout.show(2)
 
@@ -62,22 +64,22 @@ gantt_tufte <- function(
   polygon(c(focal_date, focal_date + time_box, focal_date + time_box, focal_date), c(rep(yrange[1],2), rep(yrange[2],2)), col = 'lightyellow', border = 'lightyellow')
 # DONE is grey
 indat_done <- indat[indat$status == 'DONE',]
-  points(indat_done$start_date, indat_done$loc, pch = 16, cex = cex_context_points, col = 'grey')
-  #text(indat_done$start_date, indat_done$loc - smidge_lab, labels = indat_done$task_id, pos = 4)
-  js <- indat_done$loc
+  points(indat_done$start_date, indat_done$loc2, pch = 16, cex = cex_context_points, col = 'grey')
+  #text(indat_done$start_date, indat_done$loc2 - smidge_lab, labels = indat_done$task_id, pos = 4)
+  js <- indat_done$loc2
   for(i in 1:nrow(indat_done)){
   # = 1
-    segments(indat_done$start_date[i] , js[i] , indat_done$start_date[i] , max(indat_done$loc) + 1 , lty = 3, col = 'grey')
+    segments(indat_done$start_date[i] , js[i] , indat_done$start_date[i] , max(indat_done$loc2) + 1 , lty = 3, col = 'grey')
     segments(indat_done$start_date[i] , js[i] , indat_done$end_date[i] , js[i], col = 'grey')
   }
 # indat todo is black
 indat_todo <- indat[indat$status == 'TODO',]
-  points(indat_todo$start_date, indat_todo$loc, pch = 16, cex = cex_context_points)
-  #text(indat_todo$start_date, indat_todo$loc - smidge_lab, labels = indat_todo$task_id, pos = 4)
-  js <- indat_todo$loc
+  points(indat_todo$start_date, indat_todo$loc2, pch = 16, cex = cex_context_points)
+  #text(indat_todo$start_date, indat_todo$loc2 - smidge_lab, labels = indat_todo$task_id, pos = 4)
+  js <- indat_todo$loc2
   for(i in 1:nrow(indat_todo)){
   # = 1
-    segments(indat_todo$start_date[i] , js[i] , indat_todo$start_date[i] , max(indat_todo$loc) + 1 , lty = 3)
+    segments(indat_todo$start_date[i] , js[i] , indat_todo$start_date[i] , max(indat_todo$loc2) + 1 , lty = 3)
     segments(indat_todo$start_date[i] , js[i] , indat_todo$end_date[i] , js[i] )
   }  
   #segments(focal_date, yrange[1], focal_date, yrange[2], 'red')
@@ -91,11 +93,11 @@ indat_todo <- indat[indat$status == 'TODO',]
 
   axis(1, at = at_dates, labels = label_dates, cex.axis = cex_context_xlab)
   #axis(3)
-
+  if(show_today) segments(Sys.Date(), min(js), Sys.Date(), max(js), lty = 2, col = 'blue')
   
   #### detail ####
   js <- indat$loc2
-  
+  # todo
   plot(c(focal_date, focal_date + time_box), yrange, type = 'n', xlab = "", ylab = "", axes = F)
        
   mtext(c(indat_lab$container_task_title), 2, las =1, at = indat_lab$loc, cex = cex_detail_ylab)
@@ -104,10 +106,11 @@ indat_todo <- indat[indat$status == 'TODO',]
        cex = cex_detail_labels)
   for(i in 1:nrow(indat)){
   # = 1
-    segments(indat$start_date[i] , js[i] , indat$start_date[i] , max(indat$loc2) + 1 , lty = 3)
-    segments(indat$start_date[i] , js[i] , indat$end_date[i] , js[i] )
+    segments(indat$start_date[i] , js[i] , indat$start_date[i] , max(indat$loc2) + 1 , lty = 3,
+      col = ifelse(indat$status[i] == "DONE", "grey","black"))
+    segments(indat$start_date[i] , js[i] , indat$end_date[i] , js[i],
+      col = ifelse(indat$status[i] == "DONE", "grey","black"))
   }
-
   # done
   indat_done  <- indat[indat$status == "DONE",]
   points(indat_done$start_date, indat_done$loc2, pch = 16, cex = cex_detail_points, col = "darkgrey")
@@ -122,7 +125,10 @@ indat_todo <- indat[indat$status == 'TODO',]
   # continuing
   bumped_up <- indat[indat$start_date < focal_date & indat$status != 'DONE',]
   text(focal_date, bumped_up$loc2 - smidge_lab, labels = bumped_up$task_id, pos = 4,
-       cex = cex_detail_labels, col = 'darkgrey')
+       cex = cex_detail_labels, col = 'darkred')
+  bumped_up2 <- indat[indat$start_date < focal_date & indat$status == 'DONE' & indat$end_date >= focal_date,]
+  text(focal_date, bumped_up2$loc2 - smidge_lab, labels = bumped_up2$task_id, pos = 4,
+       cex = cex_detail_labels, col = 'grey')
 
   
   # overdue
@@ -147,6 +153,7 @@ indat_todo <- indat[indat$status == 'TODO',]
   axis(3, at = at_dates, labels = F)
   axis(3, at = at_dates2, labels = label_dates)
   #segments(min(xrange), max(yrange) + .09, max(xrange), max(yrange) + .09)  
+  if(show_today) segments(Sys.Date(), min(js), Sys.Date(), max(js) + 1, lty = 2, col = 'blue')
   
 }
 #ls()
