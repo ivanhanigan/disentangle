@@ -6,6 +6,15 @@
 #+LATEX: \tableofcontents
 -----
 
+* Graphical User Interfaces
+** web2py
+
+
+*** TODO using the appadmin interface
+
+query can be db.dataset.contact.like('Lach%')
+
+* Project Management
 ** 2014-12-25-todo- detail-within-context-as-per-tuftes-gantt-alternative
 
 *** blog
@@ -65,7 +74,7 @@
 ** gantt_tufte
 *** COMMENT R-gantt_tufte_test_data
 #+name:gantt_tufte
-#+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval yes
+#+begin_src R :session *R* :tangle no :exports none :eval yes
   # func
   library(sqldf)
   library(lubridate)
@@ -123,6 +132,44 @@
 
 #+RESULTS: gantt_tufte
 =1
+==1
+==1
+==2
+==2
+==2
+==2
+==2
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
+==1
 ==1
 ==1
 ==1
@@ -267,9 +314,9 @@
 ==1
 ==1
 
-*** COMMENT DEPRECATED  R-gantt_tufte_preprocessing
+*** COMMENT R-gantt_tufte_preprocessing
 #+name:gantt_tufte
-#+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval no
+#+begin_src R :session *R* :tangle no :exports none :eval no
   ################################################################ 
   gantt_tufte_preprocessing  <- function(
     indat = datin
@@ -376,11 +423,12 @@
 
 *** PREPROCESS data-code ETL
 #+name:get_test_data
-#+begin_src R :session *R* :tangle no :exports none :eval yes
-  dbDisconnect(ch)
+#+begin_src R :session *R* :tangle R/get_gantt_data.R :exports none :eval no
+
   library(sqldf)
   library(lubridate)
   library(swishdbtools)
+  if(exists("ch"))  dbDisconnect(ch)
   ch <- connect2postgres('localhost','gantt_todo', 'w2p_user', p='xpassword')
   
   
@@ -521,9 +569,7 @@
 #+name:gantt_tufte
 #+begin_src R :session *R* :tangle R/gantt_tufte.r :exports none :eval yes
   ################################################################
-  # plot
-  dat_out <- get_gantt_data(test_data = F)
-  str(dat_out)
+  # plot 
   
   gantt_tufte <- function(
     indat = dat_out
@@ -535,22 +581,24 @@
     time_box = 7 * 2.5
     ,
     end_task_ticks = F
-  ,
+    ,
     cex_context_ylab = 0.2
-  ,
+    ,
     cex_context_xlab = 0.5
-  ,
-  cex_context_points = 0.5
-  ,
-  min_context_xrange =  NA
-  , 
-  max_context_xrange = NA
-  ,
-  cex_detail_ylab = 0.7
-  ,
-  cex_detail_points = 0.7
-  ,
-  cex_detail_labels = 0.7
+    ,
+    cex_context_points = 0.5
+    ,
+    min_context_xrange =  NA
+    , 
+    max_context_xrange = NA
+    ,
+    cex_detail_ylab = 0.7
+    ,
+    cex_detail_xlab = 1
+    ,
+    cex_detail_points = 0.7
+    ,
+    cex_detail_labels = 0.7
     ){
     focal_date <- as.Date(focal_date)
     m <- matrix(c(1,2), 2, 1)
@@ -581,14 +629,26 @@
     mtext(c(indat_lab$container_task_title), 2, las =1, at = indat_lab$loc, cex = cex_context_ylab)
   
     polygon(c(focal_date, focal_date + time_box, focal_date + time_box, focal_date), c(rep(yrange[1],2), rep(yrange[2],2)), col = 'lightyellow', border = 'lightyellow')
-    points(indat$start_date, indat$loc, pch = 16, cex = cex_context_points)
-    #text(indat$start_date, indat$loc - smidge_lab, labels = indat$task_id, pos = 4)
-    js <- indat$loc
-    for(i in 1:nrow(indat)){
+  # DONE is grey
+  indat_done <- indat[indat$status == 'DONE',]
+    points(indat_done$start_date, indat_done$loc, pch = 16, cex = cex_context_points, col = 'grey')
+    #text(indat_done$start_date, indat_done$loc - smidge_lab, labels = indat_done$task_id, pos = 4)
+    js <- indat_done$loc
+    for(i in 1:nrow(indat_done)){
     # = 1
-      segments(indat$start_date[i] , js[i] , indat$start_date[i] , max(indat$loc) + 1 , lty = 3)
-      segments(indat$start_date[i] , js[i] , indat$end_date[i] , js[i] )
+      segments(indat_done$start_date[i] , js[i] , indat_done$start_date[i] , max(indat_done$loc) + 1 , lty = 3, col = 'grey')
+      segments(indat_done$start_date[i] , js[i] , indat_done$end_date[i] , js[i], col = 'grey')
     }
+  # indat todo is black
+  indat_todo <- indat[indat$status == 'TODO',]
+    points(indat_todo$start_date, indat_todo$loc, pch = 16, cex = cex_context_points)
+    #text(indat_todo$start_date, indat_todo$loc - smidge_lab, labels = indat_todo$task_id, pos = 4)
+    js <- indat_todo$loc
+    for(i in 1:nrow(indat_todo)){
+    # = 1
+      segments(indat_todo$start_date[i] , js[i] , indat_todo$start_date[i] , max(indat_todo$loc) + 1 , lty = 3)
+      segments(indat_todo$start_date[i] , js[i] , indat_todo$end_date[i] , js[i] )
+    }  
     #segments(focal_date, yrange[1], focal_date, yrange[2], 'red')
     xstart_date <- ifelse(wday(xrange[1]) != 1, xrange[1] - (wday(xrange[1]) - 2), xrange[1])
     xend <- ifelse(wday(xrange[2]) != 7, xrange[2] + (5-wday(xrange[2])), xrange[2] )
@@ -651,7 +711,7 @@
       sep = "-")
   
     axis(1, at = at_dates, labels = F)
-    axis(1, at = at_dates2, labels = label_dates)
+    axis(1, at = at_dates2, labels = label_dates,  cex = cex_detail_xlab)
     #segments(min(xrange), min(yrange) - .09, max(xrange), min(yrange) - .09)
     axis(3, at = at_dates, labels = F)
     axis(3, at = at_dates2, labels = label_dates)
@@ -659,10 +719,6 @@
     
   }
   #ls()
-  svg("AAPL.svg",width=26,height=14)
-  gantt_tufte(dat_out, focal_date = "2015-01-19",
-   min_context_xrange = "2015-01-01")
-  dev.off()
   
 #+end_src
 *** man-gantt_tufte
@@ -684,13 +740,34 @@
 
       
 *** test go
+**** COMMENT test1-code
+
+#+begin_src R :session *R* :tangle no :exports none :eval yes
+  #### name:test2####
+  source("R/timebox.R")
+  source("R/get_gantt_data.R")
+  source("R/gantt_tufte.r")
+  dat_out <- get_gantt_data(test_data = F)
+  str(dat_out)
+    svg("tests/AAPL.svg",height=26,width=18)
+    gantt_tufte(dat_out, focal_date = "2015-01-30",
+     min_context_xrange = "2015-01-01", time_box = 7 * 3.5, cex_detail_xlab = .4)
+    dev.off()
+  
+#+end_src
+
+#+RESULTS:
+: 1
+
+**** test2
 #+begin_src R :session *R* :tangle no :exports none :eval yes
   #### name:tat####
-  library(devtools)
+  #library(devtools)
   #install_github("ivanhanigan/disentangle")
   setwd("tests")
   require(knitr)
   require(markdown)
+  opts_chunk$set(fig.align=”left”)
   knit2html("gantt_tufte_test.Rmd", options = c("toc", markdown::markdownHTMLOptions(TRUE)), stylesheet = "custom.css")
   setwd("..")
 #+end_src
@@ -702,7 +779,7 @@
 *** COMMENT test RMD
 #+name:make_html
 #+begin_src R :session *R* :tangle tests/gantt_tufte_test.Rmd :exports none :eval yes
-  Overview of Data Munging
+  Overview of Gantt Chart
   ===
   
   ivan.hanigan@anu.edu.au
@@ -711,6 +788,7 @@
   setwd("tests")
   require(knitr)
   require(markdown)
+  opts_chunk$set(fig.align=”left”)
   knit2html("gantt_tufte_test.Rmd", options = c("toc", markdown::markdownHTMLOptions(TRUE)), stylesheet = "custom.css")
   ```
   
@@ -721,70 +799,100 @@
   Introduction
   ---
   
-  This is a Reproducible Research Report (RRR) of work that was done [who, what, where and why].
-  
-  Methods  
-  ---
-  The report is written as a multi-threaded computer script document, in two languages.  The first language is used for sections of ordinary text written in a human readable way. The second language is used for chunks of text written in a computer language.  The computer code is then run and the resulting pages are created. 
-  
-  The source document can be accessed at [link to the doc]. This document uses 'markdown' to write human langauge (a simpler way to write markup than LaTeX) and the R language for statistical computing and graphics.
-  
-  
-  
+  This is a report of the TODO list broken down by LTERN Data Team member.
+  <section>
+  <img style="float: left" src="AAPL.svg">
+  </section>
+
+  ```{r}
+  print(cat("\n"))
+  ```
+
+    
   ```{r echo = F, results = "hide", eval = T}
-  ## load data
-  library(disentangle) 
-  library(sqldf)
-  library(lubridate)
+  #### name:test2####
+  source("../R/timebox.R")
+  source("../R/get_gantt_data.R")
+  source("../R/gantt_tufte.r")
+  dat <- get_gantt_data(test_data = F)
+  # str(dat)
   
-  # load
-  datin  <- read.csv(textConnection("container_task, task_id, allocate, fte, blocker, start, effort
-  Container Task 1, task 0, jim,   1,   ,     2014-12-01, 1m
-  Container Task 1, task 1, jim,   1,   ,     2014-12-20, 1m
-  Container Task 1, task 2, bob,   1, task 1,           , 10d 
-  Container Task 2, task 3, sue,   1,   ,     2014-12-01, 2w
-  Container Task 2, task 4, jim,   1, task 3,           , 2d
-  Container Task 3, task 5, jimmy, 1, task 3,           , 10d
-  "),
-  stringsAsFactor = F)
-  datin$start  <- as.Date(datin$start)
+  
+  datin  <- dbGetQuery(ch,
+  "
+  select t1.container_task_title, 
+  t2.*
+  from container_task t1
+  join work_package t2
+  on t1.id = t2.container_id
+  where t2.status != 'DONTSHOW'
+  order by container_task_title"
+  )
   #str(datin)
-  datin
-  datin <- timebox(datin)
-  str(datin)
-  datin
-  datin2 <- gantt_tufte_preprocessing(datin)
-  str(datin2)
-  datin2
+  datin_done  <- dbGetQuery(ch,
+  "
+  select t1.container_task_title, 
+  t2.*
+  from container_task_done t1
+  join work_package_done t2
+  on t1.id = t2.container_id
+  where t2.status != 'DONTSHOW'
+  "
+  )
+  #str(datin_done)
+  datin  <- rbind(datin, datin_done)
+   str(datin)
+  str(dat)
+  as.data.frame(table(datin$name))
   
-  gantt_tufte(datin2, focal_date = as.Date("2014-12-31"))
+  
   ```
   
-  ## create graph 
-  ```{r echo = TRUE, results = "hide", eval = T}
-  svg("AAPL.svg",width=14,height=7)
-  gantt_tufte(datin, focal_date = as.Date("2014-12-10"))
+  ```{r echo = F, results = "asis", eval = T}
+  library("xtable")
+  
+  for(i in names(table(datin$name))){
+   #i <- names(table(datin$name))[1]
+  
+   cat(i)
+   cat("\n")
+   cat("---\n")
+   # str(dat)
+   xdat <- sqldf(
+   sprintf("select name, t1.task_id,
+   t2.start_date, t2.end_date, t2.efforti as effort_days, t1.notes, t2.status,
+   case when t2.depends_on = t1.task_id then '' else t2.depends_on end as depends_on
+   from datin t1
+   left join
+   dat t2
+   on t1.task_id = t2.task_id
+   where t1.name = '%s'
+   order by t2.start_date
+   ", i),
+   drv = "SQLite")
+    xdat$start_date <- as.character(format(xdat$start_date, "%A, %d-%b-%Y"))
+    xdat$end_date <- as.character(format(xdat$end_date, "%A, %d-%b-%Y"))
+   xdat1 <- subset(xdat, status == 'TODO')
+   print(xtable(xdat1), type = "html", include.rownames = F)
+  
+   xdat2 <- subset(xdat, status == 'DONE2')
+   # xdat2
+   if(nrow(xdat2) > 0){
+     cat("\n")
+     print(xtable(xdat2), type = "html", include.rownames = F)
+     }
+   }
+  
+  ```
+  
+  ```{r echo = F, results = "hide", eval = F}
+  svg("AAPL.svg",height=26,width=25)
+  gantt_tufte(dat_out, focal_date = "2015-01-19",
+   min_context_xrange = "2015-01-01", time_box = 7 * 4.5, cex_detail_xlab = .4)
   dev.off()
-  ```
-  
-  To create the graph using SVG for web display
-  
-  ![alttext](AAPL.svg)
-  
-  ```{r echo = TRUE, results = "hide", eval = T}
-  
-  png("AAPL.png",width=1400,height=700, res = 100)
-  gantt_tufte(datin2, focal_date = as.Date("2014-12-10"))
-  dev.off()
-  # browseURL("gantt_tufte_test.html")
-  ```
-  
-  To create the alternative bitmap
-  
-  ![alttext](AAPL.png)
-  
-  
+  ```  
     
 #+end_src
 
 #+RESULTS: make_html
+: 1
