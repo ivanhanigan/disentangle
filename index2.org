@@ -804,10 +804,10 @@ query can be db.dataset.contact.like('Lach%')
   ---
   
   This is a report of the TODO list broken down by LTERN Data Team member.
-
+  
   
   ![aa](AAPL.svg)  
-
+  
   ```{r}
   print(cat("\n"))
   ```
@@ -863,7 +863,7 @@ query can be db.dataset.contact.like('Lach%')
    cat("===\nTODO\n---\n")
    # str(dat)
    xdat <- sqldf(
-   sprintf("select name, t1.task_id,
+   sprintf("select name, t1.container_task_narrow as task_group , t1.task_id,
    t2.start_date, t2.end_date, t2.efforti as effort_days, t1.notes, t2.status,
    case when t2.depends_on = t1.task_id then '' else t2.depends_on end as depends_on
    from datin t1
@@ -878,10 +878,12 @@ query can be db.dataset.contact.like('Lach%')
     xdat$end_date <- as.character(format(xdat$end_date, "%A, %d-%b-%Y"))
    xdat1 <- subset(xdat, status == 'TODO')
    print(xtable(xdat1), type = "html", include.rownames = F)
-   cat("DONE\n---\n")  
+  
    xdat2 <- subset(xdat, status == 'DONE')
+   xdat2 <- xdat2[which(as.Date(xdat2$end_date, format = "%A, %d-%b-%Y") > Sys.Date() - 7),]
    # xdat2
    if(nrow(xdat2) > 0){
+     cat("DONE\n---\n")  
      cat("\n")
      print(xtable(xdat2), type = "html", include.rownames = F)
      }
@@ -893,4 +895,3 @@ query can be db.dataset.contact.like('Lach%')
 #+end_src
 
 #+RESULTS: make_html
-: 1
