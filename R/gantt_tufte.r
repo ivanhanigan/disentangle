@@ -1,160 +1,150 @@
 
 ################################################################
-# name:gantt_tufte
-#+name:todo_in_context
-#+begin_src R :session *R* :tangle no :exports none :eval no
-  # func
-  library(sqldf)
-  library(lubridate)
-  
-  # load
-  datin  <- read.csv(textConnection("container_task, task_id, allocate, fte, blocker, start, effort
-  Container Task 1, t0, jim, 1,   , 2014-12-01, 1m
-  Container Task 1, t1, jim, 1,   , 2014-12-20, 1m
-  Container Task 1, t2, bob, 1, t1,           , 10d 
-  Container Task 2, t3, sue, 1,   , 2014-12-01, 2w
-  Container Task 2, t4, jim, 1, t3,           , 2d
-  "),
-  stringsAsFactor = F)
-  datin$start  <- as.Date(datin$start)
-  str(datin)
+# plot 
 
-################################################################
-  
-  # calculate time boxes
-  timebox <- function(dat_in){
-    nameslist <- names(dat_in)
-    dat_in$effortt <- as.numeric(gsub("[^\\d]+", "", dat_in$effort, perl=TRUE))
-    dat_in$effortd <- gsub("d", 1, gsub("[[:digit:]]+", "", dat_in$effort, perl=TRUE))
-    dat_in$effortd <- gsub("w", 7, dat_in$effortd)
-    dat_in$effortd <- gsub("m", 30.5, dat_in$effortd)
-    dat_in$effortd <- as.numeric(dat_in$effortd)
-    dat_in$efforti <- dat_in$effortt * dat_in$effortd
-    dat_in$end  <- dat_in$start + dat_in$efforti
-    #str(dat_in)
-    dat_in <- dat_in[,c(nameslist, "efforti", "end")]
-    return(dat_in)
-  }
-  
-  # datin <- timebox(datin)
-  # str(datin)
-
-################################################################
-    
-  gantt_tufte_preprocessing  <- function(
-    indat = datin
-    ){
-    # self join to collect the dependencies
-    # paste(names(datint), sep = "", collapse = ", ")
-    library(sqldf)
-    library(lubridate)
-     
-    indat2 <- sqldf("select t1.container_task,
-    t1.task_id as predecessor,
-    t2.task_id, t2.efforti,
-    t1.end
-    from indat t1
-    join
-    indat t2
-    on t1.task_id = t2.blocker
-    ")
-     
-    #indat2
-    indat2$start  <- indat2$end 
-    indat2$end  <- indat2$start + indat2$efforti
-     
-    indat3 <- sqldf("select container_task,
-    task_id as predecessor,
-    task_id,
-    efforti,
-    end, start
-    from indat
-    where start not null")
-     
-    indat3$loc <- nrow(indat3):1
-    #indat3
-     
-    # add loc of siblings
-    indat2 <- sqldf("select t1.*, t2.loc
-    from indat2 t1
-    join
-    indat3 t2
-    where t1.predecessor = t2.task_id
-    ")
-    #indat2
-     
-    indat4 <- rbind(indat3, indat2)
-    indat4 <- indat4[order(indat4$start),]
-     
-    return(indat4)
-  }
-  
-  #datin2 <- gantt_tufte_preprocessing(datin)
-  #str(datin2)
-
-################################################################
-# plot
 gantt_tufte <- function(
-  indat = datin4
+  indat = dat_out
   ,
   smidge_lab = .15
   ,
-  focal_date = Sys.Date()
+  focal_date = '2015-01-18' # Sys.Date()
+  , 
+  show_today = TRUE
   ,
-  time_box = 21
+  time_box = 7 * 2.5
   ,
-  end_task_ticks = F 
+  end_task_ticks = F
+  ,
+  cex_context_ylab = 0.2
+  ,
+  cex_context_xlab = 0.5
+  ,
+  cex_context_points = 0.5
+  ,
+  min_context_xrange =  NA
+  , 
+  max_context_xrange = NA
+  ,
+  cex_detail_ylab = 0.7
+  ,
+  cex_detail_xlab = 1
+  ,
+  cex_detail_points = 0.7
+  ,
+  cex_detail_labels = 0.7
   ){
+  focal_date <- as.Date(focal_date)
   m <- matrix(c(1,2), 2, 1)
-  layout(m, widths=c(1), heights=c(.9,4))
-  par(mar = c(3,8,2,1))
+  layout(m, widths=c(1), heights=c(.75,4))
+  par(mar = c(3,16,2,1))
   # layout.show(2)
-  yrange <- c((min(indat$loc) - smidge_lab), (max(indat$loc) + smidge_lab))
-  xrange  <- c(min(indat$start),max(indat$end))
 
+
+  yrange <- c((min(indat$loc2) - smidge_lab), (max(indat$loc2) + smidge_lab))
+  if(!is.na(min_context_xrange)){
+  xmin <- as.Date(min_context_xrange)    
+  } else {
+  xmin <- min(indat$start_date, na.rm = T)
+  }
+  if(!is.na(max_context_xrange)){
+  xmax <- as.Date(max_context_xrange)    
+  } else {
+  xmax <- max(indat$start_date, na.rm = T)
+  }
+
+  xrange  <- c(xmin,xmax)
+  
+  # xrange
   #### context ####
   
   plot(xrange, yrange, type = 'n', xlab = "", ylab = "", axes = F )
-  mtext(c(indat$container_task), 2, las =1, at = indat$loc, cex = .8)
+  indat_lab  <- sqldf("select container_task_title, loc from indat group by container_task_title, loc", drv = "SQLite")
+  mtext(c(indat_lab$container_task_title), 2, las =1, at = indat_lab$loc, cex = cex_context_ylab)
 
   polygon(c(focal_date, focal_date + time_box, focal_date + time_box, focal_date), c(rep(yrange[1],2), rep(yrange[2],2)), col = 'lightyellow', border = 'lightyellow')
-  points(indat$start, indat$loc, pch = 16)
-  #text(indat$start, indat$loc - smidge_lab, labels = indat$task_id, pos = 4)
-  js <- indat$loc
-  for(i in 1:nrow(indat)){
+# DONE is grey
+indat_done <- indat[indat$status == 'DONE',]
+  points(indat_done$start_date, indat_done$loc2, pch = 16, cex = cex_context_points, col = 'grey')
+  #text(indat_done$start_date, indat_done$loc2 - smidge_lab, labels = indat_done$task_id, pos = 4)
+  js <- indat_done$loc2
+  for(i in 1:nrow(indat_done)){
   # = 1
-    segments(indat$start[i] , js[i] , indat$start[i] , max(indat$loc) + 1 , lty = 3)
-    segments(indat$start[i] , js[i] , indat$end[i] , js[i] )
+    segments(indat_done$start_date[i] , js[i] , indat_done$start_date[i] , max(indat_done$loc2) + 1 , lty = 3, col = 'grey')
+    segments(indat_done$start_date[i] , js[i] , indat_done$end_date[i] , js[i], col = 'grey')
   }
+# indat todo is black
+indat_todo <- indat[indat$status == 'TODO',]
+  points(indat_todo$start_date, indat_todo$loc2, pch = 16, cex = cex_context_points)
+  #text(indat_todo$start_date, indat_todo$loc2 - smidge_lab, labels = indat_todo$task_id, pos = 4)
+  js <- indat_todo$loc2
+  for(i in 1:nrow(indat_todo)){
+  # = 1
+    segments(indat_todo$start_date[i] , js[i] , indat_todo$start_date[i] , max(indat_todo$loc2) + 1 , lty = 3)
+    segments(indat_todo$start_date[i] , js[i] , indat_todo$end_date[i] , js[i] )
+  }  
   #segments(focal_date, yrange[1], focal_date, yrange[2], 'red')
-  xstart <- ifelse(wday(xrange[1]) != 1, xrange[1] - (wday(xrange[1]) - 2), xrange[1])
+  xstart_date <- ifelse(wday(xrange[1]) != 1, xrange[1] - (wday(xrange[1]) - 2), xrange[1])
   xend <- ifelse(wday(xrange[2]) != 7, xrange[2] + (5-wday(xrange[2])), xrange[2] )
-  at_dates  <- seq(xstart, xend, 7)
+  at_dates  <- seq(xstart_date, xend, 7)
   label_dates  <-
     paste(month(as.Date(at_dates, "1970-01-01"), label = T),
     day(as.Date(at_dates, "1970-01-01")),
     sep = "-")
 
-  axis(1, at = at_dates, labels = label_dates)
+  axis(1, at = at_dates, labels = label_dates, cex.axis = cex_context_xlab)
   #axis(3)
-
+  if(show_today) segments(Sys.Date(), min(js), Sys.Date(), max(js), lty = 2, col = 'blue')
   
   #### detail ####
-  
-  plot(c(focal_date, focal_date + time_box), yrange, type = 'n', xlab = "", ylab = "", axes = F )
-  mtext(c(indat$container_task), 2, las =1, at = indat$loc, cex = .8)
-  points(indat$start, indat$loc, pch = 16)
-  text(indat$start, indat$loc - smidge_lab, labels = indat$task_id, pos = 4)
+  js <- indat$loc2
+  # todo
+  plot(c(focal_date, focal_date + time_box), yrange, type = 'n', xlab = "", ylab = "", axes = F)
+       
+  mtext(c(indat_lab$container_task_title), 2, las =1, at = indat_lab$loc, cex = cex_detail_ylab)
+  points(indat$start_date, indat$loc2, pch = 16, cex = cex_detail_points)
+  text(indat$start_date, indat$loc2 - smidge_lab, labels = indat$task_id, pos = 4,
+       cex = cex_detail_labels)
   for(i in 1:nrow(indat)){
   # = 1
-    segments(indat$start[i] , js[i] , indat$start[i] , max(indat$loc) + 1 , lty = 3)
-    segments(indat$start[i] , js[i] , indat$end[i] , js[i] )
+    segments(indat$start_date[i] , js[i] , indat$start_date[i] , max(indat$loc2) + 1 , lty = 3,
+      col = ifelse(indat$status[i] == "DONE", "grey","black"))
+    segments(indat$start_date[i] , js[i] , indat$end_date[i] , js[i],
+      col = ifelse(indat$status[i] == "DONE", "grey","black"))
   }
+  # done
+  indat_done  <- indat[indat$status == "DONE",]
+  points(indat_done$start_date, indat_done$loc2, pch = 16, cex = cex_detail_points, col = "darkgrey")
+  text(indat_done$start_date, indat_done$loc2 - smidge_lab, labels = indat_done$task_id, pos = 4,
+       cex = cex_detail_labels, col = "darkgrey")  
+  for(i in 1:nrow(indat_done)){
+  # = 1
+    segments(indat_done$start_date[i] , indat_done$loc2[i] , indat_done$start_date[i] , max(indat_done$loc2) + 1 , lty = 3, col = 'darkgrey')
+    segments(indat_done$start_date[i] , indat_done$loc2[i] , indat_done$end_date[i] , indat_done$loc2[i], col = 'darkgrey' )
+  }
+
+  # continuing
+
+  bumped_up <- indat[indat$start_date < focal_date & indat$status != 'DONE',]
+  if(nrow(bumped_up) > 0){
+  text(focal_date, bumped_up$loc2 - smidge_lab, labels = bumped_up$task_id, pos = 4,
+       cex = cex_detail_labels, col = 'darkred')
+  }
+  if(nrow(bumped_up2) > 0){
+  bumped_up2 <- indat[indat$start_date < focal_date & indat$status == 'DONE' & indat$end_date >= focal_date,]
+  text(focal_date, bumped_up2$loc2 - smidge_lab, labels = bumped_up2$task_id, pos = 4,
+       cex = cex_detail_labels, col = 'grey')
+  }
+  
+  # overdue
+  ## bumped_up <- indat[indat$end_date < focal_date & indat$status != 'DONE',]
+  ## text(focal_date, bumped_up$loc2 - smidge_lab, labels = bumped_up$task_id, pos = 4,
+  ##      cex = cex_detail_labels, col = 'darkorange')
+  
   #segments(focal_date, yrange[1], focal_date, yrange[2], 'red')
-  xstart <- ifelse(wday(focal_date) != 1, focal_date - (wday(focal_date) - 2), focal_date)
+  xstart_date <- ifelse(wday(focal_date) != 1, focal_date - (wday(focal_date) - 2), focal_date)
   xend <- ifelse(wday(focal_date + time_box) != 7, (focal_date + time_box) + (5-wday(focal_date + time_box)), (focal_date + time_box))
-  at_dates  <- seq(xstart, xend, 1)
-  at_dates2  <- seq(xstart, xend, 7)
+  at_dates  <- seq(xstart_date, xend, 1)
+  at_dates2  <- seq(xstart_date, xend, 7)
   
   label_dates  <-
     paste(month(as.Date(at_dates2, "1970-01-01"), label = T),
@@ -162,12 +152,12 @@ gantt_tufte <- function(
     sep = "-")
 
   axis(1, at = at_dates, labels = F)
-  axis(1, at = at_dates2, labels = label_dates)
-  segments(min(xrange), min(yrange) - .09, max(xrange), min(yrange) - .09)
+  axis(1, at = at_dates2, labels = label_dates,  cex = cex_detail_xlab)
+  #segments(min(xrange), min(yrange) - .09, max(xrange), min(yrange) - .09)
   axis(3, at = at_dates, labels = F)
   axis(3, at = at_dates2, labels = label_dates)
-  segments(min(xrange), max(yrange) + .09, max(xrange), max(yrange) + .09)  
+  #segments(min(xrange), max(yrange) + .09, max(xrange), max(yrange) + .09)  
+  if(show_today) segments(Sys.Date(), min(js), Sys.Date(), max(js) + 1, lty = 2, col = 'blue')
   
 }
 #ls()
-#gantt_tufte(datin2, focal_date = as.Date("2014-12-10"))
