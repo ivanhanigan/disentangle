@@ -129,8 +129,9 @@ indat_todo <- indat[indat$status == 'TODO',]
   text(focal_date, bumped_up$loc2 - smidge_lab, labels = bumped_up$task_id, pos = 4,
        cex = cex_detail_labels, col = 'darkred')
   }
-  if(nrow(bumped_up2) > 0){
+
   bumped_up2 <- indat[indat$start_date < focal_date & indat$status == 'DONE' & indat$end_date >= focal_date,]
+  if(nrow(bumped_up2) > 0){
   text(focal_date, bumped_up2$loc2 - smidge_lab, labels = bumped_up2$task_id, pos = 4,
        cex = cex_detail_labels, col = 'grey')
   }
