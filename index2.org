@@ -597,24 +597,29 @@ sessionInfo()
 query can be db.dataset.contact.like('Lach%')
 
 * Project Management
-** 2014-12-25-todo- detail-within-context-as-per-tuftes-gantt-alternative
+** 2015-03-15-tuftes-gantt-alternative-for-detail-within-context
 
 *** blog
+  
+  #### Blocker:
+      property which allows you to state that a task depends on either
+      a previous sibling ("previous-sibling") or
+      any other task by stating the task_id property of the predecessor
 
-#+name:detail-within-context-as-per-tuftes-gantt-alternative-header
-#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2014-12-25-todo-detail-within-context-as-per-tuftes-gantt-alternative.md :exports none :eval no :padline no
+#+begin_src R :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-03-15-tuftes-gantt-alternative-for-detail-within-context.md :exports none :eval no :padline no
   ---
-  name: todo-detail-within-context-as-per-tuftes-gantt-alternative
+  name: tuftes-gantt-alternative-for-detail-within-context 
   layout: post
-  title: todo-detail-within-context-as-per-tuftes-gantt-alternative
-  date: 2014-12-25
+  title: tuftes-gantt-alternative-for-detail-within-context 
+  date: 2015-03-15
   categories:
-  -
+  - project management
   ---
   
-  - During the end of 2015 I found that the Gantt Chart by TaskJuggler was a struggle to really achieve.
-  - I decided to code up an alternative based on the theory explained on [[this link][http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=000076]] 
-
+  - During the end of 2014 I found that the Gantt Chart by TaskJuggler was a struggle to really achieve any decent task management with (fine for higher level overviews though).
+  -   I had been following the approach described at [this link](http://orgmode.org/worg/org-tutorials/org-taskjuggler.html)
+  - I decided to code up an alternative based on the theory explained on [this link](http://www.edwardtufte.com/bboard/q-and-a-fetch-msg?msg_id=000076) 
+  
   
   #### Project Management Graphics (or Gantt Charts), by Edward Tufte
       Computer screens are generally too small for an overview of big
@@ -640,19 +645,70 @@ query can be db.dataset.contact.like('Lach%')
       expressed grid is necessary--or use the ghost-grid graph
       paper. Degrid!
   
-  I had been following the approach described at http://orgmode.org/worg/org-tutorials/org-taskjuggler.html and the terms there are defined:
+  #### The Results:
   
-  #### Blocker:
-      property which allows you to state that a task depends on either
-      a previous sibling ("previous-sibling") or
-      any other task by stating the task_id property of the predecessor
+  I used the example for a fictional Journal Paper submission from my favourite reference for anything to do with Project Management:
+
+      Aragon, T., Mier, H. M., Payauys, T., & Siador, C. (2012). 
+      Project Management for Health Professionals.
+    [http://www.academia.edu/1746564/Project_Management_for_Health_Professionals](http://www.academia.edu/1746564/Project_Management_for_Health_Professionals)    
+
+
+  <p></p>
+
+  With the following results (PS SVG format allows you to zoom in).
+
+  ![alttext2](/images/gantt_tufte_test.svg)
+  
+  #### The codes: 
+      library(disentangle)
+      library(sqldf)
+      library(lubridate)
+      
+      datin  <- read.csv(
+      textConnection("
+      container_task_title  , task_id                      , allocated , fte , blocker               ,       start_date , effort , status , notes 
+      01 Start              , Start                        , ivan      ,   1 , NA                    ,       2015-03-15 ,     1d , DONE   , NA    
+      02 Update Lit Review  , Repeat MEDLINE search        , ivan      ,   1 , Start                 ,       2015-03-16 ,     5d , DONE   , NA    
+      02 Update Lit Review  , Retrieve articles            , ivan      ,   1 , Repeat MEDLINE search ,               NA ,     5d , DONE   , NA    
+      02 Update Lit Review  , Read articles                , ivan      ,   1 ,                       ,       2015-03-26 ,    11d , DONE   ,       
+      02 Update Lit Review  , Summarize articles           , ivan      ,   1 ,                       ,       2015-04-06 ,     9d , TODO   ,       
+      03 Write Draft        , Write introduction           , ivan      ,   1 ,                       ,       2015-04-09 ,     6d , TODO   ,       
+      03 Write Draft        , Write methods                , ivan      ,   1 , Start                 ,                  ,    15d , TODO   ,       
+      03 Write Draft        , Write results                , ivan      ,   1 ,                       ,       2015-03-30 ,    10d , TODO   ,       
+      03 Write Draft        , Write discussion             , ivan      ,   1 ,                       ,       2015-04-15 ,    10d , TODO   ,       
+      04 Internal Review    , Send to co-author for review , ivan      ,   1 , Write discussion      ,                  ,     2d , TODO   ,        
+      04 Internal Review    , Revise draft 1               , ivan      ,   1 ,                       ,       2015-04-19 ,    10d , TODO   ,       
+      05 Peer Review        , Submit article 1             , ivan      ,   1 , Revise draft 1        ,                  ,     5d , TODO   ,       
+      06 Revise and Resubmit, Revise draft 2               , ivan      ,   1 ,                       ,       2015-04-30 ,    10d , TODO   ,       
+      06 Revise and Resubmit, Submit article 2             , ivan      ,   1 , Revise draft 2        ,                  ,     5d , TODO   ,       
+      07 End                , Accepted                     , ivan      ,   1 ,                       ,       2015-05-15 ,     1d , TODO   ,       
+      "),
+      stringsAsFactor = F, strip.white = T)
+      # or 
+      # datin <- get_gantt_data("gantt_todo", test_data = T) # need to
+      # adjust min_context_xrange to 2015-01-01 or something
+      datin$start_date  <- as.Date(datin$start_date)
+      str(datin)
+      datin
+      
+      dat_out <- gantt_data_prep(dat_in = datin)
+      str(dat_out)
+      dat_out
+      svg("tests/gantt_tufte_test.svg",height=10,width=8)
+      gantt_tufte(dat_out, focal_date = "2015-04-13", time_box = 3*7,
+                  min_context_xrange = "2015-03-16",
+                  cex_context_ylab = 0.65, cex_context_xlab = .7,
+                  cex_detail_ylab = 0.9,  cex_detail_xlab = .4,
+                  show_today = F)
+      dev.off()
+      
   
   
   
-  #### Code:detail-within-context-as-per-tuftes-gantt-alternative
       
 #+end_src
-*** todo_in_context-code
+
 ** gantt_tufte
 *** COMMENT R-gantt_tufte_test_data
 #+name:gantt_tufte
@@ -1523,12 +1579,12 @@ query can be db.dataset.contact.like('Lach%')
 | no 14                | Submit article 2             | ivan      |   1 |                       |   Revise Draft 2 |     5d | TODO   |       |
 | no 15                | Accepted                     | ivan      |   1 |                       | Submit article 2 |     1d | TODO   |       |
 
-#+name:test2
+*** code name:test2
 #+begin_src R :session *R* :tangle no :exports none :eval yes
   #### name:test2####
-  source("R/timebox.R")
-  source("R/gantt_data_prep.R")
-  source("R/gantt_tufte.r")
+  library(disentangle)
+  library(sqldf)
+  library(lubridate)
   
   datin  <- read.csv(
   textConnection("
@@ -1560,15 +1616,16 @@ query can be db.dataset.contact.like('Lach%')
   dat_out <- gantt_data_prep(dat_in = datin)
   str(dat_out)
   dat_out
-  #svg("tests/AAPL.svg",height=26,width=18)
+  svg("tests/gantt_tufte_test.svg",height=10,width=8)
   gantt_tufte(dat_out, focal_date = "2015-04-13", time_box = 3*7,
               min_context_xrange = "2015-03-16",
               cex_context_ylab = 0.65, cex_context_xlab = .7,
               cex_detail_ylab = 0.9,  cex_detail_xlab = .4,
               show_today = F)
-  #dev.off()
+  dev.off()
   
 #+end_src
 
 #+RESULTS: test2
+: 1
 
