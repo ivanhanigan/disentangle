@@ -6,6 +6,588 @@
 #+LATEX: \tableofcontents
 -----
 
+* Data Operation
+*** COMMENT aggregate-list-of-dfs
+#+name:aggregate
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:aggregate####
+  # stoopid hack for lu
+  # desc
+  "I have a do.call question that perhaps you can answer in 5 seconds... [my brain is leaking... I can't see the solution].
+  
+  I have a list of data.frames imagine I wanted to sum them up, like d1+d2+... N. If I do that manually the output is a data.frame, but when I use do.call I get one number, and I need a data.frame instead.
+  
+  Another issues is that some columns have a factor, so I'm planning to wrap my operation into a function with a condition to do the sum if the cell contains a number. Other to skip it.
+  so I though of:
+  
+  foo = function (x) { ifelse(is.numeric(x), sum(x), NA)} #but it doesn't work
+  
+  This example addressed the issues.
+  
+  d1 = mtcars
+  d2 = d1*2
+  
+  str(mtcars)
+  l1 = list(d1,d2)
+  str(l1)
+  
+  d3 = do.call('sum', l1)
+  #> d3
+  #[1] 41826.61 # I don't want one number, but a data.frame with the sums.
+  
+  foo = function (x) { ifelse(is.numeric(x), sum(x), NA)}
+  d4 = do.call('foo', l1)
+  
+  Any help or tip will be welcome!"
+  
+  # I feel like it should be simple because R can add dataframes
+  # but maybe these need to be matrices (because a data.frame is really
+  # a list)
+  d1 = as.matrix(mtcars)
+  d1
+  d2 = as.matrix(d1*2)
+  d2
+  d1 + d2
+  # lets make more dfs
+  d3 = as.matrix(d2*3)
+  d4 = as.matrix(d3*2)
+  d1+d2+d3+d4
+  # I note that do.call can add two df fine
+  l1  <- list(d1, d2)
+  out  <- do.call("+", l1)
+  str(out)
+  out
+  # but with multiple no good
+  l1 = list(d1,d2, d3, d4)
+  str(l1)
+  out  <- do.call("+", l1)
+  # when these are dataframes the error is
+  ## Error in `+`(list(mpg = c(21, 21, 22.8, 21.4, 18.7, 18.1, 14.3, 24.4,  :
+  ##   unused arguments (list(mpg = c(... blah blah
+  # when matrices the error is
+  ## Error in `+`(c(21, 21, 22.8, 21.4, 18.7, 18.1, 14.3, 24.4, 22.8, 19.2,  :
+  ##   operator needs one or two arguments
+  
+  
+  # But the lists content are able to be combined if done individually
+  out1 <- l1[[1]] + l1[[2]] + l1[[3]] + l1[[4]]
+  str(out1)
+  out1
+  
+  # make things interesting
+  l1 <- list()
+  for(i in 1:1000){
+    #i = 1
+    di  <- iris
+    di[sapply(iris, is.numeric)]  <- iris[sapply(iris, is.numeric)] * sample(rnorm(100,1,2), 1)
+    l1[[i]]  <- di
+  }
+  str(l1)
+  # so we could figure out a way to iterate over the dataframes with a
+  # loop like
+  ## for(i in 1:length(l1)){
+  ##   if(i == 1){
+  ##     out2 <- l1[[i]]
+  ##     next
+  ##   } else {
+  ##     out2  <- out2 + l1[[i]]
+  ##   }
+  ## }
+  # doesn't like factor
+  #out2
+  # or 
+  ## d1 <- iris
+  ## str(d1) # Note pesky factor column
+  ## d2 <- d1
+  ## # Only multiply cells that are numeric
+  ## str(d2[sapply(d2, is.numeric)])
+  ## d2[sapply(d2, is.numeric)] <- d2[sapply(d2, is.numeric)] * 2
+  
+  ## # Add another data.frame to make it interesting
+  ## d3 <- d1
+  ## d3[sapply(d3, is.numeric)] <- d3[sapply(d3, is.numeric)] * 3
+  
+  
+  ## l1 = list(d1,d2, d3)
+  str(l1)
+  
+  # Inititalise output dataframe to zero
+  
+  # Sum data frames
+  summarise_list_dfs3 <- function(listed){
+    d.results <- d1
+    d.results[sapply(d.results, is.numeric)] <- 0 
+    for (i in seq_along(l1)){
+      d.results[sapply(d.results, is.numeric)] <-
+        d.results[sapply(d.results, is.numeric)] +
+        l1[[i]][sapply(l1[[i]], is.numeric)]
+    }
+    return(d.results)
+  }
+  system.time(d.results  <- summarise_list_dfs3(l1))
+  str(d.results)
+  
+  # but we want an elegant solution that will be
+  # able to give any number of dataframes, and also have
+  # the issue of some variables being factor so not to be used
+  
+  # let's write some func
+  # I like SQL for it's clarity
+  library(sqldf)
+  # we are basically grouping the values of each row in each df, so add
+  # an id
+  
+  nam <- function(x){
+    x$row_names <- 1:nrow(x)
+    return(x)
+  }
+  l_df2 <- lapply(l1, nam)
+  str(l_df2)
+  # now construct some sql and run it.  let's make it flexible for
+  # different summarising functions like sum, mean, median, stdev etc
+  summarise_list_of_dfs <- function(
+    list_of_dfs = l1
+    ,
+    summarise_fun = 'sum'
+    ,
+    id = 'row_names'
+    ){
+    if(!is.data.frame(list_of_dfs[[1]])) list_of_dfs <- lapply(list_of_dfs, as.data.frame)
+    l_df2 <- lapply(list_of_dfs, nam)
+    x = do.call('rbind.data.frame', l_df2)
+  names(x)<-gsub("\\.", "_", names(x))
+    todo <- sapply(x, 'is.numeric')
+    todo <- names(x)[todo]
+    todo <- todo[-which(todo == "row_names")]
+    oper  <- sprintf('), %s(',summarise_fun)
+    sql<-paste("sum(",paste(todo, sep = '', collapse = oper),")", sep = "")
+  #sql
+    out<-sqldf(
+    #cat(
+    sprintf("select row_names, %s
+    from x
+    group by row_names
+    order by row_names
+    ", sql)
+    )
+    names(x)<-gsub("_", "\\.", names(x))
+    return(out)
+  }
+  
+  # do
+  #l1 <- lapply(l1, as.data.frame)
+  
+  system.time(qc  <- summarise_list_of_dfs(l1))
+  
+  str(qc)
+  str(out1)
+  out1  <- as.data.frame(out1)
+  names(qc)<-names(out1)
+  # same?
+  identical(qc, out1)
+  # not identical
+  all(qc == out1)
+  # all values are equal tho
+  
+  # compare to base r
+  summarise_list_dfs2 <- function(listed){
+    listed  <- l1
+    d5=do.call('rbind',listed)
+  #  str(d5)
+    d5.rnames =rep(rownames(listed[[1]]),times=length(listed))
+    d5$reg=d5.rnames
+    d6 = aggregate(d5[sapply(d5, is.numeric)], by=list(d5$reg), FUN=sum) # I should use an
+                                            # ifelse, to do this only to
+                                            # numeric columns.
+    return(d6)
+  }
+  system.time(d6 <- summarise_list_dfs2(l1))
+  
+  str(d6)
+  row.names(d6) <- d6$Group.1
+  # same?
+  identical(d6, out1[sort(row.names(out1)),])
+  # not identical
+  all(
+    d6[,-c(1)] == out1[sort(row.names(out1)),]
+    )
+  # looks like the integers are equal but not the doubles.
+  # but a diff of the two looks same
+  
+  # now does it work for  mean?
+  qc  <- summarise_list_of_dfs(l1, 'mean')
+  # whoops, sql uses 'avg'
+  qc  <- summarise_list_of_dfs(l1, 'avg')
+  str(qc)
+  # and stdev
+  qc  <- summarise_list_of_dfs(l1, 'stdev')
+  str(qc)
+  # this did multiple dataframes, now try with factor variables
+  str(l1)
+  d1[,3] <- as.factor(d1[,3])
+  d2[,3] <- as.factor(d2[,3])
+  d3[,3] <- as.factor(d3[,3])
+  d4[,3] <- as.factor(d4[,3])
+  
+  l1 = list(d1,d2, d3, d4)
+  str(l1)
+  qc  <- summarise_list_of_dfs(l1)
+  str(qc)
+  # it has just skipped that variable so this should be good to go
+  # NB if the combination of all the dataframes is too big for RAM then
+  # R will fail. in this case I would
+  # put into a PostgreSQL database as this will use the disk rather than
+  # RAM
+  # this can also be used to add indexes and clustering functions to
+  # speed up the calculations.
+  # HTH, let me know if there is a more efficient R solution?
+  
+  install.packages("data.table")
+  library(data.table)
+  sum_ldf4 <- function(
+    listed=l1
+    ,
+    summarise_fun  = 'sum'
+                       ){
+    d5=do.call('rbind',listed)
+    d5.rnames =rep(rownames(listed[[1]]),times=length(listed))
+    d5 <- d5[sapply(d5, is.numeric)]
+    d5$reg=d5.rnames
+    oper  <- sprintf('), %s(',summarise_fun)
+    todo <- sapply(d5, 'is.numeric')
+    todo <- names(d5)[todo] 
+    sql<-paste("sum(",paste(todo, sep = '', collapse = oper),")", sep = "")
+    #sql
+      
+    DT = data.table(d5)
+    
+    out <-  eval(parse(
+        text = sprintf("DT[,list(%s),by=list(d5$reg)]", sql)
+        ))
+      
+  
+    return(out)
+  }
+  
+  
+  # sqldf
+  o1 <- system.time(qc  <- summarise_list_of_dfs(l1))
+  str(qc)
+  # aggregate
+  o2 <- system.time(d6 <- summarise_list_dfs2(l1))
+  str(d6)
+  # loop
+  o3 <- system.time(d.results  <- summarise_list_dfs3(l1))
+  str(d.results)
+  # data.table
+  o4 <- system.time(datab  <- sum_ldf4(l1))
+  str(datab)
+  
+  # http://zvfak.blogspot.com.au/2011/03/applying-functions-on-groups-sqldf-plyr.html
+  library(gplots)
+  x<-c(o1[3],o2[3],o3[3],o4[3])
+  balloonplot( rep("time.elapsed",5),c("sqldf","aggregate","loop", "data.table"),round(x,1), ylab ="Method", xlab="",sorted=F,dotcolor=rev(heat.colors(5)),main="time.elapsed for different methods") 
+#+end_src
+
+*** COMMENT aggregate-list-of-dfs-asRNW-code
+#+name:aggregate-list-of-dfs-asRNW
+#+begin_src R :session *R* :tangle no :exports none :eval no
+#### name:aggregate-list-of-dfs-asRNW####
+---
+title: "aggregate list of dfs"
+author: "Ivan C Hanigan"
+date: "7/2/2015"
+output: html_document
+---
+
+```{r}
+#### name:aggregate####
+# stoopid hack for lu
+# desc
+"I have a do.call question that perhaps you can answer in 5 seconds... [my brain is leaking... I can't see the solution].
+
+I have a list of data.frames imagine I wanted to sum them up, like d1+d2+... N. If I do that manually the output is a data.frame, but when I use do.call I get one number, and I need a data.frame instead.
+
+Another issues is that some columns have a factor, so I'm planning to wrap my operation into a function with a condition to do the sum if the cell contains a number. Other to skip it.
+so I though of:
+
+foo = function (x) { ifelse(is.numeric(x), sum(x), NA)} #but it doesn't work
+
+This example addressed the issues.
+
+d1 = mtcars
+d2 = d1*2
+
+str(mtcars)
+l1 = list(d1,d2)
+str(l1)
+
+d3 = do.call('sum', l1)
+#> d3
+#[1] 41826.61 # I don't want one number, but a data.frame with the sums.
+
+foo = function (x) { ifelse(is.numeric(x), sum(x), NA)}
+d4 = do.call('foo', l1)
+
+Any help or tip will be welcome!"
+
+# I feel like it should be simple because R can add dataframes
+# but maybe these need to be matrices (because a data.frame is really
+# a list)
+d1 = as.matrix(mtcars)
+d1
+d2 = as.matrix(d1*2)
+d2
+d1 + d2
+# lets make more dfs
+d3 = as.matrix(d2*3)
+d4 = as.matrix(d3*2)
+d1+d2+d3+d4
+# I note that do.call can add two df fine
+l1  <- list(d1, d2)
+out  <- do.call("+", l1)
+str(out)
+out
+# but with multiple no good
+l1 = list(d1,d2, d3, d4)
+str(l1)
+#out  <- do.call("+", l1)
+# when these are dataframes the error is
+## Error in `+`(list(mpg = c(21, 21, 22.8, 21.4, 18.7, 18.1, 14.3, 24.4,  :
+##   unused arguments (list(mpg = c(... blah blah
+# when matrices the error is
+## Error in `+`(c(21, 21, 22.8, 21.4, 18.7, 18.1, 14.3, 24.4, 22.8, 19.2,  :
+##   operator needs one or two arguments
+
+
+# But the lists content are able to be combined if done individually
+out1 <- l1[[1]] + l1[[2]] + l1[[3]] + l1[[4]]
+str(out1)
+out1
+
+# make things interesting
+l1 <- list()
+for(i in 1:1000){
+  #i = 1
+  di  <- iris
+  di[sapply(iris, is.numeric)]  <- iris[sapply(iris, is.numeric)] * sample(rnorm(100,1,2), 1)
+  l1[[i]]  <- di
+}
+str(l1)
+# so we could figure out a way to iterate over the dataframes with a
+# loop like
+## for(i in 1:length(l1)){
+##   if(i == 1){
+##     out2 <- l1[[i]]
+##     next
+##   } else {
+##     out2  <- out2 + l1[[i]]
+##   }
+## }
+# doesn't like factor
+#out2
+# or 
+## d1 <- iris
+## str(d1) # Note pesky factor column
+## d2 <- d1
+## # Only multiply cells that are numeric
+## str(d2[sapply(d2, is.numeric)])
+## d2[sapply(d2, is.numeric)] <- d2[sapply(d2, is.numeric)] * 2
+
+## # Add another data.frame to make it interesting
+## d3 <- d1
+## d3[sapply(d3, is.numeric)] <- d3[sapply(d3, is.numeric)] * 3
+
+
+## l1 = list(d1,d2, d3)
+str(l1)
+
+# Inititalise output dataframe to zero
+
+# Sum data frames
+summarise_list_dfs3 <- function(
+  listed=l1
+  ){
+  d.results <- listed[[1]]
+  d.results[sapply(d.results, is.numeric)] <- 0 
+  for (i in seq_along(listed)){
+    d.results[sapply(d.results, is.numeric)] <-
+      d.results[sapply(d.results, is.numeric)] +
+      listed[[i]][sapply(listed[[i]], is.numeric)]
+  }
+  return(d.results)
+}
+system.time(d.results  <- summarise_list_dfs3(l1))
+str(d.results)
+
+# but we want an elegant solution that will be
+# able to give any number of dataframes, and also have
+# the issue of some variables being factor so not to be used
+
+# let's write some func
+# I like SQL for it's clarity
+library(sqldf)
+# we are basically grouping the values of each row in each df, so add
+# an id
+
+nam <- function(x){
+  x$row_names <- 1:nrow(x)
+  return(x)
+}
+l_df2 <- lapply(l1, nam)
+str(l_df2)
+# now construct some sql and run it.  let's make it flexible for
+# different summarising functions like sum, mean, median, stdev etc
+summarise_list_of_dfs <- function(
+  list_of_dfs = l1
+  ,
+  summarise_fun = 'sum'
+  ,
+  id = 'row_names'
+  ){
+  if(!is.data.frame(list_of_dfs[[1]])) list_of_dfs <- lapply(list_of_dfs, as.data.frame)
+  l_df2 <- lapply(list_of_dfs, nam)
+  x = do.call('rbind.data.frame', l_df2)
+names(x)<-gsub("\\.", "_", names(x))
+  todo <- sapply(x, 'is.numeric')
+  todo <- names(x)[todo]
+  todo <- todo[-which(todo == "row_names")]
+  oper  <- sprintf('), %s(',summarise_fun)
+  sql<-paste("sum(",paste(todo, sep = '', collapse = oper),")", sep = "")
+#sql
+  out<-sqldf(
+  #cat(
+  sprintf("select row_names, %s
+  from x
+  group by row_names
+  order by row_names
+  ", sql)
+  )
+  names(x)<-gsub("_", "\\.", names(x))
+  return(out)
+}
+
+# do
+#l1 <- lapply(l1, as.data.frame)
+
+system.time(qc  <- summarise_list_of_dfs(l1))
+
+str(qc)
+str(out1)
+out1  <- as.data.frame(out1)
+#names(qc)<-names(out1)
+# same?
+#identical(qc, out1)
+# not identical
+#all(qc == out1)
+# all values are equal tho
+
+# compare to base r
+summarise_list_dfs2 <- function(listed){
+  #listed  <- l1
+  d5=do.call('rbind',listed)
+#  str(d5)
+  d5.rnames =rep(rownames(listed[[1]]),times=length(listed))
+  d5$reg=d5.rnames
+  d6 = aggregate(d5[sapply(d5, is.numeric)], by=list(d5$reg), FUN=sum) # I should use an
+                                          # ifelse, to do this only to
+                                          # numeric columns.
+  return(d6)
+}
+system.time(d6 <- summarise_list_dfs2(l1))
+
+str(d6)
+row.names(d6) <- d6$Group.1
+# same?
+#identical(d6, out1[sort(row.names(out1)),])
+# not identical
+#all(
+#  d6[,-c(1)] == out1[sort(row.names(out1)),]
+#  )
+# looks like the integers are equal but not the doubles.
+# but a diff of the two looks same
+
+# now does it work for  mean?
+#qc  <- summarise_list_of_dfs(l1, 'mean')
+# whoops, sql uses 'avg'
+qc  <- summarise_list_of_dfs(l1, 'avg')
+str(qc)
+# and stdev
+qc  <- summarise_list_of_dfs(l1, 'stdev')
+str(qc)
+# this did multiple dataframes, now try with factor variables
+str(l1)
+d1[,3] <- as.factor(d1[,3])
+d2[,3] <- as.factor(d2[,3])
+d3[,3] <- as.factor(d3[,3])
+d4[,3] <- as.factor(d4[,3])
+
+l1 = list(d1,d2, d3, d4)
+str(l1)
+qc  <- summarise_list_of_dfs(l1)
+str(qc)
+# it has just skipped that variable so this should be good to go
+# NB if the combination of all the dataframes is too big for RAM then
+# R will fail. in this case I would
+# put into a PostgreSQL database as this will use the disk rather than
+# RAM
+# this can also be used to add indexes and clustering functions to
+# speed up the calculations.
+# HTH, let me know if there is a more efficient R solution?
+
+#install.packages("data.table")
+library(data.table)
+sum_ldf4 <- function(
+  listed=l1
+  ,
+  summarise_fun  = 'sum'
+                     ){
+  d5=do.call('rbind',listed)
+  d5.rnames =rep(rownames(listed[[1]]),times=length(listed))
+  d5 <- d5[sapply(d5, is.numeric)]
+  d5$reg=d5.rnames
+  oper  <- sprintf('), %s(',summarise_fun)
+  todo <- sapply(d5, 'is.numeric')
+  todo <- names(d5)[todo] 
+  sql<-paste("sum(",paste(todo, sep = '', collapse = oper),")", sep = "")
+  #sql
+    
+  DT = data.table(d5)
+  
+  out <-  eval(parse(
+      text = sprintf("DT[,list(%s),by=list(d5$reg)]", sql)
+      ))
+    
+
+  return(out)
+}
+
+
+# sqldf
+o1 <- system.time(qc  <- summarise_list_of_dfs(l1))
+str(qc)
+# aggregate
+o2 <- system.time(d6 <- summarise_list_dfs2(l1))
+str(d6)
+# loop
+o3 <- system.time(d.results  <- summarise_list_dfs3(l1))
+str(d.results)
+# data.table
+o4 <- system.time(datab  <- sum_ldf4(l1))
+str(datab)
+
+# http://zvfak.blogspot.com.au/2011/03/applying-functions-on-groups-sqldf-plyr.html
+library(gplots)
+x<-c(o1[3],o2[3],o3[3],o4[3])
+balloonplot( rep("time.elapsed",5),c("sqldf","aggregate","loop", "data.table"),round(x,1), ylab ="Method", xlab="",sorted=F,dotcolor=rev(heat.colors(5)),main="time.elapsed for different methods") 
+
+sessionInfo()
+```
+
+
+
+#+end_src
+
 * Graphical User Interfaces
 ** web2py
 
@@ -404,6 +986,11 @@ query can be db.dataset.contact.like('Lach%')
   #### name:timebox####
   # func to calculate time boxes
   timebox <- function(dat_in){
+    # dat_in  <- datin
+    if(
+      !exists("dat_in$end_date")
+      ) dat_in$end_date <- NA
+    # str(dat_in)
     nameslist <- names(dat_in)
     dat_in$effortt <- as.numeric(gsub("[^\\d]+", "", dat_in$effort, perl=TRUE))
     dat_in$effortd <- gsub("d", 1, gsub("[[:digit:]]+", "", dat_in$effort, perl=TRUE))
@@ -411,8 +998,9 @@ query can be db.dataset.contact.like('Lach%')
     dat_in$effortd <- gsub("m", 30.5, dat_in$effortd)
     dat_in$effortd <- as.numeric(dat_in$effortd)
     dat_in$efforti <- dat_in$effortt * dat_in$effortd
-    dat_in[is.na(dat_in$end_date),"end_date"]  <- dat_in[is.na(dat_in$end_date),"start_date"] + dat_in[is.na(dat_in$end_date),"efforti"]
-    #str(dat_in)
+    dat_in[is.na(dat_in$end_date),"end_date"] <- dat_in[is.na(dat_in$end_date),"start_date"] + dat_in[is.na(dat_in$end_date),"efforti"]
+    dat_in$end_date  <- as.Date(dat_in$end_date, '1970-01-01')
+    #   str(dat_in)
     dat_in <- dat_in[,c(nameslist, "efforti")]
     return(dat_in)
   }
@@ -421,24 +1009,25 @@ query can be db.dataset.contact.like('Lach%')
 
 #+RESULTS: timebox
 
-*** PREPROCESS data-code ETL
+*** get_gantt_data-code ETL
 #+name:get_test_data
 #+begin_src R :session *R* :tangle R/get_gantt_data.R :exports none :eval no
-
+  
   library(sqldf)
   library(lubridate)
   library(swishdbtools)
-  if(exists("ch"))  dbDisconnect(ch)
-  ch <- connect2postgres('localhost','gantt_todo', 'w2p_user', p='xpassword')
   
   
   get_gantt_data <- function(
-    con = ch
+    dbname = 'gantt_todo'
     ,
-    test_data = F
-    ){  
+    test_data = T
+    ){
   if(test_data != TRUE){
   #### name:get_test_data####
+  if(exists("ch"))  dbDisconnect(ch)
+  ch <- connect2postgres2(dbname)
+  
   datin  <- dbGetQuery(ch,
   "
   select t1.container_task_title, 
@@ -464,103 +1053,116 @@ query can be db.dataset.contact.like('Lach%')
   datin  <- rbind(datin, datin_done)
   } else {
   # or simpler
-  datin  <- read.csv(textConnection("container_task_title, task_id, allocated, fte, blocker, start_date, effort
-    Container 1, task 0, jim,   1,   ,     2015-01-01, 1m
-    Container 1, task 1, jim,   1,   ,     2015-01-20, 1m
-    Container 1, task 2, bob,   1, task 1,           , 10d 
-    Container 2, task 3, sue,   1,   ,     2015-01-01, 2w
-    Container 2, task 4, jim,   1, task 3,           , 2d
-    Container 3, task 5, jimmy, 1, task 3,           , 10d
-    Container 3, task 6, jimmy, 1,       , 2015-02-01, 10d
-    Container 4, task 7, jimmy, 1, task 0,           , 10d
-    Container 5, task 8, sue,   1,       , 2015-01-14, 5d
-    Container 5, task 9, sue,   1, task 8, , 2d
-    Container 5, task 10, sue,   1, task 9, , 2d
-    Container 5, task 11, sue,   1, task 10, , 2d
-    Container 5, task 12, sue,   1, task 11, , 2d
-    Container 5, task 13, sue,   1, task 12, , 2d
-    Container 5, task 14, sue,   1, task 13, , 2d
+  datin  <- read.csv(textConnection("container_task_title, task_id, allocated, fte, blocker, start_date, effort, status, notes
+    Container 1, task 0, jim,   1,   ,     2015-01-01, 1m  , DONE,  
+    Container 1, task 1, jim,   1,   ,     2015-01-20, 1m  , DONE,  
+    Container 1, task 2, bob,   1, task 1,           , 10d , TODO, This is a note 
+    Container 2, task 3, sue,   1,   ,     2015-01-01, 2w  , TODO,  
+    Container 2, task 4, jim,   1, task 3,           , 2d  , TODO,  
+    Container 3, task 5, jimmy, 1, task 3,           , 10d , TODO,  
+    Container 3, task 6, jimmy, 1,       , 2015-02-01, 10d , TODO,  
+    Container 4, task 7, jimmy, 1, task 0,           , 10d , TODO,  
+    Container 5, task 8, sue,   1,       , 2015-01-14, 5d  , TODO,  
+    Container 5, task 9, sue,   1, task 8, , 2d            , TODO,  
+    Container 5, task 10, sue,   1, task 9, , 2d           , TODO,  
+    Container 5, task 11, sue,   1, task 10, , 2d          , TODO,  
+    Container 5, task 12, sue,   1, task 11, , 2d          , TODO,  
+    Container 5, task 13, sue,   1, task 12, , 2d          , TODO,  
+    Container 5, task 14, sue,   1, task 13, , 2d          , TODO,  
     "),
     stringsAsFactor = F, strip.white = T)
     datin$start_date  <- as.Date(datin$start_date)
     str(datin)
     datin[datin$blocker == "","blocker"] <- NA
-  datin
+  # datin
   }
-  datin <- timebox(datin)
-  datin[1:5,c("task_id","start_date","end_date", "efforti")]
-  str(datin)
-  datin  <- datin[,c('container_task_title','task_id','allocated','fte','start_date','efforti','notes','status','blocker','end_date')]
-  t(datin[1,])
-  #datin
-  # dbSendQuery(ch, "drop table indat")
-  # dbWriteTable(ch, "indat", datin)
   
-  indat <- datin
-  datin_depends <- sqldf("
-  select tab1.container_task_title, tab1.task_id, 
-  'depends on ' || tab1.blocker || ' from Container ' || tab2.container_task_title as depends_on,
-  tab2.end_date as start_date, 
-  tab1.efforti, tab1.status
-  from
-  (
-    select t1.container_task_title,
-    t1.task_id, t1.blocker,
-    t1.start_date,
-    t1.end_date,
-    t1.efforti, t1.status
-    from indat t1
-    where t1.blocker is not null
-    ) tab1
-  join
-  indat tab2
-  on tab1.blocker = tab2.task_id
-  ", drv = "SQLite")
-  # cast(tab2.end_date + (tab1.efforti || ' day')::INTERVAL as date) as
-  # end_date
-  datin_depends[1,]
-  #datin_depends
-  datin_depends$end_date  <- datin_depends$start_date + datin_depends$tab1.efforti
-  names(datin_depends) <- gsub('tab1.', '', names(datin_depends))
-  
-  datin <- sqldf("
-    select t1.container_task_title,
-    t1.task_id, 
-    t1.task_id as depends_on,  
-    t1.start_date,
-    t1.efforti,
-    t1.status,
-    t1.end_date
-    from indat t1
-    where t1.blocker is null or t1.blocker = ''
-    order by container_task_title
-  ", drv = 'SQLite')
-  datin[,1]
-  datin <- rbind(datin, datin_depends)
-  datin[1,]
-  #datin
-  loc  <- sqldf("select container_task_title from datin group by container_task_title", drv = "SQLite")
-  loc$loc  <- nrow(loc):1
-  loc
-  datin <- merge(loc, datin)
-  str(datin)
-  loc
-  dat_out <- as.data.frame(matrix(NA, nrow = 0, ncol = ncol(datin) + 1))
-  #names(qc) <- c(names(datin),"loc2")
-  for(loci in loc$loc){
-  # loci = loc$loc[1]
-  qc <- datin[datin$loc == loci,]
-  qc <- qc[order(qc$start_date),]
-  loc2 <- seq(qc$loc[1]-1, qc$loc[1],  1/(length(qc$loc)))
-  qc$loc2  <- loc2[(length(loc2)):2] 
-  
-  dat_out  <- rbind(dat_out, qc)
-  
+  return(datin)
   }
-  str(dat_out)
-  return(dat_out)
-  }
+
+#+end_src
+
+*** gantt_data_prep-code ETL
+#+name:get_test_data
+#+begin_src R :session *R* :tangle R/gantt_data_prep.R :exports none :eval no
+  
+  gantt_data_prep <- function(
+    dat_in = datin
+    ){
+    dat_in <- timebox(dat_in)
+    dat_in[1:5,c("task_id","start_date","end_date", "efforti")]
+    str(dat_in)
+    dat_in  <- dat_in[,c('container_task_title','task_id','allocated','fte','start_date','efforti','notes','status','blocker','end_date')]
+    t(dat_in[1,])
+    #dat_in
+    # dbSendQuery(ch, "drop table indat")
+    # dbWriteTable(ch, "indat", dat_in)
     
+    indat <- dat_in
+    dat_in_depends <- sqldf("
+    select tab1.container_task_title, tab1.task_id, 
+    'depends on ' || tab1.blocker || ' from Container ' || tab2.container_task_title as depends_on,
+    tab2.end_date as start_date, 
+    tab1.efforti, tab1.status
+    from
+    (
+      select t1.container_task_title,
+      t1.task_id, t1.blocker,
+      t1.start_date,
+      t1.end_date,
+      t1.efforti, t1.status
+      from indat t1
+      where t1.blocker is not null
+      ) tab1
+    join
+    indat tab2
+    on tab1.blocker = tab2.task_id
+    ", drv = "SQLite")
+    # cast(tab2.end_date + (tab1.efforti || ' day')::INTERVAL as date) as
+    # end_date
+    dat_in_depends[1,]
+    #dat_in_depends
+    dat_in_depends$end_date  <- dat_in_depends$start_date + dat_in_depends$tab1.efforti
+    names(dat_in_depends) <- gsub('tab1.', '', names(dat_in_depends))
+    
+    dat_in <- sqldf("
+      select t1.container_task_title,
+      t1.task_id, 
+      t1.task_id as depends_on,  
+      t1.start_date,
+      t1.efforti,
+      t1.status,
+      t1.end_date
+      from indat t1
+      where t1.blocker is null or t1.blocker = ''
+      order by container_task_title
+    ", drv = 'SQLite')
+    dat_in[,1]
+    dat_in <- rbind(dat_in, dat_in_depends)
+    dat_in[1,]
+    #dat_in
+    loc  <- sqldf("select container_task_title from dat_in group by container_task_title", drv = "SQLite")
+    loc$loc  <- nrow(loc):1
+    loc
+    dat_in <- merge(loc, dat_in)
+    str(dat_in)
+    loc
+    dat_out <- as.data.frame(matrix(NA, nrow = 0, ncol = ncol(dat_in) + 1))
+    #names(qc) <- c(names(dat_in),"loc2")
+    for(loci in loc$loc){
+    # loci = loc$loc[1]
+    qc <- dat_in[dat_in$loc == loci,]
+    qc <- qc[order(qc$start_date),]
+    loc2 <- seq(qc$loc[1]-1, qc$loc[1],  1/(length(qc$loc)))
+    qc$loc2  <- loc2[(length(loc2)):2] 
+    
+    dat_out  <- rbind(dat_out, qc)
+    
+    }
+    str(dat_out)
+    return(dat_out)
+    }
+      
 #+end_src
 
 #+RESULTS: get_test_data
@@ -692,13 +1294,17 @@ query can be db.dataset.contact.like('Lach%')
     }
   
     # continuing
+  
     bumped_up <- indat[indat$start_date < focal_date & indat$status != 'DONE',]
+    if(nrow(bumped_up) > 0){
     text(focal_date, bumped_up$loc2 - smidge_lab, labels = bumped_up$task_id, pos = 4,
          cex = cex_detail_labels, col = 'darkred')
+    }
+    if(nrow(bumped_up2) > 0){
     bumped_up2 <- indat[indat$start_date < focal_date & indat$status == 'DONE' & indat$end_date >= focal_date,]
     text(focal_date, bumped_up2$loc2 - smidge_lab, labels = bumped_up2$task_id, pos = 4,
          cex = cex_detail_labels, col = 'grey')
-  
+    }
     
     # overdue
     ## bumped_up <- indat[indat$end_date < focal_date & indat$status != 'DONE',]
@@ -753,11 +1359,13 @@ query can be db.dataset.contact.like('Lach%')
   #### name:test2####
   source("R/timebox.R")
   source("R/get_gantt_data.R")
+  source("R/gantt_data_prep.R")
   source("R/gantt_tufte.r")
-  dat_out <- get_gantt_data(test_data = F)
+  dat_in <- get_gantt_data(test_data = F)
+  dat_out <- gantt_data_prep(dat_in)
   str(dat_out)
     svg("tests/AAPL.svg",height=26,width=18)
-    gantt_tufte(dat_out, focal_date = "2015-01-30", cex_context_ylab = 0.45,
+    gantt_tufte(dat_out, focal_date = "2015-01-10", cex_context_ylab = 0.45,
      min_context_xrange = "2015-01-01", time_box = 7 * 3.5, cex_detail_xlab = .4)
     dev.off()
   
@@ -895,3 +1503,71 @@ query can be db.dataset.contact.like('Lach%')
 #+end_src
 
 #+RESULTS: make_html
+*** COMMENT test2-code
+
+| container_task_title | task_id                      | allocated | fte | blocker               |       start_date | effort | status | notes |
+| no 1                 | Start                        | ivan      |   1 | NA                    |       2015-03-15 |     1d | DONE   | NA    |
+| no 2                 | Repeat MEDLINE search        | ivan      |   1 | Start                 |       2015-03-16 |     5d | TODO   | NA    |
+| no 3                 | Retrieve articles            | ivan      |   1 | Repeat MEDLINE search |               NA |     5d | TODO   | NA    |
+| no 4                 | Read articles                | ivan      |   1 |                       |       2015-03-26 |    10d | TODO   |       |
+| no 5                 | Summarize articles           | ivan      |   1 |                       |       2015-04-06 |     5d | TODO   |       |
+| no 6                 | Write introduction           | ivan      |   1 |                       |       2015-04-11 |     5d | TODO   |       |
+| no 7                 | Write methods                | ivan      |   1 | Start                 |                  |    10d | TODO   |       |
+| no 8                 | Write results                | ivan      |   1 | Start                 |                  |    10d | TODO   |       |
+| no 9                 | Write discussion             | ivan      |   1 | Write results         |                  |    10d | TODO   |       |
+| no 10                | Send to co-author for review | ivan      |   1 | Write discussion      |                  |     2d | TODO   |       |
+| no 11                | Revise draft 1               | ivan      |   1 |                       |       2015-04-30 |    10d | TODO   |       |
+| no 12                | Submit article 1             | ivan      |   1 |                       |   Revise draft 1 |     5d | TODO   |       |
+| no 13                | Revise draft 2               | ivan      |   1 |                       |       2015-05-30 |    10d | TODO   |       |
+| no 14                | Submit article 2             | ivan      |   1 |                       |   Revise Draft 2 |     5d | TODO   |       |
+| no 15                | Accepted                     | ivan      |   1 |                       | Submit article 2 |     1d | TODO   |       |
+
+#+name:test2
+#+begin_src R :session *R* :tangle no :exports none :eval yes
+  #### name:test2####
+  source("R/timebox.R")
+  source("R/gantt_data_prep.R")
+  source("R/gantt_tufte.r")
+  
+  datin  <- read.csv(
+  textConnection("
+  container_task_title  , task_id                      , allocated , fte , blocker               ,       start_date , effort , status , notes 
+  01 Start              , Start                        , ivan      ,   1 , NA                    ,       2015-03-15 ,     1d , DONE   , NA    
+  02 Update Lit Review  , Repeat MEDLINE search        , ivan      ,   1 , Start                 ,       2015-03-16 ,     5d , DONE   , NA    
+  02 Update Lit Review  , Retrieve articles            , ivan      ,   1 , Repeat MEDLINE search ,               NA ,     5d , DONE   , NA    
+  02 Update Lit Review  , Read articles                , ivan      ,   1 ,                       ,       2015-03-26 ,    11d , DONE   ,       
+  02 Update Lit Review  , Summarize articles           , ivan      ,   1 ,                       ,       2015-04-06 ,     9d , TODO   ,       
+  03 Write Draft        , Write introduction           , ivan      ,   1 ,                       ,       2015-04-09 ,     6d , TODO   ,       
+  03 Write Draft        , Write methods                , ivan      ,   1 , Start                 ,                  ,    15d , TODO   ,       
+  03 Write Draft        , Write results                , ivan      ,   1 ,                       ,       2015-03-30 ,    10d , TODO   ,       
+  03 Write Draft        , Write discussion             , ivan      ,   1 ,                       ,       2015-04-15 ,    10d , TODO   ,       
+  04 Internal Review    , Send to co-author for review , ivan      ,   1 , Write discussion      ,                  ,     2d , TODO   ,        
+  04 Internal Review    , Revise draft 1               , ivan      ,   1 ,                       ,       2015-04-19 ,    10d , TODO   ,       
+  05 Peer Review        , Submit article 1             , ivan      ,   1 , Revise draft 1        ,                  ,     5d , TODO   ,       
+  06 Revise and Resubmit, Revise draft 2               , ivan      ,   1 ,                       ,       2015-04-30 ,    10d , TODO   ,       
+  06 Revise and Resubmit, Submit article 2             , ivan      ,   1 , Revise draft 2        ,                  ,     5d , TODO   ,       
+  07 End                , Accepted                     , ivan      ,   1 ,                       ,       2015-05-15 ,     1d , TODO   ,       
+  "),
+  stringsAsFactor = F, strip.white = T)
+  # or 
+  # datin <- get_gantt_data("gantt_todo", test_data = T) # need to
+  # adjust min_context_xrange to 2015-01-01 or something
+  datin$start_date  <- as.Date(datin$start_date)
+  str(datin)
+  datin
+  
+  dat_out <- gantt_data_prep(dat_in = datin)
+  str(dat_out)
+  dat_out
+  #svg("tests/AAPL.svg",height=26,width=18)
+  gantt_tufte(dat_out, focal_date = "2015-04-13", time_box = 3*7,
+              min_context_xrange = "2015-03-16",
+              cex_context_ylab = 0.65, cex_context_xlab = .7,
+              cex_detail_ylab = 0.9,  cex_detail_xlab = .4,
+              show_today = F)
+  #dev.off()
+  
+#+end_src
+
+#+RESULTS: test2
+
