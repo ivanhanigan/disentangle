@@ -1,15 +1,15 @@
 
-reml_boilerplate <- function(.dataframe){
+reml_boilerplate <- function(.dataframe, enumerated = NA){
 strng <- list()
 for(i in 1:ncol(.dataframe)){
-  # i = 6
+# i = 1
   .variable <- names(.dataframe)[i]
   #.dataframe[,.variable]
     if(is.character(.dataframe[ ,.variable])){
       .dataframe[,.variable]  <- factor(.dataframe[,.variable])
     }
 
-  if(is.factor(.dataframe[,.variable])){
+  if(is.factor(.dataframe[,.variable])  & i %in% enumerated){
     x <- .dataframe[,.variable]
     vals <-  names(table(x))
     # symbols may pollute the string to parse
@@ -23,6 +23,12 @@ for(i in 1:ncol(.dataframe)){
     v, ' = c(',
     paste(vals, sep = '', collapse = ' = "TBA",')
     ,' = "TBA")', sep = '')
+  } else if(is.factor(.dataframe[,.variable])){
+    
+    strng[[.variable]] <- paste(
+      .variable, ' = "TBA"', sep = ''
+      )
+
   } else if(is.numeric(.dataframe[,.variable])){
     v <- .variable
     strng[[.variable]] <- paste(v,' = "number"',sep='')
