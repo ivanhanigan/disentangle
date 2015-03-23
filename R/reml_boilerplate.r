@@ -1,59 +1,66 @@
 
-################################################################
-# name:reml_boilerplate
- 
-# func
-## if(!require(EML)) {
-##   require(devtools)
-##   install_github("EML", "ropensci")
-##   } 
-## require(EML)
-
-reml_boilerplate <- function(data_set, outfile = NA, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA)
-{
-
-  # next create a list from the data
-  unit_defs <- list()
-  for(i in 1:ncol(data_set))
-    {
-      # i = 4
-      if(is.numeric(data_set[,i])){
-        unit_defs[[i]] <- "number"
-      } else {
-        unit_defs[[i]] <- names(data_set)[i]
-      }
+reml_boilerplate <- function(.dataframe, enumerated = NA){
+strng <- list()
+for(i in 1:ncol(.dataframe)){
+# i = 1
+  .variable <- names(.dataframe)[i]
+  #.dataframe[,.variable]
+    if(is.character(.dataframe[ ,.variable])){
+      .dataframe[,.variable]  <- factor(.dataframe[,.variable])
     }
 
-# print helpful comments
-cat(
-sprintf('
-# you just got a cheater\'s unit_defs
-# we can get the col names easily
-col_defs <- names(dat)
-# then create a dataset with metadata
-ds <- data.set(dat,
-               col.defs = col_defs,
-               unit.defs = unit_defs
-               )
-# now write EML metadata file
-eml_config(creator="%s")
-eml_write(ds,
-          file = "%s",
-          title = "%s"
-          )
+  if(is.factor(.dataframe[,.variable])  & i %in% enumerated){
+    x <- .dataframe[,.variable]
+    vals <-  names(table(x))
+    # symbols may pollute the string to parse
+    vals <- make.names(vals)
+    vals <- tolower(vals)  
+    vals <- gsub("\\.","_",vals)
+    vals <- gsub("_+","_",vals)    
+    v <- .variable
+    #v
+    strng[[.variable]] <- paste(
+    v, ' = c(',
+    paste(vals, sep = '', collapse = ' = "TBA",')
+    ,' = "TBA")', sep = '')
+  } else if(is.factor(.dataframe[,.variable])){
+    
+    strng[[.variable]] <- paste(
+      .variable, ' = "TBA"', sep = ''
+      )
 
-# now your metadata has been created
-# if you want to add this to morpho and metacat it will needs something like
-</dataFormat>
-  <distribution scope="document">
-    <online>
-      <url function="download">ecogrid://knb/hanigan.34.1</url>
-    </online>
-  </distribution>
-</physical>', created_by, outfile, titl)
-)
+  } else if(is.numeric(.dataframe[,.variable])){
+    v <- .variable
+    strng[[.variable]] <- paste(v,' = "number"',sep='')
+#    strng[[.variable]] <- '"number"'
+    
+  } else if(
+    !all(is.na(as.Date(as.character(na.omit(.dataframe[,.variable])), origin = "1970-01-01")))
+    ){
+    v <- .variable    
+    strng[[.variable]] <- paste(v,' = "YYYY-MM-DD"',sep='')
+#    strng[[.variable]] <- '"YYYY-MM-DD"'
 
+  } else if (all(is.na(.dataframe[ ,.variable]))){
+    v <- .variable        
+    strng[[.variable]] <- paste(v,' = "', names(.dataframe)[i], '"', sep='')
+  }
+}  
+#strng
+strng2 <- ""
+for(n in 1:(length(strng)-1)){
+  strng2 <- paste(strng2, strng[[n]], ",\n")
+}
+strng2 <- paste(strng2, strng[[length(strng)]], "\n")
+#cat(strng2)
+strng3 <- paste("
+unit_metadata =
+  list(",strng2,")", sep = "")
+#cat(strng3)
+eval(parse(text = strng3))
+#unit_metadata
+return(unit_metadata)
+}
 
-  return(unit_defs)
-
- }
+#u1 <- get_vals(analyte)
+#u1
