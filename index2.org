@@ -384,6 +384,37 @@ the same underlying technology to publish data packages.
   # dir("data")
 #+end_src
 
+*** COMMENT reml_boilerplate new test-code
+#+name:reml_boilerplate new test
+#+begin_src R :session *R* :tangle no :exports none :eval no
+#### name:reml_boilerplate new test####
+install.packages("dlnm")
+library(dlnm)
+library(disentangle)
+library(EML)
+
+data(chicagoNMMAPS)
+str(chicagoNMMAPS)
+?chicagoNMMAPS
+data_dictionary(chicagoNMMAPS)
+unit_defs <- reml_boilerplate(chicagoNMMAPS)
+col_defs <- names(chicagoNMMAPS)
+ds <- eml_dataTable(chicagoNMMAPS,
+              col.defs = col_defs,
+              unit.defs = unit_defs,
+              description = "Metadata documentation for chic.csv", 
+              filename = "chic.csv")
+# now write EML metadata file
+eml_config(creator="Antonio Gasparrini
+<antonio.gasparrini@lshtm.ac.uk>")
+eml_write(ds,
+          file = "chic.xml",
+          title = "chicagoNMMAPS"
+)
+
+# now your metadata has been created
+
+#+end_src
 
 * Data Operation
 *** COMMENT aggregate-list-of-dfs

@@ -433,6 +433,10 @@ SELECT ST_GeomFromText('MULTIPOLYGON(((-71.1031880899493 42.3152774590236,
   
   "C:\Program Files\PostgreSQL\8.3\bin\psql" -h ip_address -d weather -U username -c "COPY (select * from schema.table where var = X) TO STDOUT WITH CSV HEADEsR;" > "J:\workdir\filename.csv"
 #+end_src
+
+*** TODO writeOGR to PostGIS
+writeOGR(states, "PG:dbname=geostats", layer_options = "geometry_name=geom", 
+    "states", "PostgreSQL")
 ** THREDDS
 ** 2014-06-19-testing-thredds-server-with-r-code-from-tasmanian-tpac
 #+name:testing-thredds-server-with-r-code-from-tasmanian-tpac-header
