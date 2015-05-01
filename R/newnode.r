@@ -1,7 +1,19 @@
 
 ################################################################
 # name:newnode
-newnode<-function(name, inputs=NA, outputs=character(0), graph = 'nodes', newgraph=F, notes=F, code=NA, ttype=NA, plot = T){
+newnode<-function(
+  name = "name_of_step"
+  ,
+  inputs= c("input_to_step", "input2", "in3", "in4")
+  ,
+  outputs= c("output_from_step", "out2", "out3") # character(0)
+  ,
+  desc = "some (potentially) long descriptive text saying what this step is about and why and how"
+  ,
+  graph = 'nodes', newgraph=F, notes=F, code=NA, ttype=NA, plot = T,
+  rgraphviz = F
+  ){
+  if(rgraphviz = T){
   # USAGE
   # nodes <- newnode(  # adds to a graph called nodes
   # name = 'aquire the raw data'  # the name of the node being added 
@@ -51,4 +63,20 @@ newnode<-function(name, inputs=NA, outputs=character(0), graph = 'nodes', newgra
     plot(nodes,attrs=list(node=list(label="foo", fillcolor="grey",shape="ellipse", fixedsize=FALSE), edge=list(color="black")))
   }
   return(nodes)
+} else {
+  if(nchar(name) > 40) name <- paste(substr(name, 1, 40), "...")
+  if(nchar(desc) > 40) desc <- paste(substr(desc, 1, 40), "[text snipped]...")
+  name2paste <- paste('"', name, '"', sep = "")
+  inputs <- paste('"', inputs, '"', sep = "")
+  inputs_listed <- paste(inputs, name2paste, sep = ' -> ', collapse = "\n")
+  #cat(inputs_listed)
+  outputs <- paste('"', outputs, '"', sep = "")  
+  outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
+  #cat(outputs_listed)
+  str <- sprintf('%s
+%s  [ shape=record, label="{{ { Name | Description } | { %s | %s } }}"] 
+%s', inputs_listed, name2paste, name, desc, outputs_listed
+  )
+  cat(str)
+}
 }
