@@ -2043,7 +2043,7 @@ query can be db.dataset.contact.like('Lach%')
 ** R-newnode
 *** COMMENT R-newnode
 #+name:newnode
-#+begin_src R :session *R* :tangle R/newnode.r :exports none :eval no
+#+begin_src R :session *R* :tangle R/newnode.r :exports none :eval yes
   ################################################################
   # name:newnode
   newnode<-function(
@@ -2110,7 +2110,7 @@ query can be db.dataset.contact.like('Lach%')
     }
     return(nodes)
   } else {
-    if(nchar(name) > 40) name <- paste(substr(name, 1, 40), "...")
+    if(nchar(name) > 40) print("that's a long name.  consider shortening this")
     if(nchar(desc) > 40) desc <- paste(substr(desc, 1, 40), "[text snipped]...")
     name2paste <- paste('"', name, '"', sep = "")
     inputs <- paste('"', inputs, '"', sep = "")
@@ -2121,17 +2121,20 @@ query can be db.dataset.contact.like('Lach%')
     #cat(outputs_listed)
     strng <- sprintf('%s
   %s  [ shape=record, label="{{ { Name | Description } | { %s | %s } }}"] 
-  %s', inputs_listed, name2paste, name, desc, outputs_listed
+  %s\n\n', inputs_listed, name2paste, name, desc, outputs_listed
     )
-    if(exists("graph")) eval(parse(text =
+    if(newgraph == F) eval(parse(text =
                                    sprintf('strng <- paste(%s, strng, "\n")', graph, graph)
                              ))
-    cat(strng)
+    # cat(strng)
     return(strng)
   }
   }
   
 #+end_src
+
+#+RESULTS: newnode
+
 *** test-newnode
 #+name:newnode
 #+begin_src R :session *R* :tangle tests/test-newnode.r :exports reports :eval no
@@ -2218,6 +2221,49 @@ query can be db.dataset.contact.like('Lach%')
   #dev.off();
    
 #+end_src
+*** COMMENT test2-code
+#+name:test2
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:test2####
+  getwd()
+  source("R/newnode.r")
+  newnode
+  rm(nodes)
+  nodes <- newnode("Setup_Data.R", inputs = "data",
+                   outputs = c("stag.data.all.years.df",
+                     "ash.fire.matrix.df",
+                     "stag.data.yyyy.xx.df"), # "Subsets of the data by year and fire type"),
+                   newgraph = T)
+  
+  nodes <- newnode("average number of stags standing per site",
+                   inputs = "stag.data.yyyy.xx.df",
+                   outputs = "ash.no.stags.yyyy.xx"
+                   )
+  
+  nodes <- newnode("variance in the average number of stags per site",
+                   inputs = "stag.data.yyyy.xx.df", 
+                   outputs = "ash.var.no.stags.yyyy.xx"
+                   )
+  nodes <- newnode("compute the number of transitions from form to form",
+                   inputs = "stag.data.yyyy.xx.df",
+                   outputs = "tpm.98.11.xx.coll.ash"
+                   )
+  nodes <- newnode("convert to a probability transition matrix",
+                   inputs = "tpm.98.11.xx.coll.ash",
+                   outputs = "tpm.98.11.xx.coll.ash.per"                 
+                   )
+  nodes <- newnode("frequencies) by form  in 2011 by fire category ",
+                   inputs = "stag.data.2011.xx.df",
+                   outputs = "freq.11.xx.coll.ash"
+                   )
+  sink("test.dot")
+  cat("digraph G {")
+  cat(nodes)
+  cat("}")
+  sink()
+  system("dot -Tpdf test.dot -o test.pdf")
+#+end_src
+
 *** COMMENT TODO man-newnode
 #+name:newnode
 #+begin_src R :session *R* :tangle no :exports none :eval no

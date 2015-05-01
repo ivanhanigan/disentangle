@@ -65,7 +65,7 @@ newnode<-function(
   }
   return(nodes)
 } else {
-  if(nchar(name) > 40) name <- paste(substr(name, 1, 40), "...")
+  if(nchar(name) > 40) print("that's a long name.  consider shortening this")
   if(nchar(desc) > 40) desc <- paste(substr(desc, 1, 40), "[text snipped]...")
   name2paste <- paste('"', name, '"', sep = "")
   inputs <- paste('"', inputs, '"', sep = "")
@@ -76,12 +76,12 @@ newnode<-function(
   #cat(outputs_listed)
   strng <- sprintf('%s
 %s  [ shape=record, label="{{ { Name | Description } | { %s | %s } }}"] 
-%s', inputs_listed, name2paste, name, desc, outputs_listed
+%s\n\n', inputs_listed, name2paste, name, desc, outputs_listed
   )
-  if(exists("graph")) eval(parse(text =
+  if(newgraph == F) eval(parse(text =
                                  sprintf('strng <- paste(%s, strng, "\n")', graph, graph)
                            ))
-  cat(strng)
+  # cat(strng)
   return(strng)
 }
 }
