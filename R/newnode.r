@@ -13,7 +13,7 @@ newnode<-function(
   graph = 'nodes', newgraph=F, notes=F, code=NA, ttype=NA, plot = T,
   rgraphviz = F
   ){
-  if(rgraphviz = T){
+  if(rgraphviz){
   # USAGE
   # nodes <- newnode(  # adds to a graph called nodes
   # name = 'aquire the raw data'  # the name of the node being added 
