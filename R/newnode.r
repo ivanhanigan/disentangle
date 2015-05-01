@@ -10,7 +10,8 @@ newnode<-function(
   ,
   desc = "some (potentially) long descriptive text saying what this step is about and why and how"
   ,
-  graph = 'nodes', newgraph=F, notes=F, code=NA, ttype=NA, plot = T,
+  graph = 'nodes'
+  , newgraph=F, notes=F, code=NA, ttype=NA, plot = T,
   rgraphviz = F
   ){
   if(rgraphviz){
@@ -64,7 +65,7 @@ newnode<-function(
   }
   return(nodes)
 } else {
-  if(nchar(name) > 40) name <- paste(substr(name, 1, 40), "...")
+  if(nchar(name) > 40) print("that's a long name.  consider shortening this")
   if(nchar(desc) > 40) desc <- paste(substr(desc, 1, 40), "[text snipped]...")
   name2paste <- paste('"', name, '"', sep = "")
   inputs <- paste('"', inputs, '"', sep = "")
@@ -73,10 +74,14 @@ newnode<-function(
   outputs <- paste('"', outputs, '"', sep = "")  
   outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
   #cat(outputs_listed)
-  str <- sprintf('%s
+  strng <- sprintf('%s
 %s  [ shape=record, label="{{ { Name | Description } | { %s | %s } }}"] 
-%s', inputs_listed, name2paste, name, desc, outputs_listed
+%s\n\n', inputs_listed, name2paste, name, desc, outputs_listed
   )
-  cat(str)
+  if(newgraph == F) eval(parse(text =
+                                 sprintf('strng <- paste(%s, strng, "\n")', graph, graph)
+                           ))
+  # cat(strng)
+  return(strng)
 }
 }
