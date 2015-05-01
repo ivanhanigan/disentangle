@@ -10,7 +10,8 @@ newnode<-function(
   ,
   desc = "some (potentially) long descriptive text saying what this step is about and why and how"
   ,
-  graph = 'nodes', newgraph=F, notes=F, code=NA, ttype=NA, plot = T,
+  graph = 'nodes'
+  , newgraph=F, notes=F, code=NA, ttype=NA, plot = T,
   rgraphviz = F
   ){
   if(rgraphviz){
@@ -73,10 +74,14 @@ newnode<-function(
   outputs <- paste('"', outputs, '"', sep = "")  
   outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
   #cat(outputs_listed)
-  str <- sprintf('%s
+  strng <- sprintf('%s
 %s  [ shape=record, label="{{ { Name | Description } | { %s | %s } }}"] 
 %s', inputs_listed, name2paste, name, desc, outputs_listed
   )
-  cat(str)
+  if(exists("graph")) eval(parse(text =
+                                 sprintf('strng <- paste(%s, strng, "\n")', graph, graph)
+                           ))
+  cat(strng)
+  return(strng)
 }
 }
