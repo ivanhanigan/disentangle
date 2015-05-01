@@ -2110,8 +2110,8 @@ query can be db.dataset.contact.like('Lach%')
     }
     return(nodes)
   } else {
-    if(nchar(name) > 40) print("that's a long name.  consider shortening this")
-    if(nchar(desc) > 40) desc <- paste(substr(desc, 1, 40), "[text snipped]...")
+    if(nchar(name) > 140) print("that's a long name. consider shortening this")
+    if(nchar(desc) > 140) desc <- paste(substr(desc, 1, 140), "[text snipped]...")
     name2paste <- paste('"', name, '"', sep = "")
     inputs <- paste('"', inputs, '"', sep = "")
     inputs_listed <- paste(inputs, name2paste, sep = ' -> ', collapse = "\n")
