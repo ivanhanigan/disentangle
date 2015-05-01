@@ -2057,7 +2057,8 @@ query can be db.dataset.contact.like('Lach%')
     ,
     graph = 'nodes'
     , newgraph=F, notes=F, code=NA, ttype=NA, plot = T,
-    rgraphviz = F
+    rgraphviz = F,
+    nchar_to_snip = 40
     ){
     if(rgraphviz){
     # USAGE
@@ -2111,7 +2112,7 @@ query can be db.dataset.contact.like('Lach%')
     return(nodes)
   } else {
     if(nchar(name) > 140) print("that's a long name. consider shortening this")
-    if(nchar(desc) > 140) desc <- paste(substr(desc, 1, 140), "[text snipped]...")
+    if(nchar(desc) > nchar_to_snip) desc <- paste(substr(desc, 1, nchar_to_snip), "[text snipped]...")
     name2paste <- paste('"', name, '"', sep = "")
     inputs <- paste('"', inputs, '"', sep = "")
     inputs_listed <- paste(inputs, name2paste, sep = ' -> ', collapse = "\n")
