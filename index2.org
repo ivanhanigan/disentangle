@@ -2040,6 +2040,8 @@ query can be db.dataset.contact.like('Lach%')
 : 1
 
 * Workflow Tools
+
+
 ** R-newnode
 *** COMMENT R-newnode
 #+name:newnode
@@ -2060,7 +2062,28 @@ query can be db.dataset.contact.like('Lach%')
     rgraphviz = F,
     nchar_to_snip = 40
     ){
-    if(rgraphviz){
+    if(rgraphviz == F){
+  
+    if(nchar(name) > 140) print("that's a long name. consider shortening this")
+    if(nchar(desc) > nchar_to_snip) desc <- paste(substr(desc, 1, nchar_to_snip), "[...]")
+    name2paste <- paste('"', name, '"', sep = "")
+    inputs <- paste('"', inputs, '"', sep = "")
+    inputs_listed <- paste(inputs, name2paste, sep = ' -> ', collapse = "\n")
+    #cat(inputs_listed)
+    outputs <- paste('"', outputs, '"', sep = "")  
+    outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
+    #cat(outputs_listed)
+    strng <- sprintf('%s
+  %s  [ shape=record, label="{{ { Name | Description } | { %s | %s } }}"] 
+  %s\n\n', inputs_listed, name2paste, name, desc, outputs_listed
+    )
+    if(newgraph == F) eval(parse(text =
+                                   sprintf('strng <- paste(%s, strng, "\n")', graph, graph)
+                             ))
+    # cat(strng)
+    return(strng)
+  
+    } else {
     # USAGE
     # nodes <- newnode(  # adds to a graph called nodes
     # name = 'aquire the raw data'  # the name of the node being added 
@@ -2110,26 +2133,7 @@ query can be db.dataset.contact.like('Lach%')
       plot(nodes,attrs=list(node=list(label="foo", fillcolor="grey",shape="ellipse", fixedsize=FALSE), edge=list(color="black")))
     }
     return(nodes)
-  } else {
-    if(nchar(name) > 140) print("that's a long name. consider shortening this")
-    if(nchar(desc) > nchar_to_snip) desc <- paste(substr(desc, 1, nchar_to_snip), "[text snipped]...")
-    name2paste <- paste('"', name, '"', sep = "")
-    inputs <- paste('"', inputs, '"', sep = "")
-    inputs_listed <- paste(inputs, name2paste, sep = ' -> ', collapse = "\n")
-    #cat(inputs_listed)
-    outputs <- paste('"', outputs, '"', sep = "")  
-    outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
-    #cat(outputs_listed)
-    strng <- sprintf('%s
-  %s  [ shape=record, label="{{ { Name | Description } | { %s | %s } }}"] 
-  %s\n\n', inputs_listed, name2paste, name, desc, outputs_listed
-    )
-    if(newgraph == F) eval(parse(text =
-                                   sprintf('strng <- paste(%s, strng, "\n")', graph, graph)
-                             ))
-    # cat(strng)
-    return(strng)
-  }
+    }
   }
   
 #+end_src
@@ -2153,8 +2157,9 @@ query can be db.dataset.contact.like('Lach%')
   
   # source("R/newnode.r")
   require(devtools)
-  install_github("disentangle", "ivanhanigan")
-  require(disentangle)
+  #install_github("disentangle", "ivanhanigan")
+  load_all()
+  #require(disentangle)
   newnode(
     name = "NAME"
     ,
@@ -2172,7 +2177,7 @@ query can be db.dataset.contact.like('Lach%')
     ,
     ttype=NA
     ,
-    plot = T
+    plot = T, rgraphviz = F
     )
   
   nodes <- newnode("merge", c("d1", "d2", "d3"), c("EDA"),
@@ -2180,48 +2185,248 @@ query can be db.dataset.contact.like('Lach%')
   nodes <- newnode("qc", c("data1", "data2", "data3"), c("d1", "d2", "d3"))
   nodes <- newnode("modelling", "EDA")
   nodes <- newnode("model checking", "modelling", c("data checking", "reporting"))
+#+end_src
+*** COMMENT test-df-input-code
+#+name:test-df-input
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:test-df-input####
+  library(devtools)
+  load_all()
   #require(disentangle)
   # either edit a spreadsheet with filenames, inputs and outputs 
   # filesList <- read.csv("exampleFilesList.csv", stringsAsFactors = F)
   # or 
-  filesList <- read.csv(textConnection(
-  'FILE,INPUTS,OUTPUTS,DESCRIPTION
-  siteIDs,GPS,,latitude and longitude of sites
-  weather,BoM,,weather data from BoM
-  trapped,siteIDs,,counts of species caught in trap
-  biomass,siteIDs,,
-  corralations,"weather,trapped,biomass",report1,A study we published
-  paper1,report1,"open access repository, data package",
-  '), stringsAsFactors = F)
-  # start the graph
+  filesList <- read.csv(textConnection('
+  CLUSTER ,  FILE         , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
+  A       ,  siteIDs      , GPS                       ,                                        , latitude and longitude of sites  
+  A       ,  weather      , BoM                       ,                                        , weather data from BoM            
+  B       ,  trapped      , siteIDs                   ,                                        , counts of species caught in trap 
+  B       ,  biomass      , siteIDs                   ,                                        ,                                  
+  B       ,  correlations , "weather,trapped,biomass" , report1                                , A study we published             
+  C       ,  paper1       , report1                   , "open access repository, data package" ,                                  
+  '), stringsAsFactors = F, strip.white = T)
+  str(filesList)
+  filesList
+  ## newnode_df <- function(indat, names_col, in_col, out_col, desc_col, clusters_col){
+  ## # start the graph
   i <- 1
-  nodes <- newnode(name = filesList[i,1],
-                   inputs = strsplit(filesList$INPUTS, ",")[[i]],
+  nodes <- newnode(name = indat[i,names_col],
+                   inputs = strsplit(indat[,in_col], ",")[[i]],
                    outputs =
-                   strsplit(filesList$OUTPUTS, ",")[[i]]
+                   strsplit(indat[,out_col], ",")[[i]]
                    ,
                    newgraph=T)
    
-  for(i in 2:nrow(filesList))
+  for(i in 2:nrow(indat))
   {
     # i <- 2
-    if(length(strsplit(filesList$OUTPUTS, ",")[[i]]) == 0)
+    if(length(strsplit(indat[,out_col], ",")[[i]]) == 0)
     {
-      nodes <- newnode(name = filesList[i,1],
-                       inputs = strsplit(filesList$INPUTS, ",")[[i]]
+      nodes <- newnode(name = indat[i,names_col],
+                       inputs = strsplit(indat[,in_col], ",")[[i]]
       )    
     } else {
-      nodes <- newnode(name = filesList[i,1],
-                       inputs = strsplit(filesList$INPUTS, ",")[[i]],
-                       outputs = strsplit(filesList$OUTPUTS, ",")[[i]]
+      nodes <- newnode(name = indat[i,names_col],
+                       inputs = strsplit(indat[,in_col], ",")[[i]],
+                       outputs = strsplit(indat[,out_col], ",")[[i]]
       )
     }
   }
+  
+  help_txt <- c('
+  sink("fileTransformations.dot")
+  cat("digraph G {")
+  cat(nodes)
+  cat("}")
+  sink()
+  system("dot -Tpdf fileTransformations.dot -o fileTransformations.pdf")
+  ')
+  cat(help_txt)
+  ## return(nodes)
+  ## }
+  
+  
+  ## newnode_df <- function(indat, names_col, in_col, out_col, desc_col, clusters_col, graph = 'nodes_list'){
+  ## # start the graph
+  ## i <- 1
+  ## nodes_list <- eval(parse(text=sprintf('newnode(name = indat[i,names_col],
+  ##                  inputs = strsplit(indat[,in_col], ",")[[i]],
+  ##                  outputs =
+  ##                  strsplit(indat[,out_col], ",")[[i]]
+  ##                  ,
+  ##                  newgraph=T, graph = %s)', graph)))
    
-  #dev.copy2pdf(file='fileTransformations.pdf')
-  #dev.off();
-   
+  ## for(i in 2:nrow(indat))
+  ## {
+  ##   # i <- 2
+  ##   if(length(strsplit(indat[,out_col], ",")[[i]]) == 0)
+  ##   {
+  ##     nodes_list <- eval(parse(text=sprintf('newnode(name = indat[i,names_col],
+  ##                      inputs = strsplit(indat[,in_col], ",")[[i]]
+  ##     , graph = %s)',graph)))    
+  ##   } else {
+  ##     nodes_list <- eval(parse(text=sprintf('newnode(name = indat[i,names_col],
+  ##                      inputs = strsplit(indat[,in_col], ",")[[i]],
+  ##                      outputs = strsplit(indat[,out_col], ",")[[i]]
+  ##     , graph = %s)', graph)))
+  ##   }
+  ## }
+  ## cat(nodes_list)
+  ## help_txt <- c('
+  ## sink("fileTransformations.dot")
+  ## cat("digraph G {")
+  ## cat(nodes)
+  ## cat("}")
+  ## sink()
+  ## system("dot -Tpdf fileTransformations.dot -o fileTransformations.pdf")
+  ## ')
+  ## cat(help_txt)
+  ## return(nodes_list)
+  ## }
+  
+  
+  
+  
+  str(filesList)
+  ## undebug(newnode_df)
+  ## nodes <- newnode_df(
+  ## indat = filesList
+  ## ,
+  ## names_col = "FILE"
+  ## ,
+  ## in_col = "INPUTS"
+  ## ,
+  ## out_col = "OUTPUTS"
+  ## ,
+  ## desc_col = "DESCRIPTION"
+  ## ,
+  ## clusters_col = "CLUSTER"
+  ## )
+  cat(nodes)
+  
+  sink("fileTransformations.dot")
+  cat("digraph G {")
+  cat(nodes)
+  cat("}")
+  sink()
+  system("dot -Tpdf fileTransformations.dot -o fileTransformations.pdf")
+  
 #+end_src
+*** COMMENT test-df-input-code2
+#+name:test-df-input
+#+begin_src R :session *R* :tangle no :exports none :eval yes
+  #### name:test-df-input####
+  library(devtools)
+  load_all()
+  filesList <- read.csv(textConnection('
+  CLUSTER ,  FILE    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
+  A  ,  siteIDs      , GPS                       , spatial                                , latitude and longitude of sites  
+  A  ,  weather      , BoM                       , exposures                              , weather data from BoM            
+  B  ,  trapped      , spatial                   , trapped_no                             , counts of species caught in trap 
+  B  ,  biomass      , spatial                   , biomass_g                              ,                                  
+  B  ,  correlations , "exposures,trapped_no,biomass_g" , report1                         , A study we published             
+  C  ,  paper1       , report1                   , "open access repository, data package" ,                                  
+  D  ,  biomass revision, new estimates          , biomass_g                              , this came late
+  '), stringsAsFactors = F, strip.white = T)
+  str(filesList)
+  
+  indat = filesList
+  #,
+  names_col = "FILE"
+  #,
+  in_col = "INPUTS"
+  #,
+  out_col = "OUTPUTS"
+  #,
+  desc_col = "DESCRIPTION"
+  #,
+  clusters_col = "CLUSTER"
+  
+  ## # start the graph
+  rm(nodes)
+  
+  cluster_ids <- names(table(indat[,clusters_col]))
+  cluster_ids
+  for(cluster_i in cluster_ids){
+    #cluster_i <- cluster_ids[1]
+    if(cluster_i == cluster_ids[1]){
+    nodes <- sprintf('subgraph cluster_%s {
+    label = "%s"
+    ', cluster_i, cluster_i)
+    
+  i <- 1
+  nodes <- newnode(name = indat[i,names_col],
+                   inputs = strsplit(indat[,in_col], ",")[[i]],
+                   outputs =
+                   strsplit(indat[,out_col], ",")[[i]]
+                   ,
+                   newgraph=F)
+      } else {
+    nodes <- paste(nodes, sprintf('subgraph cluster_%s {
+    label = "%s"
+    ', cluster_i, cluster_i))
+    }
+  #cat(nodes)
+  indat2 <- indat[indat[,clusters_col] == cluster_i,]
+  indat2
+  
+  if(nrow(indat2) > 2 ){
+  for(i in 2:nrow(indat2)){
+    # i <- 2
+    if(length(strsplit(indat2[,out_col], ",")[[i]]) == 0){
+      nodes <- newnode(name = indat2[i,names_col],
+                       inputs = strsplit(indat2[,in_col], ",")[[i]]
+      )    
+    } else {
+      nodes <- newnode(name = indat2[i,names_col],
+                       inputs = strsplit(indat2[,in_col], ",")[[i]],
+                       outputs = strsplit(indat2[,out_col], ",")[[i]]
+      )
+    }
+  }
+  } else {
+    i <- 1
+    if(length(strsplit(indat2[,out_col], ",")[[i]]) == 0)
+    {
+      nodes <- newnode(name = indat2[i,names_col],
+                       inputs = strsplit(indat2[,in_col], ",")[[i]]
+      )    
+    } else {
+      nodes <- newnode(name = indat2[i,names_col],
+                       inputs = strsplit(indat2[,in_col], ",")[[i]],
+                       outputs = strsplit(indat2[,out_col], ",")[[i]]
+      )
+    }  
+  }
+  
+  
+  nodes <- paste(nodes,"}\n\n")
+  
+  }
+  cat(nodes)
+  help_txt <- c('
+  sink("fileTransformations.dot")
+  cat("digraph G {")
+  cat(nodes)
+  cat("}")
+  sink()
+  system("dot -Tpdf fileTransformations.dot -o fileTransformations.pdf")
+  ')
+  cat(help_txt)
+  cat(nodes)
+  
+  sink("fileTransformations.dot")
+  cat("digraph G {")
+  cat(nodes)
+  cat("}")
+  sink()
+  system("dot -Tpdf fileTransformations.dot -o fileTransformations.pdf")
+  
+#+end_src
+
+#+RESULTS: test-df-input
+: 0
+
 *** COMMENT test2-code
 #+name:test2
 #+begin_src R :session *R* :tangle no :exports none :eval no

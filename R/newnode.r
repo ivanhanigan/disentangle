@@ -15,7 +15,28 @@ newnode<-function(
   rgraphviz = F,
   nchar_to_snip = 40
   ){
-  if(rgraphviz){
+  if(rgraphviz == F){
+
+  if(nchar(name) > 140) print("that's a long name. consider shortening this")
+  if(nchar(desc) > nchar_to_snip) desc <- paste(substr(desc, 1, nchar_to_snip), "[...]")
+  name2paste <- paste('"', name, '"', sep = "")
+  inputs <- paste('"', inputs, '"', sep = "")
+  inputs_listed <- paste(inputs, name2paste, sep = ' -> ', collapse = "\n")
+  #cat(inputs_listed)
+  outputs <- paste('"', outputs, '"', sep = "")  
+  outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
+  #cat(outputs_listed)
+  strng <- sprintf('%s
+%s  [ shape=record, label="{{ { Name | Description } | { %s | %s } }}"] 
+%s\n\n', inputs_listed, name2paste, name, desc, outputs_listed
+  )
+  if(newgraph == F) eval(parse(text =
+                                 sprintf('strng <- paste(%s, strng, "\n")', graph, graph)
+                           ))
+  # cat(strng)
+  return(strng)
+
+  } else {
   # USAGE
   # nodes <- newnode(  # adds to a graph called nodes
   # name = 'aquire the raw data'  # the name of the node being added 
@@ -65,24 +86,5 @@ newnode<-function(
     plot(nodes,attrs=list(node=list(label="foo", fillcolor="grey",shape="ellipse", fixedsize=FALSE), edge=list(color="black")))
   }
   return(nodes)
-} else {
-  if(nchar(name) > 140) print("that's a long name. consider shortening this")
-  if(nchar(desc) > nchar_to_snip) desc <- paste(substr(desc, 1, nchar_to_snip), "[text snipped]...")
-  name2paste <- paste('"', name, '"', sep = "")
-  inputs <- paste('"', inputs, '"', sep = "")
-  inputs_listed <- paste(inputs, name2paste, sep = ' -> ', collapse = "\n")
-  #cat(inputs_listed)
-  outputs <- paste('"', outputs, '"', sep = "")  
-  outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
-  #cat(outputs_listed)
-  strng <- sprintf('%s
-%s  [ shape=record, label="{{ { Name | Description } | { %s | %s } }}"] 
-%s\n\n', inputs_listed, name2paste, name, desc, outputs_listed
-  )
-  if(newgraph == F) eval(parse(text =
-                                 sprintf('strng <- paste(%s, strng, "\n")', graph, graph)
-                           ))
-  # cat(strng)
-  return(strng)
-}
+  }
 }
