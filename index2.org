@@ -2354,23 +2354,36 @@ query can be db.dataset.contact.like('Lach%')
     label = "%s"
     ', cluster_i, cluster_i)
     
-  i <- 1
-  nodes <- newnode(name = indat[i,names_col],
-                   inputs = strsplit(indat[,in_col], ",")[[i]],
-                   outputs =
-                   strsplit(indat[,out_col], ",")[[i]]
-                   ,
-                   newgraph=F)
-      } else {
+    i <- 1
+    nodes <- newnode(name = indat[i,names_col],
+                     inputs = strsplit(indat[,in_col], ",")[[i]],
+                     outputs =
+                     strsplit(indat[,out_col], ",")[[i]]
+                     ,
+                     newgraph=F)
+    } else {
     nodes <- paste(nodes, sprintf('subgraph cluster_%s {
     label = "%s"
     ', cluster_i, cluster_i))
+  
+    #i <- 1
+    if(length(strsplit(indat2[,out_col], ",")[[i]]) == 0){
+      nodes <- newnode(name = indat2[i,names_col],
+                       inputs = strsplit(indat2[,in_col], ",")[[i]]
+      )
+    } else {
+      nodes <- newnode(name = indat2[i,names_col],
+                       inputs = strsplit(indat2[,in_col], ",")[[i]],
+                       outputs = strsplit(indat2[,out_col], ",")[[i]]
+      )
+    }
     }
   #cat(nodes)
+
+
   indat2 <- indat[indat[,clusters_col] == cluster_i,]
   indat2
   
-  if(nrow(indat2) > 2 ){
   for(i in 2:nrow(indat2)){
     # i <- 2
     if(length(strsplit(indat2[,out_col], ",")[[i]]) == 0){
@@ -2384,24 +2397,8 @@ query can be db.dataset.contact.like('Lach%')
       )
     }
   }
-  } else {
-    i <- 1
-    if(length(strsplit(indat2[,out_col], ",")[[i]]) == 0)
-    {
-      nodes <- newnode(name = indat2[i,names_col],
-                       inputs = strsplit(indat2[,in_col], ",")[[i]]
-      )    
-    } else {
-      nodes <- newnode(name = indat2[i,names_col],
-                       inputs = strsplit(indat2[,in_col], ",")[[i]],
-                       outputs = strsplit(indat2[,out_col], ",")[[i]]
-      )
-    }  
-  }
-  
   
   nodes <- paste(nodes,"}\n\n")
-  
   }
   cat(nodes)
   help_txt <- c('
@@ -2427,6 +2424,114 @@ query can be db.dataset.contact.like('Lach%')
 #+RESULTS: test-df-input
 : 0
 
+*** COMMENT test-df-input-code2
+#+name:test-df-input
+#+begin_src R :session *R* :tangle no :exports none :eval yes
+  #### name:test-df-input####
+  library(devtools)
+  load_all()
+  filesList <- read.csv(textConnection('
+  CLUSTER ,  FILE    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
+  A  ,  siteIDs      , GPS                       , spatial                                , latitude and longitude of sites  
+  A  ,  weather      , BoM                       , exposures                              , weather data from BoM            
+  B  ,  trapped      , spatial                   , trapped_no                             , counts of species caught in trap 
+  B  ,  biomass      , spatial                   , biomass_g                              ,                                  
+  B  ,  correlations , "exposures,trapped_no,biomass_g" , report1                         , A study we published             
+  C  ,  paper1       , report1                   , "open access repository, data package" ,                                  
+  D  ,  biomass revision, new estimates          , biomass_g                              , this came late
+  '), stringsAsFactors = F, strip.white = T)
+  str(filesList)
+  
+  indat = filesList
+  #,
+  names_col = "FILE"
+  #,
+  in_col = "INPUTS"
+  #,
+  out_col = "OUTPUTS"
+  #,
+  desc_col = "DESCRIPTION"
+  #,
+  clusters_col = "CLUSTER"
+  
+  ## # start the graph
+  rm(nodes_graph)
+  
+  cluster_ids <- names(table(indat[,clusters_col]))
+  cluster_ids
+  
+  for(cluster_i in cluster_ids){
+    #cluster_i <- cluster_ids[1]
+    indat2 <- indat[indat[,clusters_col] == cluster_i,]
+    indat2
+    
+    if(cluster_i == cluster_ids[1]){
+    nodes_graph <- sprintf('subgraph cluster_%s {
+    label = "%s"
+    ', cluster_i, cluster_i)
+  #cat(nodes_graph)
+  
+    i <- 1
+    nodes_graph <- newnode(name = indat2[i,names_col],
+                       inputs  = strsplit(indat2[,in_col ], ",")[[i]],
+                       outputs = strsplit(indat2[,out_col], ",")[[i]],
+                       graph = nodes_graph,
+                       newgraph = T
+                       )
+    # cat(nodes_graph)
+  
+  if(nrow(indat2) > 1){  
+    for(i in 2:nrow(indat2)){
+    # i <- 2
+    if(length(strsplit(indat2[,out_col], ",")[[i]]) == 0){
+      nodes_graph <- newnode(name = indat2[i,names_col],
+                       inputs = strsplit(indat2[,in_col], ",")[[i]]
+      )    
+    } else {
+      nodes_graph <- newnode(name = indat2[i,names_col],
+                       inputs = strsplit(indat2[,in_col], ",")[[i]],
+                       outputs = strsplit(indat2[,out_col], ",")[[i]]
+      )
+    }
+  }
+  }
+    nodes_graph  <- paste(nodes_graph, "}\n\n")
+  } else {
+    nodes_graph <- paste(nodes_graph, sprintf('subgraph cluster_%s {
+    label = "%s"
+    ', cluster_i, cluster_i))
+  #cat(nodes_graph)
+  if(nrow(indat2) == 1){  
+    i <- 1
+    nodes_graph <- newnode(name = indat2[i,names_col],
+                       inputs  = strsplit(indat2[,in_col ], ",")[[i]],
+                       outputs = strsplit(indat2[,out_col], ",")[[i]],
+                       graph = nodes_graph,
+                       newgraph = F
+                       )
+    # cat(nodes_graph)
+  } else {  
+    for(i in 2:nrow(indat2)){
+    # i <- 2
+    if(length(strsplit(indat2[,out_col], ",")[[i]]) == 0){
+      nodes_graph <- newnode(name = indat2[i,names_col],
+                       inputs = strsplit(indat2[,in_col], ",")[[i]]
+      )    
+    } else {
+      nodes_graph <- newnode(name = indat2[i,names_col],
+                       inputs = strsplit(indat2[,in_col], ",")[[i]],
+                       outputs = strsplit(indat2[,out_col], ",")[[i]]
+      )
+    }
+  }
+  }
+    nodes_graph  <- paste(nodes_graph, "}\n\n")
+  }
+  }
+  cat(nodes_graph)
+  
+  
+#+end_src
 *** COMMENT test2-code
 #+name:test2
 #+begin_src R :session *R* :tangle no :exports none :eval no
