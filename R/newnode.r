@@ -15,7 +15,7 @@ newnode<-function(
   rgraphviz = F,
   nchar_to_snip = 40
   ){
-  if(rgraphviz == F){
+   if(rgraphviz == F){
 
   if(nchar(name) > 140) print("that's a long name. consider shortening this")
   if(nchar(desc) > nchar_to_snip) desc <- paste(substr(desc, 1, nchar_to_snip), "[...]")
