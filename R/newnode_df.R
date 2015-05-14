@@ -1,7 +1,7 @@
 
 #### name:newnode_df####
 
-newnode_df <- function(indat = NA,names_col = "FILE",in_col = "INPUTS",out_col = "OUTPUTS",desc_col = "DESCRIPTION",clusters_col = "CLUSTER",nchar_to_snip = 40){
+newnode_df <- function(indat = NA,names_col = "FILE",in_col = "INPUTS",out_col = "OUTPUTS",desc_col = "DESCRIPTION",clusters_col = "CLUSTER", todo_col = "STATUS", nchar_to_snip = 40){
 
 # start the graph
 cluster_ids <- names(table(indat[,clusters_col]))
@@ -30,6 +30,7 @@ for(cluster_i in cluster_ids){
       inputs <- unlist(lapply(strsplit(indat2[i,in_col], ","), str_trim))
       outputs <- unlist(lapply(strsplit(indat2[i,out_col], ","), str_trim))
       desc <- indat2[i,desc_col]
+      status <- indat2[i,todo_col]
 
       if(nchar(name) > 140) print("that's a long name. consider shortening this")
       if(nchar(desc) > nchar_to_snip) desc <- paste(substr(desc, 1, nchar_to_snip), "[...]")
@@ -41,10 +42,13 @@ for(cluster_i in cluster_ids){
       outputs <- paste('"', outputs, '"', sep = "")  
       outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
       #cat(outputs_listed)
-strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description } | { %s | %s } }}"]\n%s\n\n',
-                 inputs_listed, name2paste, name, desc, outputs_listed
+strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description | Status } | { %s | %s | %s } }}"]\n%s\n\n',
+                 inputs_listed, name2paste, name, desc, status, outputs_listed
                  )
       # cat(strng)
+      if(!status %in% c("DONE", "WONTDO")){ 
+        strng <- gsub("shape=record,", "shape=record, style = \"filled\", color=\"indianred\",", strng)
+      }
       nodes_graph <- paste(nodes_graph, strng, "\n")
       if(nrow(indat2) == 1) break
     }
