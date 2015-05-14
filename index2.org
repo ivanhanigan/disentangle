@@ -2422,8 +2422,10 @@ query can be db.dataset.contact.like('Lach%')
 #+end_src
 
 #+RESULTS: test-df-input
-: 0
-*** COMMENT test2-code
+=0
+==0
+==0
+=*** COMMENT test2-code
 #+name:test2
 #+begin_src R :session *R* :tangle no :exports none :eval no
   #### name:test2####
@@ -2480,7 +2482,7 @@ query can be db.dataset.contact.like('Lach%')
 #+begin_src R :session *R* :tangle R/newnode_df.R :exports none :eval no
   #### name:newnode_df####
   
-  newnode_df <- function(indat = NA,names_col = "FILE",in_col = "INPUTS",out_col = "OUTPUTS",desc_col = "DESCRIPTION",clusters_col = "CLUSTER",nchar_to_snip = 40){
+  newnode_df <- function(indat = NA,names_col = "FILE",in_col = "INPUTS",out_col = "OUTPUTS",desc_col = "DESCRIPTION",clusters_col = "CLUSTER", todo_col = "STATUS", nchar_to_snip = 40){
   
   # start the graph
   cluster_ids <- names(table(indat[,clusters_col]))
@@ -2509,7 +2511,8 @@ query can be db.dataset.contact.like('Lach%')
         inputs <- unlist(lapply(strsplit(indat2[i,in_col], ","), str_trim))
         outputs <- unlist(lapply(strsplit(indat2[i,out_col], ","), str_trim))
         desc <- indat2[i,desc_col]
-  
+        status <- indat2[i,todo_col]
+
         if(nchar(name) > 140) print("that's a long name. consider shortening this")
         if(nchar(desc) > nchar_to_snip) desc <- paste(substr(desc, 1, nchar_to_snip), "[...]")
         name2paste <- paste('"', name, '"', sep = "")
@@ -2520,10 +2523,13 @@ query can be db.dataset.contact.like('Lach%')
         outputs <- paste('"', outputs, '"', sep = "")  
         outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
         #cat(outputs_listed)
-  strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description } | { %s | %s } }}"]\n%s\n\n',
-                   inputs_listed, name2paste, name, desc, outputs_listed
+  strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description | Status } | { %s | %s | %s } }}"]\n%s\n\n',
+                   inputs_listed, name2paste, name, desc, status, outputs_listed
                    )
         # cat(strng)
+        if(!status %in% c("DONE", "WONTDO")){ 
+          strng <- gsub("shape=record,", "shape=record, style = \"filled\", color=\"indianred\",", strng)
+        }
         nodes_graph <- paste(nodes_graph, strng, "\n")
         if(nrow(indat2) == 1) break
       }
@@ -2564,12 +2570,12 @@ query can be db.dataset.contact.like('Lach%')
   ## D  ,  biomass revision, new estimates          , biomass_g                              , this came late
   ## '), stringsAsFactors = F, strip.white = T)
   #write.csv(filesList, "fileTransformations.csv", row.names = F)
-  filesList <- read.csv("fileTransformations.csv", stringsAsFactors = F)
+  filesList <- read.csv("fileTransformations.csv", stringsAsFactors = F, strip.white = T)
   
   str(filesList)
   # filesList
   
-  nodes_graphy <- newnode_df(indat = filesList, names_col = "STEP", in_col = "INPUTS", out_col = "OUTPUTS", desc_col = "DESCRIPTION", clusters_col = "CLUSTER", nchar_to_snip = 40)
+  nodes_graphy <- newnode_df(indat = filesList, names_col = "STEP", in_col = "INPUTS", out_col = "OUTPUTS", desc_col = "DESCRIPTION", clusters_col = "CLUSTER", todo_col = "STATUS", nchar_to_snip = 40)
   
   sink("fileTransformations.dot")
   cat(nodes_graphy)
@@ -2827,5 +2833,74 @@ categories:
 - Create modular code with discrete chunks
 - Write functions as much as possible, put these into a personal 'misc' package
    
+#+end_src
+
+* XML
+** COMMENT review-xml-code
+#+name:review-xml
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:review-xml####
+  require(XML)
+  # first read one without a public access
+  lnk <- "http://www.ltern.org.au/knb/metacat/ltern2.42.44/xml"
+  xmlfile=xmlParse(lnk)
+  xmltop = xmlRoot(xmlfile) 
+  length(names(xmltop[[1]]))
+  
+  names(xmltop[[2]])
+  names(xmltop[[2]]['project']['project'])
+  names(xmltop[[2]]['project'][['project']]) == 'personnel'
+  names(xmltop[[2]]['project'][[1]][[4]])
+  xmltop[[2]]['project'][['project']][[4]]
+  xmltop[[2]]['project'][['project']][[4]][['individualName']]
+  xmltop[[2]]['project'][['project']][[4]][['role']]
+  
+  # the first
+  xmltop[[2]]['project'][['project']][['personnel']][['role']]
+  
+  xmltop[[2]]['contact'][['contact']][['organizationName']]
+  
+  
+  # lnk <- "http://dev.ltern.org.au/knb/metacat/datalibrarian.67/xml"
+   lnk <- "http://dev.ltern.org.au/knb/metacat/ltern2.42/xml"
+  xmlfile=xmlParse(lnk)
+  xpath = xmlRoot(xmlfile)
+  
+  names(xpath)
+  xpath[[1]]
+  names(xpath[[2]])
+  
+  #xpath_dataset <- xpath[['dataset']]
+  xmlValue(xpath[['dataset']][['title']])
+  xpath[['dataset']]['creator']
+  lapply(
+    xpath[['dataset']]['creator']
+    , xmlValue)
+  
+  # http://stackoverflow.com/a/22626191
+  flatten_xml <- function(x) {
+    if (length(xmlChildren(x)) == 0) structure(list(xmlValue(x)), .Names = xmlName(xmlParent(x)))
+    else Reduce(append, lapply(xmlChildren(x), flatten_xml))
+  }
+  
+  dfs <- lapply(getNodeSet(xpath,"//creator"), function(x) data.frame(flatten_xml(x)))
+  allnames <- unique(c(lapply(dfs, colnames), recursive = TRUE))
+  df <- do.call(rbind, lapply(dfs, function(df) { df[, setdiff(allnames,colnames(df))] <- NA; df }))
+  head(df)
+  
+  
+  
+  xpath[['dataset']][['project']]
+  names(xpath[['dataset']][['project']])
+  xpath[['dataset']][['project']][['title']]
+  lapply(xpath[['dataset']][['project']]['personnel'], xmlValue)
+  dfs <- lapply(getNodeSet(xpath,"//personnel"), function(x) data.frame(flatten_xml(x)))
+  allnames <- unique(c(lapply(dfs, colnames), recursive = TRUE))
+  df <- do.call(rbind, lapply(dfs, function(df) { df[, setdiff(allnames,colnames(df))] <- NA; df }))
+  head(df)
+  
+  
+  xmlValue(xpath[['dataset']][['project']][['funding']])
+  
 #+end_src
 
