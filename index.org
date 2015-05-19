@@ -2083,7 +2083,7 @@ http://stackoverflow.com/questions/15686451/dates-from-excel-to-r-platform-depen
   ## Treat data frame as spatial points
   pts <- SpatialPointsDataFrame(cbind(d$V2,d$V3),d,
   proj4string=CRS(epsg$prj4[epsg$code %in% '4283']))
-    
+    # this alternative was from a website  #CRS("+init=epsg:4283"))
   # defin inputs
   datadir <- "data_provided/pr_bg_data_20140612/Data_tables/site_data/"
   flist<-dir(datadir)
