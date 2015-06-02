@@ -66,6 +66,8 @@ newnode(name, inputs = NA, outputs = NA, graph = "nodes", newgraph = F, notes = 
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
+\dontrun{
+
 require(disentangle)
 nodes <- newnode(name = 'aquire the raw data',
                  inputs = c('plan', 'external sources',
@@ -121,6 +123,7 @@ nodes <- newnode(name = 'archive at end of project',
 #dev.copy2pdf(file='transformations_overview.pdf')
 #dev.off();                 
 
+}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
