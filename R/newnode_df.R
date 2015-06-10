@@ -1,4 +1,6 @@
 
+#' @title newnode_df
+#' @name newnode_df
 #' @param indat the input data.frame
 #' @param names_col the name of each edge (the boxes)
 #' @param in_col the name of the nodes that are inputs to each edge with comma seperated vals.  whitespace will be stripped

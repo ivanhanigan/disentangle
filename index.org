@@ -163,21 +163,6 @@ This project is my collection of notes and customised software tools for data ma
   install_github("disentangle", "ivanhanigan")
   require(disentangle)
 #+end_src
-** DESCRIPTION-code
-#+name:DESCRIPTION
-#+begin_src R :session *R* :tangle DESCRIPTION :exports none :eval no :padline no
-Package: Disentangle
-Type: Package
-Title: Disentangle
-Version: 1.2
-Date: 2015-06-10
-Author: ivanhanigan
-Maintainer: <ivan.hanigan@gmail.com>
-Suggests: stringr, ggmap, maps, maptools, rgdal
-Description:  Functions I modified or created.
-License: GPL (>= 2)
-#+end_src
-
 * Test Data
 ** COMMENT blog-test-data-for-classification-trees
 #+name:test-data-for-classification

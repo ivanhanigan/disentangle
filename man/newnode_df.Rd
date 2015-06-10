@@ -2,6 +2,7 @@
 % Please edit documentation in R/newnode_df.R
 \name{newnode_df}
 \alias{newnode_df}
+\title{newnode_df}
 \usage{
 newnode_df(indat = NA, names_col = NA, in_col = NA, out_col = NA,
   desc_col = NA, clusters_col = NA, todo_col = NA, nchar_to_snip = 40)
@@ -23,5 +24,8 @@ newnode_df(indat = NA, names_col = NA, in_col = NA, out_col = NA,
 }
 \value{
 character string object that has the DOT language representatio of the input
+}
+\description{
+newnode_df
 }
 

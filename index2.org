@@ -8,9 +8,9 @@
 * DESCRIPTION-code
 #+name:DESCRIPTION
 #+begin_src R :session *R* :tangle DESCRIPTION :exports none :eval no :padline no
-Package: Disentangle
+Package: disentangle
 Type: Package
-Title: Disentangle
+Title: disentangle
 Version: 1.2
 Date: 2015-06-10
 Author: ivanhanigan
@@ -2663,6 +2663,8 @@ query can be db.dataset.contact.like('Lach%')
 *** COMMENT newnode_df-code
 #+name:newnode_df
 #+begin_src R :session *R* :tangle R/newnode_df.R :exports none :eval no
+  #' @title newnode_df
+  #' @name newnode_df
   #' @param indat the input data.frame
   #' @param names_col the name of each edge (the boxes)
   #' @param in_col the name of the nodes that are inputs to each edge with comma seperated vals.  whitespace will be stripped
