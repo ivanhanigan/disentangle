@@ -4,19 +4,19 @@
 \docType{package}
 \title{disentangle things
 What the package does (short line)
-~~ package title ~~
+
 }
 \description{
 More about what it does (maybe more than one line)
-~~ A concise (1-5 lines) description of the package ~~
+
 }
 \details{
 \tabular{ll}{
 Package: \tab disentangle\cr
 Type: \tab Package\cr
-Version: \tab 1.4.2\cr
-Date: \tab 2014-10-02\cr
-License: \tab What license is it under?\cr
+Version: \tab 1.4.4\cr
+Date: \tab 2015-06-10\cr
+License: \tab GPL (>=2) \cr
 }
 ~~ An overview of how to use the package, including the most important functions ~~
 }
@@ -35,4 +35,6 @@ Maintainer: Who to complain to <yourfault@somewhere.net>
 ~~ Optional links to other man pages, e.g. ~~
 ~~ \code{\link[<pkg>:<pkg>-package]{<pkg>}} ~~
 }
-
+\examples{
+~~ simple examples of the most important functions ~~
+}

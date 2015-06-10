@@ -1,10 +1,10 @@
 Package: disentangle
 Type: Package
-Title: disentangling data tools 
-Version: 1.4.3
-Date: 2015-05-03
+Title: disentangle
+Version: 1.4.4
+Date: 2015-06-10
 Author: ivanhanigan
-Maintainer: Who to complain to <ivan.hanigan@gmail.com>
-Depends: stringr
-Description: disentangle things
+Maintainer: <ivan.hanigan@gmail.com>
+Suggests: stringr, ggmap, maps, maptools, rgdal
+Description:  Functions I modified or created.
 License: GPL (>= 2)
