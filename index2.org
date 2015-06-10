@@ -11,7 +11,7 @@
 Package: disentangle
 Type: Package
 Title: disentangle
-Version: 1.2
+Version: 1.4.4
 Date: 2015-06-10
 Author: ivanhanigan
 Maintainer: <ivan.hanigan@gmail.com>
