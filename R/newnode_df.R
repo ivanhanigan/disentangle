@@ -56,13 +56,14 @@ for(cluster_i in cluster_ids){
       outputs <- paste('"', outputs, '"', sep = "")  
       outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
       #cat(outputs_listed)
+if(!is.na(todo_col)){
+      
+      status <- indat2[i,todo_col]      
+      
 strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description | Status } | { %s | %s | %s } }}"]\n%s\n\n',
                  inputs_listed, name2paste, name, desc, status, outputs_listed
                  )
       # cat(strng)
-if(!is.na(todo_col)){
-      
-      status <- indat2[i,todo_col]      
       if(!status %in% c("DONE", "WONTDO")){ 
         strng <- gsub("shape=record,", "shape=record, style = \"filled\", color=\"indianred\",", strng)
       }
