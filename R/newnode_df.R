@@ -44,7 +44,7 @@ for(cluster_i in cluster_ids){
       inputs <- unlist(lapply(strsplit(indat2[i,in_col], ","), str_trim))
       outputs <- unlist(lapply(strsplit(indat2[i,out_col], ","), str_trim))
       desc <- indat2[i,desc_col]
-      status <- indat2[i,todo_col]
+
 
       if(nchar(name) > 140) print("that's a long name. consider shortening this")
       if(nchar(desc) > nchar_to_snip) desc <- paste(substr(desc, 1, nchar_to_snip), "[...]")
@@ -56,6 +56,10 @@ for(cluster_i in cluster_ids){
       outputs <- paste('"', outputs, '"', sep = "")  
       outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
       #cat(outputs_listed)
+if(!is.na(todo_col)){
+      
+      status <- indat2[i,todo_col]      
+      
 strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description | Status } | { %s | %s | %s } }}"]\n%s\n\n',
                  inputs_listed, name2paste, name, desc, status, outputs_listed
                  )
@@ -63,6 +67,12 @@ strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description | Statu
       if(!status %in% c("DONE", "WONTDO")){ 
         strng <- gsub("shape=record,", "shape=record, style = \"filled\", color=\"indianred\",", strng)
       }
+    } else {
+  
+strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description } | { %s | %s } }}"]\n%s\n\n',
+                 inputs_listed, name2paste, name, desc, outputs_listed
+                 )
+}
       nodes_graph <- paste(nodes_graph, strng, "\n")
       if(nrow(indat2) == 1) break
     }
