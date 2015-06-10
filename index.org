@@ -169,11 +169,11 @@ This project is my collection of notes and customised software tools for data ma
 Package: Disentangle
 Type: Package
 Title: Disentangle
-Version: 1.1
-Date: 2014-03-26
+Version: 1.2
+Date: 2015-06-10
 Author: ivanhanigan
 Maintainer: <ivan.hanigan@gmail.com>
-Depends: ggmap, maps, maptools, rgdal
+Suggests: stringr, ggmap, maps, maptools, rgdal
 Description:  Functions I modified or created.
 License: GPL (>= 2)
 #+end_src
