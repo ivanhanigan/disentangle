@@ -599,6 +599,55 @@ eml_write(ds,
   
 #+end_src
 
+*** COMMENT shapefile_attributes_join-code
+#+name:shapefile_attributes_join
+#+begin_src R :session *shell* :tangle code/shapefile_attributes_join.R :exports none :eval no
+#### name:shapefile_attributes_join ####
+see ramnath
+
+sp@data = data.frame(sp@data, df[match(sp@data[,by], df[,by]),])
+
+#+end_src
+*** COMMENT shapefile_colour_ramp-code
+#+name:shapefile_colour_ramp
+#+begin_src R :session *shell* :tangle code/shapefile_colour_ramp.R :exports none :eval no
+#### name:shapefile_colour_ramp ####
+  # If we wanted to do a colour ramp 
+  ## cls <- -.9 +  (occupancy_grids@data$area.1/(10000*10000))
+  ## cls <- abs(ifelse(is.na(cls), -1, cls))
+  ## cls <- gray(cls)
+  # but we don't, this time just in or out
+  cls<-occupancy_grids@data$area/(10000*10000)
+  cls
+  cls <- ifelse(cls >= 0.01, "lightgrey", "darkgrey")
+  cls <- ifelse(is.na(cls), 'white', cls)
+  cls
+  png("results/B2_occupancy.png")
+  plot(occupancy_grids, col = cls)
+  plot(chull, add = T)
+  plot(ecosystem_current, add = T, border = T, col = 'darkgrey')
+  dev.off()
+
+OR
+http://www.geog.uoregon.edu/GeogR/examples/maps_examples01.htm
+library(RColorBrewer) # creates nice color schemes
+library(classInt)     # finds class intervals for continuous variables
+
+ # equal-frequency class intervals
+plotvar <- orcounty.shp@data$POP1990
+nclr <- 8
+plotclr <- brewer.pal(nclr,"BuPu")
+class <- classIntervals(plotvar, nclr, style="quantile")
+colcode <- findColours(class, plotclr)
+
+plot(orcounty.shp, xlim=c(-124.5, -115), ylim=c(42,47))
+plot(orcounty.shp, col=colcode, add=T)
+title(main="Population 1990",
+    sub="Quantile (Equal-Frequency) Class Intervals")
+legend(-117, 44, legend=names(attr(colcode, "table")),
+    fill=attr(colcode, "palette"), cex=0.6, bty="n")
+
+#+end_src
 
 ** COMMENT aggregate-list-of-dfs
 #+name:aggregate
@@ -1181,6 +1230,161 @@ sessionInfo()
 
 #+end_src
 
+** COMMENT text2columns-code
+#+name:text2columns
+#+begin_src R :session *shell* :tangle no :exports none :eval no
+#### name:text2columns ####
+setwd("/home/ivan_hanigan/Dropbox/projects/air_pollution_ucrh")
+dat <- read.csv("air_pollution_ucrh_data_inventory_files_20150724.csv", stringsAsFactor = F)
+str(dat)
+qc <- dat[dat$v5 == "arcgis mxd", ]
+qclist <- names(table(qc$entity_name))
+qc2  <- strsplit(qclist, "_")
+str(qc2)
+qc2[[3]]
+qc3 <- t(sapply(qc2, '[', 1:max(sapply(qc2, length)))) 
+qc3 <- as.data.frame(qc3)
+names(qc3) <-  paste("V", 1:13, sep = "")
+
+#+end_src
+
+** COMMENT climate-grids-thredds-code
+#+name:climate-grids-thredds
+
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-07-27-climate-grids-and-thredds-server-experimenting-update.md  :exports none :eval no :padline no
+  ---
+  name: climate-grids-and-thredds-server-experimenting-update
+  layout: post
+  title: Web Data, Climate Grids and THREDDS UPDATE
+  date: 2015-07-27
+  categories:
+  - extreme weather events
+  tags:
+  - software
+  ---
+  
+  # Update  
+  - This is an update to my previous post:  [http://ivanhanigan.github.io/2014/12/climate-grids-and-thredds-server-experimenting/](http://ivanhanigan.github.io/2014/12/climate-grids-and-thredds-server-experimenting/)
+  - I was worried about the available metadata with those netcdf data I was working with so contacted Dr Brad Evans at EMAST who set me straight:
+  
+  #### QUOTE:
+      "you need to use ncdf4  - not ncdf  ...
+      because they are netcdf4 files and not netcdf3 files. 
+      This is poorly explained in the R community.
+      All of the netcdf files from Australian providers (AusCover, BoM, etc...) 
+      have been in netcdf4 for a couple of years now."
+  
+  # So here is the revised code using ncdf4 library:
+  
+  #### CODE
+      # sudo apt-get install r-cran-ncdf4 
+      library(ncdf4)
+      library(raster)
+      strt <-'2012-01-01'
+      end <- '2012-01-04'
+      dates <- seq(as.Date(strt),as.Date(end),1)          
+      dates
+      par(mfrow = c(2,2))
+      for(i in 1:length(dates)){
+       # i=1
+        date_i <- dates[i]
+        infile <- sprintf("http://dapds00.nci.org.au/thredds/dodsC/rr9/Climate/eMAST/ANUClimate/0_01deg/v1m0_aus/day/land/tmin/e_01/2012/eMAST_ANUClimate_day_tmin_v1m0_%s.nc", gsub("-", "", date_i))
+       
+        nc <- nc_open(infile)
+        str(nc)
+        print(nc)
+        vals <- ncvar_get(nc, varid="air_temperature")
+        str(vals)
+        nc.att <-    nc$var$air_temperature
+        xmin <- min(nc.att$dim[[1]]$vals)
+        xmax <- max(nc.att$dim[[1]]$vals)
+        ymin <- min(nc.att$dim[[2]]$vals)
+        ymax <- max(nc.att$dim[[2]]$vals)
+       
+        print(c(xmin,xmax))
+        print(c(ymin,ymax))
+       
+        r <- raster(t(vals),
+                    xmn=xmin, xmx=xmax,
+                    ymn=ymin, ymx=ymax)
+        #str(r)
+        plot(r)
+        nc_close(nc)
+      }
+  
+  
+  <p></p>
+  
+  # RESULTS 1: METADATA
+  
+  - the result is I now have a lot more metdata returned to my R workspace
+    
+  #### EXERPT
+      [...]
+      [1] "        licence_copyright: Copyright 2009-2013 ANU. Rights owned by The Australian National University (ANU). Rights licensed subject to TERN  Attribution (TERN-BY)."
+      [1] "        short_desc: Australian coverage, ANUClimate 1.0, 0.01 degree grid, 1970-2012"
+      [1] "        summary: Minimum daily temperature, for the Australian continent between 1970-2012. Daily temperature regulates rates of plant growth and determines critical conditions such as frost on flowering and fruiting. Modelled by expressing each daily value as a difference anomaly with respect to the gridded 1976-2005 mean daily minimum temperature for each month as provided by eMAST_ANUClimate_mmn_tmin_v1m0_1976_2005. The daily anomalies were interpolated by trivariate thin plate smoothing spline functions of longitude, latitude and vertically exaggerated elevation using ANUSPLIN Version 4.5. There was an average of 671 Bureau of Meteorology data points available for each day between 1970 and 2012. Automated quality assessment rejected on average 3 data values per day with extreme studentised residuals. These were commonly associated with days following missing observations. The root mean square of all individual cross validation residuals provided by the spline analysis is 1.5 degrees Celsius. A comprehensive assessment of the analysis and the factors contributing to the quality of the final interpolated daily minimum temperature grids is in preparation."
+      [1] "        long_name: Daily minimum temperature"
+      [1] "        contact: Michael Hutchinson, Professor of spatial and temporal analysis, 3.23A, Fenner School of Environment & Society, College of Medicine, Biology & Environment, Frank Fenner Building 141, Australian National University, Canberra, Australian Capital Territory, 200, Australia, (+61) 2 6125 4783, Michael.Hutchinson@anu.edu.au, http://orcid.org/0000-0001-8205-6689"
+      [1] "        references: 1. Hutchinson, M.F., Mckenney, D.W., Lawrence, K., Pedlar, J., Hopkinson, R., Milewska, E. and Papadopol, P. 2009. Development and testing of Canada-wide interpolated spatial models of daily minimum/maximum temperature and precipitation for 1961-2003. Journal of Applied Meteorology and Climatology 48: 725�741. http://dx.doi.org/10.1175/2008JAMC1979.1 2. Hutchinson, M.F. and Xu, T. 2013. ANUSPLIN version 4.4 User Guide. Fenner School of Environment and Society, Australian National University, Canberra http://fennerschool.anu.edu.au/files/anusplin44.pdf"
+      [1] "        source: ANUClimate 1.0"
+      [1] "        keywords: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC TEMPERATURE > MAXIMUM/MINIMUM TEMPERATURE"
+      [1] "        Conventions: CF-1.6"
+      [1] "        institution: Australian National University"
+      [1] "        geospatial_lat_min: -43.74"
+      [1] "        geospatial_lat_max: -9"
+      [1] "        geospatial_lat_units: degrees_north"
+      [1] "        geospatial_lat_resolution: -0.01"
+      [1] "        geospatial_lon_min: 112.9"
+      [1] "        geospatial_lon_max: 154"
+      [1] "        geospatial_lon_units: degrees_east"
+      [1] "        geospatial_lon_resolution: 0.01"
+      [1] "        keywords_vocabulary: Global Change Master Directory (http://gcmd.nasa.gov)"
+      [1] "        metadata_link: http://datamgt.nci.org.au:8080/geonetwork"
+      [1] "        standard_name_vocabulary: Climate and Forecast(CF) convention standard names (http://cf-pcmdi.llnl.gov/documents/cf-standard-names)"
+      [1] "        id: eMAST_ANUClimate_day_tmin_v1m0_1970_2012"
+      [1] "        DOI: To be added"
+      [1] "        cdm_data_type: grid"
+      [1] "        contributor_name: Michael Hutchinson, Jennnifer Kesteven, Tingbao Xu"
+      [1] "        contributor_role: principalInvestigator, author, author"
+      [1] "        creator_email: eMAST.data@mq.edu.au"
+      [1] "        creator_name: eMAST data manager"
+      [1] "        creator_url: http://www.emast.org.au/"
+      [1] "        Metadata_Conventions: Unidata Dataset Discovery v1.0"
+      [1] "        publisher_name: Ecosystem Modelling and Scaling Infrastructure (eMAST) Facility: Macquarie University"
+      [1] "        publisher_email: eMAST.data@mq.edu.au"
+      [1] "        publisher_url: http://www.emast.org.au/"
+  
+    
+  # RESULTS 2: Grid data  
+  
+  - I still get lots of good data
+  
+  ![images/thredds2.png](images/thredds2.png)
+  
+  <p></p>
+  
+  # NOTE I still need that weird transpose
+  
+  - I note that the weird hacky transpose is still required 
+  
+  #### CODE
+      # NB weird hacky transpose still required or else you get this
+      r <- raster(vals,
+                  xmn=xmin, xmx=xmax,
+                  ymn=ymin, ymx=ymax)
+       
+      #str(r)
+      plot(r)
+  
+  <p></p>
+  
+  ![images/thredds2raw.png](images/thredds2raw.png)
+  
+  
+  
+#+end_src
+
 * Graphical User Interfaces
 ** web2py
 
@@ -1303,6 +1507,9 @@ query can be db.dataset.contact.like('Lach%')
 #+end_src
 
 ** gantt_tufte
+*** EXAMPLES
+/home/ivan_hanigan/projects/asn-ltern.bitbucket.org/ServerDetails/gantt-chart
+
 *** COMMENT R-gantt_tufte_test_data
 #+name:gantt_tufte
 #+begin_src R :session *R* :tangle no :exports none :eval yes
@@ -2848,6 +3055,257 @@ query can be db.dataset.contact.like('Lach%')
   
 #+end_src
 
+** R-newnode_rmd
+*** COMMENT newnode_df-code
+#+name:newnode_rmd
+#+begin_src R :session *R* :tangle R/newnode_rmd.R :exports none :eval no
+  #' @title newnode_rmd
+  #' @name newnode_rmd
+  #' @param indat the input data.frame
+  #' @param names_col the name of each edge (the boxes)
+  #' @param in_col the name of the nodes that are inputs to each edge with comma seperated vals.  whitespace will be stripped
+  #' @param out_col the nodes that are outputs of each edge.
+  #' @param desc_col description
+  #' @param clusters_col optional column identifying clusters
+  #' @param todo_col optional column with TODO status (DONE and WONTDO will be white, others are red)
+  #' @return character string object that has the DOT language representatio of the input
+  newnode_rmd <- function(indat = NA,names_col = NA,in_col = NA,out_col = NA,desc_col = NA,clusters_col = NA, todo_col = NA, nchar_to_snip = 40){
+  if(any(is.na(indat) |
+         is.na(names_col) |
+         is.na(in_col) |
+         is.na(out_col) |
+         is.na(desc_col)
+         )) stop("data or arguments are not supplied")
+  
+    indat2 <- indat
+    nodes_graph  <- ""
+  #  indat2
+      for(i in 1:nrow(indat2)){
+        # i <- 1
+        #i
+        indat2[i,]
+        name <- indat2[i,names_col]
+        desc <- indat2[i,desc_col]
+  
+        #if(nchar(name) > 140) print("that's a long name. consider shortening this")
+        #if(nchar(desc) > nchar_to_snip) desc <- paste(substr(desc, 1, nchar_to_snip), "[...]")
+        name2paste <- paste('', name, ':', sep = "")
+        inputs <- unlist(lapply(strsplit(indat2[i,in_col], ","), str_trim))      
+        inputs <- paste('## inputs\n',
+                        paste("- ", inputs, '\n',
+                                              sep = "", collapse = "")
+                        , collapse = "\n", sep = "")
+  #      cat(inputs)
+  #      inputs_listed <- paste(inputs, name2paste, sep = ' -> ', collapse = "\n")
+        #cat(inputs_listed)
+        outputs <- unlist(lapply(strsplit(indat2[i,out_col], ","), str_trim))
+        outputs <- paste('## outputs\n',
+                        paste("- ", outputs, '\n',
+                                              sep = "", collapse = "")
+                        , collapse = "\n", sep = "")      
+  #      outputs <- paste('"', outputs, '"', sep = "")  
+  #      outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
+  #      cat(outputs)
+  ## if(!is.na(todo_col)){
+  ##   status <- indat2[i,todo_col]
+         
+  ## strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description | Status } | { %s | %s | %s } }}"]\n%s\n\n',
+  ##                  inputs_listed, name2paste, name, desc, status, outputs_listed
+  ##                  )
+  ##       # cat(strng)
+  ##       if(!status %in% c("DONE", "WONTDO")){ 
+  ##         strng <- gsub("shape=record,", "shape=record, style = \"filled\", color=\"indianred\",", strng)
+  ##       }
+  ## } else {
+    
+  strng <- sprintf('# %s\n## Description\n\n%s\n\n%s\n\n%s\n\n',
+                   name2paste,  desc, inputs, outputs
+                   )
+  #cat(strng)
+  #nodes_graph  <- ""      
+        nodes_graph <- paste(nodes_graph, strng, "\n", sep = '')
+  #}
+  }
+  nodes_graph <- paste("---\ntitle: Test report of Workflow
+  author: Ivan Hanigan
+  output:
+    html_document:
+      toc: true
+      theme: united
+      number_sections: yes
+  documentclass: article
+  classoption: a4paper\n---\n",
+                       nodes_graph,
+                       "\n", sep = '')
+  
+  #help_text <- c('# to run this graph
+  #sink("fileTransformations.dot")
+  #cat(nodes_graph)
+  #sink()
+  #system("dot -Tpdf fileTransformations.dot -o fileTransformations.pdf")
+  #')
+  #cat(help_text)
+  return(nodes_graph)
+  }
+  
+#+end_src
+
+*** COMMENT test-df-input-code3
+#+name:test-df-input
+#+begin_src R :session *R* :tangle no :exports none :eval yes
+  #### name:test-df-input####
+  library(devtools)
+  load_all()
+  library(stringr)
+  ## filesList <- read.csv(textConnection('
+  ## CLUSTER ,  FILE    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
+  ## A  ,  siteIDs      , "GPS, helicopter"          , "spatial, site doco"                 , latitude and longitude of sites  
+  ## A  ,  weather      , BoM                       , exposures                              , weather data from BoM            
+  ## B  ,  trapped      , spatial                   , trapped_no                             , counts of species caught in trap 
+  ## B  ,  biomass      , spatial                   , biomass_g                              ,                                  
+  ## B  ,  correlations , "exposures,trapped_no,biomass_g" , report1                         , A study we published             
+  ## C  ,  paper1       , report1                   , "open access repository, data package" ,                                  
+  ## D  ,  biomass revision, new estimates          , biomass_g                              , this came late
+  ## '), stringsAsFactors = F, strip.white = T)
+  #write.csv(filesList, "fileTransformations.csv", row.names = F)
+  filesList <- read.csv("fileTransformations.csv", stringsAsFactors = F, strip.white = T)
+  
+  str(filesList)
+  # filesList
+  
+  nodes_graphy <- newnode_rmd(
+    indat = filesList
+    ,
+    names_col = "STEP"
+    ,
+    in_col = "INPUTS"
+    ,
+    out_col = "OUTPUTS"
+    ,
+    desc_col = "DESCRIPTION"
+    ,
+    clusters_col = "CLUSTER"
+    ,
+    todo_col = NA #"STATUS"
+    ,
+    nchar_to_snip = 40
+    )
+  
+  sink("fileTransformations.Rmd")
+  cat(nodes_graphy)
+  sink()
+  #system("dot -Tpng fileTransformations.dot -o fileTransformations.png")
+  
+#+end_src
+
+** R-newnode_csv
+*** COMMENT newnode_df-code
+#+name:newnode_csv
+#+begin_src R :session *R* :tangle R/newnode_csv.R :exports none :eval no
+  #' @title newnode_csv
+  #' @name newnode_csv
+  #' @param indat the input data.frame
+  #' @param names_col the name of each edge (the boxes)
+  #' @param in_col the name of the nodes that are inputs to each edge with comma seperated vals.  whitespace will be stripped
+  #' @param out_col the nodes that are outputs of each edge.
+  #' @param desc_col description
+  #' @param clusters_col optional column identifying clusters
+  #' @param todo_col optional column with TODO status (DONE and WONTDO will be white, others are red)
+  #' @return character string object that has the DOT language representatio of the input
+  newnode_csv <- function(indat = NA,names_col = NA,in_col = NA,out_col = NA,desc_col = NA,clusters_col = NA, todo_col = NA, nchar_to_snip = 40){
+  if(any(is.na(indat) |
+         is.na(names_col) |
+         is.na(in_col) |
+         is.na(out_col) |
+         is.na(desc_col)
+         )) stop("data or arguments are not supplied")
+  
+    indat2 <- indat
+    nodes_graph  <- as.data.frame(matrix(NA, ncol = 3, nrow = 0))
+    names(nodes_graph) <- c("name", "in_or_out", "value")
+  #  indat2
+      for(i in 1:nrow(indat2)){
+        # i <- 1
+        #i
+        indat2[i,]
+        name <- indat2[i,names_col]
+        desc <- indat2[i,desc_col]
+  
+        #if(nchar(name) > 140) print("that's a long name. consider shortening this")
+        #if(nchar(desc) > nchar_to_snip) desc <- paste(substr(desc, 1, nchar_to_snip), "[...]")
+        name2paste <- paste('', name, '', sep = "")
+        inputs <- data.frame(in_or_out = "input", value = unlist(lapply(strsplit(indat2[i,in_col], ","), str_trim)))
+        
+  #      inputs
+        
+        outputs <- data.frame(in_or_out = "output", value = unlist(lapply(strsplit(indat2[i,out_col], ","), str_trim)))
+  #      outputs
+        inout <- rbind(inputs, outputs)      
+  
+  strng <- data.frame(name = name2paste,                    
+                      inout = inout
+                   )
+  strng
+        names(strng) <- c("name", "in_or_out", "value")
+  #nodes_graph  <- ""      
+        nodes_graph <- rbind(nodes_graph, strng)
+  #}
+  }
+  #nodes_graph
+  return(nodes_graph)
+  }
+  
+#+end_src
+
+*** COMMENT test-df-input-code3
+#+name:test-df-input
+#+begin_src R :session *R* :tangle no :exports none :eval yes
+  #### name:test-df-input####
+  library(devtools)
+  load_all()
+  library(stringr)
+  ## filesList <- read.csv(textConnection('
+  ## CLUSTER ,  FILE    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
+  ## A  ,  siteIDs      , "GPS, helicopter"          , "spatial, site doco"                 , latitude and longitude of sites  
+  ## A  ,  weather      , BoM                       , exposures                              , weather data from BoM            
+  ## B  ,  trapped      , spatial                   , trapped_no                             , counts of species caught in trap 
+  ## B  ,  biomass      , spatial                   , biomass_g                              ,                                  
+  ## B  ,  correlations , "exposures,trapped_no,biomass_g" , report1                         , A study we published             
+  ## C  ,  paper1       , report1                   , "open access repository, data package" ,                                  
+  ## D  ,  biomass revision, new estimates          , biomass_g                              , this came late
+  ## '), stringsAsFactors = F, strip.white = T)
+  #write.csv(filesList, "fileTransformations.csv", row.names = F)
+  filesList <- read.csv("fileTransformations.csv", stringsAsFactors = F, strip.white = T)
+  
+  str(filesList)
+  # filesList
+  
+  nodes_graphy <- newnode_csv(
+    indat = filesList
+    ,
+    names_col = "STEP"
+    ,
+    in_col = "INPUTS"
+    ,
+    out_col = "OUTPUTS"
+    ,
+    desc_col = "DESCRIPTION"
+    ,
+    clusters_col = "CLUSTER"
+    ,
+    todo_col = NA #"STATUS"
+    ,
+    nchar_to_snip = 40
+    )
+  
+  #sink("fileTransformations.Rmd")
+  cat(nodes_graphy)
+  #sink()
+  #system("dot -Tpng fileTransformations.dot -o fileTransformations.png")
+  
+#+end_src
+
+    
 ** 2013-11-25-setting-up-a-workflow-script
 #+name:project-template-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-25-setting-up-a-workflow-with-code-chunks.md :exports none :eval no :padline no
@@ -3168,3 +3626,343 @@ categories:
   
 #+end_src
 
+* Reproducible Research Reports
+** headers
+#+begin_src R :session *R* :tangle main.Rmd :exports none :eval no :padline no
+  ---
+  title: "orgmode tests"
+  author: Ivan C. Hanigan
+  output:
+    html_document:
+      toc: true
+      theme: united
+      number_sections: yes    
+    pdf_document:
+      toc: true
+      toc_depth: 3
+      highlight: zenburn
+      keep_tex: true
+      number_sections: no        
+  documentclass: article
+  classoption: a4paper
+  csl: mee.csl
+  bibliography: references.bib
+  ---
+  
+  ```{r echo = F, eval=F, results="hide"}
+#+end_src
+** run-able R
+#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no :padline no
+
+  library(rmarkdown)
+  library(knitr)
+  library(knitcitations)
+  library(bibtex)
+  cleanbib()
+  cite_options(citation_format = "pandoc", check.entries=FALSE) 
+  rmarkdown::render("main.Rmd", "html_document")
+
+#+end_src
+** perhaps tangle out pure R
+#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no :padline no
+  ```
+  ```{r echo = F, eval=F, results="hide"}  
+  # to tangle chunks even when eval = F use this (with eval=F)
+  library(knitr)
+  knit_hooks$set(purl = function(before, options) {
+    if (before) return()
+    input  = current_input()  # filename of input document
+    output = paste(tools::file_path_sans_ext(input), 'R', sep = '.')
+    if (knitr:::isFALSE(knitr:::.knitEnv$tangle.start)) {
+      assign('tangle.start', TRUE, knitr:::.knitEnv)
+      unlink(output)
+    }
+    cat(options$code, file = output, sep = '\n', append = TRUE)
+  })
+  
+  ```  
+#+end_src
+** bib
+#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no :padline no
+  
+  ```{r, echo = F, results = 'hide'}
+  # load
+  if(!exists("bib")){
+  bib <- read.bibtex("~/references/library.bib")
+  }
+  ```
+  
+#+end_src
+
+** Introduction
+*** intro
+#+name:intro
+#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no :padline yes 
+# Intro
+This is the thing `r citep(     bib[["Hsiang2011"]])`.
+This is another thing `r citep( bib[["Hanigan2012"]])`.
+
+# section
+
+#+end_src
+
+** COMMENT bib-code
+#+name:bib
+#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no
+
+  **References**
+
+  ```{r, echo=FALSE, message=FALSE, eval = T}
+  write.bibtex(file="references.bib")
+  ```
+  
+#+end_src
+
+** footnotes in markdown
+http://nancym.tumblr.com/post/59594358553/links-footnotes-and-abbreviations-in-markdown
+This is needed provide the trust that a data
+  analysis was appropriately conducted and avoided errors of execution,
+  or methodogical design [^comerrmeth].
+
+[^comermeth]: the footnote
+* Blogging
+*** COMMENT blog-code
+#+name:blog
+#+begin_src sh :session *shell* :tangle no :exports none :eval yes
+#### name:blog ####
+cd ~/projects/ivanhanigan.github.com.raw
+jekyll b
+cp -r ~/projects/ivanhanigan.github.com.raw/_site/* ~/projects/ivanhanigan.github.com
+cd ~/projects/ivanhanigan.github.com
+jekyll serve
+#cd ~/
+#./.bash_profile
+#bb
+
+#+end_src
+
+#+RESULTS: blog
+|                                                              |                                                              |                     |                                                                    |            |           |         |                         |      |     |             |
+| ivan_hanigan@jadehawk:~/projects/ivanhanigan.github.com.raw$ | Configuration                                                | file:               | /home/ivan_hanigan/projects/ivanhanigan.github.com.raw/_config.yml |            |           |         |                         |      |     |             |
+| Source:                                                      | /home/ivan_hanigan/projects/ivanhanigan.github.com.raw       |                     |                                                                    |            |           |         |                         |      |     |             |
+| Destination:                                                 | /home/ivan_hanigan/projects/ivanhanigan.github.com.raw/_site |                     |                                                                    |            |           |         |                         |      |     |             |
+| Generating...                                                |                                                              |                     |                                                                    |            |           |         |                         |      |     |             |
+| [33m                                                       | Build                                                        | Warning:            | Layout                                                             | 'nil'      | requested | in      | atom.xml                | does | not | exist.[0m |
+| [33m                                                       | Build                                                        | Warning:            | Layout                                                             | 'nil'      | requested | in      | entries.xml             | does | not | exist.[0m |
+| [33m                                                       | Build                                                        | Warning:            | Layout                                                             | 'rss-feed' | requested | in      | feed.xml                | does | not | exist.[0m |
+| [33m                                                       | Build                                                        | Warning:            | Layout                                                             | 'nil'      | requested | in      | feed/index.xml          | does | not | exist.[0m |
+| done.                                                        |                                                              |                     |                                                                    |            |           |         |                         |      |     |             |
+| Auto-regeneration:                                           | disabled.                                                    | Use                 | --watch                                                            | to         | enable.   |         |                         |      |     |             |
+| ivan_hanigan@jadehawk:~/projects/ivanhanigan.github.com.raw$ | ivan_hanigan@jadehawk:~/projects/ivanhanigan.github.com$     | [33mConfiguration | file:                                                              | none[0m  |           |         |                         |      |     |             |
+| Source:                                                      | /home/ivan_hanigan/projects/ivanhanigan.github.com           |                     |                                                                    |            |           |         |                         |      |     |             |
+| Destination:                                                 | /home/ivan_hanigan/projects/ivanhanigan.github.com/_site     |                     |                                                                    |            |           |         |                         |      |     |             |
+| Generating...                                                |                                                              |                     |                                                                    |            |           |         |                         |      |     |             |
+| [33m                                                       | Build                                                        | Warning:            | Layout                                                             | 'default'  | requested | in      | data-doco.md            | does | not | exist.[0m |
+| [33m                                                       | Build                                                        | Warning:            | Layout                                                             | 'default'  | requested | in      | energymark.md           | does | not | exist.[0m |
+| [33m                                                       | Build                                                        | Warning:            | Layout                                                             | 'default'  | requested | in      | pumilio-bushfm-index.md | does | not | exist.[0m |
+| done.                                                        |                                                              |                     |                                                                    |            |           |         |                         |      |     |             |
+| Auto-regeneration:                                           | enabled                                                      | for                 | '/home/ivan_hanigan/projects/ivanhanigan.github.com'               |            |           |         |                         |      |     |             |
+| [33mConfiguration                                          | file:                                                        | none[0m           |                                                                    |            |           |         |                         |      |     |             |
+| jekyll                                                       | 2.5.2                                                        |                     |                                                                    | Error:     | Address   | already | in                      | use  | 0   | bind(2)     |
+
+* bibliometrics
+*** COMMENT gscraper-func-code
+#+name:gscraper-func
+#+begin_src R :session *R* :tangle no :exports none :eval yes
+  #### name:gscraper-func ####
+  # File-Name: GScholarScraper_3.1.R
+  # Date: 2012-08-22
+  # Author: Kay Cichini
+  # Email: kay.cichini@gmail.com
+  # Purpose: Scrape Google Scholar search result
+  # Packages used: XML
+  # Licence: CC BY-SA-NC
+  #
+  # Arguments:
+  # (1) input:
+  # A search string as used in Google Scholar search dialog
+  #
+  # (2) write:
+  # Logical, should a table be writen to user default directory?
+  # if TRUE ("T") a CSV-file with hyperlinks to the publications will be created.
+  #
+  # Difference to version 3:
+  # (3) added "since" argument - define year since when publications should be returned..
+  # defaults to 1900..
+  #
+  # (4) added "citation" argument - logical, if "0" citations are included
+  # defaults to "1" and no citations will be included..
+  # added field "YEAR" to output 
+  #
+  # Caveat: if a submitted search string gives more than 1000 hits there seem
+  # to be some problems (I guess I'm being stopped by Google for roboting the site..)
+  #
+  # And, there is an issue with this error message:
+  # > Error in htmlParse(URL): 
+  # > error in creating parser for http://scholar.google.com/scholar?q
+  # I haven't figured out his one yet.. most likely also a Google blocking mechanism..
+  # Reconnecting / new IP-address helps..
+  
+  
+  GScholar_Scraper <- function(input, since = 1900, write = F, citation = 1) {
+  
+      require(XML)
+  
+      # putting together the search-URL:
+      URL <- paste("http://scholar.google.com/scholar?q=", input, "&as_sdt=1,5&as_vis=", 
+                   citation, "&as_ylo=", since, sep = "")
+      cat("\nThe URL used is: ", "\n----\n", paste("* ", "http://scholar.google.com/scholar?q=", input, "&as_sdt=1,5&as_vis=", 
+                   citation, "&as_ylo=", since, " *", sep = ""))
+      
+      # get content and parse it:
+      doc <- htmlParse(URL)
+      
+      # number of hits:
+      h1 <- xpathSApply(doc, "//div[@id='gs_ab_md']", xmlValue)
+      h2 <- strsplit(h1, " ")[[1]][2] 
+      num <- as.integer(sub("[[:punct:]]", "", h2))
+      cat("\n\nNumber of hits: ", num, "\n----\n", "If this number is far from the returned results\nsomething might have gone wrong..\n\n", sep = "")
+      
+      # If there are no results, stop and throw an error message:
+      if (num == 0 | is.na(num)) {
+          stop("\n\n...There is no result for the submitted search string!")
+      }
+      
+      pages.max <- ceiling(num/100)
+      
+      # 'start' as used in URL:
+      start <- 100 * 1:pages.max - 100
+      
+      # Collect URLs as list:
+      URLs <- paste("http://scholar.google.com/scholar?start=", start, "&q=", input, 
+                    "&num=100&as_sdt=1,5&as_vis=", citation, "&as_ylo=", since, sep = "")
+      
+      scraper_internal <- function(x) {
+          
+          doc <- htmlParse(x, encoding="UTF-8")
+          
+          # titles:
+          tit <- xpathSApply(doc, "//h3[@class='gs_rt']", xmlValue)
+          
+          # publication:
+          pub <- xpathSApply(doc, "//div[@class='gs_a']", xmlValue)
+          
+          # links:
+          lin <- xpathSApply(doc, "//h3[@class='gs_rt']/a", xmlAttrs)
+          
+          # summaries are truncated, and thus wont be used..  
+          # abst <- xpathSApply(doc, '//div[@class='gs_rs']', xmlValue)
+          # ..to be extended for individual needs
+          options(warn=(-1))
+          dat <- data.frame(TITLES = tit, PUBLICATION = pub, 
+                            YEAR = as.integer(gsub(".*\\s(\\d{4})\\s.*", "\\1", pub)),
+                            LINKS = lin)
+          options(warn=0)
+          return(dat)
+      }
+  
+      result <- do.call("rbind", lapply(URLs, scraper_internal))
+      if (write == T) {
+        result$LINKS <- paste("=Hyperlink(","\"", result$LINKS, "\"", ")", sep = "")
+        write.table(result, "GScholar_Output.CSV", sep = ";", 
+                    row.names = F, quote = F)
+        shell.exec("GScholar_Output.CSV") 
+        } else {
+        return(result)
+      }
+  }
+#+end_src
+
+#+RESULTS: gscraper-func
+
+*** COMMENT gscraper-code
+#+name:gscraper
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:gscraper ####
+  
+  # EXAMPLES:
+  # 1:
+  input <- "intitle:metapopulation"
+  df <- GScholar_Scraper(input, since = 1980, citation = 1)
+  nrow(df)
+  hist(df$YEAR, xlab = "Year", 
+       main = "Frequency of Publications with\n\"METAPOPULATION\" in Title")
+  # 2:
+  input <- "Suicide and Drought"
+  rm(df)
+  df  <-  GScholar_Scraper(input, since = 2006, citation = 1)
+  nrow(df)
+  str(df)
+  df[[1]][1]
+  # 3:
+  input <- "allintitle:ziggy stardust"
+  GScholar_Scraper(input, write = T)
+  # 4: ERROR with message:
+  input <- "allintitle:crazyshit"
+  GScholar_Scraper(input)
+  # 5: CAVEAT, Google blocks automated requests at about the 1000th hit:
+  input <- "metapopulation"
+  df <- GScholar_Scraper(input, since = 1980)
+  nrow(df)
+  
+  # 6: this also leads to this error for example no. 1,
+  # because when including citations (.., citation = 0) 1000 hits are exceeded, 
+  # Google blocks and dataframe generation is not working..
+  input <- "intitle:metapopulation"
+  df <- GScholar_Scraper(input, since = 1980, citation = 0)
+  
+  
+#+end_src
+* Writing
+** One-pager
+focus
+down *(mgmnt)
+out (clients)
+
+whoami, establish credentials
+what
+why
+Actions
+when
+what I need
+implications
+
+1 issue (one line)
+2 Analysis (history, backghround, one paragraph) refer to other docs or conversations)
+3 options or dimensions (list of all possible options. alternateives, one paragraph per option
+4 suggrestion/request one sentence or short para
+5 timing one sentence
+
+name (date)
+
+dots are great
+** SI emails
+The SI Rules
+
+1    Try to send no more than one email a day. 
+2    Emails should be 3 sentences or less. Better if you can get the whole email in the subject line. 
+3    If you need information, ask yes or no questions whenever possible. Never ask a question that requires a full sentence response.
+4    When something is time sensitive, state the action you will take if you don’t get a response by a time you specify. 
+5    Be as specific as you can while conforming to the length requirements. 
+6    Bonus: include obvious keywords people can use to search for your email. 
+
+eg
+Example 1
+
+Subject: Is my response to reviewer 2 ok with you?
+
+Body: I’ve attached the paper/responses to referees.
+
+Example 2
+
+Subject: Can you send my letter of recommendation to john.doe@someplace.com?
+
+Body:
+
+Keywords = recommendation, Jeff, John Doe.
+
+Example 3
+
+Subject: I revised the draft to include your suggestions about simulations and language
+
+Revisions attached. Let me know if you have any problems, otherwise I’ll submit Monday at 2pm. 
