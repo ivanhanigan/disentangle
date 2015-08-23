@@ -1,20 +1,17 @@
 
 #' @title variable_names_and_labels
 #' @name variable names and labels
-#' @param infile the full pathname
-#' @param datadict a dd object (optional will be created if needed)
+#' @param datadict a dd object (optional)
+#' @param infile the full pathname (optional)
+#' @param orig_names the original names (optional)
 #' @param insert_labels T/F if the output should summarise the value labels
 
-variable_names_and_labels <- function(infile, datadict = NULL, insert_labels = FALSE){
-# NB dont allow mismatch between orig and dd
-if(!is.null(datadict)){  
-variable_names <- read.csv(infile, nrows = 1, header = F, stringsAsFactors = F)
-} else {
+variable_names_and_labels <- function(datadict = NULL, infile = NULL, orig_names=NULL, insert_labels = FALSE){
+  
+if(is.null(datadict)){  
 dat <- read.csv(infile, stringsAsFactors =  F)
-variable_names  <- names(dat)
 datadict <- data_dictionary(dat)
 }
-# variable_names
 
 #### now get variable names as they appear in the dd ####
 datadict$ordering <- 1:nrow(datadict)
@@ -25,15 +22,20 @@ group by Variable, Type
 order by ordering
 ", drv = "SQLite")
 col_defs <- col_defs[col_defs$Variable != "",]
-#col_defs
-
-vl <- as.data.frame(cbind(col_defs,t(variable_names[1,])))
-names(vl) <- c("variable_name", "simple_type", "original_name")
+# col_defs
+# orig_names
+if(!is.null(orig_names)){
+  vl <- as.data.frame(cbind(col_defs,orig_names))
+  names(vl) <- c("variable_name", "simple_type", "original_name")
+} else {
+  vl <- col_defs
+}
+# vl
 vl$description <- ""
-vl$nominal_ordinal_interval_ratio_date_time <- ""
+vl$nominal_ordinal_interval_ratio_datetime <- ""
 vl$unit_of_measurement <- ""
 vl$value_labels <- ""
-vl$issue_description_and_suggested_change <- ""
+vl$issue_description <- ""
 vl$depositor_response <- ""
 # it is easy in a spreadsheet to add the value labels but an
 # automation approach is here
