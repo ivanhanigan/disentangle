@@ -645,20 +645,17 @@ eml_write(ds,
 #+begin_src R :session *R* :tangle R/variable_names_and_labels.r :exports none :eval no
   #' @title variable_names_and_labels
   #' @name variable names and labels
-  #' @param infile the full pathname
-  #' @param datadict a dd object (optional will be created if needed)
+  #' @param datadict a dd object (optional)
+  #' @param infile the full pathname (optional)
+  #' @param orig_names the original names (optional)
   #' @param insert_labels T/F if the output should summarise the value labels
   
-  variable_names_and_labels <- function(infile, datadict = NULL, insert_labels = FALSE){
-  # NB dont allow mismatch between orig and dd
-  if(!is.null(datadict)){  
-  variable_names <- read.csv(infile, nrows = 1, header = F, stringsAsFactors = F)
-  } else {
+  variable_names_and_labels <- function(datadict = NULL, infile = NULL, orig_names=NULL, insert_labels = FALSE){
+    
+  if(is.null(datadict)){  
   dat <- read.csv(infile, stringsAsFactors =  F)
-  variable_names  <- names(dat)
   datadict <- data_dictionary(dat)
   }
-  # variable_names
   
   #### now get variable names as they appear in the dd ####
   datadict$ordering <- 1:nrow(datadict)
@@ -669,15 +666,20 @@ eml_write(ds,
   order by ordering
   ", drv = "SQLite")
   col_defs <- col_defs[col_defs$Variable != "",]
-  #col_defs
-  
-  vl <- as.data.frame(cbind(col_defs,t(variable_names[1,])))
-  names(vl) <- c("variable_name", "simple_type", "original_name")
+  # col_defs
+  # orig_names
+  if(!is.null(orig_names)){
+    vl <- as.data.frame(cbind(col_defs,orig_names))
+    names(vl) <- c("variable_name", "simple_type", "original_name")
+  } else {
+    vl <- col_defs
+  }
+  # vl
   vl$description <- ""
-  vl$nominal_ordinal_interval_ratio_date_time <- ""
+  vl$nominal_ordinal_interval_ratio_datetime <- ""
   vl$unit_of_measurement <- ""
   vl$value_labels <- ""
-  vl$issue_description_and_suggested_change <- ""
+  vl$issue_description <- ""
   vl$depositor_response <- ""
   # it is easy in a spreadsheet to add the value labels but an
   # automation approach is here
@@ -719,28 +721,41 @@ eml_write(ds,
   # or
   load_all()
   
-  
   fpath <- "inst/extdata/civst_gend_sector_additional_variables.csv"
+  # or
   fpath <- "inst/extdata/civst_gend_sector.csv"
   fpath
-  civst_gend_sector <- read.csv(fpath)
-  civst_gend_sector$datevar <- as.Date(civst_gend_sector$datevar)
+  dat <- read.csv(fpath)
+  # store orig names
+  namlist <- names(dat)
+  dat$datevar <- as.Date(dat$datevar)
   
   # changing names is something that we want to track
-  names(civst_gend_sector) <- gsub("_", " ", names(civst_gend_sector))
-  names(civst_gend_sector)  <- sapply(names(civst_gend_sector), upcase_string)
-  str(civst_gend_sector)
-  civst_dd <- data_dictionary(civst_gend_sector)
+  names(dat) <- gsub("_", " ", names(dat))
+  names(dat)  <- sapply(names(dat), upcase_string)
+  str(dat)
+  civst_dd <- data_dictionary(dat)
   civst_dd
   fpath
   vl <- variable_names_and_labels(
+    datadict = civst_dd
+    ,
     infile = fpath
     ,
-    datadict = civst_dd
+    orig_names = namlist
     ,
     insert_labels = T
     )
   vl
+  vl <- variable_names_and_labels(
+    datadict = civst_dd
+    ,
+    infile = fpath
+    ,
+    insert_labels = T
+    )
+  vl
+  
 #+end_src
 
 
