@@ -431,6 +431,302 @@ eml_write(ds,
 
 #+end_src
 
+** R-data_dictionary
+*** R-R-data_dict
+#+name:R-data_dictionary
+#+begin_src R :session *R* :tangle R/data_dict.r :exports none :eval no
+  # name:data_dict
+  data_dict <- function(.dataframe, .variable, .show_levels = -1)
+  {
+  
+  summary2 <- function(x){
+    summa <- summary(x, digits = nchar(max(x))+3)
+    return(summa)
+  }
+  
+    if(is.character(.dataframe[ ,.variable])){
+      .dataframe[,.variable]  <- factor(.dataframe[,.variable])
+    }
+    if(all(is.na(.dataframe[ ,.variable]))){
+      summa <- summary2(.dataframe[,.variable])
+      summa <- as.data.frame(t(summa[2]))
+      summa[,1]  <- as.numeric(as.character(summa[,1]))
+    } else {
+      summa <- summary2(.dataframe[,.variable])
+    }
+  # if there are some missing obs in a date var you get a malformed
+  # summa with less names than levels
+    if(length(as.character(summa)) != length(names(summa))){
+      summa <- as.character(summa)
+    }
+  
+    
+    summa <- as.data.frame(
+      cbind(
+        c(.variable, rep("", length(summa) - 1)),
+        names(summa)
+        ,
+        as.vector(summa)
+        )
+      )
+    summa[,1]  <- as.character(summa[,1])
+    summa[,2]  <- as.character(summa[,2])
+    # summa
+  
+    # if char (factor)
+    if(is.factor(.dataframe[,.variable])){
+    summa$type <- c("character", rep("", nrow(summa) - 1))
+    summa$summa  <- as.numeric(as.character(summa$V3))  
+    summa$summa2 <- rep(NA, nrow(summa))
+        # as.numeric(as.character(summa$V2)) ?
+    summa$pct  <- round((summa$summa / sum(summa$summa)) * 100, 2)
+    summa <- summa[,c(1,4,2,6,5,7)]
+    if(.show_levels > 0){
+      if(nrow(summa) > .show_levels){
+        summa <- summa[1:.show_levels,]  
+        summa <- rbind(summa, c("", "",
+                                sprintf("more than %s levels. list truncated.", .show_levels),
+                                "","", "")
+                       )
+        }
+      }
+    # summa
+    } else if (
+      is.numeric(.dataframe[,.variable])
+      ){
+    summa$type <- c("number", rep("", nrow(summa) - 1))
+    summa$cnt <- NA
+    summa$pct  <- NA
+    summa <- summa[,c(1,4,2,3,5,6)]
+    } else if (
+     !all(
+        is.na(as.Date(as.character(na.omit(.dataframe[,.variable])), origin = "1970-01-01"))
+        )
+      ){
+    # if date
+    ## datevar <- as.Date(as.character(
+    ##   .dataframe[,.variable]
+    ##   ), origin = "1970-01-01")
+    # http://stackoverflow.com/questions/18178451/is-there-a-way-to-check-if-a-column-is-a-date-in-r
+    # as.Date(as.character(.dataframe[,.variable]),format="%Y-%m-%d")
+    ## if(!all(is.na(datevar))){
+    ##   summa[,3] <- as.character(datevar)
+    ## }
+      
+    summa$type <- c("date", rep("", nrow(summa) - 1))
+    summa$cnt <- NA
+    summa$pct  <- NA
+    # summa
+    if(
+      length(which(is.na(.dataframe[,.variable]))) > 0
+      ){
+      summa$V3[-which(summa$V2 == "NA's")] <- as.character(
+          as.Date(as.character(
+          summa$V3[-which(summa$V2 == "NA's")]
+          ), origin = "1970-01-01")
+          )    
+    } else {
+      summa$V3 <- as.character(as.Date(as.numeric(as.character(summa$V3)), origin = "1970-01-01"))    
+    }
+    summa <- summa[,c(1,4,2,3,5,6)]
+    } else if (all(is.na(.dataframe[ ,.variable]))){
+      
+    summa$type <- c("missing", rep("", nrow(summa) - 1))
+    summa$fill  <- NA
+    summa$pct  <- 100
+    summa <- summa[,c(1,4,2,5,3,6)]
+    
+    } else {
+        stop(sprintf("variable '%s' type is not character, factor, date, numeric or missing", .variable))
+    }
+    names(summa)  <- c("Variable","Type","Attributes", "Value", "Count", "Percent")
+    # summa
+    return(summa)
+  }
+  
+#+end_src
+
+#+RESULTS: R-data_dictionary
+
+*** data_dictionary-code
+#+name:data_dictionary
+#+begin_src R :session *R* :tangle R/data_dictionary.r :exports none :eval no
+  ################################################################
+  data_dictionary <- function(dataframe, show_levels = -1){
+    out <- matrix(NA, nrow = 0, ncol = 3)
+    for(i in 1:ncol(dataframe)){
+    #  i = 1
+    #  print(i)
+    out2 <- data_dict(
+      .dataframe = dataframe
+      ,
+      .variable = names(dataframe)[i]
+      ,
+      .show_levels = show_levels
+      )
+    out <- rbind(out, out2)
+    }
+    row.names(out) <- NULL
+    return(out)
+  }
+#+end_src
+
+*** test-R-data_dictionary
+#+name:R-data_dictionary
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  ################################################################
+  # name:R-data_dictionary
+  require(devtools)
+  install_github("ivanhanigan/disentangle")
+  # or
+  load_all()
+  require(disentangle)
+  fpath <- system.file("extdata/civst_gend_sector.csv", package = "disentangle")
+  fpath
+  civst_gend_sector <- read.csv(fpath)
+  civst_gend_sector$datevar <- as.Date(round(rnorm(nrow(civst_gend_sector), Sys.Date(),10)), origin = "1970-01-01")
+  civst_gend_sector$missing_variable  <- NA
+  civst_gend_sector$Survey.year  <- as.integer(rep(2012, nrow(civst_gend_sector)))
+  str(civst_gend_sector)
+  #data_dict
+  data_dict(civst_gend_sector, "civil_status")
+  class(civst_gend_sector$datevar)
+  data_dict(civst_gend_sector, "datevar")
+  data_dict(civst_gend_sector, "number_of_cases")
+  data_dict(civst_gend_sector, "missing_variable")
+  data_dict(civst_gend_sector, "Survey.year")
+  dataDictionary <- data_dictionary(civst_gend_sector,
+                                    show_levels = -1)
+  
+  dataDictionary
+  #write.csv(dataDictionary, "~/dataDictionary.csv", row.names = F)
+  
+  # with randoms in date variable
+  civst_gend_sector$datevar[sample(1:nrow(civst_gend_sector), 5)] <- NA
+  # and civil status
+  civst_gend_sector$civil_status[sample(1:nrow(civst_gend_sector), 7)] <- NA
+  # and number of cases
+  civst_gend_sector$number_of_cases[sample(1:nrow(civst_gend_sector), 2)] <- NA
+  civst_gend_sector$Survey.year[sample(1:nrow(civst_gend_sector), 4)] <- NA
+  # some integer codes
+  civst_gend_sector$ordinal_variable <-  as.character(round(sample(rnorm(10000,2.5,1), nrow(civst_gend_sector))))
+  str(civst_gend_sector)
+  #debug(data_dict)
+  data_dict(
+            .dataframe=civst_gend_sector
+            ,
+            .variable="datevar"
+            ,
+            .show_levels = -1
+            )
+  #undebug(data_dict)
+  
+  dataDictionary <- data_dictionary(civst_gend_sector,
+                                    show_levels = -1)
+  
+  dataDictionary
+  write.csv(civst_gend_sector,
+            file.path("inst/extdata", gsub(".csv","_additional_variables.csv", basename(fpath)))
+            , row.names = F)
+#+end_src
+*** man-R-data_dictionary
+#+name:R-data_dictionary
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:R-data_dictionary
+
+#+end_src
+
+
+** variable_names_and_labels
+*** R-variable_names_and_labels
+#+name:variable_names_and_labels
+#+begin_src R :session *R* :tangle R/variable_names_and_labels.r :exports none :eval no
+  #' @title variable_names_and_labels
+  #' @name variable names and labels
+  #' @param infile the full pathname
+  #' @param datadict a dd object (optional will be created if needed)
+  #' @param insert_labels T/F if the output should summarise the value labels
+  
+  variable_names_and_labels <- function(infile, datadict = NULL, insert_labels = FALSE){
+  # NB dont allow mismatch between orig and dd
+  if(!is.null(datadict)){  
+  variable_names <- read.csv(infile, nrows = 1, header = F, stringsAsFactors = F)
+  } else {
+  dat <- read.csv(infile, stringsAsFactors =  F)
+  variable_names  <- names(dat)
+  datadict <- data_dictionary(dat)
+  }
+  # variable_names
+  
+  #### now get variable names as they appear in the dd ####
+  datadict$ordering <- 1:nrow(datadict)
+  col_defs <- sqldf::sqldf("
+  select Variable, Type
+  from datadict
+  group by Variable, Type
+  order by ordering
+  ", drv = "SQLite")
+  col_defs <- col_defs[col_defs$Variable != "",]
+  col_defs
+  
+  vl <- as.data.frame(cbind(col_defs,t(variable_names[1,])))
+  names(vl) <- c("variable_name", "simple_type", "original_name")
+  vl$description <- ""
+  vl$nominal_ordinal_interval_ratio_date_time <- ""
+  vl$unit_of_measurement <- ""
+  vl$value_labels <- ""
+  vl$issue_description_and_suggested_change <- ""
+  vl$depositor_response <- ""
+  # it is easy in a spreadsheet to add the value labels but an
+  # automation approach is here
+  if(insert_labels){
+    if(!exists('dat'))   dat <- read.csv(infile, stringsAsFactors =  F)
+    lablist  <- reml_boilerplate(dat, enumerated = 1:3)
+    lablist <- lapply(lablist, names)
+    lablist <- lapply(lablist, paste, sep = "", collapse = " = ?; ")
+    lablist  <- do.call(rbind.data.frame, lablist)
+    vl$value_labels <- lablist[,1]
+  }
+    
+  #vl
+  return(vl)
+  }
+#+end_src
+*** test-variable_names_and_labels
+#+name:variable_names_and_labels
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  ################################################################
+  # name:variable_names_and_labels
+  require(devtools)
+  #install_github("ivanhanigan/disentangle")
+  require(disentangle)
+  # or
+  load_all()
+  
+  
+  fpath <- system.file("extdata/civst_gend_sector_additional_variables.csv", package = "disentangle")
+  fpath
+  civst_gend_sector <- read.csv(fpath)
+  civst_gend_sector$datevar <- as.Date(civst_gend_sector$datevar)
+  # changing names is something that we want to track
+  names(civst_gend_sector) <- gsub("_", " ", names(civst_gend_sector))
+  names(civst_gend_sector)  <- sapply(names(civst_gend_sector), upcase_string)
+  str(civst_gend_sector)
+  civst_dd <- data_dictionary(civst_gend_sector)
+  civst_dd
+  fpath
+  vl <- variable_names_and_labels(
+    infile = fpath
+    ,
+    datadict = civst_dd
+    ,
+    insert_labels = T
+    )
+  vl
+#+end_src
+
+
 * Data Operation
 ** R-spatial
 *** TODO xy2shp
@@ -601,7 +897,7 @@ eml_write(ds,
 
 *** COMMENT shapefile_attributes_join-code
 #+name:shapefile_attributes_join
-#+begin_src R :session *shell* :tangle code/shapefile_attributes_join.R :exports none :eval no
+#+begin_src R :session *shell* :tangle no :exports none :eval no
 #### name:shapefile_attributes_join ####
 see ramnath
 
@@ -610,7 +906,7 @@ sp@data = data.frame(sp@data, df[match(sp@data[,by], df[,by]),])
 #+end_src
 *** COMMENT shapefile_colour_ramp-code
 #+name:shapefile_colour_ramp
-#+begin_src R :session *shell* :tangle code/shapefile_colour_ramp.R :exports none :eval no
+#+begin_src R :session *shell* :tangle no :exports none :eval no
 #### name:shapefile_colour_ramp ####
   # If we wanted to do a colour ramp 
   ## cls <- -.9 +  (occupancy_grids@data$area.1/(10000*10000))
