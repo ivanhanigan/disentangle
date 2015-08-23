@@ -25,7 +25,7 @@ group by Variable, Type
 order by ordering
 ", drv = "SQLite")
 col_defs <- col_defs[col_defs$Variable != "",]
-col_defs
+#col_defs
 
 vl <- as.data.frame(cbind(col_defs,t(variable_names[1,])))
 names(vl) <- c("variable_name", "simple_type", "original_name")
@@ -38,14 +38,28 @@ vl$depositor_response <- ""
 # it is easy in a spreadsheet to add the value labels but an
 # automation approach is here
 if(insert_labels){
-  if(!exists('dat'))   dat <- read.csv(infile, stringsAsFactors =  F)
-  lablist  <- reml_boilerplate(dat, enumerated = 1:3)
+  dat <- read.csv(infile, stringsAsFactors =  F)
+  enums <- NA
+  for(j in 1:ncol(dat)){
+    if(is.character(dat[,j])){
+      if(j == 1){
+        enums <- 1
+      } else {
+        enums <- c(enums, j)
+      }
+    }
+  }
+  #enums
+  #str(dat)
+  lablist  <- reml_boilerplate(dat, enumerated = enums)
   lablist <- lapply(lablist, names)
-  lablist <- lapply(lablist, paste, sep = "", collapse = " = ?; ")
+  maxnlabs <- max(sapply(lablist, length))
+  if(maxnlabs > 10) stop("more than 10 labels, try a different approach")
+  lablist <- lapply(lablist, paste, sep = "", collapse = " = ?; ")  
   lablist  <- do.call(rbind.data.frame, lablist)
   vl$value_labels <- lablist[,1]
 }
   
-#vl
+# vl
 return(vl)
 }
