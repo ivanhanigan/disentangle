@@ -699,7 +699,7 @@ eml_write(ds,
   ################################################################
   # name:variable_names_and_labels
   require(devtools)
-  #install_github("ivanhanigan/disentangle")
+  install_github("ivanhanigan/disentangle")
   require(disentangle)
   # or
   load_all()
