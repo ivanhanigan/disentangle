@@ -3337,7 +3337,7 @@ query can be db.dataset.contact.like('Lach%')
 
 *** COMMENT test-df-input-code3
 #+name:test-df-input
-#+begin_src R :session *R* :tangle no :exports none :eval yes
+#+begin_src R :session *R* :tangle tests/test-newnode_df.r :exports none :eval yes
   #### name:test-df-input####
   library(devtools)
   load_all()
