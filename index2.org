@@ -977,6 +977,33 @@ legend(-117, 44, legend=names(attr(colcode, "table")),
 
 #+end_src
 
+*** COMMENT convert_dms-code
+#+name:convert_dms
+#+begin_src R :session *shell* :tangle R/convert_dms.R :exports none :eval no
+  #### name:convert_dms ####
+  ## First need to convert character degree min sec data to decimal degree
+  ##### I initially investigated functions in other packages and found
+  # DMS2DD for PostGIS but this seems defunct
+  # http://gis.stackexchange.com/a/84626
+  #### Then I found in R
+  # library(sp)
+  # ?char2dms
+  # but this would require extra processing of the input data
+  
+  #### In the end the format of the supplied file suits this function
+  # http://stackoverflow.com/a/18999925
+  convert_dms <- function(coord){
+    tmp1=strsplit(coord,"°")
+    tmp2=strsplit(tmp1[[1]][2],"'")
+    tmp3=strsplit(tmp2[[1]][2],"\"")
+    dec=c(as.numeric(tmp1[[1]][1]),as.numeric(tmp2[[1]][1]),as.numeric(tmp3[[1]]))
+    c<-abs(dec[1])+dec[2]/60+dec[3]/3600
+    c<-ifelse(dec[1]<0,-c,c)
+    return(c)
+  }
+
+#+end_src
+
 ** COMMENT aggregate-list-of-dfs
 #+name:aggregate
 #+begin_src R :session *R* :tangle no :exports none :eval no
@@ -2760,10 +2787,10 @@ query can be db.dataset.contact.like('Lach%')
 * Workflow Tools
 
 
-** R-newnode
+** COMMENT DEPRECATED R-newnode
 *** COMMENT R-newnode
 #+name:newnode
-#+begin_src R :session *R* :tangle R/newnode.r :exports none :eval yes
+#+begin_src R :session *R* :tangle no :exports none :eval yes
   ################################################################
   # name:newnode
   newnode<-function(
@@ -2860,7 +2887,7 @@ query can be db.dataset.contact.like('Lach%')
 
 *** test-newnode
 #+name:newnode
-#+begin_src R :session *R* :tangle tests/test-newnode.r :exports reports :eval no
+#+begin_src R :session *R* :tangle no :exports reports :eval no
   ################################################################
   # name:newnode
   # REQUIRES GRAPHVIZ, AND TO INSTALL RGRAPHVIZ
@@ -3194,12 +3221,12 @@ query can be db.dataset.contact.like('Lach%')
 
 #+end_src
 
-** R-newnode_df
-*** COMMENT newnode_df-code
-#+name:newnode_df
-#+begin_src R :session *R* :tangle R/newnode_df.R :exports none :eval no
-  #' @title newnode_df
-  #' @name newnode_df
+** R-newnode
+*** COMMENT newnode-code
+#+name:newnode
+#+begin_src R :session *R* :tangle R/newnode.r :exports none :eval no
+  #' @title newnode
+  #' @name newnode
   #' @param indat the input data.frame
   #' @param names_col the name of each edge (the boxes)
   #' @param in_col the name of the nodes that are inputs to each edge with comma seperated vals.  whitespace will be stripped
@@ -3208,15 +3235,23 @@ query can be db.dataset.contact.like('Lach%')
   #' @param clusters_col optional column identifying clusters
   #' @param todo_col optional column with TODO status (DONE and WONTDO will be white, others are red)
   #' @return character string object that has the DOT language representatio of the input
-  newnode_df <- function(indat = NA,names_col = NA,in_col = NA,out_col = NA,desc_col = NA,clusters_col = NA, todo_col = NA, nchar_to_snip = 40){
-  if(any(is.na(indat) |
-         is.na(names_col) |
-         is.na(in_col) |
-         is.na(out_col) |
-         is.na(desc_col)
-         )) stop("data or arguments are not supplied")
+  newnode <- function(indat, names_col = NULL, in_col = NULL, out_col = NULL, desc_col = NULL, clusters_col = NULL, todo_col = NULL, nchar_to_snip = 40){
+  ## if(any(is.na(indat) |
+  ##        is.na(names_col) |
+  ##        is.na(in_col) |
+  ##        is.na(out_col) |
+  ##        is.na(desc_col)
+  ##        )) stop("data or arguments are not supplied")
+  if (is.null(names_col)) stop("Names of the steps are needed")
+  if (is.null(in_col)) stop("Inputs are needed")
+  if (is.null(out_col)) stop("Outputs are needed")
+  if (is.null(desc_col)){
+    print("Descriptions are strongly recommended, we\'re creating empty records for you")
+    indat$descriptions <- ""
+    desc_col <- "descriptions"
+  }
   
-  if(!is.na(clusters_col)){
+  if(!is.null(clusters_col)){
   cluster_ids <- names(table(indat[,clusters_col]))
   #cluster_ids
   
@@ -3255,7 +3290,7 @@ query can be db.dataset.contact.like('Lach%')
         outputs <- paste('"', outputs, '"', sep = "")  
         outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
         #cat(outputs_listed)
-  if(!is.na(todo_col)){
+  if(!is.null(todo_col)){
         
         status <- indat2[i,todo_col]      
         
@@ -3300,7 +3335,7 @@ query can be db.dataset.contact.like('Lach%')
         outputs <- paste('"', outputs, '"', sep = "")  
         outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
         #cat(outputs_listed)
-  if(!is.na(todo_col)){
+  if(!is.null(todo_col)){
     status <- indat2[i,todo_col]
          
   strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description | Status } | { %s | %s | %s } }}"]\n%s\n\n',
@@ -3323,23 +3358,29 @@ query can be db.dataset.contact.like('Lach%')
                        nodes_graph,
                        "}\n")
   
-  help_text <- c('# to run this graph
-  sink("fileTransformations.dot")
-  cat(nodes_graph)
-  sink()
-  system("dot -Tpdf fileTransformations.dot -o fileTransformations.pdf")
+  cat('# to run this graph
+  sink("file_name.dot")
+  cat(nodes_object)
+  sink()')
+  cat('# If graphviz is installed and on linux
+  system("dot -Tpdf file_name.dot -o file_name.pdf")
+  system("dot -Tpng file_name.dot -o file_name.png")
   ')
-  cat(help_text)
+  cat('# if not
+  DiagrammeR::grViz("file_name.dot")
+  ')
+  
   return(nodes_graph)
   }
   
 #+end_src
 
-*** COMMENT test-df-input-code3
-#+name:test-df-input
-#+begin_src R :session *R* :tangle tests/test-newnode_df.r :exports none :eval yes
-  #### name:test-df-input####
+*** COMMENT test-newnode
+
+#+begin_src R :session *R* :tangle tests/test-newnode.r :exports none :eval yes
+  
   library(devtools)
+  document()
   load_all()
   library(stringr)
   ## filesList <- read.csv(textConnection('
@@ -3358,7 +3399,7 @@ query can be db.dataset.contact.like('Lach%')
   str(filesList)
   # filesList
   
-  nodes_graphy <- newnode_df(
+  nodes <- newnode(
     indat = filesList
     ,
     names_col = "STEP"
@@ -3371,20 +3412,23 @@ query can be db.dataset.contact.like('Lach%')
     ,
     clusters_col = "CLUSTER"
     ,
-    todo_col = NA #"STATUS"
+    todo_col = "STATUS"
     ,
     nchar_to_snip = 40
     )
   
   sink("fileTransformations.dot")
-  cat(nodes_graphy)
+  cat(nodes)
   sink()
+  DiagrammeR::grViz("fileTransformations.dot")
   system("dot -Tpdf fileTransformations.dot -o fileTransformations.pdf")
+  browseURL("fileTransformations.pdf")
+  
   
 #+end_src
 
 ** R-newnode_rmd
-*** COMMENT newnode_df-code
+*** COMMENT newnode-code
 #+name:newnode_rmd
 #+begin_src R :session *R* :tangle R/newnode_rmd.R :exports none :eval no
   #' @title newnode_rmd
@@ -3633,7 +3677,9 @@ query can be db.dataset.contact.like('Lach%')
   
 #+end_src
 
-    
+
+
+   
 ** 2013-11-25-setting-up-a-workflow-script
 #+name:project-template-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-25-setting-up-a-workflow-with-code-chunks.md :exports none :eval no :padline no

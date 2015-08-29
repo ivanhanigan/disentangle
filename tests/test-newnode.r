@@ -1,43 +1,45 @@
 
-################################################################
-# name:newnode
-# REQUIRES GRAPHVIZ, AND TO INSTALL RGRAPHVIZ
-# source('http://bioconductor.org/biocLite.R')
-# biocLite("Rgraphviz")
-# or may be needed for eg under ubuntu
-# biocLite("Rgraphviz", configure.args=c("--with-graphviz=/usr"))
-# FURTHER INFO
-# see the Rgraphviz examples
-# example(layoutGraph)
-# require(biocGraph) # for imageMap
-
-# source("R/newnode.r")
-require(devtools)
-#install_github("disentangle", "ivanhanigan")
+library(devtools)
+document()
 load_all()
-#require(disentangle)
-newnode(
-  name = "NAME"
+library(stringr)
+## filesList <- read.csv(textConnection('
+## CLUSTER ,  FILE    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
+## A  ,  siteIDs      , "GPS, helicopter"          , "spatial, site doco"                 , latitude and longitude of sites  
+## A  ,  weather      , BoM                       , exposures                              , weather data from BoM            
+## B  ,  trapped      , spatial                   , trapped_no                             , counts of species caught in trap 
+## B  ,  biomass      , spatial                   , biomass_g                              ,                                  
+## B  ,  correlations , "exposures,trapped_no,biomass_g" , report1                         , A study we published             
+## C  ,  paper1       , report1                   , "open access repository, data package" ,                                  
+## D  ,  biomass revision, new estimates          , biomass_g                              , this came late
+## '), stringsAsFactors = F, strip.white = T)
+#write.csv(filesList, "fileTransformations.csv", row.names = F)
+filesList <- read.csv("fileTransformations.csv", stringsAsFactors = F, strip.white = T)
+
+str(filesList)
+# filesList
+
+nodes <- newnode(
+  indat = filesList
   ,
-  inputs="INPUT"
+  names_col = "STEP"
   ,
-  outputs = "OUTPUT"
+  in_col = "INPUTS"
   ,
-  graph = 'nodes'
+  out_col = "OUTPUTS"
   ,
-  newgraph=T
+  desc_col = "DESCRIPTION"
   ,
-  notes=F
+  clusters_col = "CLUSTER"
   ,
-  code=NA
+  todo_col = "STATUS"
   ,
-  ttype=NA
-  ,
-  plot = T, rgraphviz = F
+  nchar_to_snip = 40
   )
 
-nodes <- newnode("merge", c("d1", "d2", "d3"), c("EDA"),
-                 newgraph =T)
-nodes <- newnode("qc", c("data1", "data2", "data3"), c("d1", "d2", "d3"))
-nodes <- newnode("modelling", "EDA")
-nodes <- newnode("model checking", "modelling", c("data checking", "reporting"))
+sink("fileTransformations.dot")
+cat(nodes)
+sink()
+DiagrammeR::grViz("fileTransformations.dot")
+system("dot -Tpdf fileTransformations.dot -o fileTransformations.pdf")
+browseURL("fileTransformations.pdf")
