@@ -14,8 +14,8 @@ More about what it does (maybe more than one line)
 \tabular{ll}{
 Package: \tab disentangle\cr
 Type: \tab Package\cr
-Version: \tab 1.4.4\cr
-Date: \tab 2015-06-10\cr
+Version: \tab 1.4.5\cr
+Date: \tab 2015-08-30\cr
 License: \tab GPL (>=2) \cr
 }
 ~~ An overview of how to use the package, including the most important functions ~~

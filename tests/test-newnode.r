@@ -1,69 +1,45 @@
 
-################################################################
-# name:newnode
-source("R/newnode.r")
-newnode(
-  name = "NAME"
+library(devtools)
+document()
+load_all()
+library(stringr)
+## filesList <- read.csv(textConnection('
+## CLUSTER ,  FILE    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
+## A  ,  siteIDs      , "GPS, helicopter"          , "spatial, site doco"                 , latitude and longitude of sites  
+## A  ,  weather      , BoM                       , exposures                              , weather data from BoM            
+## B  ,  trapped      , spatial                   , trapped_no                             , counts of species caught in trap 
+## B  ,  biomass      , spatial                   , biomass_g                              ,                                  
+## B  ,  correlations , "exposures,trapped_no,biomass_g" , report1                         , A study we published             
+## C  ,  paper1       , report1                   , "open access repository, data package" ,                                  
+## D  ,  biomass revision, new estimates          , biomass_g                              , this came late
+## '), stringsAsFactors = F, strip.white = T)
+#write.csv(filesList, "fileTransformations.csv", row.names = F)
+filesList <- read.csv("fileTransformations.csv", stringsAsFactors = F, strip.white = T)
+
+str(filesList)
+# filesList
+
+nodes <- newnode(
+  indat = filesList
   ,
-  inputs="INPUT"
+  names_col = "STEP"
   ,
-  outputs = "OUTPUT"
+  in_col = "INPUTS"
   ,
-  graph = 'nodes'
+  out_col = "OUTPUTS"
   ,
-  newgraph=T
+  desc_col = "DESCRIPTION"
   ,
-  notes=F
+  clusters_col = "CLUSTER"
   ,
-  code=NA
+  todo_col = "STATUS"
   ,
-  ttype=NA
-  ,
-  plot = T
+  nchar_to_snip = 40
   )
-nodes <- newnode("merge", c("d1", "d2", "d3"))
-nodes <- newnode("merge", c("d1", "d2", "d3"), c("EDA"),
-                 newgraph =T)
-nodes <- newnode("qc", c("data1", "data2", "data3"), c("d1", "d2", "d3"))
-nodes <- newnode("modelling", "EDA")
-nodes <- newnode("model checking", "modelling", c("data checking", "reporting"))
-#require(disentangle)
-# either edit a spreadsheet with filenames, inputs and outputs 
-filesList <- read.csv("exampleFilesList.csv", stringsAsFactors = F)
-# or 
-filesList <- read.csv(textConnection(
-'FILE,INPUTS,OUTPUTS,DESCRIPTION
-siteIDs,GPS,,latitude and longitude of sites
-weather,BoM,,weather data from BoM
-trapped,siteIDs,,counts of species caught in trap
-biomass,siteIDs,,
-corralations,"weather,trapped,biomass",report1,A study we published
-paper1,report1,"open access repository, data package",
-'), stringsAsFactors = F)
-# start the graph
-i <- 1
-nodes <- newnode(name = filesList[i,1],
-                 inputs = strsplit(filesList$INPUTS, ",")[[i]],
-                 outputs =
-                 strsplit(filesList$OUTPUTS, ",")[[i]]
-                 ,
-                 newgraph=T)
- 
-for(i in 2:nrow(filesList))
-{
-  # i <- 2
-  if(length(strsplit(filesList$OUTPUTS, ",")[[i]]) == 0)
-  {
-    nodes <- newnode(name = filesList[i,1],
-                     inputs = strsplit(filesList$INPUTS, ",")[[i]]
-    )    
-  } else {
-    nodes <- newnode(name = filesList[i,1],
-                     inputs = strsplit(filesList$INPUTS, ",")[[i]],
-                     outputs = strsplit(filesList$OUTPUTS, ",")[[i]]
-    )
-  }
-}
- 
-dev.copy2pdf(file='tests/fileTransformations.pdf')
-dev.off();
+
+sink("fileTransformations.dot")
+cat(nodes)
+sink()
+DiagrammeR::grViz("fileTransformations.dot")
+system("dot -Tpdf fileTransformations.dot -o fileTransformations.pdf")
+browseURL("fileTransformations.pdf")

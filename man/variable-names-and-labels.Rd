@@ -5,12 +5,15 @@
 \alias{variable_names_and_labels}
 \title{variable_names_and_labels}
 \usage{
-variable_names_and_labels(infile, datadict = NULL, insert_labels = FALSE)
+variable_names_and_labels(datadict = NULL, infile = NULL,
+  orig_names = NULL, insert_labels = FALSE)
 }
 \arguments{
-\item{infile}{the full pathname}
+\item{datadict}{a dd object (optional)}
 
-\item{datadict}{a dd object (optional will be created if needed)}
+\item{infile}{the full pathname (optional)}
+
+\item{orig_names}{the original names (optional)}
 
 \item{insert_labels}{T/F if the output should summarise the value labels}
 }
