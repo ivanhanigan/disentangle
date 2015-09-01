@@ -4,3 +4,4 @@
 _site
 .Rbuildignore
 disentangle.Rproj
+inst/doc

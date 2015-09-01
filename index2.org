@@ -11,13 +11,23 @@
 Package: disentangle
 Type: Package
 Title: disentangle
-Version: 1.4.4
-Date: 2015-06-10
+Version: 1.4.5
+Date: 2015-08-30
 Author: ivanhanigan
 Maintainer: <ivan.hanigan@gmail.com>
-Suggests: stringr, ggmap, maps, maptools, rgdal
-Description:  Functions I modified or created.
+Suggests: stringr, ggmap, maps, maptools, rgdal, sqldf
+Description:  Functions for helping to disentangle data and analysis pipelines.
 License: GPL (>= 2)
+#+end_src
+
+* Vignette
+*** COMMENT run-code
+#+name:run
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:run ####
+  #devtools::use_vignette("disentangle-pipelines")
+  #system("cp -R ~/Dropbox/tools/LaTeX\\ templates/manuscriptPackage/vignettes/components/* vignettes/components/")
+  
 #+end_src
 
 
@@ -637,7 +647,6 @@ eml_write(ds,
 # name:R-data_dictionary
 
 #+end_src
-
 
 ** variable_names_and_labels
 *** R-variable_names_and_labels
