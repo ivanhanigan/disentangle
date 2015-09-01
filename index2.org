@@ -23,10 +23,331 @@ License: GPL (>= 2)
 * Vignette
 *** COMMENT run-code
 #+name:run
-#+begin_src R :session *R* :tangle no :exports none :eval no
+#+begin_src R :session *R* :tangle no :exports none :eval yes
   #### name:run ####
   #devtools::use_vignette("disentangle-pipelines")
   #system("cp -R ~/Dropbox/tools/LaTeX\\ templates/manuscriptPackage/vignettes/components/* vignettes/components/")
+  #rm(bib)
+  rmarkdown::render("vignettes/disentangle-pipelines.Rmd")
+#+end_src
+
+#+RESULTS: run
+
+*** COMMENT rmd head-code
+#+name:rmd head
+#+begin_src R :session *R* :tangle vignettes/disentangle-pipelines.Rmd :exports none :eval no :padline
+---
+title: 'Disentangling Data Analysis Pipelines'
+author:  
+- name: Ivan Hanigan
+  affilnum: '1'
+  email: ivan.hanigan@gmail.com
+affiliation:
+- affilnum: 1
+  affil: National Centre for Epidemiology and Population Health, Australian National University
+output:
+  pdf_document:
+    fig_caption: yes
+    keep_tex: yes
+    number_sections: yes
+    template: components/manuscript.latex
+    toc: true    
+  html_document: null
+  word_document: null
+fontsize: 11pt
+capsize: normalsize
+csl: components/ecology.csl
+documentclass: article
+papersize: a4paper
+spacing: singlespacing
+linenumbers: no
+bibliography: components/manuscript.bib
+abstract: no
+---
+<!--
+%\VignetteEngine{knitr::rmarkdown}
+%\VignetteIndexEntry{Example Manuscript}
+-->
+
+```{r setup, include=FALSE, echo=FALSE}
+#Put whatever you normally put in a setup chunk.
+#I usually at least include:
+#devtools::install_github("manuscriptPackage","jhollist")
+#library("manuscriptPackage")
+#Didn't do that here to expedite building of the example vignette
+library("knitr")
+library("knitcitations")
+library(bibtex)
+cleanbib()
+# rm("bib")
+#options("cite_format"="pandoc")
+cite_options(citation_format = "pandoc", check.entries=FALSE)
+
+opts_chunk$set(dev = 'pdf', fig.width=6, fig.height=5)
+
+# Table Captions from @DeanK on http://stackoverflow.com/questions/15258233/using-table-caption-on-r-markdown-file-using-knitr-to-use-in-pandoc-to-convert-t
+#Figure captions are handled by LaTeX
+
+knit_hooks$set(tab.cap = function(before, options, envir) {
+                  if(!before) { 
+                    paste('\n\n:', options$tab.cap, sep='') 
+                  }
+                })
+default_output_hook = knit_hooks$get("output")
+knit_hooks$set(output = function(x, options) {
+  if (is.null(options$tab.cap) == FALSE) {
+    x
+  } else
+    default_output_hook(x,options)
+})
+
+if(!exists("bib")){
+  bib <- read.bibtex("~/references/library.bib")
+}
+
+```
+
+```{r analysis , include=FALSE, echo=FALSE, cache=FALSE}
+#All analysis in here, that way all bits of the paper have access to the final objects
+#Place tables and figures and numerical results where they need to go.
+```
+
+<!-- Abstract is being wrapped in latex here so that all analysis can be run in the chunk above and the results reproducibly referenced in the abstract. -->
+
+<!-- \singlespace -->
+
+<!-- \vspace{2mm}\hrule -->
+
+<!-- Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer in -->
+<!-- sem sed sem pharetra eleifend vitae id massa. Curabitur et erat sit -->
+<!-- amet enim gravida dapibus quis vel ex. Maecenas luctus suscipit magna -->
+<!-- id vehicula. Quisque tincidunt auctor dignissim. Nunc vitae nulla vel -->
+<!-- lorem facilisis interdum -->
+
+<!-- \vspace{3mm}\hrule -->
+<!-- \doublespace -->
+#+end_src
+*** COMMENT intro
+#+name:rmd head
+#+begin_src R :session *R* :tangle vignettes/disentangle-pipelines.Rmd :exports none :eval no :padline
+  
+  #Introduction
+  
+  
+  It can be much easier to conceptually understand a complicated data
+  analysis pipeline than it is to implement that pipeline effectively.
+  This report outlines R functions that were developed to aid data
+  analysts to map out all the aspects of their work when planning and
+  conducting complicated data analyses using the pipeline concept.    There are often many steps in the design and analysis of a study and
+  when these are put together as a data analysis pipeline this addresses
+  the challenge of reproducibility `r citep(bib[["Peng2006"]])`.  The
+  credibility of data analyses requires that every step is able to be
+  scrutinised `r citep(bib[[c("Leek2015a")]])`.
+  
+  
+  The type of data analysis that is the focus of this work includes, in
+  the words of `r citet(bib[["Tukey1962"]])`:
+  
+  \begin{quote}
+      \emph{'procedures for analyzing data, techniques for
+      interpreting the results of such procedures, ways of planning the
+      gathering of data to make its analysis easier, more precise or
+      more accurate, and all the machinery and results of (mathematical)
+      statistics which apply to analyzing data.'}
+  \end{quote}
+  
+  
+  
+  #Key concepts
+  
+  The fundamental building blocks of a pipelne includes the following:
+  
+  - Source data
+  - Derived data
+  - Methods steps, and
+  - Task status
+  
+  The `source data` used by a data analyst should be treated much like the
+  evidence from a crime scene, protected by the chain of custody.  These
+  data files usually need to be transformed into `derived data` during the course of an
+  analysis.  The `methods steps` during this transformation (as well as
+  those during data collection and curation) need to be planned, tracked
+  and sometimes audited.  At each step a `task status` can be defined, in
+  simple terms things are either DONE or remain TODO.
+#+end_src
+*** COMMENT simple eg
+#+name:rmd head
+#+begin_src R :session *R* :tangle vignettes/disentangle-pipelines.Rmd :exports none :eval no :padline
+  
+  #A simple example
+  
+  A very simple example of a pipeline is shown in Table \ref{tab:Table1}.
+  
+  ```{r Table1, results='asis', echo=FALSE}
+  #, tab.cap="This is the first example table\\label{tab:Table1}",cache=FALSE}
+  library(stringr)
+  steps <- read.csv(textConnection('
+  CLUSTER ,  STEP    , INPUTS                  , OUTPUTS                                , DESCRIPTION                        , STATUS 
+  A  ,  Step1      , "Source 1, Source 2"       , "Derived 1, QC check"                 , "This might be latitude and longitude of sites, and observations"     ,  DONE
+  A  ,  Step2      , Source 3                  , Derived 2                           , This might be weather data               , DONE
+  B  ,  Step3      , "Derived 1, Derived 2"      , Derived 3                             , Merging these data means they can be analysed   , TODO
+  C  ,  Step4      , Derived 3                 , Model selection                              ,                                    , TODO
+  C  ,  Step5      , Model selection           , Sensitivity analysis                         ,                                    , TODO
+  '), stringsAsFactors = F, strip.white = T)
+  
+  #kable(
+  dat <- steps[,c("STEP", "INPUTS", "OUTPUTS", "DESCRIPTION", "STATUS")]
+  library(xtable)
+  tabcode <- xtable(dat, caption = 'Simple', label = 'tab:Table1')
+  align(tabcode) <-  c( 'l', 'p{.6in}','p{1.2in}','p{1.2in}', 'p{2in}','p{1.2in}' )
+  #sink(paste(fname, '.tex',sep = ""))
+  #cat(txt)
+  # print(tabcode,  include.rownames = F, table.placement = '!ht',
+  # caption.placement = 'top') #, type = "html")
+  rws <- seq(1, (nrow(dat)), by = 2)
+  col <- rep("\\rowcolor[gray]{0.95}", length(rws))
+  print(tabcode, booktabs = TRUE, include.rownames = F, table.placement = '!ht',
+   caption.placement = 'top',
+   add.to.row = list(pos = as.list(rws), command = col),
+   comment=FALSE)
+  
+  ```
+  \clearpage
+#+end_src
+*** COMMENT simple eg2
+#+name:rmd head
+#+begin_src R :session *R* :tangle vignettes/disentangle-pipelines.Rmd :exports none :eval no :padline
+  
+  
+  The steps and data listed in Table \ref{tab:Table1} can be visualised
+  using the `newnode` function.  The functio returns a string of text
+  written in the `dot` language which can be rendered in R using the
+  `DiagrammeR` package, or the standalone `graphviz` package.   This creates the graph of this pipeline shown in Figure \ref{fig:Fig1}.
+  
+  ```{r Fig1, echo=T, eval=F}
+  library(disentangle); library(stringr)
+  nodes <- newnode(indat = steps,   names_col = "STEP", in_col = "INPUTS",
+    out_col = "OUTPUTS", desc_col = 'DESCRIPTION', todo_col = "STATUS",
+    nchar_to_snip = 70)
+  sink("vignettes/steps-fig1.dot"); cat(nodes); sink()
+  #DiagrammeR::grViz("steps-fig1.dot")
+  system("dot -Tpdf vignettes/steps-fig1.dot -o vignettes/steps-fig1.pdf")
+  
+  ```
+  
+  
+  
+  \begin{figure}[!h]
+  \centering
+  \includegraphics[width=\textwidth]{steps-fig1.pdf}
+  \caption{steps fig1}
+  \label{fig:Fig1}
+  \end{figure}
+  \clearpage
+  
+#+end_src
+
+*** COMMENT complicated eg2
+#+name:rmd head
+#+begin_src R :session *R* :tangle vignettes/disentangle-pipelines.Rmd :exports none :eval no :padline
+  
+  #A complicated example  
+  
+  In a more complicated example `r citet(bib[["Akita2014"]])` introduce
+  the Bayesian Maximum Entropy (BME) method for combining air pollution
+  data from land use regression (LUR) and chemical transport modeling
+  (CTM) in a geostatistical framework.  The BME method combines various
+  sources of data with different levels of uncertainty. The data are
+  categorized into two groups: (i) hard data, corresponding to
+  measurements; and (ii) soft data, having an uncertainty characterized
+  by a probability density function.  At the prior stage describe the
+  global characteristics of the spatial field. At the posterior stage
+  site specific hard and soft data update the prior to estimate the
+  value at any point. Air pollution data (NO2) were sourced for this
+  study from monitoring stations, and a LUR and CTM. Many comparisons
+  and error statistics are discussed in the paper but perhaps the best
+  ‘take-home message’ is that the BME method proposed reduced the RMSE
+  for validation data by approximately 45\% relative to CTM and LUR.
+  This method is shown as the graph in Figure \ref{fig:Fig2}.
+  
+  ```{r Fig2, echo=F, eval=F}
+  dir()
+  ```
+  
+  
+  
+  \begin{figure}[!h]
+  \centering
+  \includegraphics[width=\textwidth]{BME_steps.pdf}
+  \caption{steps fig2}
+  \label{fig:Fig2}
+  \end{figure}
+  \clearpage
+  
+#+end_src
+
+*** COMMENT snip
+#+name:rmd head
+#+begin_src R :session *R* :tangle no :exports none :eval no :padline
+
+#Methods
+
+##Data and Study Area
+
+Sed in augue non augue finibus lobortis. Maecenas imperdiet metus non
+nisi imperdiet feugiat. Duis ac mauris metus. Nunc tempus est quis
+metus consectetur, nec suscipit dui condimentum. Nam quis neque eu
+magna
+
+```{r Table1, results='asis', echo=FALSE, tab.cap="This is the first example table\\label{tab:Table1}",cache=FALSE}
+kable(head(iris))
+```
+
+#Results
+
+Nullam et accumsan urna, mollis vulputate dolor. Donec nec nisl
+sagittis, laoreet nibh a, imperdiet eros. Ut sagittis ipsum
+diam. Nulla auctor justo eu ante sodales sollicitudin. Aenean leo
+lacus,
+
+```{r Fig1, echo=FALSE, fig.cap="Just my first figure with a very fantastic caption.\\label{fig:Fig1}", cache=FALSE}
+x<-rnorm(100)
+y<-jitter(x,1000)
+plot(x,y)
+
+```
+
+```{r Table2, results='asis', echo=FALSE,tab.cap="A second table showing some of the mtcars dataset.\\label{tab:Table2}",cache=FALSE}
+kable(mtcars[10:16,])
+```
+
+Nullam et accumsan urna, mollis vulputate dolor. Donec nec nisl
+sagittis, laoreet nibh a, imperdiet
+
+```{r Fig2, echo=FALSE, fig.cap="Second figure showing a boxplot with ground breaking results. \\label{fig:Fig2}",cache=FALSE}
+a<-sort(rnorm(100))
+b<-c(rep("Group Small",35),rep("Group Big",65))
+boxplot(a~b)
+```
+
+#+end_src
+*** COMMENT conclusions
+#+name:rmd head
+#+begin_src R :session *R* :tangle vignettes/disentangle-pipelines.Rmd :exports none :eval no :padline
+  
+  
+  #Conclusions 
+  
+  In this way the pipeline of steps for preparing and
+  analysing data can be effectively managed and visualised
+  
+  ```{r, echo=FALSE, message=FALSE, eval = T}
+  write.bibtex(file="components/manuscript.bib")
+  ```
+  
+  \clearpage
+  
+  #References
   
 #+end_src
 
