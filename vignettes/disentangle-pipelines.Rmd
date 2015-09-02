@@ -90,8 +90,7 @@ if(!exists("bib")){
 <!-- \vspace{3mm}\hrule -->
 <!-- \doublespace -->
 
-#Introduction
-
+#Introduction  
 
 It can be much easier to conceptually understand a complicated data
 analysis pipeline than it is to implement that pipeline effectively.
@@ -103,8 +102,33 @@ the challenge of reproducibility `r citep(bib[["Peng2006"]])`.  The
 credibility of data analyses requires that every step is able to be
 scrutinised `r citep(bib[[c("Leek2015a")]])`.
 
+##Motivating scientific questions 
+The type of data analysis that is
+the focus of this work is more complicated than simply loading some
+data that are already cleaned, fitting some models and reporting some
+output.  Typically the type of data analysis projects that these tools
+are aimed at involve attempts to control for a large number
+of inter-relationships and associations between variables. It is
+especially problematic that these variables need to have been selected
+by the scientists from a multitude of possible variables and a
+plethora of possible data sources, during a long process of data
+collection, cleaning, exploration and decision making in preparation
+for data analysis. There are also a multitude of steps and decision
+points in the process of model building and model checking. The use of
+statistical models involving many entangled environmental and social
+variables can easily result in spurious association that may be
+mistakenly interpreted as causation.  Projects that the author has
+been involved in include explorations of hypotheses about health effects from
+droughts, bushfire smoke, heat-waves and dust-storms which produced
+novel findings, and informed controversial debates about the
+implications of climate change. The requirement to adequately convey
+the methods and results of this research was problematic and motivated
+the work on effective use of reproducible research techniques and data
+analysis pipelines.
 
-The type of data analysis that is the focus of this work includes, in
+#Definitions
+##Data analysis 
+In this paper data analysis is a very broad topic and includes, in
 the words of `r citet(bib[["Tukey1962"]])`:
 
 \begin{quote}
@@ -116,15 +140,91 @@ the words of `r citet(bib[["Tukey1962"]])`:
 \end{quote}
 
 
+##Basic building blocks of a pipeline
+The basic components of a pipeline are:
 
-#Key concepts
+- Steps
+- Inputs 
+- Outputs
 
-The fundamental building blocks of a pipelne includes the following:
+A simple way to keep track of the steps, inputs and outputs is shown in Table \ref{tab:TableBasic}.
 
-- Source data
-- Derived data
-- Methods steps, and
-- Task status
+```{r results='asis', echo=FALSE}
+library(stringr)
+steps <- read.csv(textConnection('
+CLUSTER ,  STEP    , INPUTS                  , OUTPUTS                   
+A  ,  Step1      , "Input 1, Input 2"       , "Output 1"                 
+A  ,  Step2      , Input 3                  , Output 2                   
+B  ,  Step3      , "Output 1, Output 2"      , Output 3                  
+'), stringsAsFactors = F, strip.white = T)
+
+#kable(
+steps <- steps[,c("STEP", "INPUTS", "OUTPUTS")]
+library(xtable)
+tabcode <- xtable(steps, caption = 'Simple', label = 'tab:TableBasic')
+align(tabcode) <-  c( 'l', 'p{.6in}','p{2in}','p{2in}' )
+#sink(paste(fname, '.tex',sep = ""))
+#cat(txt)
+# print(tabcode,  include.rownames = F, table.placement = '!ht',
+# caption.placement = 'top') #, type = "html")
+rws <- seq(1, (nrow(steps)), by = 2)
+col <- rep("\\rowcolor[gray]{0.95}", length(rws))
+print(tabcode, booktabs = TRUE, include.rownames = F, table.placement = '!ht',
+ caption.placement = 'top',
+ add.to.row = list(pos = as.list(rws), command = col),
+ comment=FALSE)
+
+```  
+
+The steps and data listed in Table \ref{tab:TableBasic} can be visualised
+using the `newnode` function.  The function returns a string of text
+written in the `dot` language which can be rendered in R using the
+`DiagrammeR` package, or the standalone `graphviz` package.   This creates the graph of this pipeline shown in Figure \ref{fig:FigBasic}.  Note that a new field was added for Descriptions as these are highly recommended.
+
+```{r echo=F, eval=F}
+library(disentangle); library(stringr)
+nodes <- newnode(indat = steps,   names_col = "STEP", in_col = "INPUTS",
+  out_col = "OUTPUTS", 
+  nchar_to_snip = 40)
+sink("vignettes/fig-basic.dot");
+cat(nodes);
+sink()
+#DiagrammeR::grViz("fig-basic.dot")
+system("dot -Tpdf vignettes/fig-basic.dot -o vignettes/fig-basic.pdf")
+
+```
+
+
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.5\textwidth]{fig-basic.pdf}
+\caption{steps basic}
+\label{fig:FigBasic}
+\end{figure}
+
+##Naming conventions
+Steps should have a name based on a verb. Some examples are
+'test for overdispersion', 'run model1',
+'test for high leverage points' or 'drop outliers'.  Names of steps,
+inputs and outputs should all be kept short to allow visualisation in
+flow charts. It is recommended that each step also have a description for
+longer comments that can be excluded from summaries of
+the pipeline. Inputs and outputs can be either data or information.
+For example inputs to 'model1' might include both data as
+'cleaned dataset' and information such as
+'result of test for overdispersion'.  Output of 'model1' might be a
+different kind of data such as a table of
+'postestimation statistics for model1' or information such as
+'interaction term nonsignificant so exclude from model2'.
+
+##Adding additional attributes
+
+The fundamental building blocks of a pipeline can be defined in a number of ways.  Some additional attributs to consider are the following:
+
+- Source data are different from derived data
+- Methods steps include information and decisions, and
+- Steps can have a task status (ie TODO or DONE)
 
 The `source data` used by a data analyst should be treated much like the
 evidence from a crime scene, protected by the chain of custody.  These
@@ -132,13 +232,14 @@ data files usually need to be transformed into `derived data` during the course 
 analysis.  The `methods steps` during this transformation (as well as
 those during data collection and curation) need to be planned, tracked
 and sometimes audited.  At each step a `task status` can be defined, in
-simple terms things are either DONE or remain TODO.
+simple terms things are either DONE or remain TODO, but might additionally be considered WONTDO.
 
 #A simple example
+##Make a list of steps, inputs and outputs
 
-A very simple example of a pipeline is shown in Table \ref{tab:Table1}.
+A very simple example of a pipeline is shown in Table \ref{tab:TablePipe1}.
 
-```{r Table1, results='asis', echo=FALSE}
+```{r TablePipe1, results='asis', echo=FALSE}
 #, tab.cap="This is the first example table\\label{tab:Table1}",cache=FALSE}
 library(stringr)
 steps <- read.csv(textConnection('
@@ -153,7 +254,7 @@ C  ,  Step5      , Model selection           , Sensitivity analysis             
 #kable(
 dat <- steps[,c("STEP", "INPUTS", "OUTPUTS", "DESCRIPTION", "STATUS")]
 library(xtable)
-tabcode <- xtable(dat, caption = 'Simple', label = 'tab:Table1')
+tabcode <- xtable(dat, caption = 'Simple', label = 'tab:TablePipe1')
 align(tabcode) <-  c( 'l', 'p{.6in}','p{1.2in}','p{1.2in}', 'p{2in}','p{1.2in}' )
 #sink(paste(fname, '.tex',sep = ""))
 #cat(txt)
@@ -169,12 +270,11 @@ print(tabcode, booktabs = TRUE, include.rownames = F, table.placement = '!ht',
 ```
 \clearpage
 
-The steps and data listed in Table \ref{tab:Table1} can be visualised
-using the `newnode` function.  The functio returns a string of text
-written in the `dot` language which can be rendered in R using the
-`DiagrammeR` package, or the standalone `graphviz` package.   This creates the graph of this pipeline shown in Figure \ref{fig:Fig1}.
+##Visualise the steps as a network
+The steps and data listed in Table \ref{tab:TablePipe1} can be visualised
+using the `newnode` function as shown in the code chunk below.  This creates the graph of this pipeline shown in Figure \ref{fig:FigSteps}.
 
-```{r Fig1, echo=T, eval=F}
+```{r echo=T, eval=F}
 library(disentangle); library(stringr)
 nodes <- newnode(indat = steps,   names_col = "STEP", in_col = "INPUTS",
   out_col = "OUTPUTS", desc_col = 'DESCRIPTION', todo_col = "STATUS",
@@ -191,11 +291,44 @@ system("dot -Tpdf vignettes/steps-fig1.dot -o vignettes/steps-fig1.pdf")
 \centering
 \includegraphics[width=\textwidth]{steps-fig1.pdf}
 \caption{steps fig1}
-\label{fig:Fig1}
+\label{fig:FigSteps}
 \end{figure}
 \clearpage
 
-#A complicated example  
+#Advanced usage
+
+##Planning a pipeline
+
+TODO.  In this section I'll describe the ordering of the process.  Roughly:
+
+1. decide on a research question 
+1. select a modelling framework 
+1. conceptualise the ideal analysis data
+1. acquire and pre-process the measured data 
+1. model selection  
+1. sensitivity analysis
+1. data checking
+1. reporting
+1. distribution of code and data
+
+##Implementing a pipeline
+
+I characterise this as tracking steps, inputs and outputs in such a way that if an auditor were to access the pipeline they could scrutinise these.  An example is the mass replication study, `r citep(bib[["OpenScienceCollaboration2015"]])`.
+
+TODO. In this section the basic scripted workflow is described using R and STATA as example.
+I might mention workflow software such as Kepler, VisTrails, Taverna, Ruffus.  I might also mention electronic notebooks and IDE such as Rstudio, Notepad++, Emacs, Eclipse and IPython (Jupyter). But these things are outside the scope of this paper.
+
+I'll use my Suicide and Drought paper as an example `r citep(bib[["Hanigan2012e"]])`.  The pipeline is shown in Figure \ref{fig:SuiDrtNSWoverviewtransformations}
+\clearpage
+\begin{figure}[!h]
+\centering
+\includegraphics[width=\textwidth]{SuiDrtNSWoverview_transformations.jpg}
+\caption{SuiDrtNSWoverview transformations}
+\label{fig:SuiDrtNSWoverviewtransformations}
+\end{figure}
+\clearpage
+
+##Disentangling a complicated method in a journal paper
 
 In a more complicated example `r citet(bib[["Akita2014"]])` introduce
 the Bayesian Maximum Entropy (BME) method for combining air pollution
@@ -228,6 +361,15 @@ dir()
 \end{figure}
 \clearpage
 
+#Sharing data
+TODO. Data sharing and documentation is another important topic to cover.
+I have developed R tools to assist with this.
+
+1. data_dictionary: this produces a similar output to the FREQUENCIES command in SPSS
+1. variable_names_and_labels: this summarises a (potentially cleaned) R `data.frame` whose attributes may be different from the source file
+1. reml_boilerplate: an automated method for extracting bulk information about columns for an EML metadata document
+1. data_inventory: a web2py database application that can be used to keep an inventory of data in a simple way that is also compliant with EML
+
 #Conclusions 
 
 In this way the pipeline of steps for preparing and
@@ -236,6 +378,10 @@ analysing data can be effectively managed and visualised
 ```{r, echo=FALSE, message=FALSE, eval = T}
 write.bibtex(file="components/manuscript.bib")
 ```
+#Acknowledgements
+- Joe Guillaume for introducing me to graphviz and first coding up a tool in python
+- Graphviz for inventing DOT
+- This document benefits from Hollister's template at https://github.com/jhollist/manuscriptPackage
 
 \clearpage
 
