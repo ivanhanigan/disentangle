@@ -129,6 +129,61 @@ if(!exists("bib")){
 <!-- \vspace{3mm}\hrule -->
 <!-- \doublespace -->
 #+end_src
+*** 2015-09-02-tracking-a-data-analysis-pipeline
+#+name:tracking-a-data-analysis-pipeline-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-08-28-tracking-a-data-analysis-pipeline.md :exports none :eval no :padline no
+  ---
+  name: tracking-a-data-analysis-pipeline
+  layout: post
+  title: tracking-a-data-analysis-pipeline
+  date: 2015-08-28
+  categories:
+  - disentangle
+  ---
+
+  I have just uploaded a new version of the windows build for my 'disentangle' package.  The blurb of the  draft vignette is below.
+  
+  # Introduction  
+  
+  It can be much easier to conceptually understand a complicated data
+  analysis pipeline than it is to implement that pipeline effectively.
+  This report outlines the use of the 'disentangle' R package, available from [http://ivanhanigan.github.io/projects.html](http://ivanhanigan.github.io/projects.html).  This package contains functions that were developed to aid data
+  analysts to map out all the aspects of their work when planning and
+  conducting complicated data analyses using the pipeline concept.    There are often many steps in the design and analysis of a study and
+  when these are put together as a data analysis pipeline this addresses
+  the challenge of reproducibility (Peng 2006).  The
+  credibility of data analyses requires that every step is able to be
+  scrutinised (Leek 2015).
+  
+  ## Motivating scientific questions 
+
+  The type of data analysis that is
+  the focus of this work is more complicated than simply loading some
+  data that are already cleaned, fitting some models and reporting some
+  output.  Typically the type of data analysis projects that these tools
+  are aimed at involve attempts to control for a large number
+  of inter-relationships and associations between variables. It is
+  especially problematic that these variables need to have been selected
+  by the scientists from a multitude of possible variables and a
+  plethora of possible data sources, during a long process of data
+  collection, cleaning, exploration and decision making in preparation
+  for data analysis. There are also a multitude of steps and decision
+  points in the process of model building and model checking. The use of
+  statistical models involving many entangled environmental and social
+  variables can easily result in spurious association that may be
+  mistakenly interpreted as causation.  Projects that the author has
+  been involved in include explorations of hypotheses about health effects from
+  droughts, bushfire smoke, heat-waves and dust-storms which produced
+  novel findings, and informed controversial debates about the
+  implications of climate change. The requirement to adequately convey
+  the methods and results of this research was problematic and motivated
+  the work on effective use of reproducible research techniques and data
+  analysis pipelines.
+  
+  
+  
+#+end_src
+
 *** COMMENT intro
 #+name:rmd head
 #+begin_src R :session *R* :tangle vignettes/disentangle-pipelines.Rmd :exports none :eval no :padline
@@ -137,7 +192,7 @@ if(!exists("bib")){
   
   It can be much easier to conceptually understand a complicated data
   analysis pipeline than it is to implement that pipeline effectively.
-  This report outlines R functions that were developed to aid data
+  This report outlines the use of the `disentangle` R package, available from http://ivanhanigan.github.io/projects.html.  This package contains functions that were developed to aid data
   analysts to map out all the aspects of their work when planning and
   conducting complicated data analyses using the pipeline concept.    There are often many steps in the design and analysis of a study and
   when these are put together as a data analysis pipeline this addresses
@@ -283,7 +338,7 @@ if(!exists("bib")){
   
   ##Adding additional attributes
   
-  The fundamental building blocks of a pipeline can be defined in a number of ways.  Some additional attributs to consider are the following:
+  The fundamental building blocks of a pipeline can be defined in a number of ways.  Some additional attributes to consider are the following:
   
   - Source data are different from derived data
   - Methods steps include information and decisions, and
@@ -304,7 +359,7 @@ if(!exists("bib")){
   
   #A simple example
   ##Make a list of steps, inputs and outputs
-
+  
   A very simple example of a pipeline is shown in Table \ref{tab:TablePipe1}.
   
   ```{r TablePipe1, results='asis', echo=FALSE}
@@ -364,6 +419,51 @@ if(!exists("bib")){
   \includegraphics[width=\textwidth]{steps-fig1.pdf}
   \caption{steps fig1}
   \label{fig:FigSteps}
+  \end{figure}
+  \clearpage
+  
+#+end_src
+*** COMMENT clusters-code
+#+name:clusters
+
+#+begin_src R :session *R* :tangle vignettes/disentangle-pipelines.Rmd :exports none :eval no :padline
+  
+  ##Clusters and modularised code
+  Clusters of steps, inputs and outputs can be defined to help keep things modular such as 'processing' and 'modelling'.
+  
+  ```{r clust,  results='asis', echo=FALSE}
+  dat <- steps[,c("CLUSTER", "STEP", "INPUTS", "OUTPUTS")]
+  library(xtable)
+  tabcode <- xtable(dat, caption = 'Simple', label = 'tab:TablePipe1')
+  align(tabcode) <-  c( 'l', 'p{.6in}','p{1.2in}','p{1.2in}', 'p{2in}' )
+  #sink(paste(fname, '.tex',sep = ""))
+  #cat(txt)
+  # print(tabcode,  include.rownames = F, table.placement = '!ht',
+  # caption.placement = 'top') #, type = "html")
+  rws <- seq(1, (nrow(dat)), by = 2)
+  col <- rep("\\rowcolor[gray]{0.95}", length(rws))
+  print(tabcode, booktabs = TRUE, include.rownames = F, table.placement = '!ht',
+   caption.placement = 'top',
+   add.to.row = list(pos = as.list(rws), command = col),
+   comment=FALSE)
+  ```
+  
+  ```{r echo=T, eval=F}
+  library(disentangle); library(stringr)
+  nodes <- newnode(indat = steps,   names_col = "STEP", in_col = "INPUTS",
+    out_col = "OUTPUTS", clusters_col = "CLUSTER",
+    nchar_to_snip = 70)
+  sink("vignettes/steps-cluster.dot"); cat(nodes); sink()
+  #DiagrammeR::grViz(nodes)
+  system("dot -Tpdf vignettes/steps-cluster.dot -o vignettes/steps-cluster.pdf")
+  
+  ```
+  
+  \begin{figure}[!h]
+  \centering
+  \includegraphics[width=.3\textwidth]{steps-cluster.pdf}
+  \caption{steps-cluster.pdf}
+  \label{fig:steps-cluster.pdf}
   \end{figure}
   \clearpage
   
@@ -1524,6 +1624,49 @@ legend(-117, 44, legend=names(attr(colcode, "table")),
 
 #+end_src
 
+*** big_pt
+**** R-big_pt_intersect
+#+name:big_pt_intersect
+#+begin_src R :session *R* :tangle R/big_pt_intersect.r :exports none :eval no
+  #' @title big points intersect
+  #' @name big_pt_intersect
+  #' @param pts a points spatial
+  #' @param ply a polygons spatial
+  #' @param chunks how many to split into
+  #' @return a combined data frame that avoids run out of memory with big points file 
+  big_pt_intersect <- function(pts, ply, chunks = 100){
+    idx <- split(pts@data, 1:chunks)
+    #str(idx)
+    for(i in 1:length(idx)){
+    #i = 1
+    print(i)
+      ids <- idx[[i]][,1]
+    #str(pts@data)
+    qc <- pts[pts@data[,1] %in% ids,]
+    #str(qc)
+    tryCatch(chunk <-  intersect(qc, ply), error = function(err){print(err)})
+    if(exists('chunk')){
+    if(i == 1){
+      chunk_out <- chunk@data
+    } else {
+      chunk_out <- rbind(chunk_out, chunk@data)
+    }
+    rm(chunk)
+    }
+    }
+    #str(chunk_out)
+    return(chunk_out)
+  }
+  # NB warning about split length multiple is not fatal, just due to nonequal chunks (ie the geocodes are 2009/100)
+  
+#+end_src
+**** test-big_pt_intersect
+#+name:big_pt_intersect
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:big_pt_intersect
+
+#+end_src
 ** COMMENT aggregate-list-of-dfs
 #+name:aggregate
 #+begin_src R :session *R* :tangle no :exports none :eval no
@@ -2259,6 +2402,90 @@ names(qc3) <-  paste("V", 1:13, sep = "")
   
   
 #+end_src
+
+* Statistical Modelling
+** 2015-09-12-effect-modification-and-mediation
+*** intro
+~/projects/ivanhanigan.github.com.raw/_posts/2015-09-12-effect-modification-and-mediation.md 
+#+name:effect-modification-and-mediation-header
+#+begin_src markdown :tangle no :exports none :eval no :padline no
+  ---
+name: effect-modification-and-mediation
+  layout: post
+title: effect-modification-and-mediation
+  date: 2015-09-12
+categories:
+  - disentangle
+- statistical modelling
+  ---
+
+  http://www.talkstats.com/showthread.php/27943-moderator-vs.-mediator-variable
+
+  trinker
+Here's what I've come up with:
+  
+moderator can affect direction and size of an effect between 2 other variables (x1 and y) but it you remove the moderator(x2) the effect between x1 and y still remains.
+  
+A mediator explains the relationship between 2 variables (x1 and y). If you remove the effects of the mediator (x2) there no longer exists a relationship between x1 and y.
+  
+Please critique 
+  
+#### Code:effect-modification-and-mediation
+  
+Lazar
+  Re: moderator vs. mediator variable
+
+      If a moderator is present then the relationship between x and y is different for different levels of a moderator M. For example the relationship between reading ability (x) and school engagement (y) may be different for boys and girls (where gender is the moderator m). I like to think of moderation as like a multigroup analysis. For example, if I thought gender was a moderator of some regression effect I was interested in I could run the regression in boys and girls seperately and see if they were different.
+
+      Mediation is about mechanism (m) that explain why x effects y. For example, the reason girls choose to study physical sciences at a lower rate than boys may be due to gendered parental expectations. In other words the relationship x(gender) -> Y(physical science college majors) is the result of a mechanism (i.e. it is not gender itself that leads to lower science uptake among women). Rather the mechanism is X(gender) -> M(gendered parental expectations) -> Y(physical science majors).
+
+      EDIT: While I am at it the distinction between moderation and mediation gets a bit grey in causal mediation or conditional indirect effects as these increasingly common models involve both moderation and mediation processes. 
+
+      For mediation you essentially need the following:
+
+  Y = \alpha + \beta_{x1} (1)
+
+  M = \alpha + \beta_{x2} (2)
+
+  Y = \alpha + \beta_m + \beta_{x3} (3)
+
+  Mediation Occurs if \beta_{x1} is significant in formula 1 but no longer significant (OR in many case we just want it to be smaller) in formula 3 (\beta_{x3}). If this is the case we can then decompose the effect of x on y into total, indirect (the effect of x on y that is mediated by m), and direct effects (the remaining effect of x on y after the indirect effect is accounted for).
+
+  Total effects = \beta_{x1}
+Direct effects = \beta_{x3}
+  Indirect effects = \beta_{x2} * \beta_{m}
+in all 3 of the equations, \beta_{xi} is the same X,
+  
+EDIT: Note how this differs from moderation. Moderation is estimated in a single equation
+  Y = \beta_{01} + \beta_{11}x + \beta_{12}z + \beta_{13}xz
+
+  Plugging in the applicable numbers here will give you the effect of x on y for different values of z. Here is some R code of mine which illustrates the relationship between experience and self-concept for different levels of workplace seniority (i.e. moderation).
+Code: 
+  
+#General Workplace self-concept
+#+end_src
+*** COMMENT eg-code
+#+name:eg
+#+begin_src R :session *R* :tangle eg.R :exports none :eval no
+  #### name:eg ####
+  
+  
+  
+    plot(1, type="n", xlim=c(-3,5), ylim=c(-2,2), xlab="Experience", ylab="Self-concept", main="General Workplace")
+  curve(exp=-.008*x + .137*-2 + .100*-2*x, from=-3, to=3, add=TRUE)
+    curve(exp=-.008*x + .137*2 + .100*2*x, from=-3, to=3, lty=3, add=TRUE)
+  #locator()
+    #used locator to get position of text
+  text(4, .85, "High Seniority (+2 SD)")
+    text(4, -.90, "Low Seniority (-2 SD)")
+  
+    Bryan said Isn't that must multicollinearity between two of the predictors? 
+  
+    Lazar replied you are correct (in that the varibles must obviously be colinear). The distinction to be made is that a theoretical interpretation is applied to this (and all of the associated causal ordering baggage that this brings with it). This theoretical formation is conceptualised as a path model and the relationship between y and x is decomposed as above. 
+  
+    
+#+end_src
+
 
 * Graphical User Interfaces
 ** web2py
@@ -3303,6 +3530,101 @@ query can be db.dataset.contact.like('Lach%')
 
 #+RESULTS: test2
 : 1
+
+** 2015-09-13-task-management-like-an-open-science-hacker
+#+name:task-management-like-an-open-science-hacker-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-09-13-task-management-like-an-open-science-hacker.md :exports none :eval no :padline no
+---
+name: task-management-like-an-open-science-hacker
+layout: post
+title: task-management-like-an-open-science-hacker
+date: 2015-09-13
+categories:
+- distenangle
+- project management
+---
+
+I just read this impressive paper and it has really given me a push toward making this open lab notebook 
+
+#### Citation
+    Nosek, B. A., et al. (2015). Promoting an open research
+    culture. Science, 348(6242), 1422–1425. doi:10.1126/science.aab2374
+
+<p></p>
+
+
+#### Quote
+    The situation is a classic collective action problem. Many individual researchers lack
+    strong incentives to be more transparent, even though the credibility of science would 
+    benefit if everyone were more transparent.
+<p></p>
+
+So I think I'll try to step up the pace of logging my daily scientific work.
+One super easy thing to do is to publish my daily log from my task management in orgmode.
+Indeed I am also reading at the moment this guy who says 
+
+#### Quote
+    The core of your documentation is the research log.
+   
+    Long, S. (2015). Reproducible Results and the Workflow of Data Analysis. 
+    Retrieved from http://www.indiana.edu/~jslsoc/ftp/WIM/wf wim 2015 2015-08-21@3.pdf
+<p></p>
+
+Finally, I was struck by this reference [http://rich-iannone.github.io/about/2014/10/28/introduction.html](http://rich-iannone.github.io/about/2014/10/28/introduction.html) to something about 365+ day GitHub streaks. It was covered earlier by Geoff Greer, and by Dirk Eddelbuettel.
+
+It seems the basic concept is that you can leverage off an obsessive tendency by making sure you do something toward ticking off items from the task list every day.  The impulse to not breaking the chain is supposed to give you inspiration to keep going.  I think this might work well for my temperatment.
+
+## Emacs and orgmode
+
+The set up of my daily log is pretty simple. After being set up by kjhealy's starter kit.
+Then I modified the org-agenda-files which was set in the main el file that kjhealy provided  and then with the command C-c a a emacs will display my calendar.
+
+When I open emacs in the morning I  open the agenda and this also opens research-log file.  I move to that buffer, then I use this key command to insert a new entry for todays date
+
+#### CODE
+     (define-skeleton org-journalentry
+       "Template for a journal entry."
+       "project:"
+       "*** " (format-time-string "%Y-%m-%d %a") " \n"
+       "**** TODO-list \n"
+       "***** TODO \n"
+       "**** timesheet\n"
+       "#+begin_src txt :tangle research-log.csv :eval no :padline no\n"
+       (format-time-string "%Y-%m-%d %a") ", " str ", 50\n" 
+       "#+end_src\n"
+     )
+     (global-set-key [C-S-f5] 'org-journalentry)
+
+<p></p>
+
+This creates a new date, a stub of a TODO for anything ad hoc and a entry into my timesheet.csv file.
+
+I then select from TODO items from a global list that I keep at the top of the file, and cut/paste them into todays list.
+
+
+![img](images/agenda.png)
+
+Great so I just moved this research-log orgmode file into my blog github repo, and with the help of charlie park's bash script I am good to go
+
+#### CODE
+
+    alias build_blog="cd ~/projects/ivanhanigan.github.com.raw; jekyll b;
+    cp -r ~/projects/ivanhanigan.github.com.raw/_site/* ~/projects/ivanhanigan.github.com;
+    cd ~/projects/ivanhanigan.github.com;git add .;git commit -am 'Latest build.';git push"
+    alias bb="build_blog"
+
+<p></p>
+
+So this will put the resulting changes onto my open lab book website here [https://github.com/ivanhanigan/ivanhanigan.github.com/blob/master/research-log.org](https://github.com/ivanhanigan/ivanhanigan.github.com/blob/master/research-log.org)
+
+Things to note:
+
+- I found this list of tips [http://natashatherobot.com/streak-github-mistakes/](http://natashatherobot.com/streak-github-mistakes/)
+- In particular I realise I need to make my daily push by 4:50 PM in Canberra ACT as this is 11:50 PM the previous day for Github, Pacific Time (PT)
+- I also will need to ensure I don't publish sensitive (or embarrasing entries).  
+- I'll try to keep the identity of my collaborators private as well, so just use their initials rather than names.
+
+#+end_src
 
 * Workflow Tools
 
@@ -4526,6 +4848,9 @@ categories:
   ---
   title: "orgmode tests"
   author: Ivan C. Hanigan
+  header-includes:
+    - \usepackage{graphicx}
+    - \usepackage{longtable}
   output:
     html_document:
       toc: true
@@ -4546,21 +4871,26 @@ categories:
   ```{r echo = F, eval=F, results="hide"}
 #+end_src
 ** run-able R
-#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no :padline no
-
+#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval yes :padline no
+  
   library(rmarkdown)
   library(knitr)
   library(knitcitations)
   library(bibtex)
   cleanbib()
   cite_options(citation_format = "pandoc", check.entries=FALSE) 
-  rmarkdown::render("main.Rmd", "html_document")
-
+  rmarkdown::render("main.Rmd", "pdf_document")
+  #browseURL("main.pdf")
 #+end_src
+
+#+RESULTS:
+: /home/ivan_hanigan/tools/disentangle/main.pdf
+
 ** perhaps tangle out pure R
 #+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no :padline no
   ```
   ```{r echo = F, eval=F, results="hide"}  
+  # http://stackoverflow.com/a/26066411
   # to tangle chunks even when eval = F use this (with eval=F)
   library(knitr)
   knit_hooks$set(purl = function(before, options) {
@@ -4600,6 +4930,56 @@ This is another thing `r citep( bib[["Hanigan2012"]])`.
 
 #+end_src
 
+
+** fig
+#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no
+  ## figure
+  
+  shown in figure \ref{fig:fig}
+  
+  ```{r, eval = F, echo = F}
+  png("fig.png", res = 150, height = 1000, width = 1000)
+  pairs(airquality)
+  dev.off()
+  ```
+  
+  \begin{figure}[!h]
+  \centering
+  \includegraphics[width=.5\textwidth]{fig.png}
+  \caption{fig}
+  \label{fig:fig}
+  \end{figure}
+  \clearpage
+  
+#+end_src
+** table
+#+name:main.Rmd
+#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no
+  
+  ## a table
+  
+  ```{r, eval = F, echo = F}
+  library(xtable)
+  library(disentangle)
+  library(nycflights13)
+  dd <- data_dictionary(flights)
+  
+  sink('tab1.tex')
+  print(xtable(dd, caption = "Table of nominal variables.", lab = "tab:table1"),
+  tabular.environment='longtable',
+  floating=FALSE,
+  caption.placement = "top", add.to.row = list(pos = list(0),
+  command = "\\hline \\endhead "),  include.rownames = F)
+  sink()
+  ```
+  
+  Shown in Table \ref{tab:table1} is ... 
+  
+  \input{tab1.tex}
+  \clearpage
+  
+#+end_src
+
 ** COMMENT bib-code
 #+name:bib
 #+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no
@@ -4614,9 +4994,7 @@ This is another thing `r citep( bib[["Hanigan2012"]])`.
 
 ** footnotes in markdown
 http://nancym.tumblr.com/post/59594358553/links-footnotes-and-abbreviations-in-markdown
-This is needed provide the trust that a data
-  analysis was appropriately conducted and avoided errors of execution,
-  or methodogical design [^comerrmeth].
+This is needed to  provide the trust that a data  analysis was appropriately conducted and avoided errors of execution,  or methodogical design [^comerrmeth].
 
 [^comermeth]: the footnote
 * Blogging
@@ -4860,3 +5238,221 @@ Example 3
 Subject: I revised the draft to include your suggestions about simulations and language
 
 Revisions attached. Let me know if you have any problems, otherwise I’ll submit Monday at 2pm. 
+** 2015-09-03-how-to-say-why-before-what
+#+name:how-to-say-why-before-what-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-09-03-how-to-say-why-before-what.md :exports none :eval no :padline no
+---
+name: how-to-say-why-before-what
+layout: post
+title: how-to-say-why-before-what
+date: 2015-09-03
+categories:
+- disentangle
+- writing
+---
+
+I have discovered a flaw in my writing style.  
+I often say what it it before I say why it is important.
+  
+#### Example 
+  
+    Disentangling health effects of environmental from social factors
+    is difficult for a variety of reasons. The effort to examine and
+    to separate environmental and social causes is nevertheless
+    valuable. [WHY IS IT VALUABLE?] This is especially important to
+    policy makers and to others who seek to maximise the public
+    good. A greater understanding of their respective contributions
+    will lead to more rational, deep-seated, lasting and effective
+    interventions.
+
+<p></p>
+
+The caps question is from someone reading my draft.  I need to start with the why.
+Perhaps just turn the paragraph on its head?
+  
+#### Example 
+  
+    A greater understanding of the respective contributions from
+    environmental and social factors will lead to more rational,
+    deep-seated, lasting and effective interventions by policy makers
+    and to others who seek to maximise the public good.  Disentangling
+    health effects of environmental from social factors is difficult
+    for a variety of reasons. The effort to examine and to separate
+    environmental and social causes is nevertheless valuable.
+      
+<p></p>
+
+#+end_src
+
+** disavow an expected confusion
+http://andrewgelman.com/2015/02/09/24741/
+Discussion with Steven Pinker connecting cognitive psychology research to the difficulties of writing
+Posted by Andrew on 9 February 2015, 10:00 am
+
+Following up on my discussion of Steven Pinker’s writing advice, Pinker and I had an email exchange that cleared up some issues and raised some new ones.
+
+In particular, Pinker made a connection between the difficulty of writing and some research findings in cognitive psychology. I think this connection is really cool—I’ve been thinking and writing about writing for awhile, now, but I’e never really seen the connection to psychology research. So I wanted to share this with you.
+
+Pinker’s remarks came at the end of an email exchange. I’ll share the earlier messages to give the background, but by far the most interesting part is what Pinker said, so I’ll give that right away.
+
+Here’s Pinker, discussing the difficulty of communicating complex ideas (in particular, in academic writing we typically aren’t just making the case for position B, we’re also arguing why previous position A, reasonable as it might sound, is not correct):
+
+    I address it in part in chapter 5 of The Sense of Style in discussing our comprehension of negation. The human mind cannot represent a proposition without a truth value – to think “X” is to think “X is true,” at least temporarily. Negation requires an extra mental step—which can easily fail when the person is overloaded or distracted. A number of systematic kinds of error and difficulty follow. My colleague Dan Gilbert has an insightful review of this literature in his 1991 article, “How Mental Systems Believe.”
+
+    On top of that people’s comprehension is often driven more by expectations than the literal content of the text (again, particularly when not paying close attention). When I see certain misinterpretations I often think of the puzzling neurospsychological syndrome called “deep dyslexia.” Surface dyslexia consists of misreadings based on alphabetic confusions – misreading “pear” as “bear,” for example. In deep dyslexia, the patient might misread “pear” as “apple.” The puzzle is that if the patient’s word-recognition system could parse the letters well enough to realize it referred to a fruit, it must have been because he matched the input with a stored template for “pear” – so why didn’t he successfully read it as “pear”? Presumably such patients’ semantic representations (the definitions in their mental dictionary) were so degraded that the word merely activated a coarse semantic ballpark, without enough precision to pinpoint the exact entry. From there sheer base-rate frequency determines the output. It’s a crude analogy to the way we non-brain-damaged people often parse a sentence coarsely enough to remind us of a semantic neighborhood and then we fill in the rest from base rates. Often a writer will have to anticipate this and explicitly disavow an expected confusion: “You probably think I mean this, but I really mean that.”
+
+I’ve been trying to do this more often, for example in this 2011 article on the philosophy of Bayesian statistics, where I’m pretty explicit about what I’m disagreeing with (for example, the first section of this paper is entitled, “The Standard View of the Philosophy of Statistics, and Its Malign Influence on Statistical Practice”).
+
+Still, I think the necessity of clearing-away-the-old creates an additional degree of difficulty in much of academic writing.
+
+What I found exciting in Pinker’s note above was his connection of this vague idea, which I arrived at by introspection, to research in cognition.
+* Web2py
+** sounds players
+# download web2py
+wget http://web2py.com/examples/static/web2py_src.zip
+unzip web2py_src.zip
+cd web2py
+
+# make the app using only core API
+mkdir applications/audio
+cp -r applications/welcome/* applications/audio
+echo "
+db.define_table('music',
+                Field('name',required=True),
+                Field('filename','upload',required=True),
+                auth.signature)
+" > applications/audio/models/db_audio.py
+echo "
+response.menu = [('Home',0,URL('index'))]
+
+# allows to browser, search, and upload new music (if logged in)
+def index():
+    # tell web2py that links to music files are to be
+    # represented as HTML5 audio embedded players
+    from gluon.contrib.autolinks import expand_one
+    db.music.filename.represent = lambda v,r: \
+        XML(expand_one(URL('download',args=v),{}))
+    return dict(grid = SQLFORM.grid(db.music))
+
+# perform login/logout/registration/etc.
+def user():
+    return dict(form=auth())
+
+# allow streaming of all files, including partial content of music files
+@cache.action()
+def download():
+    return response.download(request, db)
+" > applications/audio/controllers/default.py
+* Diagrams
+** causal DAGs with R
+http://donlelek.github.io/2015/03/31/dags-with-r/
+*** COMMENT test-code
+#+name:test
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:test ####
+  library(DiagrammeR)
+  grViz("
+  digraph causal {
+  
+    # Nodes
+    node [shape = plaintext]
+    A [label = 'Age']
+    R [label = 'Retained\n Placenta']
+    M [label = 'Metritis']
+    O [label = 'Cistic ovarian\n disease']
+    F [label = 'Fertility']
+    
+    # Edges
+    #edge [color = black,
+    #      arrowhead = vee]
+    rankdir = LR
+    A->F [headlabel='+']
+    A->O [headlabel='-']
+    A->R
+    R->O [headlabel='+']
+    R->M
+    M->O
+    O->F
+    M->F
+    
+    # Graph
+    graph [overlap = true, fontsize = 10]
+  }")
+#+end_src
+** COMMENT diagrammer-code
+*** diagrammer tests
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:diagrammer
+  install.packages('DiagrammeR')
+  library(DiagrammeR)
+  library(disentangle)
+  ###
+  # Create a graph with both nodes and edges
+  # defined, and, add some default attributes
+  # for nodes and edges
+  ###
+  
+  library(DiagrammeR)
+  # modified eg from http://rich-iannone.github.io/DiagrammeR/graphs.html
+  # Create a node data frame
+  nodes <-
+    create_nodes(nodes = c("a", "b", "c", "d"),
+                 label = c("one", "two", "three", "{{ { Name | Description } | { four | thing } }}"),
+                 type = "lower",
+                 style = c("filled","", "", ""),
+                 color = "aqua",
+                 shape = c("circle", "circle",
+                           "rectangle", "record"),
+                 data = c(3.5, 2.6, 9.4, 2.7),
+                 cluster = c("A", "A", "B", "B"))
+  nodes
+  nodes1 <- subset(nodes, cluster == "A")
+  nodes1
+  nodes2 <- subset(nodes, cluster == "B")
+  nodes2
+  edges <-
+    create_edges(from = c("a", "b", "c"),
+                 to = c("d", "c", "a"),
+                 relationship = "leading_to",
+                 label = c("+", "-", "?"))
+  edges
+  edges2 <-
+    create_edges(from = c("e", "a"),
+                 to = c("f", "e"),
+                 relationship = "leading_to",
+                 label = c("+", "-"))
+  edges2
+  graph1 <-
+    create_graph(nodes_df = nodes1,
+                 edges_df = edges,
+                 node_attrs = "fontname = Helvetica",
+                 edge_attrs = c("color = blue",
+                                "arrowsize = 2"))#,
+  #               graph_attrs = "rankdir = LR")
+  graph2 <-
+    create_graph(nodes_df = nodes2,
+                 edges_df = edges2,
+                 node_attrs = "fontname = Helvetica",
+                 edge_attrs = c("color = blue",
+                                "arrowsize = 2"))
+      # use create_graph on seperate nodes and edges data frames, one for
+      # each cluster
+      gr1 <- graph1$dot_code
+      gr2 <- graph2$dot_code
+      gr1 <- gsub("digraph", "subgraph cluster1", gr1)
+      gr2 <- gsub("digraph", "subgraph cluster2", gr2)
+      gr3 <- sprintf("digraph{\n%s\n\n %s\n}", gr1, gr2)
+      grViz(gr3)
+  
+  
+  # View the graph in the RStudio Viewer
+  #render_graph(graph)
+  #graph <- add_edges(graph, from = "b", to = "a",
+  #                   relationship = "leading_to")
+  #get_predecessors(graph, node = "a")
+  #graph <- add_edges(graph, from = "d", to = "b",
+  #                   relationship = "leading_to")
+  #render_graph(graph)
+  
+#+end_src
+

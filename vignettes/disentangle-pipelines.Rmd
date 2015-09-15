@@ -94,7 +94,7 @@ if(!exists("bib")){
 
 It can be much easier to conceptually understand a complicated data
 analysis pipeline than it is to implement that pipeline effectively.
-This report outlines R functions that were developed to aid data
+This report outlines the use of the `disentangle` R package, available from http://ivanhanigan.github.io/projects.html.  This package contains functions that were developed to aid data
 analysts to map out all the aspects of their work when planning and
 conducting complicated data analyses using the pipeline concept.    There are often many steps in the design and analysis of a study and
 when these are put together as a data analysis pipeline this addresses
@@ -220,7 +220,7 @@ different kind of data such as a table of
 
 ##Adding additional attributes
 
-The fundamental building blocks of a pipeline can be defined in a number of ways.  Some additional attributs to consider are the following:
+The fundamental building blocks of a pipeline can be defined in a number of ways.  Some additional attributes to consider are the following:
 
 - Source data are different from derived data
 - Methods steps include information and decisions, and
@@ -292,6 +292,45 @@ system("dot -Tpdf vignettes/steps-fig1.dot -o vignettes/steps-fig1.pdf")
 \includegraphics[width=\textwidth]{steps-fig1.pdf}
 \caption{steps fig1}
 \label{fig:FigSteps}
+\end{figure}
+\clearpage
+
+##Clusters and modularised code
+Clusters of steps, inputs and outputs can be defined to help keep things modular such as 'processing' and 'modelling'.
+
+```{r clust,  results='asis', echo=FALSE}
+dat <- steps[,c("CLUSTER", "STEP", "INPUTS", "OUTPUTS")]
+library(xtable)
+tabcode <- xtable(dat, caption = 'Simple', label = 'tab:TablePipe1')
+align(tabcode) <-  c( 'l', 'p{.6in}','p{1.2in}','p{1.2in}', 'p{2in}' )
+#sink(paste(fname, '.tex',sep = ""))
+#cat(txt)
+# print(tabcode,  include.rownames = F, table.placement = '!ht',
+# caption.placement = 'top') #, type = "html")
+rws <- seq(1, (nrow(dat)), by = 2)
+col <- rep("\\rowcolor[gray]{0.95}", length(rws))
+print(tabcode, booktabs = TRUE, include.rownames = F, table.placement = '!ht',
+ caption.placement = 'top',
+ add.to.row = list(pos = as.list(rws), command = col),
+ comment=FALSE)
+```
+
+```{r echo=T, eval=F}
+library(disentangle); library(stringr)
+nodes <- newnode(indat = steps,   names_col = "STEP", in_col = "INPUTS",
+  out_col = "OUTPUTS", clusters_col = "CLUSTER",
+  nchar_to_snip = 70)
+sink("vignettes/steps-cluster.dot"); cat(nodes); sink()
+#DiagrammeR::grViz(nodes)
+system("dot -Tpdf vignettes/steps-cluster.dot -o vignettes/steps-cluster.pdf")
+
+```
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.3\textwidth]{steps-cluster.pdf}
+\caption{steps-cluster.pdf}
+\label{fig:steps-cluster.pdf}
 \end{figure}
 \clearpage
 
