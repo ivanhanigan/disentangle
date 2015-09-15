@@ -1,8 +1,8 @@
 Package: disentangle
 Type: Package
 Title: disentangle
-Version: 1.4.5
-Date: 2015-08-30
+Version: 1.4.6
+Date: 2015-09-15
 Author: ivanhanigan
 Maintainer: <ivan.hanigan@gmail.com>
 Suggests: stringr, ggmap, maps, maptools, rgdal, sqldf
