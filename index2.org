@@ -11,8 +11,8 @@
 Package: disentangle
 Type: Package
 Title: disentangle
-Version: 1.4.5
-Date: 2015-08-30
+Version: 1.4.6
+Date: 2015-09-15
 Author: ivanhanigan
 Maintainer: <ivan.hanigan@gmail.com>
 Suggests: stringr, ggmap, maps, maptools, rgdal, sqldf
@@ -1644,15 +1644,15 @@ legend(-117, 44, legend=names(attr(colcode, "table")),
     #str(pts@data)
     qc <- pts[pts@data[,1] %in% ids,]
     #str(qc)
-    tryCatch(chunk <-  intersect(qc, ply), error = function(err){print(err)})
-    if(exists('chunk')){
-    if(i == 1){
+    tryCatch(chunk <-  raster::intersect(qc, ply), error = function(err){print(err)})
+    if(!exists('chunk_out')){
+    
       chunk_out <- chunk@data
     } else {
       chunk_out <- rbind(chunk_out, chunk@data)
     }
     rm(chunk)
-    }
+    
     }
     #str(chunk_out)
     return(chunk_out)

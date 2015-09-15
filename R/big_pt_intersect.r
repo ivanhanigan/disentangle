@@ -15,15 +15,15 @@ big_pt_intersect <- function(pts, ply, chunks = 100){
   #str(pts@data)
   qc <- pts[pts@data[,1] %in% ids,]
   #str(qc)
-  tryCatch(chunk <-  intersect(qc, ply), error = function(err){print(err)})
-  if(exists('chunk')){
-  if(i == 1){
+  tryCatch(chunk <-  raster::intersect(qc, ply), error = function(err){print(err)})
+  if(!exists('chunk_out')){
+  
     chunk_out <- chunk@data
   } else {
     chunk_out <- rbind(chunk_out, chunk@data)
   }
   rm(chunk)
-  }
+  
   }
   #str(chunk_out)
   return(chunk_out)
