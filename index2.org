@@ -20,7 +20,7 @@ Description:  Functions for helping to disentangle data and analysis pipelines.
 License: GPL (>= 2)
 #+end_src
 
-* Vignette
+* DEPRECATED Vignette SEE THESIS
 *** COMMENT run-code
 #+name:run
 #+begin_src R :session *R* :tangle no :exports none :eval yes
@@ -640,1860 +640,6 @@ boxplot(a~b)
   #References
   
 #+end_src
-
-
-* Data Documentation
-** 2015-03-19-r-eml-to-mitigate-risks-in-morpho-metacat-data-publishing
-
-
-#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-03-19-r-eml-to-mitigate-risks-in-morpho-metacat-data-publishing.md :exports none :eval no :padline no
----
-name: r-eml-to-mitigate-risks-in-morpho-metacat-data-publishing
-layout: post
-title: Using the R EML software to mitigate risks in Morpho and Metacat data publishing
-date: 2015-03-19
-categories:
-- morpho
-- data documentation
----
-
-# Introduction
-
-- Over the last few months I have used software called Metacat as a Data Portal and Repository.  Metacat is server software which has been
-developed by the Knowledge Network for Biocomplexity (KNB). 
-- Metacat
-conforms to the Ecological Metadata Language (EML) Standard ([https://knb.ecoinformatics.org/#external//emlparser/docs/index.html](https://knb.ecoinformatics.org/#external//emlparser/docs/index.html)).  
-- KNB also develop another software package called Morpho to be used by Ecologists to document their data ([https://knb.ecoinformatics.org/#tools/morpho](https://knb.ecoinformatics.org/#tools)).
-- Morpho can be used to send the data and metadata documents to be published on a Metacat portal. 
-- KNB’s software is used internationally by the Data
-Observation Network for Earth (DataONE) nodes, the United States Long
-Term Ecological Research (US LTER) network and the International Long
-Term Ecological Research (ILTER) network. 
-- Additionally, the Australian Long Term Ecological Research Network 
-Data Portal ([www.ltern.org.au/knb/](http://www.ltern.org.au/knb/)), Australian SuperSites Network and
-Australian Centre for Ecological Analysis and Synthesis used
-the same underlying technology to publish data packages.
-- The Metacat system is great for a data repository but unfortunately (in my experience) the Morpho software package has repeatedly hampered data processing and increased risks of inadvertently publishing data with errors. 
-- My colleagues and I workaround these problems using a lot of different 'fixes' for the different problems.
-- Fortunately there is an alternative to Morpho in the R statistical software environment called the R-EML package ([https://github.com/ropensci/EML](https://github.com/ropensci/EML)).  This provides a library of functions used in the R language to generate and parse EML files.
-- This new workflow mitigates some of the risks of the Morpho software by ensuring the data related steps of the workflow are conducted in the R environment for statical computing.
-- However, some Issues remain in that this requires a fairly specialised computing environment with various Linux libraries configured appropriately
-
-
-# Results
- 
-- I generate EML metadata using REML in the workflow shown in the figure below.
-
-![altext](/images/workflow-rmd-md.png)
-
-<p></p>
-
-- Image adapted from [http://kieranhealy.org/blog/archives/2014/01/23/plain-text/](http://kieranhealy.org/blog/archives/2014/01/23/plain-text/)
-
-
-#+end_src
-
-** TODO xxx-adding-value-labels-to-reml-boilerplate
-*** adding-value-labels-to-reml-boilerplate-header
-#+begin_src R :tangle no :exports none :eval no :padline no
-  ---
-  name: adding-value-labels-to-reml-boilerplate
-  layout: post
-  title: adding-value-labels-to-reml-boilerplate
-  date: 2014-08-22
-  categories:
-  -
-  ---
-  
-  #### Code:adding-value-labels-to-reml-boilerplate
-  #For sake of argument, imagine a data.frame looking something like this:
-  
-  
-  dat = data.frame(river=c("SAC", "SAC", "AM"),
-                   spp = c("king", "king", "ccho"),
-                   stg = c("smolt", "parr", "smolt"),
-                   ct =  c(293, 410, 210L))
-  
-  xtable::xtable(dat)
-  
-  
-  
-  #In case our column header abbreviations are not obvious to others (or our future selves), we take a moment to define them:
-  
-  
-  col_metadata = c(river = "http://dbpedia.org/ontology/River",
-                   spp = "http://dbpedia.org/ontology/Species",
-                   stg = "Life history stage",
-                   ct = "count")
-  
-  
-  
-  # Define the units used in each column.  In the case of factors, we define the abbreviations in a named string.
-  
-  
-  unit_metadata =
-    list(river = c(SAC = "The Sacramento River", AM = "The American River"),
-         spp = c(king = "King Salmon", ccho = "Coho Salmon"),
-         stg = c(parr = "third life stage", smolt = "fourth life stage"),
-         ct = "number")
-  
-  # automated?
-  #dat <- dat[,-4]
-  dat
-  
-#+end_src
-
-*** COMMENT reml_boilerplate1-code
-#+name:reml_boilerplate
-# begin_src R :session *R* :tangle R/reml_boilerplate.r :exports reports :eval no
-#+begin_src R :session *R* :tangle no :exports reports :eval no
-
-  ################################################################
-  # name:reml_boilerplate
-   
-  # func
-  ## if(!require(EML)) {
-  ##   require(devtools)
-  ##   install_github("EML", "ropensci")
-  ##   } 
-  ## require(EML)
-  
-  reml_boilerplate <- function(data_set, outfile = NA, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA)
-  {
-  
-    # next create a list from the data
-    unit_defs <- list()
-    for(i in 1:ncol(data_set))
-      {
-        # i = 4
-        if(is.numeric(data_set[,i])){
-          unit_defs[[i]] <- "number"
-        } else {
-          unit_defs[[i]] <- names(data_set)[i]
-        }
-      }
-  
-  # print helpful comments
-  cat(
-  sprintf('
-  # you just got a cheater\'s unit_defs
-  # we can get the col names easily
-  col_defs <- names(dat)
-  # then create a dataset with metadata
-  ds <- data.set(dat,
-                 col.defs = col_defs,
-                 unit.defs = unit_defs
-                 )
-  # now write EML metadata file
-  eml_config(creator="%s")
-  eml_write(ds,
-            file = "%s",
-            title = "%s"
-            )
-  
-  # now your metadata has been created
-  # if you want to add this to morpho and metacat it will needs something like
-  </dataFormat>
-    <distribution scope="document">
-      <online>
-        <url function="download">ecogrid://knb/hanigan.34.1</url>
-      </online>
-    </distribution>
-  </physical>', created_by, outfile, titl)
-  )
-  
-  
-    return(unit_defs)
-  
-   }
-#+end_src
-
-*** COMMENT reml_boilerplate2-code
-#+name:get_vals
-# begin_src R :session *R* :tangle R/reml_boilerplate.r :exports none :eval no
-#+begin_src R :session *R* :tangle no :exports none :eval no
-  reml_boilerplate <- function(.dataframe){
-  strng <- list()
-  for(i in 1:ncol(.dataframe)){
-    # i = 6
-    .variable <- names(.dataframe)[i]
-    #.dataframe[,.variable]
-      if(is.character(.dataframe[ ,.variable])){
-        .dataframe[,.variable]  <- factor(.dataframe[,.variable])
-      }
-  
-    if(is.factor(.dataframe[,.variable])){
-      x <- .dataframe[,.variable]
-      vals <-  names(table(x))
-      # symbols may pollute the string to parse
-      vals <- make.names(vals)
-      vals <- tolower(vals)  
-      vals <- gsub("\\.","_",vals)
-      vals <- gsub("_+","_",vals)    
-      v <- .variable
-      #v
-      strng[[.variable]] <- paste(
-      v, ' = c(',
-      paste(vals, sep = '', collapse = ' = "TBA",')
-      ,' = "TBA")', sep = '')
-    } else if(is.numeric(.dataframe[,.variable])){
-      v <- .variable
-      strng[[.variable]] <- paste(v,' = "number"',sep='')
-  #    strng[[.variable]] <- '"number"'
-      
-    } else if(
-      !all(is.na(as.Date(as.character(na.omit(.dataframe[,.variable])), origin = "1970-01-01")))
-      ){
-      v <- .variable    
-      strng[[.variable]] <- paste(v,' = "YYYY-MM-DD"',sep='')
-  #    strng[[.variable]] <- '"YYYY-MM-DD"'
-  
-    } else if (all(is.na(.dataframe[ ,.variable]))){
-      v <- .variable        
-      strng[[.variable]] <- paste(v,' = "', names(.dataframe)[i], '"', sep='')
-    }
-  }  
-  #strng
-  strng2 <- ""
-  for(n in 1:(length(strng)-1)){
-    strng2 <- paste(strng2, strng[[n]], ",\n")
-  }
-  strng2 <- paste(strng2, strng[[length(strng)]], "\n")
-  #cat(strng2)
-  strng3 <- paste("
-  unit_metadata =
-    list(",strng2,")", sep = "")
-  #cat(strng3)
-  eval(parse(text = strng3))
-  #unit_metadata
-  return(unit_metadata)
-  }
-  
-  #u1 <- get_vals(analyte)
-  #u1
-      
-#+end_src
-*** COMMENT reml_boilerplate3-code
-#+name:get_vals
-#+begin_src R :session *R* :tangle R/reml_boilerplate.r :exports none :eval no
-  
-  reml_boilerplate <- function(.dataframe, enumerated = NA){
-  strng <- list()
-  for(i in 1:ncol(.dataframe)){
-  # i = 1
-    .variable <- names(.dataframe)[i]
-    #.dataframe[,.variable]
-      if(is.character(.dataframe[ ,.variable])){
-        .dataframe[,.variable]  <- factor(.dataframe[,.variable])
-      }
-  
-    if(is.factor(.dataframe[,.variable])  & i %in% enumerated){
-      x <- .dataframe[,.variable]
-      vals <-  names(table(x))
-      # symbols may pollute the string to parse
-      vals <- make.names(vals)
-      vals <- tolower(vals)  
-      vals <- gsub("\\.","_",vals)
-      vals <- gsub("_+","_",vals)    
-      v <- .variable
-      #v
-      strng[[.variable]] <- paste(
-      v, ' = c(',
-      paste(vals, sep = '', collapse = ' = "TBA",')
-      ,' = "TBA")', sep = '')
-    } else if(is.factor(.dataframe[,.variable])){
-      
-      strng[[.variable]] <- paste(
-        .variable, ' = "TBA"', sep = ''
-        )
-  
-    } else if(is.numeric(.dataframe[,.variable])){
-      v <- .variable
-      strng[[.variable]] <- paste(v,' = "number"',sep='')
-  #    strng[[.variable]] <- '"number"'
-      
-    } else if(
-      !all(is.na(as.Date(as.character(na.omit(.dataframe[,.variable])), origin = "1970-01-01")))
-      ){
-      v <- .variable    
-      strng[[.variable]] <- paste(v,' = "YYYY-MM-DD"',sep='')
-  #    strng[[.variable]] <- '"YYYY-MM-DD"'
-  
-    } else if (all(is.na(.dataframe[ ,.variable]))){
-      v <- .variable        
-      strng[[.variable]] <- paste(v,' = "', names(.dataframe)[i], '"', sep='')
-    }
-  }  
-  #strng
-  strng2 <- ""
-  for(n in 1:(length(strng)-1)){
-    strng2 <- paste(strng2, strng[[n]], ",\n")
-  }
-  strng2 <- paste(strng2, strng[[length(strng)]], "\n")
-  #cat(strng2)
-  strng3 <- paste("
-  unit_metadata =
-    list(",strng2,")", sep = "")
-  #cat(strng3)
-  eval(parse(text = strng3))
-  #unit_metadata
-  return(unit_metadata)
-  }
-  
-  #u1 <- get_vals(analyte)
-  #u1
-      
-#+end_src
-
-
-*** reml_boilerplate-test-code
-#+name:reml_boilerplate-test
-#+begin_src R :session *R* :tangle no :exports reports :eval no
-  ################################################################
-  # name:reml_boilerplate-test
-  library(EML)
-  require(devtools)
-  load_all()
-  #require(disentangle)
-  fpath <- system.file("extdata/civst_gend_sector_additional_variables.csv", package = "disentangle")
-  analyte <- read.csv(fpath, colClasses=c(ordinal_variable = "character"))
-  analyte <- read.csv(fpath, stringsAsFactor = F)
-  
-  str(analyte)
-  analyte$datevar <- as.Date(analyte$datevar)
-  analyte$ordinal_variable <- as.character(analyte$ordinal_variable)
-  analyte$fractions <- sample(rnorm(1000,0.1,0.1), nrow(analyte))
-  
-  str(analyte)
-  head(analyte)
-  unit_defs <- reml_boilerplate(
-    data_set = analyte,
-    created_by = "Ivan Hanigan <ivanhanigan@gmail.com>",
-    titl = "civst_gend_sector_full",
-    outfile = 'testing1234'
-    )
-  unit_defs
-  analyte2 <- analyte
-  names(analyte)
-  #analyte <- analyte2[,-c(6)]
-  unit_defs <- reml_boilerplate2(analyte)
-  unit_defs
-  
-  unit_defs <- reml_boilerplate3(analyte, enumerated = c(1,2,3,8))
-  unit_defs
-  
-  
-  
-  
-    # we can get the col names easily
-    col_defs <- names(analyte)
-    # then create a dataset with metadata
-    ds <- data.set(analyte,
-                   col.defs = col_defs,
-                   unit.defs = unit_defs
-                   )
-    # now write EML metadata file
-    eml_config(creator="TBA <fakeaddress@gmail.com>")
-  outfile <- "testingAbcd12234.csv"
-  str(ds)
-    ## eml_write(ds,
-    ##           file = gsub(".csv", "_eml_skeleton.xml", outfile),
-    ##           title = gsub(".csv", "", outfile)
-    ##           )
-  ## [1] "testingAbcd12234_eml_skeleton.xml"
-  ## Warning message:
-  ## In `[[<-.data.frame`(`*tmp*`, i, value = c("2013-09-09/01/13", "2013-09-09/01/13",  :
-  ##   Setting class(x) to NULL;   result will no longer be an S4 object
-  ## >
-  eml_write(analyte,
-            col.defs = col_defs,
-            unit.defs = unit_defs,
-            creator="TBA <fakeaddress@gmail.com>",
-            file = gsub(".csv", "_eml_skeleton.xml", outfile)
-            )
-  
-  tempfile <- dir(pattern="^data_table_")
-  tempfile
-  file.rename(tempfile, outfile)
-  # rename the CSV file.
-  
-  # dir("data")
-#+end_src
-
-*** COMMENT reml_boilerplate new test-code
-#+name:reml_boilerplate new test
-#+begin_src R :session *R* :tangle no :exports none :eval no
-#### name:reml_boilerplate new test####
-install.packages("dlnm")
-library(dlnm)
-library(disentangle)
-library(EML)
-
-data(chicagoNMMAPS)
-str(chicagoNMMAPS)
-?chicagoNMMAPS
-data_dictionary(chicagoNMMAPS)
-unit_defs <- reml_boilerplate(chicagoNMMAPS)
-col_defs <- names(chicagoNMMAPS)
-ds <- eml_dataTable(chicagoNMMAPS,
-              col.defs = col_defs,
-              unit.defs = unit_defs,
-              description = "Metadata documentation for chic.csv", 
-              filename = "chic.csv")
-# now write EML metadata file
-eml_config(creator="Antonio Gasparrini
-<antonio.gasparrini@lshtm.ac.uk>")
-eml_write(ds,
-          file = "chic.xml",
-          title = "chicagoNMMAPS"
-)
-
-# now your metadata has been created
-
-#+end_src
-
-** R-data_dictionary
-*** R-R-data_dict
-#+name:R-data_dictionary
-#+begin_src R :session *R* :tangle R/data_dict.r :exports none :eval no
-  # name:data_dict
-  data_dict <- function(.dataframe, .variable, .show_levels = -1)
-  {
-  
-  summary2 <- function(x){
-    summa <- summary(x, digits = nchar(max(x))+3)
-    return(summa)
-  }
-  
-    if(is.character(.dataframe[ ,.variable])){
-      .dataframe[,.variable]  <- factor(.dataframe[,.variable])
-    }
-    if(all(is.na(.dataframe[ ,.variable]))){
-      summa <- summary2(.dataframe[,.variable])
-      summa <- as.data.frame(t(summa[2]))
-      summa[,1]  <- as.numeric(as.character(summa[,1]))
-    } else {
-      summa <- summary2(.dataframe[,.variable])
-    }
-  # if there are some missing obs in a date var you get a malformed
-  # summa with less names than levels
-    if(length(as.character(summa)) != length(names(summa))){
-      summa <- as.character(summa)
-    }
-  
-    
-    summa <- as.data.frame(
-      cbind(
-        c(.variable, rep("", length(summa) - 1)),
-        names(summa)
-        ,
-        as.vector(summa)
-        )
-      )
-    summa[,1]  <- as.character(summa[,1])
-    summa[,2]  <- as.character(summa[,2])
-    # summa
-  
-    # if char (factor)
-    if(is.factor(.dataframe[,.variable])){
-    summa$type <- c("character", rep("", nrow(summa) - 1))
-    summa$summa  <- as.numeric(as.character(summa$V3))  
-    summa$summa2 <- rep(NA, nrow(summa))
-        # as.numeric(as.character(summa$V2)) ?
-    summa$pct  <- round((summa$summa / sum(summa$summa)) * 100, 2)
-    summa <- summa[,c(1,4,2,6,5,7)]
-    if(.show_levels > 0){
-      if(nrow(summa) > .show_levels){
-        summa <- summa[1:.show_levels,]  
-        summa <- rbind(summa, c("", "",
-                                sprintf("more than %s levels. list truncated.", .show_levels),
-                                "","", "")
-                       )
-        }
-      }
-    # summa
-    } else if (
-      is.numeric(.dataframe[,.variable])
-      ){
-    summa$type <- c("number", rep("", nrow(summa) - 1))
-    summa$cnt <- NA
-    summa$pct  <- NA
-    summa <- summa[,c(1,4,2,3,5,6)]
-    } else if (
-     !all(
-        is.na(as.Date(as.character(na.omit(.dataframe[,.variable])), origin = "1970-01-01"))
-        )
-      ){
-    # if date
-    ## datevar <- as.Date(as.character(
-    ##   .dataframe[,.variable]
-    ##   ), origin = "1970-01-01")
-    # http://stackoverflow.com/questions/18178451/is-there-a-way-to-check-if-a-column-is-a-date-in-r
-    # as.Date(as.character(.dataframe[,.variable]),format="%Y-%m-%d")
-    ## if(!all(is.na(datevar))){
-    ##   summa[,3] <- as.character(datevar)
-    ## }
-      
-    summa$type <- c("date", rep("", nrow(summa) - 1))
-    summa$cnt <- NA
-    summa$pct  <- NA
-    # summa
-    if(
-      length(which(is.na(.dataframe[,.variable]))) > 0
-      ){
-      summa$V3[-which(summa$V2 == "NA's")] <- as.character(
-          as.Date(as.character(
-          summa$V3[-which(summa$V2 == "NA's")]
-          ), origin = "1970-01-01")
-          )    
-    } else {
-      summa$V3 <- as.character(as.Date(as.numeric(as.character(summa$V3)), origin = "1970-01-01"))    
-    }
-    summa <- summa[,c(1,4,2,3,5,6)]
-    } else if (all(is.na(.dataframe[ ,.variable]))){
-      
-    summa$type <- c("missing", rep("", nrow(summa) - 1))
-    summa$fill  <- NA
-    summa$pct  <- 100
-    summa <- summa[,c(1,4,2,5,3,6)]
-    
-    } else {
-        stop(sprintf("variable '%s' type is not character, factor, date, numeric or missing", .variable))
-    }
-    names(summa)  <- c("Variable","Type","Attributes", "Value", "Count", "Percent")
-    # summa
-    return(summa)
-  }
-  
-#+end_src
-
-#+RESULTS: R-data_dictionary
-
-*** data_dictionary-code
-#+name:data_dictionary
-#+begin_src R :session *R* :tangle R/data_dictionary.r :exports none :eval no
-  ################################################################
-  data_dictionary <- function(dataframe, show_levels = -1){
-    out <- matrix(NA, nrow = 0, ncol = 3)
-    for(i in 1:ncol(dataframe)){
-    #  i = 1
-    #  print(i)
-    out2 <- data_dict(
-      .dataframe = dataframe
-      ,
-      .variable = names(dataframe)[i]
-      ,
-      .show_levels = show_levels
-      )
-    out <- rbind(out, out2)
-    }
-    row.names(out) <- NULL
-    return(out)
-  }
-#+end_src
-
-*** test-R-data_dictionary
-#+name:R-data_dictionary
-#+begin_src R :session *R* :tangle no :exports none :eval no
-  ################################################################
-  # name:R-data_dictionary
-  require(devtools)
-  install_github("ivanhanigan/disentangle")
-  # or
-  load_all()
-  require(disentangle)
-  fpath <- system.file("extdata/civst_gend_sector.csv", package = "disentangle")
-  fpath
-  civst_gend_sector <- read.csv(fpath)
-  civst_gend_sector$datevar <- as.Date(round(rnorm(nrow(civst_gend_sector), Sys.Date(),10)), origin = "1970-01-01")
-  civst_gend_sector$missing_variable  <- NA
-  civst_gend_sector$Survey.year  <- as.integer(rep(2012, nrow(civst_gend_sector)))
-  str(civst_gend_sector)
-  #data_dict
-  data_dict(civst_gend_sector, "civil_status")
-  class(civst_gend_sector$datevar)
-  data_dict(civst_gend_sector, "datevar")
-  data_dict(civst_gend_sector, "number_of_cases")
-  data_dict(civst_gend_sector, "missing_variable")
-  data_dict(civst_gend_sector, "Survey.year")
-  dataDictionary <- data_dictionary(civst_gend_sector,
-                                    show_levels = -1)
-  
-  dataDictionary
-  #write.csv(dataDictionary, "~/dataDictionary.csv", row.names = F)
-  
-  # with randoms in date variable
-  civst_gend_sector$datevar[sample(1:nrow(civst_gend_sector), 5)] <- NA
-  # and civil status
-  civst_gend_sector$civil_status[sample(1:nrow(civst_gend_sector), 7)] <- NA
-  # and number of cases
-  civst_gend_sector$number_of_cases[sample(1:nrow(civst_gend_sector), 2)] <- NA
-  civst_gend_sector$Survey.year[sample(1:nrow(civst_gend_sector), 4)] <- NA
-  # some integer codes
-  civst_gend_sector$ordinal_variable <-  as.character(round(sample(rnorm(10000,2.5,1), nrow(civst_gend_sector))))
-  civst_gend_sector$alphavar <- sample( letters, nrow(civst_gend_sector))
-  str(civst_gend_sector)
-  #debug(data_dict)
-  data_dict(
-            .dataframe=civst_gend_sector
-            ,
-            .variable="datevar"
-            ,
-            .show_levels = -1
-            )
-  #undebug(data_dict)
-  
-  dataDictionary <- data_dictionary(civst_gend_sector,
-                                    show_levels = -1)
-  
-  dataDictionary
-  write.csv(civst_gend_sector,
-            file.path("inst/extdata", gsub(".csv","_additional_variables.csv", basename(fpath)))
-            , row.names = F)
-#+end_src
-*** man-R-data_dictionary
-#+name:R-data_dictionary
-#+begin_src R :session *R* :tangle no :exports none :eval no
-################################################################
-# name:R-data_dictionary
-
-#+end_src
-
-** variable_names_and_labels
-*** R-variable_names_and_labels
-#+name:variable_names_and_labels
-#+begin_src R :session *R* :tangle R/variable_names_and_labels.r :exports none :eval no
-  #' @title variable_names_and_labels
-  #' @name variable names and labels
-  #' @param datadict a dd object (optional)
-  #' @param infile the full pathname (optional)
-  #' @param orig_names the original names (optional)
-  #' @param insert_labels T/F if the output should summarise the value labels
-  
-  variable_names_and_labels <- function(datadict = NULL, infile = NULL, orig_names=NULL, insert_labels = FALSE){
-    
-  if(is.null(datadict)){  
-  dat <- read.csv(infile, stringsAsFactors =  F)
-  datadict <- data_dictionary(dat)
-  }
-  
-  #### now get variable names as they appear in the dd ####
-  datadict$ordering <- 1:nrow(datadict)
-  col_defs <- sqldf::sqldf("
-  select Variable, Type
-  from datadict
-  group by Variable, Type
-  order by ordering
-  ", drv = "SQLite")
-  col_defs <- col_defs[col_defs$Variable != "",]
-  # col_defs
-  # orig_names
-  if(!is.null(orig_names)){
-    vl <- as.data.frame(cbind(col_defs,orig_names))
-    names(vl) <- c("variable_name", "simple_type", "original_name")
-  } else {
-    vl <- col_defs
-  }
-  # vl
-  vl$description <- ""
-  vl$nominal_ordinal_interval_ratio_datetime <- ""
-  vl$unit_of_measurement <- ""
-  vl$value_labels <- ""
-  vl$issue_description <- ""
-  vl$depositor_response <- ""
-  # it is easy in a spreadsheet to add the value labels but an
-  # automation approach is here
-  if(insert_labels){
-    dat <- read.csv(infile, stringsAsFactors =  F)
-    enums <- NA
-    for(j in 1:ncol(dat)){
-      if(is.character(dat[,j])){
-        if(j == 1){
-          enums <- 1
-        } else {
-          enums <- c(enums, j)
-        }
-      }
-    }
-    #enums
-    #str(dat)
-    lablist  <- reml_boilerplate(dat, enumerated = enums)
-    lablist <- lapply(lablist, names)
-    maxnlabs <- max(sapply(lablist, length))
-    if(maxnlabs > 10) stop("more than 10 labels, try a different approach")
-    lablist <- lapply(lablist, paste, sep = "", collapse = " = ?; ")  
-    lablist  <- do.call(rbind.data.frame, lablist)
-    vl$value_labels <- lablist[,1]
-  }
-    
-  # vl
-  return(vl)
-  }
-#+end_src
-*** test-variable_names_and_labels
-#+name:variable_names_and_labels
-#+begin_src R :session *R* :tangle no :exports none :eval no
-  ################################################################
-  # name:variable_names_and_labels
-  require(devtools)
-  install_github("ivanhanigan/disentangle")
-  require(disentangle)
-  # or
-  load_all()
-  
-  fpath <- "inst/extdata/civst_gend_sector_additional_variables.csv"
-  # or
-  fpath <- "inst/extdata/civst_gend_sector.csv"
-  fpath
-  dat <- read.csv(fpath)
-  # store orig names
-  namlist <- names(dat)
-  dat$datevar <- as.Date(dat$datevar)
-  
-  # changing names is something that we want to track
-  names(dat) <- gsub("_", " ", names(dat))
-  names(dat)  <- sapply(names(dat), upcase_string)
-  str(dat)
-  civst_dd <- data_dictionary(dat)
-  civst_dd
-  fpath
-  vl <- variable_names_and_labels(
-    datadict = civst_dd
-    ,
-    infile = fpath
-    ,
-    orig_names = namlist
-    ,
-    insert_labels = T
-    )
-  vl
-  vl <- variable_names_and_labels(
-    datadict = civst_dd
-    ,
-    infile = fpath
-    ,
-    insert_labels = T
-    )
-  vl
-  
-#+end_src
-
-
-* Data Operation
-** R-spatial
-*** TODO xy2shp
-#+name:xy2shp
-#+begin_src R :session *R* :tangle no :exports none :eval no
-  # func
-  
-  if(!require(ggmap)) install.packages('ggmap'); require(ggmap)
-  if (!require(rgdal)) install.packages('rgdal'); require(rgdal)
-  epsg <- make_EPSG()
-  # load
-  latlong <- read.table(tc <- textConnection(
-  "ID  POINT_Y   POINT_X
-  1  150.5556 -35.09305
-  2  150.6851 -35.01535
-  3  150.6710 -35.06412
-  4  150.6534 -35.08666
-  "), header = TRUE); close(tc)
-  # do
-  for(i in 1:nrow(latlong)){
-    coords <- as.numeric(latlong[i,c('POINT_Y', 'POINT_X')])
-    e <- as.data.frame(cbind(i, t(coords), revgeocode(coords)))
-    write.table(e, "test.csv", sep = ',', append = i > 1, col.names = i == 1, row.names = F)
-  }
-  d <- read.csv('test.csv')
-  head(d)
-  ## Treat data frame as spatial points
-  pts <- SpatialPointsDataFrame(cbind(d$V2,d$V3),d,
-    proj4string=CRS(epsg$prj4[epsg$code %in% '4283']))
-  writeOGR(pts, 'test.shp', 'test', driver='ESRI Shapefile')
-  
-#+end_src
-
-*** COMMENT sptransform-code
-#+name:sptransform
-#+begin_src R :session *R* :tangle no :exports none :eval no
-  #### name:sptransform####
-  require(disentangle)
-  require(rgdal)
-  epsg <- make_EPSG()
-  # load
-  d <- read.table(tc <- textConnection(
-  "ID  POINT_Y   POINT_X
-  1  150.5556 -35.09305
-  2  150.6851 -35.01535
-  3  150.6710 -35.06412
-  4  150.6534 -35.08666
-  "), header = TRUE); close(tc)
-  # do
-  str(epsg)
-  epsg[grep("UTM", epsg$note),"note"]
-  ## Treat data frame as spatial points
-  pts <- SpatialPointsDataFrame(cbind(d$V2,d$V3),d,
-  proj4string=CRS(epsg$prj4[epsg$code %in% '4283']))
-    # this alternative was from a website  #CRS("+init=epsg:4283"))
-  # defin inputs
-  datadir <- "data_provided/pr_bg_data_20140612/Data_tables/site_data/"
-  flist<-dir(datadir)
-  #flist
-  #change this
-  fname <- "Site_data.txt"
-  
-  # define outputs
-  outdir <- "ljbb_plot_details"
-  outfile <- "ljbb_plot_details.shp"
-  
-  # load
-  dat <- read.csv(
-    file.path(datadir, fname)
-    , header=TRUE)
-  
-  # clean
-  dat$Date.of.last.fire <-  as.Date(dat$Date.of.last.fire, "%d/%m/%Y")
-  #head(dat)
-  names(dat) <- tolower(gsub("\\.", "_", names(dat)))
-  # to match up with the site_number from the spotlighting data
-  dat$site_number <- paste("site_", dat$site_number, sep = "")
-  
-  # TODO check coordinate system code at spatialreference.org
-  # EPSG:20256: AGD66 / AMG zone 56
-  srid <- CRS(epsg$prj4[epsg$code %in% '20256'])
-  #srid
-  pts <- SpatialPointsDataFrame(cbind(dat$easting,dat$northing),dat,
-    proj4string=srid)
-  setwd(outdir)
-  writeOGR(pts, dsn = outfile, layer = gsub(".shp","", outfile), driver = "ESRI Shapefile")
-  setwd("..")
-  
-  #### and the csv
-  write.csv(pts@data, file.path(outdir, gsub(".shp", ".csv", outfile)), row.names = F)
-  
-  #### Bounding Box in lat/long ####
-  # work out the lat longs
-  latlong  <-  spTransform(pts, CRS("+init=epsg:4283"))
-  #summary(latlong@data[,c("easting", "northing")])
-  #str(latlong)
-  
-  bb <- morpho_bounding_box(latlong)
-  print(xtable(bb), type = "html")
-    
-#+end_src
-
-
-*** TODO gIntersection
-#+name:gIntersection
-#+begin_src R :session *shell* :tangle no :exports none :eval no
-  #### name:gIntersection ####
-  #?gIntersection
-  subset(ma_grid10@data, Id == 125)
-  str(mash_ch@data)
-  mash_ch2 <- gUnaryUnion(mash_ch)
-  str(mash_ch2@data)
-  summary(mash_ch2)
-  int <- gIntersection(ma_grid10, mash_ch2, byid = T, id = as.character(ma_grid10@data$Id))
-  plot(int)
-  summary(int)
-  str(int)
-  n<-names(int)
-  ## n  <- as.character(n)
-  ## n
-  ## n<-data.frame(t(data.frame(
-  ##   strsplit(n," ",fixed=TRUE)
-  ##   )))
-  n <- as.data.frame(n)
-  head(n)
-  tail(n)
-  row.names(n) <- NULL
-  colnames(n) <- "Id"
-  #[1:2]<-c("Id","chull")
-  
-  
-  n$area<-sapply(int@polygons, function(x) x@area)
-  summary(n)
-  head(n)
-  str(n)
-  subset(n, Id == 125)
-  #a<- sapply(slot(ma_grid10, "polygons"), function(x) sapply(slot(x, "Polygons"), slot, "area"))
-  #str(a)
-  
-  #df<-merge(n,a,all.x=TRUE)
-  #head(df)
-  #df$share.area<-df$area/df$total.area*100
-  #subset(df, grid == 100)
-  #table(df$grid)
-  ## str(ma_grid10@data)
-  ## summary(ma_grid10@data)
-  ## df <- n
-  ## df$Id <- as.numeric(as.character(df$Id))
-  ## summary(df)
-  #ma_grid10 <- ma_grid10
-  #by <- "Id"
-  # http://stackoverflow.com/questions/3650636/how-to-attach-a-simple-data-frame-to-a-spatialpolygondataframe-in-r
-  ma_grid10@data = data.frame(ma_grid10@data, n[match(ma_grid10@data[,"Id"], n[,"Id"]),])
-  head(ma_grid10@data)
-  tail(ma_grid10@data)
-  summary(ma_grid10)
-  plot(ma_grid10, col = ma_grid10$area)
-  #plot(chull, add = T)
-  #setwd("data")
-  writeOGR(ma_grid10, "temp20.shp", "temp20", driver = "ESRI Shapefile")
-  crs <- ma_grid10@proj4string
-  spp <- SpatialPolygonsDataFrame(int,data=as.data.frame(n[,1]),match.ID=F)
-  writeOGR(spp, "temp3.shp", "temp3", driver = "ESRI Shapefile")
-  
-  setwd("..")
-  
-#+end_src
-
-*** COMMENT shapefile_attributes_join-code
-#+name:shapefile_attributes_join
-#+begin_src R :session *shell* :tangle no :exports none :eval no
-#### name:shapefile_attributes_join ####
-see ramnath
-
-sp@data = data.frame(sp@data, df[match(sp@data[,by], df[,by]),])
-
-#+end_src
-*** COMMENT shapefile_colour_ramp-code
-#+name:shapefile_colour_ramp
-#+begin_src R :session *shell* :tangle no :exports none :eval no
-#### name:shapefile_colour_ramp ####
-  # If we wanted to do a colour ramp 
-  ## cls <- -.9 +  (occupancy_grids@data$area.1/(10000*10000))
-  ## cls <- abs(ifelse(is.na(cls), -1, cls))
-  ## cls <- gray(cls)
-  # but we don't, this time just in or out
-  cls<-occupancy_grids@data$area/(10000*10000)
-  cls
-  cls <- ifelse(cls >= 0.01, "lightgrey", "darkgrey")
-  cls <- ifelse(is.na(cls), 'white', cls)
-  cls
-  png("results/B2_occupancy.png")
-  plot(occupancy_grids, col = cls)
-  plot(chull, add = T)
-  plot(ecosystem_current, add = T, border = T, col = 'darkgrey')
-  dev.off()
-
-OR
-http://www.geog.uoregon.edu/GeogR/examples/maps_examples01.htm
-library(RColorBrewer) # creates nice color schemes
-library(classInt)     # finds class intervals for continuous variables
-
- # equal-frequency class intervals
-plotvar <- orcounty.shp@data$POP1990
-nclr <- 8
-plotclr <- brewer.pal(nclr,"BuPu")
-class <- classIntervals(plotvar, nclr, style="quantile")
-colcode <- findColours(class, plotclr)
-
-plot(orcounty.shp, xlim=c(-124.5, -115), ylim=c(42,47))
-plot(orcounty.shp, col=colcode, add=T)
-title(main="Population 1990",
-    sub="Quantile (Equal-Frequency) Class Intervals")
-legend(-117, 44, legend=names(attr(colcode, "table")),
-    fill=attr(colcode, "palette"), cex=0.6, bty="n")
-
-#+end_src
-
-*** COMMENT convert_dms-code
-#+name:convert_dms
-#+begin_src R :session *shell* :tangle R/convert_dms.R :exports none :eval no
-  #### name:convert_dms ####
-  ## First need to convert character degree min sec data to decimal degree
-  ##### I initially investigated functions in other packages and found
-  # DMS2DD for PostGIS but this seems defunct
-  # http://gis.stackexchange.com/a/84626
-  #### Then I found in R
-  # library(sp)
-  # ?char2dms
-  # but this would require extra processing of the input data
-  
-  #### In the end the format of the supplied file suits this function
-  # http://stackoverflow.com/a/18999925
-  convert_dms <- function(coord){
-    tmp1=strsplit(coord,"°")
-    tmp2=strsplit(tmp1[[1]][2],"'")
-    tmp3=strsplit(tmp2[[1]][2],"\"")
-    dec=c(as.numeric(tmp1[[1]][1]),as.numeric(tmp2[[1]][1]),as.numeric(tmp3[[1]]))
-    c<-abs(dec[1])+dec[2]/60+dec[3]/3600
-    c<-ifelse(dec[1]<0,-c,c)
-    return(c)
-  }
-
-#+end_src
-
-*** big_pt
-**** R-big_pt_intersect
-#+name:big_pt_intersect
-#+begin_src R :session *R* :tangle R/big_pt_intersect.r :exports none :eval no
-  #' @title big points intersect
-  #' @name big_pt_intersect
-  #' @param pts a points spatial
-  #' @param ply a polygons spatial
-  #' @param chunks how many to split into
-  #' @return a combined data frame that avoids run out of memory with big points file 
-  big_pt_intersect <- function(pts, ply, chunks = 100){
-    idx <- split(pts@data, 1:chunks)
-    #str(idx)
-    for(i in 1:length(idx)){
-    #i = 1
-    print(i)
-      ids <- idx[[i]][,1]
-    #str(pts@data)
-    qc <- pts[pts@data[,1] %in% ids,]
-    #str(qc)
-    tryCatch(chunk <-  raster::intersect(qc, ply), error = function(err){print(err)})
-    if(!exists('chunk_out')){
-    
-      chunk_out <- chunk@data
-    } else {
-      chunk_out <- rbind(chunk_out, chunk@data)
-    }
-    rm(chunk)
-    
-    }
-    #str(chunk_out)
-    return(chunk_out)
-  }
-  # NB warning about split length multiple is not fatal, just due to nonequal chunks (ie the geocodes are 2009/100)
-  
-#+end_src
-**** test-big_pt_intersect
-#+name:big_pt_intersect
-#+begin_src R :session *R* :tangle no :exports none :eval no
-################################################################
-# name:big_pt_intersect
-
-#+end_src
-** COMMENT aggregate-list-of-dfs
-#+name:aggregate
-#+begin_src R :session *R* :tangle no :exports none :eval no
-  #### name:aggregate####
-  # stoopid hack for lu
-  # desc
-  "I have a do.call question that perhaps you can answer in 5 seconds... [my brain is leaking... I can't see the solution].
-  
-  I have a list of data.frames imagine I wanted to sum them up, like d1+d2+... N. If I do that manually the output is a data.frame, but when I use do.call I get one number, and I need a data.frame instead.
-  
-  Another issues is that some columns have a factor, so I'm planning to wrap my operation into a function with a condition to do the sum if the cell contains a number. Other to skip it.
-  so I though of:
-  
-  foo = function (x) { ifelse(is.numeric(x), sum(x), NA)} #but it doesn't work
-  
-  This example addressed the issues.
-  
-  d1 = mtcars
-  d2 = d1*2
-  
-  str(mtcars)
-  l1 = list(d1,d2)
-  str(l1)
-  
-  d3 = do.call('sum', l1)
-  #> d3
-  #[1] 41826.61 # I don't want one number, but a data.frame with the sums.
-  
-  foo = function (x) { ifelse(is.numeric(x), sum(x), NA)}
-  d4 = do.call('foo', l1)
-  
-  Any help or tip will be welcome!"
-  
-  # I feel like it should be simple because R can add dataframes
-  # but maybe these need to be matrices (because a data.frame is really
-  # a list)
-  d1 = as.matrix(mtcars)
-  d1
-  d2 = as.matrix(d1*2)
-  d2
-  d1 + d2
-  # lets make more dfs
-  d3 = as.matrix(d2*3)
-  d4 = as.matrix(d3*2)
-  d1+d2+d3+d4
-  # I note that do.call can add two df fine
-  l1  <- list(d1, d2)
-  out  <- do.call("+", l1)
-  str(out)
-  out
-  # but with multiple no good
-  l1 = list(d1,d2, d3, d4)
-  str(l1)
-  out  <- do.call("+", l1)
-  # when these are dataframes the error is
-  ## Error in `+`(list(mpg = c(21, 21, 22.8, 21.4, 18.7, 18.1, 14.3, 24.4,  :
-  ##   unused arguments (list(mpg = c(... blah blah
-  # when matrices the error is
-  ## Error in `+`(c(21, 21, 22.8, 21.4, 18.7, 18.1, 14.3, 24.4, 22.8, 19.2,  :
-  ##   operator needs one or two arguments
-  
-  
-  # But the lists content are able to be combined if done individually
-  out1 <- l1[[1]] + l1[[2]] + l1[[3]] + l1[[4]]
-  str(out1)
-  out1
-  
-  # make things interesting
-  l1 <- list()
-  for(i in 1:1000){
-    #i = 1
-    di  <- iris
-    di[sapply(iris, is.numeric)]  <- iris[sapply(iris, is.numeric)] * sample(rnorm(100,1,2), 1)
-    l1[[i]]  <- di
-  }
-  str(l1)
-  # so we could figure out a way to iterate over the dataframes with a
-  # loop like
-  ## for(i in 1:length(l1)){
-  ##   if(i == 1){
-  ##     out2 <- l1[[i]]
-  ##     next
-  ##   } else {
-  ##     out2  <- out2 + l1[[i]]
-  ##   }
-  ## }
-  # doesn't like factor
-  #out2
-  # or 
-  ## d1 <- iris
-  ## str(d1) # Note pesky factor column
-  ## d2 <- d1
-  ## # Only multiply cells that are numeric
-  ## str(d2[sapply(d2, is.numeric)])
-  ## d2[sapply(d2, is.numeric)] <- d2[sapply(d2, is.numeric)] * 2
-  
-  ## # Add another data.frame to make it interesting
-  ## d3 <- d1
-  ## d3[sapply(d3, is.numeric)] <- d3[sapply(d3, is.numeric)] * 3
-  
-  
-  ## l1 = list(d1,d2, d3)
-  str(l1)
-  
-  # Inititalise output dataframe to zero
-  
-  # Sum data frames
-  summarise_list_dfs3 <- function(listed){
-    d.results <- d1
-    d.results[sapply(d.results, is.numeric)] <- 0 
-    for (i in seq_along(l1)){
-      d.results[sapply(d.results, is.numeric)] <-
-        d.results[sapply(d.results, is.numeric)] +
-        l1[[i]][sapply(l1[[i]], is.numeric)]
-    }
-    return(d.results)
-  }
-  system.time(d.results  <- summarise_list_dfs3(l1))
-  str(d.results)
-  
-  # but we want an elegant solution that will be
-  # able to give any number of dataframes, and also have
-  # the issue of some variables being factor so not to be used
-  
-  # let's write some func
-  # I like SQL for it's clarity
-  library(sqldf)
-  # we are basically grouping the values of each row in each df, so add
-  # an id
-  
-  nam <- function(x){
-    x$row_names <- 1:nrow(x)
-    return(x)
-  }
-  l_df2 <- lapply(l1, nam)
-  str(l_df2)
-  # now construct some sql and run it.  let's make it flexible for
-  # different summarising functions like sum, mean, median, stdev etc
-  summarise_list_of_dfs <- function(
-    list_of_dfs = l1
-    ,
-    summarise_fun = 'sum'
-    ,
-    id = 'row_names'
-    ){
-    if(!is.data.frame(list_of_dfs[[1]])) list_of_dfs <- lapply(list_of_dfs, as.data.frame)
-    l_df2 <- lapply(list_of_dfs, nam)
-    x = do.call('rbind.data.frame', l_df2)
-  names(x)<-gsub("\\.", "_", names(x))
-    todo <- sapply(x, 'is.numeric')
-    todo <- names(x)[todo]
-    todo <- todo[-which(todo == "row_names")]
-    oper  <- sprintf('), %s(',summarise_fun)
-    sql<-paste("sum(",paste(todo, sep = '', collapse = oper),")", sep = "")
-  #sql
-    out<-sqldf(
-    #cat(
-    sprintf("select row_names, %s
-    from x
-    group by row_names
-    order by row_names
-    ", sql)
-    )
-    names(x)<-gsub("_", "\\.", names(x))
-    return(out)
-  }
-  
-  # do
-  #l1 <- lapply(l1, as.data.frame)
-  
-  system.time(qc  <- summarise_list_of_dfs(l1))
-  
-  str(qc)
-  str(out1)
-  out1  <- as.data.frame(out1)
-  names(qc)<-names(out1)
-  # same?
-  identical(qc, out1)
-  # not identical
-  all(qc == out1)
-  # all values are equal tho
-  
-  # compare to base r
-  summarise_list_dfs2 <- function(listed){
-    listed  <- l1
-    d5=do.call('rbind',listed)
-  #  str(d5)
-    d5.rnames =rep(rownames(listed[[1]]),times=length(listed))
-    d5$reg=d5.rnames
-    d6 = aggregate(d5[sapply(d5, is.numeric)], by=list(d5$reg), FUN=sum) # I should use an
-                                            # ifelse, to do this only to
-                                            # numeric columns.
-    return(d6)
-  }
-  system.time(d6 <- summarise_list_dfs2(l1))
-  
-  str(d6)
-  row.names(d6) <- d6$Group.1
-  # same?
-  identical(d6, out1[sort(row.names(out1)),])
-  # not identical
-  all(
-    d6[,-c(1)] == out1[sort(row.names(out1)),]
-    )
-  # looks like the integers are equal but not the doubles.
-  # but a diff of the two looks same
-  
-  # now does it work for  mean?
-  qc  <- summarise_list_of_dfs(l1, 'mean')
-  # whoops, sql uses 'avg'
-  qc  <- summarise_list_of_dfs(l1, 'avg')
-  str(qc)
-  # and stdev
-  qc  <- summarise_list_of_dfs(l1, 'stdev')
-  str(qc)
-  # this did multiple dataframes, now try with factor variables
-  str(l1)
-  d1[,3] <- as.factor(d1[,3])
-  d2[,3] <- as.factor(d2[,3])
-  d3[,3] <- as.factor(d3[,3])
-  d4[,3] <- as.factor(d4[,3])
-  
-  l1 = list(d1,d2, d3, d4)
-  str(l1)
-  qc  <- summarise_list_of_dfs(l1)
-  str(qc)
-  # it has just skipped that variable so this should be good to go
-  # NB if the combination of all the dataframes is too big for RAM then
-  # R will fail. in this case I would
-  # put into a PostgreSQL database as this will use the disk rather than
-  # RAM
-  # this can also be used to add indexes and clustering functions to
-  # speed up the calculations.
-  # HTH, let me know if there is a more efficient R solution?
-  
-  install.packages("data.table")
-  library(data.table)
-  sum_ldf4 <- function(
-    listed=l1
-    ,
-    summarise_fun  = 'sum'
-                       ){
-    d5=do.call('rbind',listed)
-    d5.rnames =rep(rownames(listed[[1]]),times=length(listed))
-    d5 <- d5[sapply(d5, is.numeric)]
-    d5$reg=d5.rnames
-    oper  <- sprintf('), %s(',summarise_fun)
-    todo <- sapply(d5, 'is.numeric')
-    todo <- names(d5)[todo] 
-    sql<-paste("sum(",paste(todo, sep = '', collapse = oper),")", sep = "")
-    #sql
-      
-    DT = data.table(d5)
-    
-    out <-  eval(parse(
-        text = sprintf("DT[,list(%s),by=list(d5$reg)]", sql)
-        ))
-      
-  
-    return(out)
-  }
-  
-  
-  # sqldf
-  o1 <- system.time(qc  <- summarise_list_of_dfs(l1))
-  str(qc)
-  # aggregate
-  o2 <- system.time(d6 <- summarise_list_dfs2(l1))
-  str(d6)
-  # loop
-  o3 <- system.time(d.results  <- summarise_list_dfs3(l1))
-  str(d.results)
-  # data.table
-  o4 <- system.time(datab  <- sum_ldf4(l1))
-  str(datab)
-  
-  # http://zvfak.blogspot.com.au/2011/03/applying-functions-on-groups-sqldf-plyr.html
-  library(gplots)
-  x<-c(o1[3],o2[3],o3[3],o4[3])
-  balloonplot( rep("time.elapsed",5),c("sqldf","aggregate","loop", "data.table"),round(x,1), ylab ="Method", xlab="",sorted=F,dotcolor=rev(heat.colors(5)),main="time.elapsed for different methods") 
-#+end_src
-
-** COMMENT aggregate-list-of-dfs-asRNW-code
-#+name:aggregate-list-of-dfs-asRNW
-#+begin_src R :session *R* :tangle no :exports none :eval no
-#### name:aggregate-list-of-dfs-asRNW####
----
-title: "aggregate list of dfs"
-author: "Ivan C Hanigan"
-date: "7/2/2015"
-output: html_document
----
-
-```{r}
-#### name:aggregate####
-# stoopid hack for lu
-# desc
-"I have a do.call question that perhaps you can answer in 5 seconds... [my brain is leaking... I can't see the solution].
-
-I have a list of data.frames imagine I wanted to sum them up, like d1+d2+... N. If I do that manually the output is a data.frame, but when I use do.call I get one number, and I need a data.frame instead.
-
-Another issues is that some columns have a factor, so I'm planning to wrap my operation into a function with a condition to do the sum if the cell contains a number. Other to skip it.
-so I though of:
-
-foo = function (x) { ifelse(is.numeric(x), sum(x), NA)} #but it doesn't work
-
-This example addressed the issues.
-
-d1 = mtcars
-d2 = d1*2
-
-str(mtcars)
-l1 = list(d1,d2)
-str(l1)
-
-d3 = do.call('sum', l1)
-#> d3
-#[1] 41826.61 # I don't want one number, but a data.frame with the sums.
-
-foo = function (x) { ifelse(is.numeric(x), sum(x), NA)}
-d4 = do.call('foo', l1)
-
-Any help or tip will be welcome!"
-
-# I feel like it should be simple because R can add dataframes
-# but maybe these need to be matrices (because a data.frame is really
-# a list)
-d1 = as.matrix(mtcars)
-d1
-d2 = as.matrix(d1*2)
-d2
-d1 + d2
-# lets make more dfs
-d3 = as.matrix(d2*3)
-d4 = as.matrix(d3*2)
-d1+d2+d3+d4
-# I note that do.call can add two df fine
-l1  <- list(d1, d2)
-out  <- do.call("+", l1)
-str(out)
-out
-# but with multiple no good
-l1 = list(d1,d2, d3, d4)
-str(l1)
-#out  <- do.call("+", l1)
-# when these are dataframes the error is
-## Error in `+`(list(mpg = c(21, 21, 22.8, 21.4, 18.7, 18.1, 14.3, 24.4,  :
-##   unused arguments (list(mpg = c(... blah blah
-# when matrices the error is
-## Error in `+`(c(21, 21, 22.8, 21.4, 18.7, 18.1, 14.3, 24.4, 22.8, 19.2,  :
-##   operator needs one or two arguments
-
-
-# But the lists content are able to be combined if done individually
-out1 <- l1[[1]] + l1[[2]] + l1[[3]] + l1[[4]]
-str(out1)
-out1
-
-# make things interesting
-l1 <- list()
-for(i in 1:1000){
-  #i = 1
-  di  <- iris
-  di[sapply(iris, is.numeric)]  <- iris[sapply(iris, is.numeric)] * sample(rnorm(100,1,2), 1)
-  l1[[i]]  <- di
-}
-str(l1)
-# so we could figure out a way to iterate over the dataframes with a
-# loop like
-## for(i in 1:length(l1)){
-##   if(i == 1){
-##     out2 <- l1[[i]]
-##     next
-##   } else {
-##     out2  <- out2 + l1[[i]]
-##   }
-## }
-# doesn't like factor
-#out2
-# or 
-## d1 <- iris
-## str(d1) # Note pesky factor column
-## d2 <- d1
-## # Only multiply cells that are numeric
-## str(d2[sapply(d2, is.numeric)])
-## d2[sapply(d2, is.numeric)] <- d2[sapply(d2, is.numeric)] * 2
-
-## # Add another data.frame to make it interesting
-## d3 <- d1
-## d3[sapply(d3, is.numeric)] <- d3[sapply(d3, is.numeric)] * 3
-
-
-## l1 = list(d1,d2, d3)
-str(l1)
-
-# Inititalise output dataframe to zero
-
-# Sum data frames
-summarise_list_dfs3 <- function(
-  listed=l1
-  ){
-  d.results <- listed[[1]]
-  d.results[sapply(d.results, is.numeric)] <- 0 
-  for (i in seq_along(listed)){
-    d.results[sapply(d.results, is.numeric)] <-
-      d.results[sapply(d.results, is.numeric)] +
-      listed[[i]][sapply(listed[[i]], is.numeric)]
-  }
-  return(d.results)
-}
-system.time(d.results  <- summarise_list_dfs3(l1))
-str(d.results)
-
-# but we want an elegant solution that will be
-# able to give any number of dataframes, and also have
-# the issue of some variables being factor so not to be used
-
-# let's write some func
-# I like SQL for it's clarity
-library(sqldf)
-# we are basically grouping the values of each row in each df, so add
-# an id
-
-nam <- function(x){
-  x$row_names <- 1:nrow(x)
-  return(x)
-}
-l_df2 <- lapply(l1, nam)
-str(l_df2)
-# now construct some sql and run it.  let's make it flexible for
-# different summarising functions like sum, mean, median, stdev etc
-summarise_list_of_dfs <- function(
-  list_of_dfs = l1
-  ,
-  summarise_fun = 'sum'
-  ,
-  id = 'row_names'
-  ){
-  if(!is.data.frame(list_of_dfs[[1]])) list_of_dfs <- lapply(list_of_dfs, as.data.frame)
-  l_df2 <- lapply(list_of_dfs, nam)
-  x = do.call('rbind.data.frame', l_df2)
-names(x)<-gsub("\\.", "_", names(x))
-  todo <- sapply(x, 'is.numeric')
-  todo <- names(x)[todo]
-  todo <- todo[-which(todo == "row_names")]
-  oper  <- sprintf('), %s(',summarise_fun)
-  sql<-paste("sum(",paste(todo, sep = '', collapse = oper),")", sep = "")
-#sql
-  out<-sqldf(
-  #cat(
-  sprintf("select row_names, %s
-  from x
-  group by row_names
-  order by row_names
-  ", sql)
-  )
-  names(x)<-gsub("_", "\\.", names(x))
-  return(out)
-}
-
-# do
-#l1 <- lapply(l1, as.data.frame)
-
-system.time(qc  <- summarise_list_of_dfs(l1))
-
-str(qc)
-str(out1)
-out1  <- as.data.frame(out1)
-#names(qc)<-names(out1)
-# same?
-#identical(qc, out1)
-# not identical
-#all(qc == out1)
-# all values are equal tho
-
-# compare to base r
-summarise_list_dfs2 <- function(listed){
-  #listed  <- l1
-  d5=do.call('rbind',listed)
-#  str(d5)
-  d5.rnames =rep(rownames(listed[[1]]),times=length(listed))
-  d5$reg=d5.rnames
-  d6 = aggregate(d5[sapply(d5, is.numeric)], by=list(d5$reg), FUN=sum) # I should use an
-                                          # ifelse, to do this only to
-                                          # numeric columns.
-  return(d6)
-}
-system.time(d6 <- summarise_list_dfs2(l1))
-
-str(d6)
-row.names(d6) <- d6$Group.1
-# same?
-#identical(d6, out1[sort(row.names(out1)),])
-# not identical
-#all(
-#  d6[,-c(1)] == out1[sort(row.names(out1)),]
-#  )
-# looks like the integers are equal but not the doubles.
-# but a diff of the two looks same
-
-# now does it work for  mean?
-#qc  <- summarise_list_of_dfs(l1, 'mean')
-# whoops, sql uses 'avg'
-qc  <- summarise_list_of_dfs(l1, 'avg')
-str(qc)
-# and stdev
-qc  <- summarise_list_of_dfs(l1, 'stdev')
-str(qc)
-# this did multiple dataframes, now try with factor variables
-str(l1)
-d1[,3] <- as.factor(d1[,3])
-d2[,3] <- as.factor(d2[,3])
-d3[,3] <- as.factor(d3[,3])
-d4[,3] <- as.factor(d4[,3])
-
-l1 = list(d1,d2, d3, d4)
-str(l1)
-qc  <- summarise_list_of_dfs(l1)
-str(qc)
-# it has just skipped that variable so this should be good to go
-# NB if the combination of all the dataframes is too big for RAM then
-# R will fail. in this case I would
-# put into a PostgreSQL database as this will use the disk rather than
-# RAM
-# this can also be used to add indexes and clustering functions to
-# speed up the calculations.
-# HTH, let me know if there is a more efficient R solution?
-
-#install.packages("data.table")
-library(data.table)
-sum_ldf4 <- function(
-  listed=l1
-  ,
-  summarise_fun  = 'sum'
-                     ){
-  d5=do.call('rbind',listed)
-  d5.rnames =rep(rownames(listed[[1]]),times=length(listed))
-  d5 <- d5[sapply(d5, is.numeric)]
-  d5$reg=d5.rnames
-  oper  <- sprintf('), %s(',summarise_fun)
-  todo <- sapply(d5, 'is.numeric')
-  todo <- names(d5)[todo] 
-  sql<-paste("sum(",paste(todo, sep = '', collapse = oper),")", sep = "")
-  #sql
-    
-  DT = data.table(d5)
-  
-  out <-  eval(parse(
-      text = sprintf("DT[,list(%s),by=list(d5$reg)]", sql)
-      ))
-    
-
-  return(out)
-}
-
-
-# sqldf
-o1 <- system.time(qc  <- summarise_list_of_dfs(l1))
-str(qc)
-# aggregate
-o2 <- system.time(d6 <- summarise_list_dfs2(l1))
-str(d6)
-# loop
-o3 <- system.time(d.results  <- summarise_list_dfs3(l1))
-str(d.results)
-# data.table
-o4 <- system.time(datab  <- sum_ldf4(l1))
-str(datab)
-
-# http://zvfak.blogspot.com.au/2011/03/applying-functions-on-groups-sqldf-plyr.html
-library(gplots)
-x<-c(o1[3],o2[3],o3[3],o4[3])
-balloonplot( rep("time.elapsed",5),c("sqldf","aggregate","loop", "data.table"),round(x,1), ylab ="Method", xlab="",sorted=F,dotcolor=rev(heat.colors(5)),main="time.elapsed for different methods") 
-
-sessionInfo()
-```
-
-
-
-#+end_src
-
-** COMMENT text2columns-code
-#+name:text2columns
-#+begin_src R :session *shell* :tangle no :exports none :eval no
-#### name:text2columns ####
-setwd("/home/ivan_hanigan/Dropbox/projects/air_pollution_ucrh")
-dat <- read.csv("air_pollution_ucrh_data_inventory_files_20150724.csv", stringsAsFactor = F)
-str(dat)
-qc <- dat[dat$v5 == "arcgis mxd", ]
-qclist <- names(table(qc$entity_name))
-qc2  <- strsplit(qclist, "_")
-str(qc2)
-qc2[[3]]
-qc3 <- t(sapply(qc2, '[', 1:max(sapply(qc2, length)))) 
-qc3 <- as.data.frame(qc3)
-names(qc3) <-  paste("V", 1:13, sep = "")
-
-#+end_src
-
-** COMMENT climate-grids-thredds-code
-#+name:climate-grids-thredds
-
-#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-07-27-climate-grids-and-thredds-server-experimenting-update.md  :exports none :eval no :padline no
-  ---
-  name: climate-grids-and-thredds-server-experimenting-update
-  layout: post
-  title: Web Data, Climate Grids and THREDDS UPDATE
-  date: 2015-07-27
-  categories:
-  - extreme weather events
-  tags:
-  - software
-  ---
-  
-  # Update  
-  - This is an update to my previous post:  [http://ivanhanigan.github.io/2014/12/climate-grids-and-thredds-server-experimenting/](http://ivanhanigan.github.io/2014/12/climate-grids-and-thredds-server-experimenting/)
-  - I was worried about the available metadata with those netcdf data I was working with so contacted Dr Brad Evans at EMAST who set me straight:
-  
-  #### QUOTE:
-      "you need to use ncdf4  - not ncdf  ...
-      because they are netcdf4 files and not netcdf3 files. 
-      This is poorly explained in the R community.
-      All of the netcdf files from Australian providers (AusCover, BoM, etc...) 
-      have been in netcdf4 for a couple of years now."
-  
-  # So here is the revised code using ncdf4 library:
-  
-  #### CODE
-      # sudo apt-get install r-cran-ncdf4 
-      library(ncdf4)
-      library(raster)
-      strt <-'2012-01-01'
-      end <- '2012-01-04'
-      dates <- seq(as.Date(strt),as.Date(end),1)          
-      dates
-      par(mfrow = c(2,2))
-      for(i in 1:length(dates)){
-       # i=1
-        date_i <- dates[i]
-        infile <- sprintf("http://dapds00.nci.org.au/thredds/dodsC/rr9/Climate/eMAST/ANUClimate/0_01deg/v1m0_aus/day/land/tmin/e_01/2012/eMAST_ANUClimate_day_tmin_v1m0_%s.nc", gsub("-", "", date_i))
-       
-        nc <- nc_open(infile)
-        str(nc)
-        print(nc)
-        vals <- ncvar_get(nc, varid="air_temperature")
-        str(vals)
-        nc.att <-    nc$var$air_temperature
-        xmin <- min(nc.att$dim[[1]]$vals)
-        xmax <- max(nc.att$dim[[1]]$vals)
-        ymin <- min(nc.att$dim[[2]]$vals)
-        ymax <- max(nc.att$dim[[2]]$vals)
-       
-        print(c(xmin,xmax))
-        print(c(ymin,ymax))
-       
-        r <- raster(t(vals),
-                    xmn=xmin, xmx=xmax,
-                    ymn=ymin, ymx=ymax)
-        #str(r)
-        plot(r)
-        nc_close(nc)
-      }
-  
-  
-  <p></p>
-  
-  # RESULTS 1: METADATA
-  
-  - the result is I now have a lot more metdata returned to my R workspace
-    
-  #### EXERPT
-      [...]
-      [1] "        licence_copyright: Copyright 2009-2013 ANU. Rights owned by The Australian National University (ANU). Rights licensed subject to TERN  Attribution (TERN-BY)."
-      [1] "        short_desc: Australian coverage, ANUClimate 1.0, 0.01 degree grid, 1970-2012"
-      [1] "        summary: Minimum daily temperature, for the Australian continent between 1970-2012. Daily temperature regulates rates of plant growth and determines critical conditions such as frost on flowering and fruiting. Modelled by expressing each daily value as a difference anomaly with respect to the gridded 1976-2005 mean daily minimum temperature for each month as provided by eMAST_ANUClimate_mmn_tmin_v1m0_1976_2005. The daily anomalies were interpolated by trivariate thin plate smoothing spline functions of longitude, latitude and vertically exaggerated elevation using ANUSPLIN Version 4.5. There was an average of 671 Bureau of Meteorology data points available for each day between 1970 and 2012. Automated quality assessment rejected on average 3 data values per day with extreme studentised residuals. These were commonly associated with days following missing observations. The root mean square of all individual cross validation residuals provided by the spline analysis is 1.5 degrees Celsius. A comprehensive assessment of the analysis and the factors contributing to the quality of the final interpolated daily minimum temperature grids is in preparation."
-      [1] "        long_name: Daily minimum temperature"
-      [1] "        contact: Michael Hutchinson, Professor of spatial and temporal analysis, 3.23A, Fenner School of Environment & Society, College of Medicine, Biology & Environment, Frank Fenner Building 141, Australian National University, Canberra, Australian Capital Territory, 200, Australia, (+61) 2 6125 4783, Michael.Hutchinson@anu.edu.au, http://orcid.org/0000-0001-8205-6689"
-      [1] "        references: 1. Hutchinson, M.F., Mckenney, D.W., Lawrence, K., Pedlar, J., Hopkinson, R., Milewska, E. and Papadopol, P. 2009. Development and testing of Canada-wide interpolated spatial models of daily minimum/maximum temperature and precipitation for 1961-2003. Journal of Applied Meteorology and Climatology 48: 725�741. http://dx.doi.org/10.1175/2008JAMC1979.1 2. Hutchinson, M.F. and Xu, T. 2013. ANUSPLIN version 4.4 User Guide. Fenner School of Environment and Society, Australian National University, Canberra http://fennerschool.anu.edu.au/files/anusplin44.pdf"
-      [1] "        source: ANUClimate 1.0"
-      [1] "        keywords: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC TEMPERATURE > MAXIMUM/MINIMUM TEMPERATURE"
-      [1] "        Conventions: CF-1.6"
-      [1] "        institution: Australian National University"
-      [1] "        geospatial_lat_min: -43.74"
-      [1] "        geospatial_lat_max: -9"
-      [1] "        geospatial_lat_units: degrees_north"
-      [1] "        geospatial_lat_resolution: -0.01"
-      [1] "        geospatial_lon_min: 112.9"
-      [1] "        geospatial_lon_max: 154"
-      [1] "        geospatial_lon_units: degrees_east"
-      [1] "        geospatial_lon_resolution: 0.01"
-      [1] "        keywords_vocabulary: Global Change Master Directory (http://gcmd.nasa.gov)"
-      [1] "        metadata_link: http://datamgt.nci.org.au:8080/geonetwork"
-      [1] "        standard_name_vocabulary: Climate and Forecast(CF) convention standard names (http://cf-pcmdi.llnl.gov/documents/cf-standard-names)"
-      [1] "        id: eMAST_ANUClimate_day_tmin_v1m0_1970_2012"
-      [1] "        DOI: To be added"
-      [1] "        cdm_data_type: grid"
-      [1] "        contributor_name: Michael Hutchinson, Jennnifer Kesteven, Tingbao Xu"
-      [1] "        contributor_role: principalInvestigator, author, author"
-      [1] "        creator_email: eMAST.data@mq.edu.au"
-      [1] "        creator_name: eMAST data manager"
-      [1] "        creator_url: http://www.emast.org.au/"
-      [1] "        Metadata_Conventions: Unidata Dataset Discovery v1.0"
-      [1] "        publisher_name: Ecosystem Modelling and Scaling Infrastructure (eMAST) Facility: Macquarie University"
-      [1] "        publisher_email: eMAST.data@mq.edu.au"
-      [1] "        publisher_url: http://www.emast.org.au/"
-  
-    
-  # RESULTS 2: Grid data  
-  
-  - I still get lots of good data
-  
-  ![images/thredds2.png](images/thredds2.png)
-  
-  <p></p>
-  
-  # NOTE I still need that weird transpose
-  
-  - I note that the weird hacky transpose is still required 
-  
-  #### CODE
-      # NB weird hacky transpose still required or else you get this
-      r <- raster(vals,
-                  xmn=xmin, xmx=xmax,
-                  ymn=ymin, ymx=ymax)
-       
-      #str(r)
-      plot(r)
-  
-  <p></p>
-  
-  ![images/thredds2raw.png](images/thredds2raw.png)
-  
-  
-  
-#+end_src
-
-* Statistical Modelling
-** 2015-09-12-effect-modification-and-mediation
-*** intro
-~/projects/ivanhanigan.github.com.raw/_posts/2015-09-12-effect-modification-and-mediation.md 
-#+name:effect-modification-and-mediation-header
-#+begin_src markdown :tangle no :exports none :eval no :padline no
-  ---
-name: effect-modification-and-mediation
-  layout: post
-title: effect-modification-and-mediation
-  date: 2015-09-12
-categories:
-  - disentangle
-- statistical modelling
-  ---
-
-  http://www.talkstats.com/showthread.php/27943-moderator-vs.-mediator-variable
-
-  trinker
-Here's what I've come up with:
-  
-moderator can affect direction and size of an effect between 2 other variables (x1 and y) but it you remove the moderator(x2) the effect between x1 and y still remains.
-  
-A mediator explains the relationship between 2 variables (x1 and y). If you remove the effects of the mediator (x2) there no longer exists a relationship between x1 and y.
-  
-Please critique 
-  
-#### Code:effect-modification-and-mediation
-  
-Lazar
-  Re: moderator vs. mediator variable
-
-      If a moderator is present then the relationship between x and y is different for different levels of a moderator M. For example the relationship between reading ability (x) and school engagement (y) may be different for boys and girls (where gender is the moderator m). I like to think of moderation as like a multigroup analysis. For example, if I thought gender was a moderator of some regression effect I was interested in I could run the regression in boys and girls seperately and see if they were different.
-
-      Mediation is about mechanism (m) that explain why x effects y. For example, the reason girls choose to study physical sciences at a lower rate than boys may be due to gendered parental expectations. In other words the relationship x(gender) -> Y(physical science college majors) is the result of a mechanism (i.e. it is not gender itself that leads to lower science uptake among women). Rather the mechanism is X(gender) -> M(gendered parental expectations) -> Y(physical science majors).
-
-      EDIT: While I am at it the distinction between moderation and mediation gets a bit grey in causal mediation or conditional indirect effects as these increasingly common models involve both moderation and mediation processes. 
-
-      For mediation you essentially need the following:
-
-  Y = \alpha + \beta_{x1} (1)
-
-  M = \alpha + \beta_{x2} (2)
-
-  Y = \alpha + \beta_m + \beta_{x3} (3)
-
-  Mediation Occurs if \beta_{x1} is significant in formula 1 but no longer significant (OR in many case we just want it to be smaller) in formula 3 (\beta_{x3}). If this is the case we can then decompose the effect of x on y into total, indirect (the effect of x on y that is mediated by m), and direct effects (the remaining effect of x on y after the indirect effect is accounted for).
-
-  Total effects = \beta_{x1}
-Direct effects = \beta_{x3}
-  Indirect effects = \beta_{x2} * \beta_{m}
-in all 3 of the equations, \beta_{xi} is the same X,
-  
-EDIT: Note how this differs from moderation. Moderation is estimated in a single equation
-  Y = \beta_{01} + \beta_{11}x + \beta_{12}z + \beta_{13}xz
-
-  Plugging in the applicable numbers here will give you the effect of x on y for different values of z. Here is some R code of mine which illustrates the relationship between experience and self-concept for different levels of workplace seniority (i.e. moderation).
-Code: 
-  
-#General Workplace self-concept
-#+end_src
-*** COMMENT eg-code
-#+name:eg
-#+begin_src R :session *R* :tangle eg.R :exports none :eval no
-  #### name:eg ####
-  
-  
-  
-    plot(1, type="n", xlim=c(-3,5), ylim=c(-2,2), xlab="Experience", ylab="Self-concept", main="General Workplace")
-  curve(exp=-.008*x + .137*-2 + .100*-2*x, from=-3, to=3, add=TRUE)
-    curve(exp=-.008*x + .137*2 + .100*2*x, from=-3, to=3, lty=3, add=TRUE)
-  #locator()
-    #used locator to get position of text
-  text(4, .85, "High Seniority (+2 SD)")
-    text(4, -.90, "Low Seniority (-2 SD)")
-  
-    Bryan said Isn't that must multicollinearity between two of the predictors? 
-  
-    Lazar replied you are correct (in that the varibles must obviously be colinear). The distinction to be made is that a theoretical interpretation is applied to this (and all of the associated causal ordering baggage that this brings with it). This theoretical formation is conceptualised as a path model and the relationship between y and x is decomposed as above. 
-  
-    
-#+end_src
-
-
-* Graphical User Interfaces
-** web2py
-
-
-*** TODO using the appadmin interface
-
-query can be db.dataset.contact.like('Lach%')
 
 * Project Management
 ** 2015-03-15-tuftes-gantt-alternative-for-detail-within-context
@@ -3540,7 +1686,7 @@ layout: post
 title: task-management-like-an-open-science-hacker
 date: 2015-09-13
 categories:
-- distenangle
+- distentangle
 - project management
 ---
 
@@ -3589,7 +1735,7 @@ When I open emacs in the morning I  open the agenda and this also opens research
        "**** TODO-list \n"
        "***** TODO \n"
        "**** timesheet\n"
-       "#+begin_src txt :tangle research-log.csv :eval no :padline no\n"
+       "#+begin_src txt :tangle work-log.csv :eval no :padline no\n"
        (format-time-string "%Y-%m-%d %a") ", " str ", 50\n" 
        "#+end_src\n"
      )
@@ -3602,7 +1748,7 @@ This creates a new date, a stub of a TODO for anything ad hoc and a entry into m
 I then select from TODO items from a global list that I keep at the top of the file, and cut/paste them into todays list.
 
 
-![img](images/agenda.png)
+![img](/images/agenda.png)
 
 Great so I just moved this research-log orgmode file into my blog github repo, and with the help of charlie park's bash script I am good to go
 
@@ -3615,7 +1761,8 @@ Great so I just moved this research-log orgmode file into my blog github repo, a
 
 <p></p>
 
-So this will put the resulting changes onto my open lab book website here [https://github.com/ivanhanigan/ivanhanigan.github.com/blob/master/research-log.org](https://github.com/ivanhanigan/ivanhanigan.github.com/blob/master/research-log.org)
+So this will put the resulting changes onto my open lab book website here [https://raw.githubusercontent.com/ivanhanigan/ivanhanigan.github.com/master/work-log.org](https://raw.githubusercontent.com/ivanhanigan/ivanhanigan.github.com/master/work-log.org)
+
 
 Things to note:
 
@@ -3626,11 +1773,1148 @@ Things to note:
 
 #+end_src
 
+* Data Management System
+** TODO UCRH and Scott Long inspired files/folders for projects and analyses (EXTENDED ON Q)
+**  UCRH and Scott Long inspired files/folders for projects and analyses
+*** Background
+Scott Long wrote a book on this in 2008, for UCRH need to Keep It Sensibly Simple (KISS) with documents and spreadsheets rather than databases and R scripts, need to showcase some use examples.
+
+Reproducibility and documentation: Long says: "Replication should involve retrieving documentation, not trying to remember."
+
+Challenge: remembering where things are.  Key is convention over configuration, which means following conventional rules rather than intuition and configuring things to suit a personal preference.
+
+Also similar to 'Evidence-Based' methods, that require demonstration of efficacy before broad implementation.
+
+*** Key components
+**** Workplan 
+***** Analysis Plan
+****** Question
+****** Methods
+***** Data Plan
+****** Potential data sources (collected or provided)
+****** Potential data derivatives
+**** Worklog
+***** log of dates, tasks and notes.  for personal workdays or team meetings
+**** Workflow
+***** Steps, Inputs and Outputs
+***** Code
+**** Results
+**** Reports
+** folder organisation
+
+
+#+begin_src txt :tangle no :eval no
+
+/data general/
+  /Data_Management_Plan.doc
+  /Data_Inventory.doc
+  /project_or_data (PRJ)/
+    /PRJ_workplan_and_worklog.doc
+    /PRJ_workflow.xls
+    /data_provided
+    /data_derived
+    /code
+    /report
+    /result
+  /references
+  /working_ivan/
+    /Ivan_work_plan.doc
+    /Ivan_work_log.xls
+    /Ivan_private
+  /working_margaret/
+    /Margaret_work_plan.doc
+    /??
+
+#+end_src
+
+** overview files
+***  dm plan.doc
+
+# describe metadata Standard
+
+# describe computing arrangements 
+ie access, backup
+
+# describe data management / analysis workflow
+ie data provided, intermediary, code, derived, merging, sharing
+
+***  dat inv of holdings.doc
+**** project
+***** - dataset
+****** -- entity
+******* --- attributes? perhaps this is best stored with the file?
+
+***  data staging area/
+***  project folder/
+****  project workplan.doc
+ (one pager, could be printed as a hard copy)
+#+begin_src txt :eval no
+---
+title: "Project Work Plan"
+author: "Ivan Hanigan"
+date: "16 September 2015"
+output: word_document
+---
+
+# Urgent Actions
+- taskname, notes, scheduled
+
+# Analysis Plan for ENTIRE project
+## Questions
+
+## Methods
+-  taskname, notes, scheduled
+-  taskname, notes, scheduled
+-  taskname, notes, scheduled
+
+# Data Plan
+- Planning data colleciton acquisition
+- general summary stuff, specifics go into a data_inventory.doc 
+
+# Work log (by date)
+## oldest date
+-  taskname, notes
+-  taskname, notes
+
+## date (personal notes)
+-  taskname, notes
+
+## date (team meeting notes)
+-  taskname, notes
+-  taskname, notes
+
+## newest date
+-  taskname, notes
+
+#+end_src
+
+
+****  project data inventory of prospective data to collect / aquire.doc
+
+similar to data inventory in /data\_general, but this is more for doco of this project
+
+****  project analysis method steps and workflow.xls
+
+| Step  | Inputs | Outputs    | Notes                         | Status |
+|-------+--------+------------+-------------------------------+--------|
+| Step1 | in1    | out1, out2 | A description of why and what | DONE   |
+| Step2 | out1   | out3       | why and what                  |        |
+| StepN |        |            |                               |        |
+|-------+--------+------------+-------------------------------+--------|
+
+****  data provided/
+****  data derived/
+****  results/
+****  report/
+****  code/
+****  versions/
+**  working Ivan
+***  Ivan Work Plan.doc
+#+begin_src txt :eval no
+---
+title: "Personal Work Plan"
+author: "Ivan Hanigan"
+date: "16 September 2015"
+output: word_document
+---
+
+# Urgent Actions
+- taskname, notes, scheduled
+
+# TASK-list grouped by project
+- project, taskname, notes, scheduled
+- project, taskname, notes, scheduled
+- project, taskname, notes, scheduled
+
+# Work log (by date)
+## oldest date
+- project, taskname, notes
+- project, taskname, notes
+
+## date
+- project, taskname, notes
+
+## newest date
+- project, taskname, notes
+
+#+end_src
+
+***  private/
+
+** COMMENT deprecated version
+*** folders
+for UCRH need to KISS with word/excel use case (simple, accessible, widespread)
+
+
+/data general/
+  /Data_Management_Plan.doc
+  /Data_Inventory.doc
+  /project_or_data (PRJ)/
+    /PRJ_workplan.doc
+    /PRJ_worklog.xls
+    /data_provided
+    /data_derived
+    /code
+    /report
+    /result
+  /references
+  /working_ivan/
+    /Ivan_work_plan.doc
+    /Ivan_work_log.xls
+    /Ivan_private
+  /working_margaret/
+    /Margaret_work_plan.doc
+    /??
+*** overview files
+**** TODO dm plan.doc
+
+# describe metadata Standard
+
+# describe computing arrangements 
+ie access, backup
+
+# describe data management / analysis workflow
+ie data provided, intermediary, code, derived, merging, sharing
+
+**** TODO dat inv of holdings.doc
+project
+-dataset
+--entity
+---attributes?
+**** TODO data staging area/
+**** TODO project folder/
+***** TODO project workplan.doc
+
+
+---
+title: "Project Work Plan"
+author: "Ivan Hanigan"
+date: "16 September 2015"
+output: word_document
+---
+
+# Urgent Actions
+- taskname, notes, scheduled
+
+# TODO-list grouped by project
+- project, taskname, notes, scheduled
+- project, taskname, notes, scheduled
+- project, taskname, notes, scheduled
+
+# Work log (by date)
+## oldest date
+- project, taskname, notes
+- project, taskname, notes
+
+## date
+- project, taskname, notes
+
+## newest date
+- project, taskname, notes
+
+
+
+***** TODO project data inventory of prospective data to collect / aquire.doc
+***** TODO project analysis method steps and workflow.xls
+| Step  | Inputs | Outputs    | Notes                         | Status |
+|-------+--------+------------+-------------------------------+--------|
+| Step1 | in1    | out1, out2 | A description of why and what | DONE   |
+| Step2 | out1   | out3       | why and what                  | TODO   |
+|       |        |            |                               |        |
+|-------+--------+------------+-------------------------------+--------|
+
+***** TODO data provided/
+***** TODO data derived/
+***** TODO results/
+***** TODO report/
+***** TODO code/
+***** TODO versions/
+**** TODO working Ivan
+***** TODO Ivan Work Plan.doc
+***** TODO private/
+
+
+* Data Documentation
+** 2015-03-19-r-eml-to-mitigate-risks-in-morpho-metacat-data-publishing
+
+
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-03-19-r-eml-to-mitigate-risks-in-morpho-metacat-data-publishing.md :exports none :eval no :padline no
+---
+name: r-eml-to-mitigate-risks-in-morpho-metacat-data-publishing
+layout: post
+title: Using the R EML software to mitigate risks in Morpho and Metacat data publishing
+date: 2015-03-19
+categories:
+- morpho
+- data documentation
+---
+
+# Introduction
+
+- Over the last few months I have used software called Metacat as a Data Portal and Repository.  Metacat is server software which has been
+developed by the Knowledge Network for Biocomplexity (KNB). 
+- Metacat
+conforms to the Ecological Metadata Language (EML) Standard ([https://knb.ecoinformatics.org/#external//emlparser/docs/index.html](https://knb.ecoinformatics.org/#external//emlparser/docs/index.html)).  
+- KNB also develop another software package called Morpho to be used by Ecologists to document their data ([https://knb.ecoinformatics.org/#tools/morpho](https://knb.ecoinformatics.org/#tools)).
+- Morpho can be used to send the data and metadata documents to be published on a Metacat portal. 
+- KNB’s software is used internationally by the Data
+Observation Network for Earth (DataONE) nodes, the United States Long
+Term Ecological Research (US LTER) network and the International Long
+Term Ecological Research (ILTER) network. 
+- Additionally, the Australian Long Term Ecological Research Network 
+Data Portal ([www.ltern.org.au/knb/](http://www.ltern.org.au/knb/)), Australian SuperSites Network and
+Australian Centre for Ecological Analysis and Synthesis used
+the same underlying technology to publish data packages.
+- The Metacat system is great for a data repository but unfortunately (in my experience) the Morpho software package has repeatedly hampered data processing and increased risks of inadvertently publishing data with errors. 
+- My colleagues and I workaround these problems using a lot of different 'fixes' for the different problems.
+- Fortunately there is an alternative to Morpho in the R statistical software environment called the R-EML package ([https://github.com/ropensci/EML](https://github.com/ropensci/EML)).  This provides a library of functions used in the R language to generate and parse EML files.
+- This new workflow mitigates some of the risks of the Morpho software by ensuring the data related steps of the workflow are conducted in the R environment for statical computing.
+- However, some Issues remain in that this requires a fairly specialised computing environment with various Linux libraries configured appropriately
+
+
+# Results
+ 
+- I generate EML metadata using REML in the workflow shown in the figure below.
+
+![altext](/images/workflow-rmd-md.png)
+
+<p></p>
+
+- Image adapted from [http://kieranhealy.org/blog/archives/2014/01/23/plain-text/](http://kieranhealy.org/blog/archives/2014/01/23/plain-text/)
+
+
+#+end_src
+
+** TODO xxx-adding-value-labels-to-reml-boilerplate
+*** adding-value-labels-to-reml-boilerplate-header
+#+begin_src R :tangle no :exports none :eval no :padline no
+  ---
+  name: adding-value-labels-to-reml-boilerplate
+  layout: post
+  title: adding-value-labels-to-reml-boilerplate
+  date: 2014-08-22
+  categories:
+  -
+  ---
+  
+  #### Code:adding-value-labels-to-reml-boilerplate
+  #For sake of argument, imagine a data.frame looking something like this:
+  
+  
+  dat = data.frame(river=c("SAC", "SAC", "AM"),
+                   spp = c("king", "king", "ccho"),
+                   stg = c("smolt", "parr", "smolt"),
+                   ct =  c(293, 410, 210L))
+  
+  xtable::xtable(dat)
+  
+  
+  
+  #In case our column header abbreviations are not obvious to others (or our future selves), we take a moment to define them:
+  
+  
+  col_metadata = c(river = "http://dbpedia.org/ontology/River",
+                   spp = "http://dbpedia.org/ontology/Species",
+                   stg = "Life history stage",
+                   ct = "count")
+  
+  
+  
+  # Define the units used in each column.  In the case of factors, we define the abbreviations in a named string.
+  
+  
+  unit_metadata =
+    list(river = c(SAC = "The Sacramento River", AM = "The American River"),
+         spp = c(king = "King Salmon", ccho = "Coho Salmon"),
+         stg = c(parr = "third life stage", smolt = "fourth life stage"),
+         ct = "number")
+  
+  # automated?
+  #dat <- dat[,-4]
+  dat
+  
+#+end_src
+
+*** COMMENT reml_boilerplate1-code
+#+name:reml_boilerplate
+# begin_src R :session *R* :tangle R/reml_boilerplate.r :exports reports :eval no
+#+begin_src R :session *R* :tangle no :exports reports :eval no
+
+  ################################################################
+  # name:reml_boilerplate
+   
+  # func
+  ## if(!require(EML)) {
+  ##   require(devtools)
+  ##   install_github("EML", "ropensci")
+  ##   } 
+  ## require(EML)
+  
+  reml_boilerplate <- function(data_set, outfile = NA, created_by = "Ivan Hanigan <ivanhanigan@gmail.com>", data_dir = getwd(), titl = NA)
+  {
+  
+    # next create a list from the data
+    unit_defs <- list()
+    for(i in 1:ncol(data_set))
+      {
+        # i = 4
+        if(is.numeric(data_set[,i])){
+          unit_defs[[i]] <- "number"
+        } else {
+          unit_defs[[i]] <- names(data_set)[i]
+        }
+      }
+  
+  # print helpful comments
+  cat(
+  sprintf('
+  # you just got a cheater\'s unit_defs
+  # we can get the col names easily
+  col_defs <- names(dat)
+  # then create a dataset with metadata
+  ds <- data.set(dat,
+                 col.defs = col_defs,
+                 unit.defs = unit_defs
+                 )
+  # now write EML metadata file
+  eml_config(creator="%s")
+  eml_write(ds,
+            file = "%s",
+            title = "%s"
+            )
+  
+  # now your metadata has been created
+  # if you want to add this to morpho and metacat it will needs something like
+  </dataFormat>
+    <distribution scope="document">
+      <online>
+        <url function="download">ecogrid://knb/hanigan.34.1</url>
+      </online>
+    </distribution>
+  </physical>', created_by, outfile, titl)
+  )
+  
+  
+    return(unit_defs)
+  
+   }
+#+end_src
+
+*** COMMENT reml_boilerplate2-code
+#+name:get_vals
+# begin_src R :session *R* :tangle R/reml_boilerplate.r :exports none :eval no
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  reml_boilerplate <- function(.dataframe){
+  strng <- list()
+  for(i in 1:ncol(.dataframe)){
+    # i = 6
+    .variable <- names(.dataframe)[i]
+    #.dataframe[,.variable]
+      if(is.character(.dataframe[ ,.variable])){
+        .dataframe[,.variable]  <- factor(.dataframe[,.variable])
+      }
+  
+    if(is.factor(.dataframe[,.variable])){
+      x <- .dataframe[,.variable]
+      vals <-  names(table(x))
+      # symbols may pollute the string to parse
+      vals <- make.names(vals)
+      vals <- tolower(vals)  
+      vals <- gsub("\\.","_",vals)
+      vals <- gsub("_+","_",vals)    
+      v <- .variable
+      #v
+      strng[[.variable]] <- paste(
+      v, ' = c(',
+      paste(vals, sep = '', collapse = ' = "TBA",')
+      ,' = "TBA")', sep = '')
+    } else if(is.numeric(.dataframe[,.variable])){
+      v <- .variable
+      strng[[.variable]] <- paste(v,' = "number"',sep='')
+  #    strng[[.variable]] <- '"number"'
+      
+    } else if(
+      !all(is.na(as.Date(as.character(na.omit(.dataframe[,.variable])), origin = "1970-01-01")))
+      ){
+      v <- .variable    
+      strng[[.variable]] <- paste(v,' = "YYYY-MM-DD"',sep='')
+  #    strng[[.variable]] <- '"YYYY-MM-DD"'
+  
+    } else if (all(is.na(.dataframe[ ,.variable]))){
+      v <- .variable        
+      strng[[.variable]] <- paste(v,' = "', names(.dataframe)[i], '"', sep='')
+    }
+  }  
+  #strng
+  strng2 <- ""
+  for(n in 1:(length(strng)-1)){
+    strng2 <- paste(strng2, strng[[n]], ",\n")
+  }
+  strng2 <- paste(strng2, strng[[length(strng)]], "\n")
+  #cat(strng2)
+  strng3 <- paste("
+  unit_metadata =
+    list(",strng2,")", sep = "")
+  #cat(strng3)
+  eval(parse(text = strng3))
+  #unit_metadata
+  return(unit_metadata)
+  }
+  
+  #u1 <- get_vals(analyte)
+  #u1
+      
+#+end_src
+*** COMMENT reml_boilerplate3-code
+#+name:get_vals
+#+begin_src R :session *R* :tangle R/reml_boilerplate.r :exports none :eval no
+  
+  reml_boilerplate <- function(.dataframe, enumerated = NA){
+  strng <- list()
+  for(i in 1:ncol(.dataframe)){
+  # i = 1
+    .variable <- names(.dataframe)[i]
+    #.dataframe[,.variable]
+      if(is.character(.dataframe[ ,.variable])){
+        .dataframe[,.variable]  <- factor(.dataframe[,.variable])
+      }
+  
+    if(is.factor(.dataframe[,.variable])  & i %in% enumerated){
+      x <- .dataframe[,.variable]
+      vals <-  names(table(x))
+      # symbols may pollute the string to parse
+      vals <- make.names(vals)
+      vals <- tolower(vals)  
+      vals <- gsub("\\.","_",vals)
+      vals <- gsub("_+","_",vals)    
+      v <- .variable
+      #v
+      strng[[.variable]] <- paste(
+      v, ' = c(',
+      paste(vals, sep = '', collapse = ' = "TBA",')
+      ,' = "TBA")', sep = '')
+    } else if(is.factor(.dataframe[,.variable])){
+      
+      strng[[.variable]] <- paste(
+        .variable, ' = "TBA"', sep = ''
+        )
+  
+    } else if(is.numeric(.dataframe[,.variable])){
+      v <- .variable
+      strng[[.variable]] <- paste(v,' = "number"',sep='')
+  #    strng[[.variable]] <- '"number"'
+      
+    } else if(
+      !all(is.na(as.Date(as.character(na.omit(.dataframe[,.variable])), origin = "1970-01-01")))
+      ){
+      v <- .variable    
+      strng[[.variable]] <- paste(v,' = "YYYY-MM-DD"',sep='')
+  #    strng[[.variable]] <- '"YYYY-MM-DD"'
+  
+    } else if (all(is.na(.dataframe[ ,.variable]))){
+      v <- .variable        
+      strng[[.variable]] <- paste(v,' = "', names(.dataframe)[i], '"', sep='')
+    }
+  }  
+  #strng
+  strng2 <- ""
+  for(n in 1:(length(strng)-1)){
+    strng2 <- paste(strng2, strng[[n]], ",\n")
+  }
+  strng2 <- paste(strng2, strng[[length(strng)]], "\n")
+  #cat(strng2)
+  strng3 <- paste("
+  unit_metadata =
+    list(",strng2,")", sep = "")
+  #cat(strng3)
+  eval(parse(text = strng3))
+  #unit_metadata
+  return(unit_metadata)
+  }
+  
+  #u1 <- get_vals(analyte)
+  #u1
+      
+#+end_src
+
+
+*** reml_boilerplate-test-code
+#+name:reml_boilerplate-test
+#+begin_src R :session *R* :tangle no :exports reports :eval no
+  ################################################################
+  # name:reml_boilerplate-test
+  library(EML)
+  require(devtools)
+  load_all()
+  #require(disentangle)
+  fpath <- system.file("extdata/civst_gend_sector_additional_variables.csv", package = "disentangle")
+  analyte <- read.csv(fpath, colClasses=c(ordinal_variable = "character"))
+  analyte <- read.csv(fpath, stringsAsFactor = F)
+  
+  str(analyte)
+  analyte$datevar <- as.Date(analyte$datevar)
+  analyte$ordinal_variable <- as.character(analyte$ordinal_variable)
+  analyte$fractions <- sample(rnorm(1000,0.1,0.1), nrow(analyte))
+  
+  str(analyte)
+  head(analyte)
+  unit_defs <- reml_boilerplate(
+    data_set = analyte,
+    created_by = "Ivan Hanigan <ivanhanigan@gmail.com>",
+    titl = "civst_gend_sector_full",
+    outfile = 'testing1234'
+    )
+  unit_defs
+  analyte2 <- analyte
+  names(analyte)
+  #analyte <- analyte2[,-c(6)]
+  unit_defs <- reml_boilerplate2(analyte)
+  unit_defs
+  
+  unit_defs <- reml_boilerplate3(analyte, enumerated = c(1,2,3,8))
+  unit_defs
+  
+  
+  
+  
+    # we can get the col names easily
+    col_defs <- names(analyte)
+    # then create a dataset with metadata
+    ds <- data.set(analyte,
+                   col.defs = col_defs,
+                   unit.defs = unit_defs
+                   )
+    # now write EML metadata file
+    eml_config(creator="TBA <fakeaddress@gmail.com>")
+  outfile <- "testingAbcd12234.csv"
+  str(ds)
+    ## eml_write(ds,
+    ##           file = gsub(".csv", "_eml_skeleton.xml", outfile),
+    ##           title = gsub(".csv", "", outfile)
+    ##           )
+  ## [1] "testingAbcd12234_eml_skeleton.xml"
+  ## Warning message:
+  ## In `[[<-.data.frame`(`*tmp*`, i, value = c("2013-09-09/01/13", "2013-09-09/01/13",  :
+  ##   Setting class(x) to NULL;   result will no longer be an S4 object
+  ## >
+  eml_write(analyte,
+            col.defs = col_defs,
+            unit.defs = unit_defs,
+            creator="TBA <fakeaddress@gmail.com>",
+            file = gsub(".csv", "_eml_skeleton.xml", outfile)
+            )
+  
+  tempfile <- dir(pattern="^data_table_")
+  tempfile
+  file.rename(tempfile, outfile)
+  # rename the CSV file.
+  
+  # dir("data")
+#+end_src
+
+*** COMMENT reml_boilerplate new test-code
+#+name:reml_boilerplate new test
+#+begin_src R :session *R* :tangle no :exports none :eval no
+#### name:reml_boilerplate new test####
+install.packages("dlnm")
+library(dlnm)
+library(disentangle)
+library(EML)
+
+data(chicagoNMMAPS)
+str(chicagoNMMAPS)
+?chicagoNMMAPS
+data_dictionary(chicagoNMMAPS)
+unit_defs <- reml_boilerplate(chicagoNMMAPS)
+col_defs <- names(chicagoNMMAPS)
+ds <- eml_dataTable(chicagoNMMAPS,
+              col.defs = col_defs,
+              unit.defs = unit_defs,
+              description = "Metadata documentation for chic.csv", 
+              filename = "chic.csv")
+# now write EML metadata file
+eml_config(creator="Antonio Gasparrini
+<antonio.gasparrini@lshtm.ac.uk>")
+eml_write(ds,
+          file = "chic.xml",
+          title = "chicagoNMMAPS"
+)
+
+# now your metadata has been created
+
+#+end_src
+
+** R-data_dictionary
+*** R-R-data_dict
+#+name:R-data_dictionary
+#+begin_src R :session *R* :tangle R/data_dict.r :exports none :eval no
+  # name:data_dict
+  data_dict <- function(.dataframe, .variable, .show_levels = -1)
+  {
+  
+  summary2 <- function(x){
+    summa <- summary(x, digits = nchar(max(x))+3)
+    return(summa)
+  }
+  
+    if(is.character(.dataframe[ ,.variable])){
+      .dataframe[,.variable]  <- factor(.dataframe[,.variable])
+    }
+    if(all(is.na(.dataframe[ ,.variable]))){
+      summa <- summary2(.dataframe[,.variable])
+      summa <- as.data.frame(t(summa[2]))
+      summa[,1]  <- as.numeric(as.character(summa[,1]))
+    } else {
+      summa <- summary2(.dataframe[,.variable])
+    }
+  # if there are some missing obs in a date var you get a malformed
+  # summa with less names than levels
+    if(length(as.character(summa)) != length(names(summa))){
+      summa <- as.character(summa)
+    }
+  
+    
+    summa <- as.data.frame(
+      cbind(
+        c(.variable, rep("", length(summa) - 1)),
+        names(summa)
+        ,
+        as.vector(summa)
+        )
+      )
+    summa[,1]  <- as.character(summa[,1])
+    summa[,2]  <- as.character(summa[,2])
+    # summa
+  
+    # if char (factor)
+    if(is.factor(.dataframe[,.variable])){
+    summa$type <- c("character", rep("", nrow(summa) - 1))
+    summa$summa  <- as.numeric(as.character(summa$V3))  
+    summa$summa2 <- rep(NA, nrow(summa))
+        # as.numeric(as.character(summa$V2)) ?
+    summa$pct  <- round((summa$summa / sum(summa$summa)) * 100, 2)
+    summa <- summa[,c(1,4,2,6,5,7)]
+    if(.show_levels > 0){
+      if(nrow(summa) > .show_levels){
+        summa <- summa[1:.show_levels,]  
+        summa <- rbind(summa, c("", "",
+                                sprintf("more than %s levels. list truncated.", .show_levels),
+                                "","", "")
+                       )
+        }
+      }
+    # summa
+    } else if (
+      is.numeric(.dataframe[,.variable])
+      ){
+    summa$type <- c("number", rep("", nrow(summa) - 1))
+    summa$cnt <- NA
+    summa$pct  <- NA
+    summa <- summa[,c(1,4,2,3,5,6)]
+    } else if (
+     !all(
+        is.na(as.Date(as.character(na.omit(.dataframe[,.variable])), origin = "1970-01-01"))
+        )
+      ){
+    # if date
+    ## datevar <- as.Date(as.character(
+    ##   .dataframe[,.variable]
+    ##   ), origin = "1970-01-01")
+    # http://stackoverflow.com/questions/18178451/is-there-a-way-to-check-if-a-column-is-a-date-in-r
+    # as.Date(as.character(.dataframe[,.variable]),format="%Y-%m-%d")
+    ## if(!all(is.na(datevar))){
+    ##   summa[,3] <- as.character(datevar)
+    ## }
+      
+    summa$type <- c("date", rep("", nrow(summa) - 1))
+    summa$cnt <- NA
+    summa$pct  <- NA
+    # summa
+    if(
+      length(which(is.na(.dataframe[,.variable]))) > 0
+      ){
+      summa$V3[-which(summa$V2 == "NA's")] <- as.character(
+          as.Date(as.character(
+          summa$V3[-which(summa$V2 == "NA's")]
+          ), origin = "1970-01-01")
+          )    
+    } else {
+      summa$V3 <- as.character(as.Date(as.numeric(as.character(summa$V3)), origin = "1970-01-01"))    
+    }
+    summa <- summa[,c(1,4,2,3,5,6)]
+    } else if (all(is.na(.dataframe[ ,.variable]))){
+      
+    summa$type <- c("missing", rep("", nrow(summa) - 1))
+    summa$fill  <- NA
+    summa$pct  <- 100
+    summa <- summa[,c(1,4,2,5,3,6)]
+    
+    } else {
+        stop(sprintf("variable '%s' type is not character, factor, date, numeric or missing", .variable))
+    }
+    names(summa)  <- c("Variable","Type","Attributes", "Value", "Count", "Percent")
+    # summa
+    return(summa)
+  }
+  
+#+end_src
+
+#+RESULTS: R-data_dictionary
+
+*** data_dictionary-code
+#+name:data_dictionary
+#+begin_src R :session *R* :tangle R/data_dictionary.r :exports none :eval no
+  ################################################################
+  data_dictionary <- function(dataframe, show_levels = -1){
+    out <- matrix(NA, nrow = 0, ncol = 3)
+    for(i in 1:ncol(dataframe)){
+    #  i = 1
+    #  print(i)
+    out2 <- data_dict(
+      .dataframe = dataframe
+      ,
+      .variable = names(dataframe)[i]
+      ,
+      .show_levels = show_levels
+      )
+    out <- rbind(out, out2)
+    }
+    row.names(out) <- NULL
+    return(out)
+  }
+#+end_src
+
+*** test-R-data_dictionary
+#+name:R-data_dictionary
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  ################################################################
+  # name:R-data_dictionary
+  require(devtools)
+  install_github("ivanhanigan/disentangle")
+  # or
+  load_all()
+  require(disentangle)
+  fpath <- system.file("extdata/civst_gend_sector.csv", package = "disentangle")
+  fpath
+  civst_gend_sector <- read.csv(fpath)
+  civst_gend_sector$datevar <- as.Date(round(rnorm(nrow(civst_gend_sector), Sys.Date(),10)), origin = "1970-01-01")
+  civst_gend_sector$missing_variable  <- NA
+  civst_gend_sector$Survey.year  <- as.integer(rep(2012, nrow(civst_gend_sector)))
+  str(civst_gend_sector)
+  #data_dict
+  data_dict(civst_gend_sector, "civil_status")
+  class(civst_gend_sector$datevar)
+  data_dict(civst_gend_sector, "datevar")
+  data_dict(civst_gend_sector, "number_of_cases")
+  data_dict(civst_gend_sector, "missing_variable")
+  data_dict(civst_gend_sector, "Survey.year")
+  dataDictionary <- data_dictionary(civst_gend_sector,
+                                    show_levels = -1)
+  
+  dataDictionary
+  #write.csv(dataDictionary, "~/dataDictionary.csv", row.names = F)
+  
+  # with randoms in date variable
+  civst_gend_sector$datevar[sample(1:nrow(civst_gend_sector), 5)] <- NA
+  # and civil status
+  civst_gend_sector$civil_status[sample(1:nrow(civst_gend_sector), 7)] <- NA
+  # and number of cases
+  civst_gend_sector$number_of_cases[sample(1:nrow(civst_gend_sector), 2)] <- NA
+  civst_gend_sector$Survey.year[sample(1:nrow(civst_gend_sector), 4)] <- NA
+  # some integer codes
+  civst_gend_sector$ordinal_variable <-  as.character(round(sample(rnorm(10000,2.5,1), nrow(civst_gend_sector))))
+  civst_gend_sector$alphavar <- sample( letters, nrow(civst_gend_sector))
+  str(civst_gend_sector)
+  #debug(data_dict)
+  data_dict(
+            .dataframe=civst_gend_sector
+            ,
+            .variable="datevar"
+            ,
+            .show_levels = -1
+            )
+  #undebug(data_dict)
+  
+  dataDictionary <- data_dictionary(civst_gend_sector,
+                                    show_levels = -1)
+  
+  dataDictionary
+  write.csv(civst_gend_sector,
+            file.path("inst/extdata", gsub(".csv","_additional_variables.csv", basename(fpath)))
+            , row.names = F)
+#+end_src
+*** man-R-data_dictionary
+#+name:R-data_dictionary
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:R-data_dictionary
+
+#+end_src
+
+** variable_names_and_labels
+*** R-variable_names_and_labels
+#+name:variable_names_and_labels
+#+begin_src R :session *R* :tangle R/variable_names_and_labels.r :exports none :eval no
+  #' @title variable_names_and_labels
+  #' @name variable names and labels
+  #' @param datadict a dd object (optional)
+  #' @param infile the full pathname (optional)
+  #' @param orig_names the original names (optional)
+  #' @param insert_labels T/F if the output should summarise the value labels
+  
+  variable_names_and_labels <- function(datadict = NULL, infile = NULL, orig_names=NULL, insert_labels = FALSE){
+    
+  if(is.null(datadict)){  
+  dat <- read.csv(infile, stringsAsFactors =  F)
+  datadict <- data_dictionary(dat)
+  }
+  
+  #### now get variable names as they appear in the dd ####
+  datadict$ordering <- 1:nrow(datadict)
+  col_defs <- sqldf::sqldf("
+  select Variable, Type
+  from datadict
+  group by Variable, Type
+  order by ordering
+  ", drv = "SQLite")
+  col_defs <- col_defs[col_defs$Variable != "",]
+  # col_defs
+  # orig_names
+  if(!is.null(orig_names)){
+    vl <- as.data.frame(cbind(col_defs,orig_names))
+    names(vl) <- c("variable_name", "simple_type", "original_name")
+  } else {
+    vl <- col_defs
+  }
+  # vl
+  vl$description <- ""
+  vl$nominal_ordinal_interval_ratio_datetime <- ""
+  vl$unit_of_measurement <- ""
+  vl$value_labels <- ""
+  vl$issue_description <- ""
+  vl$depositor_response <- ""
+  # it is easy in a spreadsheet to add the value labels but an
+  # automation approach is here
+  if(insert_labels){
+    dat <- read.csv(infile, stringsAsFactors =  F)
+    enums <- NA
+    for(j in 1:ncol(dat)){
+      if(is.character(dat[,j])){
+        if(j == 1){
+          enums <- 1
+        } else {
+          enums <- c(enums, j)
+        }
+      }
+    }
+    #enums
+    #str(dat)
+    lablist  <- reml_boilerplate(dat, enumerated = enums)
+    lablist <- lapply(lablist, names)
+    maxnlabs <- max(sapply(lablist, length))
+    if(maxnlabs > 10) stop("more than 10 labels, try a different approach")
+    lablist <- lapply(lablist, paste, sep = "", collapse = " = ?; ")  
+    lablist  <- do.call(rbind.data.frame, lablist)
+    vl$value_labels <- lablist[,1]
+  }
+    
+  # vl
+  return(vl)
+  }
+#+end_src
+*** test-variable_names_and_labels
+#+name:variable_names_and_labels
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  ################################################################
+  # name:variable_names_and_labels
+  require(devtools)
+  install_github("ivanhanigan/disentangle")
+  require(disentangle)
+  # or
+  load_all()
+  
+  fpath <- "inst/extdata/civst_gend_sector_additional_variables.csv"
+  # or
+  fpath <- "inst/extdata/civst_gend_sector.csv"
+  fpath
+  dat <- read.csv(fpath)
+  # store orig names
+  namlist <- names(dat)
+  dat$datevar <- as.Date(dat$datevar)
+  
+  # changing names is something that we want to track
+  names(dat) <- gsub("_", " ", names(dat))
+  names(dat)  <- sapply(names(dat), upcase_string)
+  str(dat)
+  civst_dd <- data_dictionary(dat)
+  civst_dd
+  fpath
+  vl <- variable_names_and_labels(
+    datadict = civst_dd
+    ,
+    infile = fpath
+    ,
+    orig_names = namlist
+    ,
+    insert_labels = T
+    )
+  vl
+  vl <- variable_names_and_labels(
+    datadict = civst_dd
+    ,
+    infile = fpath
+    ,
+    insert_labels = T
+    )
+  vl
+  
+#+end_src
+
+* Statistical Modelling
+** 2015-09-12-effect-modification-and-mediation
+*** intro
+~/projects/ivanhanigan.github.com.raw/_posts/2015-09-12-effect-modification-and-mediation.md 
+#+name:effect-modification-and-mediation-header
+#+begin_src markdown :tangle no :exports none :eval no :padline no
+---
+name: effect-modification-and-mediation
+layout: post
+title: effect-modification-and-mediation
+date: 2015-09-12
+categories:
+- disentangle
+tags:
+- statistical modelling
+---
+
+http://www.talkstats.com/showthread.php/27943-moderator-vs.-mediator-variable
+
+trinker
+Here's what I've come up with:
+  
+moderator can affect direction and size of an effect between 2 other variables (x1 and y) but it you remove the moderator(x2) the effect between x1 and y still remains.
+  
+A mediator explains the relationship between 2 variables (x1 and y). If you remove the effects of the mediator (x2) there no longer exists a relationship between x1 and y.
+  
+Please critique 
+  
+#### Code:effect-modification-and-mediation
+  
+Lazar
+  Re: moderator vs. mediator variable
+
+      If a moderator is present then the relationship between x and y is different for different levels of a moderator M. For example the relationship between reading ability (x) and school engagement (y) may be different for boys and girls (where gender is the moderator m). I like to think of moderation as like a multigroup analysis. For example, if I thought gender was a moderator of some regression effect I was interested in I could run the regression in boys and girls seperately and see if they were different.
+
+      Mediation is about mechanism (m) that explain why x effects y. For example, the reason girls choose to study physical sciences at a lower rate than boys may be due to gendered parental expectations. In other words the relationship x(gender) -> Y(physical science college majors) is the result of a mechanism (i.e. it is not gender itself that leads to lower science uptake among women). Rather the mechanism is X(gender) -> M(gendered parental expectations) -> Y(physical science majors).
+
+      EDIT: While I am at it the distinction between moderation and mediation gets a bit grey in causal mediation or conditional indirect effects as these increasingly common models involve both moderation and mediation processes. 
+
+      For mediation you essentially need the following:
+
+  Y = \alpha + \beta_{x1} (1)
+
+  M = \alpha + \beta_{x2} (2)
+
+  Y = \alpha + \beta_m + \beta_{x3} (3)
+
+  Mediation Occurs if \beta_{x1} is significant in formula 1 but no longer significant (OR in many case we just want it to be smaller) in formula 3 (\beta_{x3}). If this is the case we can then decompose the effect of x on y into total, indirect (the effect of x on y that is mediated by m), and direct effects (the remaining effect of x on y after the indirect effect is accounted for).
+
+  Total effects = \beta_{x1}
+  Direct effects = \beta_{x3}
+  Indirect effects = \beta_{x2} * \beta_{m}
+  in all 3 of the equations, \beta_{xi} is the same X,
+  
+  EDIT: Note how this differs from moderation. Moderation is estimated in a single equation
+  Y = \beta_{01} + \beta_{11}x + \beta_{12}z + \beta_{13}xz
+
+  Plugging in the applicable numbers here will give you the effect of x on y for different values of z. Here is some R code of mine which illustrates the relationship between experience and self-concept for different levels of workplace seniority (i.e. moderation).
+Code: 
+  
+#General Workplace self-concept
+#+end_src
+*** COMMENT eg-code
+#+name:eg
+#+begin_src R :session *R* :tangle eg.R :exports none :eval no
+  #### name:eg ####
+  
+  
+  
+    plot(1, type="n", xlim=c(-3,5), ylim=c(-2,2), xlab="Experience", ylab="Self-concept", main="General Workplace")
+    curve(exp=-.008*x + .137*-2 + .100*-2*x, from=-3, to=3, add=TRUE)
+    curve(exp=-.008*x + .137*2  + .100*2*x,  from=-3, to=3, lty=3, add=TRUE)
+    #locator()
+    #used locator to get position of text
+    text(4, .85, "High Seniority (+2 SD)")
+    text(4, -.90, "Low Seniority (-2 SD)")
+  
+    Bryan said Isn't that must multicollinearity between two of the predictors? 
+  
+    Lazar replied you are correct (in that the varibles must obviously be colinear). The distinction to be made is that 
+    a theoretical interpretation is applied to this (and all of the associated causal ordering baggage that this brings with it). 
+    This theoretical formation is conceptualised as a path model and the relationship between y and x is decomposed as above. 
+  
+    
+#+end_src
+
+** p-values and garden of forking paths
+The p-value is the probability of seeing something at least as extreme as the data, if the null hypothesis were true.
+http://andrewgelman.com/2014/10/14/didnt-say-part-2/
+
+
+* Graphical User Interfaces
+** web2py
+
+
+*** TODO using the appadmin interface
+
+query can be db.dataset.contact.like('Lach%')
+* Web2py
+** sounds players
+# download web2py
+wget http://web2py.com/examples/static/web2py_src.zip
+unzip web2py_src.zip
+cd web2py
+
+# make the app using only core API
+mkdir applications/audio
+cp -r applications/welcome/* applications/audio
+echo "
+db.define_table('music',
+                Field('name',required=True),
+                Field('filename','upload',required=True),
+                auth.signature)
+" > applications/audio/models/db_audio.py
+echo "
+response.menu = [('Home',0,URL('index'))]
+
+# allows to browser, search, and upload new music (if logged in)
+def index():
+    # tell web2py that links to music files are to be
+    # represented as HTML5 audio embedded players
+    from gluon.contrib.autolinks import expand_one
+    db.music.filename.represent = lambda v,r: \
+        XML(expand_one(URL('download',args=v),{}))
+    return dict(grid = SQLFORM.grid(db.music))
+
+# perform login/logout/registration/etc.
+def user():
+    return dict(form=auth())
+
+# allow streaming of all files, including partial content of music files
+@cache.action()
+def download():
+    return response.download(request, db)
+" > applications/audio/controllers/default.py
+
 * Workflow Tools
 
-
-** COMMENT DEPRECATED R-newnode
-*** COMMENT R-newnode
+** TODO-list
+- make a newnode_{family} of functions to do certain pre-processing for dagrammer package to work with
+- eg newnode_and_edges takes dataframe of node_name, inputs_csv, outputs_csv and splits to nodes and edges
+- newnode_csv takes that compact view and expands out the csv_strings to individual rows of a table
+- newnode_rmd takes compact df  and creates RMD like IUCN did
+** COMMENT DEPRECATED R-newnode_df
+*** COMMENT R- OLD newnode
 #+name:newnode
 #+begin_src R :session *R* :tangle no :exports none :eval yes
   ################################################################
@@ -3794,7 +3078,7 @@ Things to note:
   '), stringsAsFactors = F, strip.white = T)
   str(filesList)
   filesList
-  ## newnode_df <- function(indat, names_col, in_col, out_col, desc_col, clusters_col){
+  ## newnode _ df <- function(indat, names_col, in_col, out_col, desc_col, clusters_col){
   ## # start the graph
   i <- 1
   nodes <- newnode(name = indat[i,names_col],
@@ -3833,7 +3117,7 @@ Things to note:
   ## }
   
   
-  ## newnode_df <- function(indat, names_col, in_col, out_col, desc_col, clusters_col, graph = 'nodes_list'){
+  ## newnode _ df <- function(indat, names_col, in_col, out_col, desc_col, clusters_col, graph = 'nodes_list'){
   ## # start the graph
   ## i <- 1
   ## nodes_list <- eval(parse(text=sprintf('newnode(name = indat[i,names_col],
@@ -3875,8 +3159,8 @@ Things to note:
   
   
   str(filesList)
-  ## undebug(newnode_df)
-  ## nodes <- newnode_df(
+  ## undebug(newnode _ df)
+  ## nodes <- newnode _ df(
   ## indat = filesList
   ## ,
   ## names_col = "FILE"
@@ -4078,12 +3362,6 @@ Things to note:
   #' @param todo_col optional column with TODO status (DONE and WONTDO will be white, others are red)
   #' @return character string object that has the DOT language representatio of the input
   newnode <- function(indat, names_col = NULL, in_col = NULL, out_col = NULL, desc_col = NULL, clusters_col = NULL, todo_col = NULL, nchar_to_snip = 40){
-  ## if(any(is.na(indat) |
-  ##        is.na(names_col) |
-  ##        is.na(in_col) |
-  ##        is.na(out_col) |
-  ##        is.na(desc_col)
-  ##        )) stop("data or arguments are not supplied")
   if (is.null(names_col)) stop("Names of the steps are needed")
   if (is.null(in_col)) stop("Inputs are needed")
   if (is.null(out_col)) stop("Outputs are needed")
@@ -4269,6 +3547,7 @@ Things to note:
   
 #+end_src
 
+
 ** R-newnode_rmd
 *** COMMENT newnode-code
 #+name:newnode_rmd
@@ -4413,27 +3692,50 @@ Things to note:
 #+end_src
 
 ** R-newnode_csv
-*** COMMENT newnode_df-code
+*** COMMENT newnode_csv-code
 #+name:newnode_csv
-#+begin_src R :session *R* :tangle R/newnode_csv.R :exports none :eval no
+#+begin_src R :session *R* :tangle R/newnode_csv.R :exports none :eval yes
   #' @title newnode_csv
   #' @name newnode_csv
   #' @param indat the input data.frame
   #' @param names_col the name of each edge (the boxes)
   #' @param in_col the name of the nodes that are inputs to each edge with comma seperated vals.  whitespace will be stripped
   #' @param out_col the nodes that are outputs of each edge.
-  #' @param desc_col description
-  #' @param clusters_col optional column identifying clusters
-  #' @param todo_col optional column with TODO status (DONE and WONTDO will be white, others are red)
-  #' @return character string object that has the DOT language representatio of the input
-  newnode_csv <- function(indat = NA,names_col = NA,in_col = NA,out_col = NA,desc_col = NA,clusters_col = NA, todo_col = NA, nchar_to_snip = 40){
-  if(any(is.na(indat) |
-         is.na(names_col) |
-         is.na(in_col) |
-         is.na(out_col) |
-         is.na(desc_col)
-         )) stop("data or arguments are not supplied")
+  #' @param clusters_col optional
+  #' @return dataframe representation of the inputs and outputs
+  newnode_csv <- function(indat = NULL,names_col = NULL,in_col = NULL,out_col = NULL, clusters_col = NULL){
+  if (is.null(names_col)) stop("Names of the steps are needed")
+  if (is.null(in_col)) stop("Inputs are needed")
+  if (is.null(out_col)) stop("Outputs are needed")
   
+  
+  if(!is.null(clusters_col)){
+    cluster_ids <- names(table(indat[,clusters_col]))
+  #cluster_ids
+  
+    nodes_graph  <- as.data.frame(matrix(NA, ncol = 4, nrow = 0))
+    names(nodes_graph) <- c("cluster", "name", "in_or_out", "value")
+  
+  for(cluster_i in cluster_ids){
+    # cluster_i <- cluster_ids[1]
+    indat2 <- indat[indat[,clusters_col] == cluster_i,]  
+      for(i in 1:nrow(indat2)){
+        indat2[i,]
+        name <- indat2[i,names_col]
+        name2paste <- paste('', name, '', sep = "")
+        inputs <- data.frame(in_or_out = "input", value = unlist(lapply(strsplit(indat2[i,in_col], ","), str_trim)))
+        outputs <- data.frame(in_or_out = "output", value = unlist(lapply(strsplit(indat2[i,out_col], ","), str_trim)))
+        inout <- rbind(inputs, outputs)      
+        strng <- data.frame(cluster= cluster_i,
+                      name = name2paste,                    
+                      inout = inout)
+        names(strng) <- c("cluster", "name", "in_or_out", "value")
+        nodes_graph <- rbind(nodes_graph, strng)
+      }
+    } 
+  ######################################
+  # option 2 no cluster
+  } else { 
     indat2 <- indat
     nodes_graph  <- as.data.frame(matrix(NA, ncol = 3, nrow = 0))
     names(nodes_graph) <- c("name", "in_or_out", "value")
@@ -4443,7 +3745,7 @@ Things to note:
         #i
         indat2[i,]
         name <- indat2[i,names_col]
-        desc <- indat2[i,desc_col]
+        #desc <- indat2[i,desc_col]
   
         #if(nchar(name) > 140) print("that's a long name. consider shortening this")
         #if(nchar(desc) > nchar_to_snip) desc <- paste(substr(desc, 1, nchar_to_snip), "[...]")
@@ -4459,17 +3761,20 @@ Things to note:
   strng <- data.frame(name = name2paste,                    
                       inout = inout
                    )
-  strng
+  #strng
         names(strng) <- c("name", "in_or_out", "value")
   #nodes_graph  <- ""      
         nodes_graph <- rbind(nodes_graph, strng)
-  #}
-  }
+  #
+        }
   #nodes_graph
+  }
   return(nodes_graph)
   }
   
 #+end_src
+
+#+RESULTS: newnode_csv
 
 *** COMMENT test-df-input-code3
 #+name:test-df-input
@@ -4478,50 +3783,45 @@ Things to note:
   library(devtools)
   load_all()
   library(stringr)
-  ## filesList <- read.csv(textConnection('
-  ## CLUSTER ,  FILE    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
-  ## A  ,  siteIDs      , "GPS, helicopter"          , "spatial, site doco"                 , latitude and longitude of sites  
-  ## A  ,  weather      , BoM                       , exposures                              , weather data from BoM            
-  ## B  ,  trapped      , spatial                   , trapped_no                             , counts of species caught in trap 
-  ## B  ,  biomass      , spatial                   , biomass_g                              ,                                  
-  ## B  ,  correlations , "exposures,trapped_no,biomass_g" , report1                         , A study we published             
-  ## C  ,  paper1       , report1                   , "open access repository, data package" ,                                  
-  ## D  ,  biomass revision, new estimates          , biomass_g                              , this came late
-  ## '), stringsAsFactors = F, strip.white = T)
-  #write.csv(filesList, "fileTransformations.csv", row.names = F)
-  filesList <- read.csv("fileTransformations.csv", stringsAsFactors = F, strip.white = T)
+  #dat <- read.csv("~/Dropbox/projects/air_pollution_ucrh/Neighbourhood_staging/BME_steps.csv", stringsAsFactors = F, strip.white = T)
   
-  str(filesList)
-  # filesList
+  dat <- read.csv(textConnection('
+  cluster ,  step    , inputs                    , outputs                                , description                      
+  A  ,  siteIDs      , "GPS, helicopter"          , "spatial, site doco"                 , latitude and longitude of sites  
+  A  ,  weather      , BoM                       , exposures                              , weather data from BoM            
+  B  ,  trapped      , spatial                   , trapped_no                             , counts of species caught in trap 
+  B  ,  biomass      , spatial                   , biomass_g                              ,                                  
+  B  ,  correlations , "exposures,trapped_no,biomass_g" , report1                         , A study we published             
+  C  ,  paper1       , report1                   , "open access repository, data package" ,                                  
+  D  ,  biomass revision, new estimates          , biomass_g                              , this came late
+  '), stringsAsFactors = F, strip.white = T)
+  
+  str(dat)
+  # dat
   
   nodes_graphy <- newnode_csv(
-    indat = filesList
+    indat = dat
     ,
-    names_col = "STEP"
+    names_col = "step"
     ,
-    in_col = "INPUTS"
+    in_col = "inputs"
     ,
-    out_col = "OUTPUTS"
+    out_col = "outputs"
     ,
-    desc_col = "DESCRIPTION"
-    ,
-    clusters_col = "CLUSTER"
-    ,
-    todo_col = NA #"STATUS"
-    ,
-    nchar_to_snip = 40
+    clusters_col = 'cluster'
     )
   
-  #sink("fileTransformations.Rmd")
-  cat(nodes_graphy)
-  #sink()
-  #system("dot -Tpng fileTransformations.dot -o fileTransformations.png")
+  
+  str(nodes_graphy)
+  nodes_graphy
+  
+  write.csv(nodes_graphy, "tests/test-newnode_csv_output.csv", row.names = F, quote=F)
   
 #+end_src
 
 
 
-   
+    
 ** 2013-11-25-setting-up-a-workflow-script
 #+name:project-template-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2013-11-25-setting-up-a-workflow-with-code-chunks.md :exports none :eval no :padline no
@@ -4772,6 +4072,1536 @@ categories:
 - Write functions as much as possible, put these into a personal 'misc' package
    
 #+end_src
+* Diagrams
+
+
+** diagrammer tests
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:diagrammer
+  install.packages('DiagrammeR')
+  library(DiagrammeR)
+  library(disentangle)
+  ###
+  # Create a graph with both nodes and edges
+  # defined, and, add some default attributes
+  # for nodes and edges
+  ###
+  
+  library(DiagrammeR)
+  # modified eg from http://rich-iannone.github.io/DiagrammeR/graphs.html
+  # Create a node data frame
+  nodes <-
+    create_nodes(nodes = c("a", "b", "c", "d"),
+                 label = c("one", "two", "three", "{{ { Name | Description } | { four | thing } }}"),
+                 type = "lower",
+                 style = c("filled","", "", ""),
+                 color = "aqua",
+                 shape = c("circle", "circle",
+                           "rectangle", "record"),
+                 data = c(3.5, 2.6, 9.4, 2.7),
+                 cluster = c("A", "A", "B", "B"))
+  nodes
+  nodes1 <- subset(nodes, cluster == "A")
+  nodes1
+  nodes2 <- subset(nodes, cluster == "B")
+  nodes2
+  edges <-
+    create_edges(from = c("a", "b", "c"),
+                 to = c("d", "c", "a"),
+                 relationship = "leading_to",
+                 label = c("+", "-", "?"))
+  edges
+  edges2 <-
+    create_edges(from = c("e", "a"),
+                 to = c("f", "e"),
+                 relationship = "leading_to",
+                 label = c("+", "-"))
+  edges2
+  graph1 <-
+    create_graph(nodes_df = nodes1,
+                 edges_df = edges,
+                 node_attrs = "fontname = Helvetica",
+                 edge_attrs = c("color = blue",
+                                "arrowsize = 2"))#,
+  #               graph_attrs = "rankdir = LR")
+  graph2 <-
+    create_graph(nodes_df = nodes2,
+                 edges_df = edges2,
+                 node_attrs = "fontname = Helvetica",
+                 edge_attrs = c("color = blue",
+                                "arrowsize = 2"))
+      # use create_graph on seperate nodes and edges data frames, one for
+      # each cluster
+      gr1 <- graph1$dot_code
+      gr2 <- graph2$dot_code
+      gr1 <- gsub("digraph", "subgraph cluster1", gr1)
+      gr2 <- gsub("digraph", "subgraph cluster2", gr2)
+      gr3 <- sprintf("digraph{\n%s\n\n %s\n}", gr1, gr2)
+      grViz(gr3)
+  
+  
+  # View the graph in the RStudio Viewer
+  #render_graph(graph)
+  #graph <- add_edges(graph, from = "b", to = "a",
+  #                   relationship = "leading_to")
+  #get_predecessors(graph, node = "a")
+  #graph <- add_edges(graph, from = "d", to = "b",
+  #                   relationship = "leading_to")
+  #render_graph(graph)
+  
+#+end_src
+** reference causal DAGs with R
+http://donlelek.github.io/2015/03/31/dags-with-r/
+*** COMMENT test-code
+#+name:test
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:test ####
+  library(DiagrammeR)
+  grViz("
+  digraph causal {
+  
+    # Nodes
+    node [shape = plaintext]
+    A [label = 'Age']
+    R [label = 'Retained\n Placenta']
+    M [label = 'Metritis']
+    O [label = 'Cistic ovarian\n disease']
+    F [label = 'Fertility']
+    
+    # Edges
+    #edge [color = black,
+    #      arrowhead = vee]
+    rankdir = LR
+    A->F [headlabel='+']
+    A->O [headlabel='+']
+    A->R
+    R->O [headlabel='+']
+    R->M
+    M->O
+    O->F
+    M->F
+    
+    # Graph
+    graph [overlap = true, fontsize = 10]
+  }")
+#+end_src
+** R-causal_dag
+*** TODO R-causal_dag
+#+name:causal_dag
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #' @title causal_dag
+  #' @name causal_dag
+  #' @param indat the input data.frame
+  #' @param names_col the name of each edge (the boxes)
+  #' @param in_col the name of the nodes that are inputs to each edge with comma seperated vals.  whitespace will be stripped
+  #' @param out_col the nodes that are outputs of each edge.
+  #' @param desc_col description
+  #' @param clusters_col optional column identifying clusters
+  #' @param todo_col optional column with TODO status (DONE and WONTDO will be white, others are red)
+  #' @return character string object that has the DOT language representatio of the input
+  causal_dag <- function(indat, names_col = NULL, in_col = NULL, out_col = NULL, desc_col = NULL, clusters_col = NULL, todo_col = NULL, nchar_to_snip = 40){
+  if (is.null(names_col)) stop("Names of the edges are needed")
+  if (is.null(in_col)) stop("Inputs are needed")
+  if (is.null(out_col)) stop("Outputs are needed")
+  
+  }
+#+end_src
+*** test-causal_dag
+#+name:causal_dag
+#+begin_src R :session *R* :tangle tests/test-causal_dag.r :exports none :eval no
+################################################################
+# name:causal_dag
+
+#+end_src
+
+*** COMMENT a-code
+#+name:a
+#+begin_src R :session *R* :tangle a.R :exports none :eval no
+  #### name:a ####
+  # read in the sheet
+  library(disentangle)
+  library(stringr)
+  causes <- readxl::read_excel("causal-ssheet.xlsx")
+  causes
+  nodes <- newnode(causes, "edges", "inputs", "outputs")
+  cat(nodes)
+  # The result is a formated graph in the dot language with some of my
+  # preferred settings such as edges showing as 'records' and a spot to
+  # write a description or include literature about each process
+  
+  #####################################################################
+  #digraph transformations {
+  # 
+  #"Metritis" -> "Fertility effects"
+  #"Cistic Ovarian Disease" -> "Fertility effects"
+  #"Age" -> "Fertility effects"
+  #"Fertility effects"  [ shape=record, label="{{ { Name | Description } | { Fertility effects |  } }}"]
+  #"Fertility effects" -> "Fertility"
+  # 
+  # 
+  #"Metritis" -> "Cistic Ovarian effects"
+  #"Retained Placenta" -> "Cistic Ovarian effects"
+  #"Age" -> "Cistic Ovarian effects"
+  #"Cistic Ovarian effects"  [ shape=record, label="{{ { Name | Description } | { Cistic Ovarian effects |  } }}"]
+  #"Cistic Ovarian effects" -> "Cistic Ovarian Disease"
+  # 
+  # 
+  #"Retained Placenta" -> "Metritis effects"
+  #"Metritis effects"  [ shape=record, label="{{ { Name | Description } | { Metritis effects |  } }}"]
+  #"Metritis effects" -> "Metritis"
+  # 
+  # 
+  # "Age" -> "Retained Placenta effects"
+  #"Retained Placenta effects"  [ shape=record, label="{{ { Name | Description } | { Retained Placenta effects |  } }}"]
+  #"Retained Placenta effects" -> "Retained Placenta"
+  # 
+  # 
+  # }
+  
+  # now DiagrammeR can render this to SVG
+  grViz(nodes)
+  
+  # But I also use graphviz directly to produce a publishable image in
+  # pdf or png
+  sink("reproduce-donlelek.dot")
+  cat(nodes)
+  sink()# If graphviz is installed and on linux call it with a shell command
+  #system("dot -Tpdf reproduce-donlelek.dot -o reproduce-donlelek.pdf")
+  system("dot -Tpng reproduce-donlelek.dot -o reproduce-donlelek.png")
+  
+#+end_src
+** 2015-09-19-my-r-function-for-causal-directed-acyclic-graphs
+#+name:my-newnode-r-function-useful-for-causal-directed-acyclic-graphs-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-09-19-my-newnode-r-function-useful-for-causal-directed-acyclic-graphs.md :exports none :eval no :padline no
+---
+name: my-newnode-r-function-useful-for-causal-directed-acyclic-graphs
+layout: post
+title: My Newnode R Function Useful For Causal Directed Acyclic Graphs (DAGs)
+date: 2015-09-19
+categories:
+- disentangle
+tags:
+- diagrams
+---
+  
+# Aims
+
+I have worked on a function that turns a `data.frame` into a graphviz code in the dot language, with some of my preferred settings.  I realised that it might be useful for causal directed acyclic graphs.
+  
+Causal diagrams are useful for conceptualising the pathways of cause and effect.  These diagrams are sometimes simplly informal pictures but have also been developed in a more formal way to be used in modelling.  These formal developments use concepts derived from the mathmatical abstraction of Graphs (fundamentally Graphs  are networks of linked 'nodes', with the links being termed 'edges').  Causal diagrams can either be constructed to depict two things: first are feedback loops (a vexatious property of complex systems that confounds modelling) while second are more simple chain-of-events type pathways which proceed from an upstream cause to a downstream effect in a single direction, without cycles, called 'Directed Acyclic Graphs or DAGs.  The loop diagrams are out of the scope of this present blog post because the DAGs are much more easily addressed by the tool that I am describing.    
+  
+To begin I am going to build on this other guy's blog post on causal DAGs with R
+  [http://donlelek.github.io/2015/03/31/dags-with-r/](http://donlelek.github.io/2015/03/31/dags-with-r/)
+I wanted to add an interface for building these.
+  
+Some background to the concepts that I use are provided in the references below. 
+  
+# Materials and Methods
+  
+The DiagrammeR package which has been integrated within R-Studio has made access to the graphing tool `graphviz` much easier than it used to be.  My function `causal_dag` (avaiable in my `disentangle` github package) essentially constructs the required `nodes` and `edges` for that package to use.  Optionally we can also include `labels` to indicate the direction of the effect.
+  
+To use the tool all you need to do is create a list of `edges` and their associated `inputs` nodes and `outputs` nodes (as a comma separated values string) shown in the picture below.
+  
+![causal-ssheet.png](/images/causal-ssheet.png)
+
+#### Code:
+    # read in the sheet
+    library(disentangle)
+    library(stringr)
+    causes <- readxl::read_excel("causal-ssheet.xlsx")
+    causes
+    nodes <- newnode(causes, "edges", "inputs", "outputs")
+    cat(nodes)
+    # The result is a formated graph in the dot language with some of my
+    # preferred settings such as edges showing as 'records' and a spot to
+    # write a description or include literature about each process
+  
+<p></p>
+
+- See the DOT code in the Appendix
+- to render the graph now DiagrammeR can use this text string R object to render this to SVG
+- I think it does not do PNG or PDF though so I still use graphviz and dot directly
+
+#### Code:
+    grViz(nodes)
+    
+    # But I also use graphviz directly to produce a publishable image in
+    # pdf or png
+    sink("reproduce-donlelek.dot")
+    cat(nodes)
+    sink()# If graphviz is installed and on linux call it with a shell command
+    #system("dot -Tpdf reproduce-donlelek.dot -o reproduce-donlelek.pdf")
+    system("dot -Tpng reproduce-donlelek.dot -o reproduce-donlelek.png")
+
+<p></p>
+
+
+# Results
+  
+Here I have reproduced the work of donlelek
+    
+![reproduce-donlelek.png](/images/reproduce-donlelek.png)
+
+# Future directions
+
+- I'd like to make the edges implicit, so that the spreadsheet keeps track of the information about the causal process, but the graph just shows the lines connecting the nodes
+- The edges are where the action is, so I need to add a direction of effect.  This would be in a `label` column and added in a [ label = 'abc' ] tag for each edge
+- the rankdir option is LR to make this go sideways, which seems more the norm for causal DAGs, left to right.
+  
+#### References
+    Greenland, S., Pearl, J., & Robins, J. M. (1999). Causal diagrams for
+    epidemiologic research. Epidemiology (Cambridge, Mass.), 10(1),
+    37–48. doi:10.1097/00001648-199901000-00008
+     
+    Reid, C. E., Snowden, J. M., Kontgis, C., & Tager, I. B. (2012). The
+    role of ambient ozone in epidemiologic studies of heat-related
+    mortality. Environmental Health Perspectives, 120(12),
+    1627–30. doi:10.1289/ehp.1205251
+       
+    Newell, B., & Wasson, R. (2001). Social System vs Solar System: Why
+    Policy Makers Need History. In: Conflict and Cooperation related to
+    International Water Resources : Historical Perspectives. In World
+    Water (Vol. 2002).
+<p></p>
+  
+# Appendix
+
+#### Code:
+    #####################################################################
+    # The following output is automatically created by newnode()
+    # NOTE for some reason, to show on the blog, I had to replace all { braces with normal (
+    #####################################################################
+    digraph transformations (
+     
+    "Metritis" -> "Fertility effects"
+    "Cistic Ovarian Disease" -> "Fertility effects"
+    "Age" -> "Fertility effects"
+    "Fertility effects"  [ shape=record, label="(( ( Name | Description ) | ( Fertility effects |  ) ))"]
+    "Fertility effects" -> "Fertility"
+     
+     
+    "Metritis" -> "Cistic Ovarian effects"
+    "Retained Placenta" -> "Cistic Ovarian effects"
+    "Age" -> "Cistic Ovarian effects"
+    "Cistic Ovarian effects"  [ shape=record, label="(( ( Name | Description ) | ( Cistic Ovarian effects |  ) ))"]
+    "Cistic Ovarian effects" -> "Cistic Ovarian Disease"
+     
+     
+    "Retained Placenta" -> "Metritis effects"
+    "Metritis effects"  [ shape=record, label="(( ( Name | Description ) | ( Metritis effects |  ) ))"]
+    "Metritis effects" -> "Metritis"
+     
+     
+     "Age" -> "Retained Placenta effects"
+    "Retained Placenta effects"  [ shape=record, label="(( ( Name | Description ) | ( Retained Placenta effects |  ) ))"]
+    "Retained Placenta effects" -> "Retained Placenta"
+     
+     
+     )
+  
+      
+#+end_src
+
+** 2015-09-23-organising-graph-nodes-and-edges-in-a-dataframe
+#+name:getting-nodes-and-edges-from-a-dataframe-for-diagrammer-package-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-09-23-organising-graph-nodes-and-edges-in-a-dataframe.md :exports none :eval no :padline no
+  ---
+  name: organising-graph-nodes-and-edges-in-a-dataframe
+  layout: post
+  title: Organising Graph Nodes And Edges In A Dataframe
+  date: 2015-09-23
+  categories:
+  - disentangle
+  tags:
+  - diagrams
+  ---
+    
+  I use the R package `DiagrammeR` for creating graphs (the formal kind, connecting nodes with edges)
+  - This package is great and I like how it interacts with the Graphviz program
+  - One thing that I like to do in planning and organising data analysis projects is to make graphs and lists of the methods steps, inputs and Outputs
+  - A simple way to organise these things is in a dataframe (table) with a column for each step (node) and two others for inputs and outputs (edges)
+  - In my utilities R package `github.com/ivanhanigan/disentangle` I have written functions that turn this table into a graphiviz DOT language script
+  - Recently I have needed to unpack the list for a more itemized view
+  - Both these functions are showcased below
+
+  
+  #### Code: newnode
+      # First create some test data, each step is a collection of edges 
+      # with inputs or outputs simple comma seperated lists
+      dat <- read.csv(textConnection('
+      cluster ,  step    , inputs                    , outputs                                , description                      
+      A  ,  siteIDs      , "GPS, helicopter"          , "spatial, site doco"                 , latitude and longitude of sites  
+      A  ,  weather      , BoM                       , exposures                              , weather data from BoM            
+      B  ,  trapped      , spatial                   , trapped_no                             , counts of species caught in trap 
+      B  ,  biomass      , spatial                   , biomass_g                              ,                                  
+      B  ,  correlations , "exposures,trapped_no,biomass_g" , report1                         , A study we published             
+      C  ,  paper1       , report1                   , "open access repository, data package" ,                                  
+      D  ,  biomass revision, new estimates          , biomass_g                              , this came late
+      '), stringsAsFactors = F, strip.white = T)    
+      str(dat)
+      # dat
+            
+      # Now run the function and create a graph
+      nodes <- newnode(
+        indat = dat,
+        names_col = "step",
+        in_col = "inputs",
+        out_col = "outputs",
+        desc_col = "description",
+        clusters_col = "cluster",
+        nchar_to_snip = 40
+        )  
+      sink("Transformations.dot")
+      cat(nodes)
+      sink()
+      #DiagrammeR::grViz("Transformations.dot")
+      system("dot -Tpng Transformations.dot -o Transformations.png")
+      browseURL("Transformations.png")
+      
+  <p></p>    
+  
+  That creates this diagram
+  
+  ![/images/Transformations.png](/images/Transformations.png)
+  
+  ## Now to showcase the tool that itemizes this list of inputs and outputs
+   
+  - The original table has no capacity to add detail about each node as they are held as a list of inputs and outputs
+  - To add detail for each we need to unpack each list and create a new table with one row per node
+  - I decided to make this a long table with an identifier for each node about which step (edge) the node is an input or an output
+  
+  #### Code: newnode_csv  
+      nodes_graphy <- newnode_csv(
+        indat = dat,
+        names_col = "step",
+        in_col = "inputs",
+        out_col = "outputs",
+        clusters_col = 'cluster'
+        ) 
+      # which creates this table
+      knitr::kable(nodes_graphy)
+      |cluster |name             |in_or_out |value                  |
+      |:-------|:----------------|:---------|:----------------------|
+      |A       |siteIDs          |input     |GPS                    |
+      |A       |siteIDs          |input     |helicopter             |
+      |A       |siteIDs          |output    |spatial                |
+      |A       |siteIDs          |output    |site doco              |
+      |A       |weather          |input     |BoM                    |
+      |A       |weather          |output    |exposures              |
+      |B       |trapped          |input     |spatial                |
+      |B       |trapped          |output    |trapped_no             |
+      |B       |biomass          |input     |spatial                |
+      |B       |biomass          |output    |biomass_g              |
+      |B       |correlations     |input     |exposures              |
+      |B       |correlations     |input     |trapped_no             |
+      |B       |correlations     |input     |biomass_g              |
+      |B       |correlations     |output    |report1                |
+      |C       |paper1           |input     |report1                |
+      |C       |paper1           |output    |open access repository |
+      |C       |paper1           |output    |data package           |
+      |D       |biomass revision |input     |new estimates          |
+      |D       |biomass revision |output    |biomass_g              |
+  
+  <p></p>
+  
+  This can now be useful for making a 'shopping list' of the data to aquire, transform, analyse or archive.
+    
+#+end_src
+
+** TODO 
+* Data Operation
+** R-spatial
+*** TODO xy2shp
+#+name:xy2shp
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  # func
+  
+  if(!require(ggmap)) install.packages('ggmap'); require(ggmap)
+  if (!require(rgdal)) install.packages('rgdal'); require(rgdal)
+  epsg <- make_EPSG()
+  # load
+  latlong <- read.table(tc <- textConnection(
+  "ID  POINT_Y   POINT_X
+  1  150.5556 -35.09305
+  2  150.6851 -35.01535
+  3  150.6710 -35.06412
+  4  150.6534 -35.08666
+  "), header = TRUE); close(tc)
+  # do
+  for(i in 1:nrow(latlong)){
+    coords <- as.numeric(latlong[i,c('POINT_Y', 'POINT_X')])
+    e <- as.data.frame(cbind(i, t(coords), revgeocode(coords)))
+    write.table(e, "test.csv", sep = ',', append = i > 1, col.names = i == 1, row.names = F)
+  }
+  d <- read.csv('test.csv')
+  head(d)
+  ## Treat data frame as spatial points
+  pts <- SpatialPointsDataFrame(cbind(d$V2,d$V3),d,
+    proj4string=CRS(epsg$prj4[epsg$code %in% '4283']))
+  writeOGR(pts, 'test.shp', 'test', driver='ESRI Shapefile')
+  
+#+end_src
+
+*** COMMENT sptransform-code
+#+name:sptransform
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:sptransform####
+  require(disentangle)
+  require(rgdal)
+  epsg <- make_EPSG()
+  # load
+  d <- read.table(tc <- textConnection(
+  "ID  POINT_Y   POINT_X
+  1  150.5556 -35.09305
+  2  150.6851 -35.01535
+  3  150.6710 -35.06412
+  4  150.6534 -35.08666
+  "), header = TRUE); close(tc)
+  # do
+  str(epsg)
+  epsg[grep("UTM", epsg$note),"note"]
+  ## Treat data frame as spatial points
+  pts <- SpatialPointsDataFrame(cbind(d$V2,d$V3),d,
+  proj4string=CRS(epsg$prj4[epsg$code %in% '4283']))
+    # this alternative was from a website  #CRS("+init=epsg:4283"))
+  # defin inputs
+  datadir <- "data_provided/pr_bg_data_20140612/Data_tables/site_data/"
+  flist<-dir(datadir)
+  #flist
+  #change this
+  fname <- "Site_data.txt"
+  
+  # define outputs
+  outdir <- "ljbb_plot_details"
+  outfile <- "ljbb_plot_details.shp"
+  
+  # load
+  dat <- read.csv(
+    file.path(datadir, fname)
+    , header=TRUE)
+  
+  # clean
+  dat$Date.of.last.fire <-  as.Date(dat$Date.of.last.fire, "%d/%m/%Y")
+  #head(dat)
+  names(dat) <- tolower(gsub("\\.", "_", names(dat)))
+  # to match up with the site_number from the spotlighting data
+  dat$site_number <- paste("site_", dat$site_number, sep = "")
+  
+  # TODO check coordinate system code at spatialreference.org
+  # EPSG:20256: AGD66 / AMG zone 56
+  srid <- CRS(epsg$prj4[epsg$code %in% '20256'])
+  #srid
+  pts <- SpatialPointsDataFrame(cbind(dat$easting,dat$northing),dat,
+    proj4string=srid)
+  setwd(outdir)
+  writeOGR(pts, dsn = outfile, layer = gsub(".shp","", outfile), driver = "ESRI Shapefile")
+  setwd("..")
+  
+  #### and the csv
+  write.csv(pts@data, file.path(outdir, gsub(".shp", ".csv", outfile)), row.names = F)
+  
+  #### Bounding Box in lat/long ####
+  # work out the lat longs
+  latlong  <-  spTransform(pts, CRS("+init=epsg:4283"))
+  #summary(latlong@data[,c("easting", "northing")])
+  #str(latlong)
+  
+  bb <- morpho_bounding_box(latlong)
+  print(xtable(bb), type = "html")
+    
+#+end_src
+
+
+*** TODO gIntersection
+#+name:gIntersection
+#+begin_src R :session *shell* :tangle no :exports none :eval no
+  #### name:gIntersection ####
+  #?gIntersection
+  subset(ma_grid10@data, Id == 125)
+  str(mash_ch@data)
+  mash_ch2 <- gUnaryUnion(mash_ch)
+  str(mash_ch2@data)
+  summary(mash_ch2)
+  int <- gIntersection(ma_grid10, mash_ch2, byid = T, id = as.character(ma_grid10@data$Id))
+  plot(int)
+  summary(int)
+  str(int)
+  n<-names(int)
+  ## n  <- as.character(n)
+  ## n
+  ## n<-data.frame(t(data.frame(
+  ##   strsplit(n," ",fixed=TRUE)
+  ##   )))
+  n <- as.data.frame(n)
+  head(n)
+  tail(n)
+  row.names(n) <- NULL
+  colnames(n) <- "Id"
+  #[1:2]<-c("Id","chull")
+  
+  
+  n$area<-sapply(int@polygons, function(x) x@area)
+  summary(n)
+  head(n)
+  str(n)
+  subset(n, Id == 125)
+  #a<- sapply(slot(ma_grid10, "polygons"), function(x) sapply(slot(x, "Polygons"), slot, "area"))
+  #str(a)
+  
+  #df<-merge(n,a,all.x=TRUE)
+  #head(df)
+  #df$share.area<-df$area/df$total.area*100
+  #subset(df, grid == 100)
+  #table(df$grid)
+  ## str(ma_grid10@data)
+  ## summary(ma_grid10@data)
+  ## df <- n
+  ## df$Id <- as.numeric(as.character(df$Id))
+  ## summary(df)
+  #ma_grid10 <- ma_grid10
+  #by <- "Id"
+  # http://stackoverflow.com/questions/3650636/how-to-attach-a-simple-data-frame-to-a-spatialpolygondataframe-in-r
+  ma_grid10@data = data.frame(ma_grid10@data, n[match(ma_grid10@data[,"Id"], n[,"Id"]),])
+  head(ma_grid10@data)
+  tail(ma_grid10@data)
+  summary(ma_grid10)
+  plot(ma_grid10, col = ma_grid10$area)
+  #plot(chull, add = T)
+  #setwd("data")
+  writeOGR(ma_grid10, "temp20.shp", "temp20", driver = "ESRI Shapefile")
+  crs <- ma_grid10@proj4string
+  spp <- SpatialPolygonsDataFrame(int,data=as.data.frame(n[,1]),match.ID=F)
+  writeOGR(spp, "temp3.shp", "temp3", driver = "ESRI Shapefile")
+  
+  setwd("..")
+  
+#+end_src
+
+*** COMMENT shapefile_attributes_join-code
+#+name:shapefile_attributes_join
+#+begin_src R :session *shell* :tangle no :exports none :eval no
+#### name:shapefile_attributes_join ####
+see ramnath
+
+sp@data = data.frame(sp@data, df[match(sp@data[,by], df[,by]),])
+
+#+end_src
+*** COMMENT shapefile_colour_ramp-code
+#+name:shapefile_colour_ramp
+#+begin_src R :session *shell* :tangle no :exports none :eval no
+#### name:shapefile_colour_ramp ####
+  # If we wanted to do a colour ramp 
+  ## cls <- -.9 +  (occupancy_grids@data$area.1/(10000*10000))
+  ## cls <- abs(ifelse(is.na(cls), -1, cls))
+  ## cls <- gray(cls)
+  # but we don't, this time just in or out
+  cls<-occupancy_grids@data$area/(10000*10000)
+  cls
+  cls <- ifelse(cls >= 0.01, "lightgrey", "darkgrey")
+  cls <- ifelse(is.na(cls), 'white', cls)
+  cls
+  png("results/B2_occupancy.png")
+  plot(occupancy_grids, col = cls)
+  plot(chull, add = T)
+  plot(ecosystem_current, add = T, border = T, col = 'darkgrey')
+  dev.off()
+
+OR
+http://www.geog.uoregon.edu/GeogR/examples/maps_examples01.htm
+library(RColorBrewer) # creates nice color schemes
+library(classInt)     # finds class intervals for continuous variables
+
+ # equal-frequency class intervals
+plotvar <- orcounty.shp@data$POP1990
+nclr <- 8
+plotclr <- brewer.pal(nclr,"BuPu")
+class <- classIntervals(plotvar, nclr, style="quantile")
+colcode <- findColours(class, plotclr)
+
+plot(orcounty.shp, xlim=c(-124.5, -115), ylim=c(42,47))
+plot(orcounty.shp, col=colcode, add=T)
+title(main="Population 1990",
+    sub="Quantile (Equal-Frequency) Class Intervals")
+legend(-117, 44, legend=names(attr(colcode, "table")),
+    fill=attr(colcode, "palette"), cex=0.6, bty="n")
+
+#+end_src
+
+*** COMMENT convert_dms-code
+#+name:convert_dms
+#+begin_src R :session *shell* :tangle R/convert_dms.R :exports none :eval no
+  #### name:convert_dms ####
+  ## First need to convert character degree min sec data to decimal degree
+  ##### I initially investigated functions in other packages and found
+  # DMS2DD for PostGIS but this seems defunct
+  # http://gis.stackexchange.com/a/84626
+  #### Then I found in R
+  # library(sp)
+  # ?char2dms
+  # but this would require extra processing of the input data
+  
+  #### In the end the format of the supplied file suits this function
+  # http://stackoverflow.com/a/18999925
+  convert_dms <- function(coord){
+    tmp1=strsplit(coord,"°")
+    tmp2=strsplit(tmp1[[1]][2],"'")
+    tmp3=strsplit(tmp2[[1]][2],"\"")
+    dec=c(as.numeric(tmp1[[1]][1]),as.numeric(tmp2[[1]][1]),as.numeric(tmp3[[1]]))
+    c<-abs(dec[1])+dec[2]/60+dec[3]/3600
+    c<-ifelse(dec[1]<0,-c,c)
+    return(c)
+  }
+
+#+end_src
+
+*** big_pt
+**** R-big_pt_intersect
+#+name:big_pt_intersect
+#+begin_src R :session *R* :tangle R/big_pt_intersect.r :exports none :eval no
+  #' @title big points intersect
+  #' @name big_pt_intersect
+  #' @param pts a points spatial
+  #' @param ply a polygons spatial
+  #' @param chunks how many to split into
+  #' @return a combined data frame that avoids run out of memory with big points file 
+  big_pt_intersect <- function(pts, ply, chunks = 100){
+    idx <- split(pts@data, 1:chunks)
+    #str(idx)
+    for(i in 1:length(idx)){
+    #i = 1
+    print(i)
+      ids <- idx[[i]][,1]
+    #str(pts@data)
+    qc <- pts[pts@data[,1] %in% ids,]
+    #str(qc)
+    tryCatch(chunk <-  raster::intersect(qc, ply), error = function(err){print(err)})
+    if(!exists('chunk_out')){
+    
+      chunk_out <- chunk@data
+    } else {
+      chunk_out <- rbind(chunk_out, chunk@data)
+    }
+    rm(chunk)
+    
+    }
+    #str(chunk_out)
+    return(chunk_out)
+  }
+  # NB warning about split length multiple is not fatal, just due to nonequal chunks (ie the geocodes are 2009/100)
+  
+#+end_src
+**** test-big_pt_intersect
+#+name:big_pt_intersect
+#+begin_src R :session *R* :tangle no :exports none :eval no
+################################################################
+# name:big_pt_intersect
+
+#+end_src
+*** 2015-09-17-if-you-dont-find-a-solution-in-r-keep-googling
+#+name:if-you-dont-find-a-solution-in-r-keep-googling-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-09-17-if-you-dont-find-a-solution-in-r-keep-googling.md :exports none :eval no :padline no
+  ---
+  name: if-you-dont-find-a-solution-in-r-keep-googling
+  layout: post
+  title: If You Don't Find A Solution In R, Keep Googling!
+  date: 2015-09-17
+  categories:
+  - disentangle
+  tags:
+  - spatial
+  ---
+  
+  I've learnt this lesson multiple times. It happens like this.  A solution is not immediately obvious in R so you might think of writing your own function.  Generally there is a solution you just did not google enough.
+  This time I was tricked a little because the GIS functions have been bad for a long time but getting better very rapidly recently.  A little while ago I had a very successful
+  outcome from using the `raster::extract` function on a large raster file
+  to get the attributes for a set of points.  I needed to do the same
+  thing but this time for a shapefile and points.  I looked at the
+  raster package and saw you can use the `raster::intersect` function
+  here, and it worked on the small sample data I tested with but failed
+  with the big dataset as it ran out of memory.  I assumed that R had not caught up with the GIS world yet and so I came up with this workaround below by splitting the points data layer into chunks.
+  
+  I then got access to ArcMap and was wondering whether it could do it, and it DID!
+  So then I googled a bit and found the solution was simple:
+  
+  #### Code:
+      sp::over()
+  
+  <p></p>
+  
+  Here is my hack in case I ever need to pull out the bit that does the splitting up of the points file, or the tryCatch():
+  
+  #### Code:
+      big_pt_intersect <- function(pts, ply, chunks = 100){
+        idx <- split(pts@data, 1:chunks)
+        #str(idx)
+        for(i in 1:length(idx)){
+        #i = 1
+        print(i)
+          ids <- idx[ [i] ][,1]
+        #str(pts@data)
+        qc <- pts[pts@data[,1] %in% ids,]
+        #str(qc)
+        tryCatch(
+          chunk <-  raster::intersect(qc, ply), 
+          error = function(err){print(err)})
+        if(!exists('chunk_out')){
+        
+          chunk_out <- chunk@data
+        } else {
+          chunk_out <- rbind(chunk_out, chunk@data)
+        }
+        rm(chunk)
+        
+        }
+        #str(chunk_out)
+        return(chunk_out)
+      }
+      # NB warning about split length multiple is not fatal, just due to nonequal chunks 
+      # (ie the geocodes are 2009/100)
+
+  
+  
+  <p></p>
+  
+  
+#+end_src
+
+
+** COMMENT aggregate-list-of-dfs
+#+name:aggregate
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:aggregate####
+  # stoopid hack for lu
+  # desc
+  "I have a do.call question that perhaps you can answer in 5 seconds... [my brain is leaking... I can't see the solution].
+  
+  I have a list of data.frames imagine I wanted to sum them up, like d1+d2+... N. If I do that manually the output is a data.frame, but when I use do.call I get one number, and I need a data.frame instead.
+  
+  Another issues is that some columns have a factor, so I'm planning to wrap my operation into a function with a condition to do the sum if the cell contains a number. Other to skip it.
+  so I though of:
+  
+  foo = function (x) { ifelse(is.numeric(x), sum(x), NA)} #but it doesn't work
+  
+  This example addressed the issues.
+  
+  d1 = mtcars
+  d2 = d1*2
+  
+  str(mtcars)
+  l1 = list(d1,d2)
+  str(l1)
+  
+  d3 = do.call('sum', l1)
+  #> d3
+  #[1] 41826.61 # I don't want one number, but a data.frame with the sums.
+  
+  foo = function (x) { ifelse(is.numeric(x), sum(x), NA)}
+  d4 = do.call('foo', l1)
+  
+  Any help or tip will be welcome!"
+  
+  # I feel like it should be simple because R can add dataframes
+  # but maybe these need to be matrices (because a data.frame is really
+  # a list)
+  d1 = as.matrix(mtcars)
+  d1
+  d2 = as.matrix(d1*2)
+  d2
+  d1 + d2
+  # lets make more dfs
+  d3 = as.matrix(d2*3)
+  d4 = as.matrix(d3*2)
+  d1+d2+d3+d4
+  # I note that do.call can add two df fine
+  l1  <- list(d1, d2)
+  out  <- do.call("+", l1)
+  str(out)
+  out
+  # but with multiple no good
+  l1 = list(d1,d2, d3, d4)
+  str(l1)
+  out  <- do.call("+", l1)
+  # when these are dataframes the error is
+  ## Error in `+`(list(mpg = c(21, 21, 22.8, 21.4, 18.7, 18.1, 14.3, 24.4,  :
+  ##   unused arguments (list(mpg = c(... blah blah
+  # when matrices the error is
+  ## Error in `+`(c(21, 21, 22.8, 21.4, 18.7, 18.1, 14.3, 24.4, 22.8, 19.2,  :
+  ##   operator needs one or two arguments
+  
+  
+  # But the lists content are able to be combined if done individually
+  out1 <- l1[[1]] + l1[[2]] + l1[[3]] + l1[[4]]
+  str(out1)
+  out1
+  
+  # make things interesting
+  l1 <- list()
+  for(i in 1:1000){
+    #i = 1
+    di  <- iris
+    di[sapply(iris, is.numeric)]  <- iris[sapply(iris, is.numeric)] * sample(rnorm(100,1,2), 1)
+    l1[[i]]  <- di
+  }
+  str(l1)
+  # so we could figure out a way to iterate over the dataframes with a
+  # loop like
+  ## for(i in 1:length(l1)){
+  ##   if(i == 1){
+  ##     out2 <- l1[[i]]
+  ##     next
+  ##   } else {
+  ##     out2  <- out2 + l1[[i]]
+  ##   }
+  ## }
+  # doesn't like factor
+  #out2
+  # or 
+  ## d1 <- iris
+  ## str(d1) # Note pesky factor column
+  ## d2 <- d1
+  ## # Only multiply cells that are numeric
+  ## str(d2[sapply(d2, is.numeric)])
+  ## d2[sapply(d2, is.numeric)] <- d2[sapply(d2, is.numeric)] * 2
+  
+  ## # Add another data.frame to make it interesting
+  ## d3 <- d1
+  ## d3[sapply(d3, is.numeric)] <- d3[sapply(d3, is.numeric)] * 3
+  
+  
+  ## l1 = list(d1,d2, d3)
+  str(l1)
+  
+  # Inititalise output dataframe to zero
+  
+  # Sum data frames
+  summarise_list_dfs3 <- function(listed){
+    d.results <- d1
+    d.results[sapply(d.results, is.numeric)] <- 0 
+    for (i in seq_along(l1)){
+      d.results[sapply(d.results, is.numeric)] <-
+        d.results[sapply(d.results, is.numeric)] +
+        l1[[i]][sapply(l1[[i]], is.numeric)]
+    }
+    return(d.results)
+  }
+  system.time(d.results  <- summarise_list_dfs3(l1))
+  str(d.results)
+  
+  # but we want an elegant solution that will be
+  # able to give any number of dataframes, and also have
+  # the issue of some variables being factor so not to be used
+  
+  # let's write some func
+  # I like SQL for it's clarity
+  library(sqldf)
+  # we are basically grouping the values of each row in each df, so add
+  # an id
+  
+  nam <- function(x){
+    x$row_names <- 1:nrow(x)
+    return(x)
+  }
+  l_df2 <- lapply(l1, nam)
+  str(l_df2)
+  # now construct some sql and run it.  let's make it flexible for
+  # different summarising functions like sum, mean, median, stdev etc
+  summarise_list_of_dfs <- function(
+    list_of_dfs = l1
+    ,
+    summarise_fun = 'sum'
+    ,
+    id = 'row_names'
+    ){
+    if(!is.data.frame(list_of_dfs[[1]])) list_of_dfs <- lapply(list_of_dfs, as.data.frame)
+    l_df2 <- lapply(list_of_dfs, nam)
+    x = do.call('rbind.data.frame', l_df2)
+  names(x)<-gsub("\\.", "_", names(x))
+    todo <- sapply(x, 'is.numeric')
+    todo <- names(x)[todo]
+    todo <- todo[-which(todo == "row_names")]
+    oper  <- sprintf('), %s(',summarise_fun)
+    sql<-paste("sum(",paste(todo, sep = '', collapse = oper),")", sep = "")
+  #sql
+    out<-sqldf(
+    #cat(
+    sprintf("select row_names, %s
+    from x
+    group by row_names
+    order by row_names
+    ", sql)
+    )
+    names(x)<-gsub("_", "\\.", names(x))
+    return(out)
+  }
+  
+  # do
+  #l1 <- lapply(l1, as.data.frame)
+  
+  system.time(qc  <- summarise_list_of_dfs(l1))
+  
+  str(qc)
+  str(out1)
+  out1  <- as.data.frame(out1)
+  names(qc)<-names(out1)
+  # same?
+  identical(qc, out1)
+  # not identical
+  all(qc == out1)
+  # all values are equal tho
+  
+  # compare to base r
+  summarise_list_dfs2 <- function(listed){
+    listed  <- l1
+    d5=do.call('rbind',listed)
+  #  str(d5)
+    d5.rnames =rep(rownames(listed[[1]]),times=length(listed))
+    d5$reg=d5.rnames
+    d6 = aggregate(d5[sapply(d5, is.numeric)], by=list(d5$reg), FUN=sum) # I should use an
+                                            # ifelse, to do this only to
+                                            # numeric columns.
+    return(d6)
+  }
+  system.time(d6 <- summarise_list_dfs2(l1))
+  
+  str(d6)
+  row.names(d6) <- d6$Group.1
+  # same?
+  identical(d6, out1[sort(row.names(out1)),])
+  # not identical
+  all(
+    d6[,-c(1)] == out1[sort(row.names(out1)),]
+    )
+  # looks like the integers are equal but not the doubles.
+  # but a diff of the two looks same
+  
+  # now does it work for  mean?
+  qc  <- summarise_list_of_dfs(l1, 'mean')
+  # whoops, sql uses 'avg'
+  qc  <- summarise_list_of_dfs(l1, 'avg')
+  str(qc)
+  # and stdev
+  qc  <- summarise_list_of_dfs(l1, 'stdev')
+  str(qc)
+  # this did multiple dataframes, now try with factor variables
+  str(l1)
+  d1[,3] <- as.factor(d1[,3])
+  d2[,3] <- as.factor(d2[,3])
+  d3[,3] <- as.factor(d3[,3])
+  d4[,3] <- as.factor(d4[,3])
+  
+  l1 = list(d1,d2, d3, d4)
+  str(l1)
+  qc  <- summarise_list_of_dfs(l1)
+  str(qc)
+  # it has just skipped that variable so this should be good to go
+  # NB if the combination of all the dataframes is too big for RAM then
+  # R will fail. in this case I would
+  # put into a PostgreSQL database as this will use the disk rather than
+  # RAM
+  # this can also be used to add indexes and clustering functions to
+  # speed up the calculations.
+  # HTH, let me know if there is a more efficient R solution?
+  
+  install.packages("data.table")
+  library(data.table)
+  sum_ldf4 <- function(
+    listed=l1
+    ,
+    summarise_fun  = 'sum'
+                       ){
+    d5=do.call('rbind',listed)
+    d5.rnames =rep(rownames(listed[[1]]),times=length(listed))
+    d5 <- d5[sapply(d5, is.numeric)]
+    d5$reg=d5.rnames
+    oper  <- sprintf('), %s(',summarise_fun)
+    todo <- sapply(d5, 'is.numeric')
+    todo <- names(d5)[todo] 
+    sql<-paste("sum(",paste(todo, sep = '', collapse = oper),")", sep = "")
+    #sql
+      
+    DT = data.table(d5)
+    
+    out <-  eval(parse(
+        text = sprintf("DT[,list(%s),by=list(d5$reg)]", sql)
+        ))
+      
+  
+    return(out)
+  }
+  
+  
+  # sqldf
+  o1 <- system.time(qc  <- summarise_list_of_dfs(l1))
+  str(qc)
+  # aggregate
+  o2 <- system.time(d6 <- summarise_list_dfs2(l1))
+  str(d6)
+  # loop
+  o3 <- system.time(d.results  <- summarise_list_dfs3(l1))
+  str(d.results)
+  # data.table
+  o4 <- system.time(datab  <- sum_ldf4(l1))
+  str(datab)
+  
+  # http://zvfak.blogspot.com.au/2011/03/applying-functions-on-groups-sqldf-plyr.html
+  library(gplots)
+  x<-c(o1[3],o2[3],o3[3],o4[3])
+  balloonplot( rep("time.elapsed",5),c("sqldf","aggregate","loop", "data.table"),round(x,1), ylab ="Method", xlab="",sorted=F,dotcolor=rev(heat.colors(5)),main="time.elapsed for different methods") 
+#+end_src
+
+** COMMENT aggregate-list-of-dfs-asRNW-code
+#+name:aggregate-list-of-dfs-asRNW
+#+begin_src R :session *R* :tangle no :exports none :eval no
+#### name:aggregate-list-of-dfs-asRNW####
+---
+title: "aggregate list of dfs"
+author: "Ivan C Hanigan"
+date: "7/2/2015"
+output: html_document
+---
+
+```{r}
+#### name:aggregate####
+# stoopid hack for lu
+# desc
+"I have a do.call question that perhaps you can answer in 5 seconds... [my brain is leaking... I can't see the solution].
+
+I have a list of data.frames imagine I wanted to sum them up, like d1+d2+... N. If I do that manually the output is a data.frame, but when I use do.call I get one number, and I need a data.frame instead.
+
+Another issues is that some columns have a factor, so I'm planning to wrap my operation into a function with a condition to do the sum if the cell contains a number. Other to skip it.
+so I though of:
+
+foo = function (x) { ifelse(is.numeric(x), sum(x), NA)} #but it doesn't work
+
+This example addressed the issues.
+
+d1 = mtcars
+d2 = d1*2
+
+str(mtcars)
+l1 = list(d1,d2)
+str(l1)
+
+d3 = do.call('sum', l1)
+#> d3
+#[1] 41826.61 # I don't want one number, but a data.frame with the sums.
+
+foo = function (x) { ifelse(is.numeric(x), sum(x), NA)}
+d4 = do.call('foo', l1)
+
+Any help or tip will be welcome!"
+
+# I feel like it should be simple because R can add dataframes
+# but maybe these need to be matrices (because a data.frame is really
+# a list)
+d1 = as.matrix(mtcars)
+d1
+d2 = as.matrix(d1*2)
+d2
+d1 + d2
+# lets make more dfs
+d3 = as.matrix(d2*3)
+d4 = as.matrix(d3*2)
+d1+d2+d3+d4
+# I note that do.call can add two df fine
+l1  <- list(d1, d2)
+out  <- do.call("+", l1)
+str(out)
+out
+# but with multiple no good
+l1 = list(d1,d2, d3, d4)
+str(l1)
+#out  <- do.call("+", l1)
+# when these are dataframes the error is
+## Error in `+`(list(mpg = c(21, 21, 22.8, 21.4, 18.7, 18.1, 14.3, 24.4,  :
+##   unused arguments (list(mpg = c(... blah blah
+# when matrices the error is
+## Error in `+`(c(21, 21, 22.8, 21.4, 18.7, 18.1, 14.3, 24.4, 22.8, 19.2,  :
+##   operator needs one or two arguments
+
+
+# But the lists content are able to be combined if done individually
+out1 <- l1[[1]] + l1[[2]] + l1[[3]] + l1[[4]]
+str(out1)
+out1
+
+# make things interesting
+l1 <- list()
+for(i in 1:1000){
+  #i = 1
+  di  <- iris
+  di[sapply(iris, is.numeric)]  <- iris[sapply(iris, is.numeric)] * sample(rnorm(100,1,2), 1)
+  l1[[i]]  <- di
+}
+str(l1)
+# so we could figure out a way to iterate over the dataframes with a
+# loop like
+## for(i in 1:length(l1)){
+##   if(i == 1){
+##     out2 <- l1[[i]]
+##     next
+##   } else {
+##     out2  <- out2 + l1[[i]]
+##   }
+## }
+# doesn't like factor
+#out2
+# or 
+## d1 <- iris
+## str(d1) # Note pesky factor column
+## d2 <- d1
+## # Only multiply cells that are numeric
+## str(d2[sapply(d2, is.numeric)])
+## d2[sapply(d2, is.numeric)] <- d2[sapply(d2, is.numeric)] * 2
+
+## # Add another data.frame to make it interesting
+## d3 <- d1
+## d3[sapply(d3, is.numeric)] <- d3[sapply(d3, is.numeric)] * 3
+
+
+## l1 = list(d1,d2, d3)
+str(l1)
+
+# Inititalise output dataframe to zero
+
+# Sum data frames
+summarise_list_dfs3 <- function(
+  listed=l1
+  ){
+  d.results <- listed[[1]]
+  d.results[sapply(d.results, is.numeric)] <- 0 
+  for (i in seq_along(listed)){
+    d.results[sapply(d.results, is.numeric)] <-
+      d.results[sapply(d.results, is.numeric)] +
+      listed[[i]][sapply(listed[[i]], is.numeric)]
+  }
+  return(d.results)
+}
+system.time(d.results  <- summarise_list_dfs3(l1))
+str(d.results)
+
+# but we want an elegant solution that will be
+# able to give any number of dataframes, and also have
+# the issue of some variables being factor so not to be used
+
+# let's write some func
+# I like SQL for it's clarity
+library(sqldf)
+# we are basically grouping the values of each row in each df, so add
+# an id
+
+nam <- function(x){
+  x$row_names <- 1:nrow(x)
+  return(x)
+}
+l_df2 <- lapply(l1, nam)
+str(l_df2)
+# now construct some sql and run it.  let's make it flexible for
+# different summarising functions like sum, mean, median, stdev etc
+summarise_list_of_dfs <- function(
+  list_of_dfs = l1
+  ,
+  summarise_fun = 'sum'
+  ,
+  id = 'row_names'
+  ){
+  if(!is.data.frame(list_of_dfs[[1]])) list_of_dfs <- lapply(list_of_dfs, as.data.frame)
+  l_df2 <- lapply(list_of_dfs, nam)
+  x = do.call('rbind.data.frame', l_df2)
+names(x)<-gsub("\\.", "_", names(x))
+  todo <- sapply(x, 'is.numeric')
+  todo <- names(x)[todo]
+  todo <- todo[-which(todo == "row_names")]
+  oper  <- sprintf('), %s(',summarise_fun)
+  sql<-paste("sum(",paste(todo, sep = '', collapse = oper),")", sep = "")
+#sql
+  out<-sqldf(
+  #cat(
+  sprintf("select row_names, %s
+  from x
+  group by row_names
+  order by row_names
+  ", sql)
+  )
+  names(x)<-gsub("_", "\\.", names(x))
+  return(out)
+}
+
+# do
+#l1 <- lapply(l1, as.data.frame)
+
+system.time(qc  <- summarise_list_of_dfs(l1))
+
+str(qc)
+str(out1)
+out1  <- as.data.frame(out1)
+#names(qc)<-names(out1)
+# same?
+#identical(qc, out1)
+# not identical
+#all(qc == out1)
+# all values are equal tho
+
+# compare to base r
+summarise_list_dfs2 <- function(listed){
+  #listed  <- l1
+  d5=do.call('rbind',listed)
+#  str(d5)
+  d5.rnames =rep(rownames(listed[[1]]),times=length(listed))
+  d5$reg=d5.rnames
+  d6 = aggregate(d5[sapply(d5, is.numeric)], by=list(d5$reg), FUN=sum) # I should use an
+                                          # ifelse, to do this only to
+                                          # numeric columns.
+  return(d6)
+}
+system.time(d6 <- summarise_list_dfs2(l1))
+
+str(d6)
+row.names(d6) <- d6$Group.1
+# same?
+#identical(d6, out1[sort(row.names(out1)),])
+# not identical
+#all(
+#  d6[,-c(1)] == out1[sort(row.names(out1)),]
+#  )
+# looks like the integers are equal but not the doubles.
+# but a diff of the two looks same
+
+# now does it work for  mean?
+#qc  <- summarise_list_of_dfs(l1, 'mean')
+# whoops, sql uses 'avg'
+qc  <- summarise_list_of_dfs(l1, 'avg')
+str(qc)
+# and stdev
+qc  <- summarise_list_of_dfs(l1, 'stdev')
+str(qc)
+# this did multiple dataframes, now try with factor variables
+str(l1)
+d1[,3] <- as.factor(d1[,3])
+d2[,3] <- as.factor(d2[,3])
+d3[,3] <- as.factor(d3[,3])
+d4[,3] <- as.factor(d4[,3])
+
+l1 = list(d1,d2, d3, d4)
+str(l1)
+qc  <- summarise_list_of_dfs(l1)
+str(qc)
+# it has just skipped that variable so this should be good to go
+# NB if the combination of all the dataframes is too big for RAM then
+# R will fail. in this case I would
+# put into a PostgreSQL database as this will use the disk rather than
+# RAM
+# this can also be used to add indexes and clustering functions to
+# speed up the calculations.
+# HTH, let me know if there is a more efficient R solution?
+
+#install.packages("data.table")
+library(data.table)
+sum_ldf4 <- function(
+  listed=l1
+  ,
+  summarise_fun  = 'sum'
+                     ){
+  d5=do.call('rbind',listed)
+  d5.rnames =rep(rownames(listed[[1]]),times=length(listed))
+  d5 <- d5[sapply(d5, is.numeric)]
+  d5$reg=d5.rnames
+  oper  <- sprintf('), %s(',summarise_fun)
+  todo <- sapply(d5, 'is.numeric')
+  todo <- names(d5)[todo] 
+  sql<-paste("sum(",paste(todo, sep = '', collapse = oper),")", sep = "")
+  #sql
+    
+  DT = data.table(d5)
+  
+  out <-  eval(parse(
+      text = sprintf("DT[,list(%s),by=list(d5$reg)]", sql)
+      ))
+    
+
+  return(out)
+}
+
+
+# sqldf
+o1 <- system.time(qc  <- summarise_list_of_dfs(l1))
+str(qc)
+# aggregate
+o2 <- system.time(d6 <- summarise_list_dfs2(l1))
+str(d6)
+# loop
+o3 <- system.time(d.results  <- summarise_list_dfs3(l1))
+str(d.results)
+# data.table
+o4 <- system.time(datab  <- sum_ldf4(l1))
+str(datab)
+
+# http://zvfak.blogspot.com.au/2011/03/applying-functions-on-groups-sqldf-plyr.html
+library(gplots)
+x<-c(o1[3],o2[3],o3[3],o4[3])
+balloonplot( rep("time.elapsed",5),c("sqldf","aggregate","loop", "data.table"),round(x,1), ylab ="Method", xlab="",sorted=F,dotcolor=rev(heat.colors(5)),main="time.elapsed for different methods") 
+
+sessionInfo()
+```
+
+
+
+#+end_src
+
+** COMMENT text2columns-code
+#+name:text2columns
+#+begin_src R :session *shell* :tangle no :exports none :eval no
+#### name:text2columns ####
+setwd("/home/ivan_hanigan/Dropbox/projects/air_pollution_ucrh")
+dat <- read.csv("air_pollution_ucrh_data_inventory_files_20150724.csv", stringsAsFactor = F)
+str(dat)
+qc <- dat[dat$v5 == "arcgis mxd", ]
+qclist <- names(table(qc$entity_name))
+qc2  <- strsplit(qclist, "_")
+str(qc2)
+qc2[[3]]
+qc3 <- t(sapply(qc2, '[', 1:max(sapply(qc2, length)))) 
+qc3 <- as.data.frame(qc3)
+names(qc3) <-  paste("V", 1:13, sep = "")
+
+#+end_src
+
+** COMMENT climate-grids-thredds-code
+#+name:climate-grids-thredds
+
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-07-27-climate-grids-and-thredds-server-experimenting-update.md  :exports none :eval no :padline no
+  ---
+  name: climate-grids-and-thredds-server-experimenting-update
+  layout: post
+  title: Web Data, Climate Grids and THREDDS UPDATE
+  date: 2015-07-27
+  categories:
+  - extreme weather events
+  tags:
+  - software
+  ---
+  
+  # Update  
+  - This is an update to my previous post:  [http://ivanhanigan.github.io/2014/12/climate-grids-and-thredds-server-experimenting/](http://ivanhanigan.github.io/2014/12/climate-grids-and-thredds-server-experimenting/)
+  - I was worried about the available metadata with those netcdf data I was working with so contacted Dr Brad Evans at EMAST who set me straight:
+  
+  #### QUOTE:
+      "you need to use ncdf4  - not ncdf  ...
+      because they are netcdf4 files and not netcdf3 files. 
+      This is poorly explained in the R community.
+      All of the netcdf files from Australian providers (AusCover, BoM, etc...) 
+      have been in netcdf4 for a couple of years now."
+  
+  # So here is the revised code using ncdf4 library:
+  
+  #### CODE
+      # sudo apt-get install r-cran-ncdf4 
+      library(ncdf4)
+      library(raster)
+      strt <-'2012-01-01'
+      end <- '2012-01-04'
+      dates <- seq(as.Date(strt),as.Date(end),1)          
+      dates
+      par(mfrow = c(2,2))
+      for(i in 1:length(dates)){
+       # i=1
+        date_i <- dates[i]
+        infile <- sprintf("http://dapds00.nci.org.au/thredds/dodsC/rr9/Climate/eMAST/ANUClimate/0_01deg/v1m0_aus/day/land/tmin/e_01/2012/eMAST_ANUClimate_day_tmin_v1m0_%s.nc", gsub("-", "", date_i))
+       
+        nc <- nc_open(infile)
+        str(nc)
+        print(nc)
+        vals <- ncvar_get(nc, varid="air_temperature")
+        str(vals)
+        nc.att <-    nc$var$air_temperature
+        xmin <- min(nc.att$dim[[1]]$vals)
+        xmax <- max(nc.att$dim[[1]]$vals)
+        ymin <- min(nc.att$dim[[2]]$vals)
+        ymax <- max(nc.att$dim[[2]]$vals)
+       
+        print(c(xmin,xmax))
+        print(c(ymin,ymax))
+       
+        r <- raster(t(vals),
+                    xmn=xmin, xmx=xmax,
+                    ymn=ymin, ymx=ymax)
+        #str(r)
+        plot(r)
+        nc_close(nc)
+      }
+  
+  
+  <p></p>
+  
+  # RESULTS 1: METADATA
+  
+  - the result is I now have a lot more metdata returned to my R workspace
+    
+  #### EXERPT
+      [...]
+      [1] "        licence_copyright: Copyright 2009-2013 ANU. Rights owned by The Australian National University (ANU). Rights licensed subject to TERN  Attribution (TERN-BY)."
+      [1] "        short_desc: Australian coverage, ANUClimate 1.0, 0.01 degree grid, 1970-2012"
+      [1] "        summary: Minimum daily temperature, for the Australian continent between 1970-2012. Daily temperature regulates rates of plant growth and determines critical conditions such as frost on flowering and fruiting. Modelled by expressing each daily value as a difference anomaly with respect to the gridded 1976-2005 mean daily minimum temperature for each month as provided by eMAST_ANUClimate_mmn_tmin_v1m0_1976_2005. The daily anomalies were interpolated by trivariate thin plate smoothing spline functions of longitude, latitude and vertically exaggerated elevation using ANUSPLIN Version 4.5. There was an average of 671 Bureau of Meteorology data points available for each day between 1970 and 2012. Automated quality assessment rejected on average 3 data values per day with extreme studentised residuals. These were commonly associated with days following missing observations. The root mean square of all individual cross validation residuals provided by the spline analysis is 1.5 degrees Celsius. A comprehensive assessment of the analysis and the factors contributing to the quality of the final interpolated daily minimum temperature grids is in preparation."
+      [1] "        long_name: Daily minimum temperature"
+      [1] "        contact: Michael Hutchinson, Professor of spatial and temporal analysis, 3.23A, Fenner School of Environment & Society, College of Medicine, Biology & Environment, Frank Fenner Building 141, Australian National University, Canberra, Australian Capital Territory, 200, Australia, (+61) 2 6125 4783, Michael.Hutchinson@anu.edu.au, http://orcid.org/0000-0001-8205-6689"
+      [1] "        references: 1. Hutchinson, M.F., Mckenney, D.W., Lawrence, K., Pedlar, J., Hopkinson, R., Milewska, E. and Papadopol, P. 2009. Development and testing of Canada-wide interpolated spatial models of daily minimum/maximum temperature and precipitation for 1961-2003. Journal of Applied Meteorology and Climatology 48: 725�741. http://dx.doi.org/10.1175/2008JAMC1979.1 2. Hutchinson, M.F. and Xu, T. 2013. ANUSPLIN version 4.4 User Guide. Fenner School of Environment and Society, Australian National University, Canberra http://fennerschool.anu.edu.au/files/anusplin44.pdf"
+      [1] "        source: ANUClimate 1.0"
+      [1] "        keywords: EARTH SCIENCE > ATMOSPHERE > ATMOSPHERIC TEMPERATURE > MAXIMUM/MINIMUM TEMPERATURE"
+      [1] "        Conventions: CF-1.6"
+      [1] "        institution: Australian National University"
+      [1] "        geospatial_lat_min: -43.74"
+      [1] "        geospatial_lat_max: -9"
+      [1] "        geospatial_lat_units: degrees_north"
+      [1] "        geospatial_lat_resolution: -0.01"
+      [1] "        geospatial_lon_min: 112.9"
+      [1] "        geospatial_lon_max: 154"
+      [1] "        geospatial_lon_units: degrees_east"
+      [1] "        geospatial_lon_resolution: 0.01"
+      [1] "        keywords_vocabulary: Global Change Master Directory (http://gcmd.nasa.gov)"
+      [1] "        metadata_link: http://datamgt.nci.org.au:8080/geonetwork"
+      [1] "        standard_name_vocabulary: Climate and Forecast(CF) convention standard names (http://cf-pcmdi.llnl.gov/documents/cf-standard-names)"
+      [1] "        id: eMAST_ANUClimate_day_tmin_v1m0_1970_2012"
+      [1] "        DOI: To be added"
+      [1] "        cdm_data_type: grid"
+      [1] "        contributor_name: Michael Hutchinson, Jennnifer Kesteven, Tingbao Xu"
+      [1] "        contributor_role: principalInvestigator, author, author"
+      [1] "        creator_email: eMAST.data@mq.edu.au"
+      [1] "        creator_name: eMAST data manager"
+      [1] "        creator_url: http://www.emast.org.au/"
+      [1] "        Metadata_Conventions: Unidata Dataset Discovery v1.0"
+      [1] "        publisher_name: Ecosystem Modelling and Scaling Infrastructure (eMAST) Facility: Macquarie University"
+      [1] "        publisher_email: eMAST.data@mq.edu.au"
+      [1] "        publisher_url: http://www.emast.org.au/"
+  
+    
+  # RESULTS 2: Grid data  
+  
+  - I still get lots of good data
+  
+  ![/images/thredds2.png](/images/thredds2.png)
+  
+  <p></p>
+  
+  # NOTE I still need that weird transpose
+  
+  - I note that the weird hacky transpose is still required 
+  
+  #### CODE
+      # NB weird hacky transpose still required or else you get this
+      r <- raster(vals,
+                  xmn=xmin, xmx=xmax,
+                  ymn=ymin, ymx=ymax)
+       
+      #str(r)
+      plot(r)
+  
+  <p></p>
+  
+  ![/images/thredds2raw.png](/images/thredds2raw.png)
+  
+  
+  
+#+end_src
 
 * XML
 ** COMMENT review-xml-code
@@ -4843,10 +5673,170 @@ categories:
 #+end_src
 
 * Reproducible Research Reports
-** headers
+
+** 2015-09-16-reproducible-research-reports-with-rmarkdown-and-latex-for-stylish-reports
+#+name:reproducible-research-reports-with-rmarkdown-and-latex-for-stylish-reports-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-09-16-templates-needed-for-reproducible-research-reports-that-look-good.md :exports none :eval no :padline no
+---
+name: templates-needed-for-reproducible-research-reports-that-look-good
+layout: post
+title: Templates are Needed for Reproducible Research Reports (that Look Good)
+date: 2015-09-16
+categories:
+- disentangle
+- reproducible research reports
+---
+
+I read with interest the the Transparency and Openness Promotion (TOP) Committee templates for guidelines to enhance transparency in the science that journals publish.
+
+#### Citation
+
+    Supplementary Materials for Nosek, B. A., Alter, G., Banks, G. C.,
+    Borsboom, D., Bowman, S. D., Breckler, S. J., … Yarkoni,
+    T. (2015). Promoting an open research culture. Science, 348(6242),
+    1422–1425. doi:10.1126/science.aab2374
+      
+<p></p>
+  
+I think though that guidelines like the suggestion to copy-paste bits of the manuscript leave a bit to be desired:
+  
+#### Quote;
+  
+    Authors document compliance by copy-pasting the relevant passages
+    in the paper that address the question into the form. For example,
+    when indicating how sample size was determined, authors copy paste
+    into the form the text in the paper that describes how sample size
+    was determined.
+  
+<p></p>
+  
+Reproducible Research Reports solve this problem by ensuring that the data preparation and analysis are executed in the same script that produces the manuscript, therefore a one-stop-shop for documentation of the entire study.
+  
+## There is a need for Templates of Reproducible Research Reports (that look good!)
+  
+Rstudio provides very easy support for these documents if you use R.  In particular the option of a menu button to create a new report populates that report with the required header information and some example script to work off.  But the easiest option does not look so good.  This is the Rmarkdown option and it is very user friendly in terms of the markup language needed to write the descriptive language around your analysis (mostly plain text with a few simple options for heading styles etc) rather than the Sweave option which leads to the full blown LaTeX markup language that is a lot more complicated.
+  
+#### Boilerplate Rmarkdown header from Rstudio:
+    ---
+    title: "Untitled"
+    author: "Ivan C. Hanigan"
+    date: "16 September 2015"
+    output: html_document
+    ---
+  
+<p></p>
+  
+This is great for quick reporting of work as you go, but I  primarily write for output that will be printed (e.g. pdf docs). More specifically, I need the concept of a page, and to have full control over the placement of table and figure ‘environments’, stuff that is easy in LaTeX (once you figure out some of the esoteric parts of that language).
+  
+To achieve a simple writing environment in Markdown but with the powerful layout options of LaTeX I reviewed this guys work but I think it takes it to an uneccessary level of complicated-ness
+[https://github.com/jhollist/manuscriptPackage](https://github.com/jhollist/manuscriptPackage).
+
+So I went back to some of the old Sweave/Latex templates I had put together and ported it into a markdown header. 
+
+#### Boilerplate Rmarkdown header for pretty report
+    ---
+    title: "Untitled"
+    author: "Ivan C. Hanigan"
+    date: "16 September 2015"
+    header-includes:
+      - \usepackage{graphicx}
+      - \usepackage{fancyhdr} 
+      - \pagestyle{fancy} 
+      - \usepackage{lastpage}
+      - \usepackage{float} 
+      - \floatstyle{boxed} 
+      - \restylefloat{figure} 
+      - \usepackage{url} 
+      - \usepackage{color}
+      - \lhead{Left Header}
+      - \chead{Rmarkdown Rocks}
+      - \rhead{\today}
+      - \lfoot{Left Footer}
+      - \cfoot{Centre Footer}
+      - \rfoot{\thepage\ of \pageref{LastPage}}  
+    output: 
+      pdf_document:
+        toc: false
+    documentclass: article
+    classoption: a4paper
+    bibliography: references.bib
+    ---
+  
+<p></p>
+  
+Now the layout of tables and figures is done with latex
+  
+#### Code
+  
+    Using the xtable package allows results to be displyed in tables
+    and has built in support for some R objects, so summrising the
+    linear fit above in ~\ref{ATable}
+      
+    ```{r, results='asis', type = 'tex'}
+    library(xtable)    
+    print(xtable(fit, caption="Example Table",
+      digits=4,table.placement="ht",label="ATable"), comment = F)    
+    ```
+       
+    ## A Plot
+       
+    Plots intergrate most easily if made seperately as can be seen in figure ~\ref{test}
+    ```{r}
+    png("Rmarkdownfig.png")
+    plot(x,y,main="Example Plot",xlab="X Variable",ylab="Y Variable")
+    abline(fit,col="Red")
+    dev.off()
+    ```
+    \begin{figure}[H]
+    \begin{center}
+    \includegraphics[width=.5\textwidth]{Rmarkdownfig.png}
+    \end{center}
+    \caption{Some Plot}
+    \label{test}
+    \end{figure}
+    \clearpage
+  
+<p></p>
+  
+
+I also realised that if this was to be a full report of a scientific study it would need to include some of the machinery needed for bibliographies.
+
+#### Stuff for bibliographies
+
+    ```{r, echo=F, results = 'hide', message = F, warning=F}
+    library("knitcitations")
+    library("bibtex")
+    cleanbib()
+    cite_options(citation_format = "pandoc", check.entries = FALSE)
+     
+    bib <- read.bibtex("C:/Users/Ivan/Dropbox/references/library.bib")
+     
+    ```
+
+    <!--Put data analysis and reporting here, then at the end of the doc-->
+
+    ```{r, echo=F, message=F, eval=T}
+    write.bibtex(file="references.bib")
+    ```
+          
+    # References
+
+    <!--The bib will then be written following the final subheading-->
+
+<p></p>
+
+## Conclusion
+
+I hope this might help others develop their own templates for RRR that look great.
+
+#+end_src
+
+
+** RRR template simple
+*** headers
 #+begin_src R :session *R* :tangle main.Rmd :exports none :eval no :padline no
   ---
-  title: "orgmode tests"
+  title: "Rmarkdown LaTeX tests"
   author: Ivan C. Hanigan
   header-includes:
     - \usepackage{graphicx}
@@ -4870,9 +5860,9 @@ categories:
   
   ```{r echo = F, eval=F, results="hide"}
 #+end_src
-** run-able R
-#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval yes :padline no
-  
+*** run-able R
+#+begin_src R :session *R* :tangle main.Rmd :exports none :eval yes :padline no
+  dir()
   library(rmarkdown)
   library(knitr)
   library(knitcitations)
@@ -4881,14 +5871,19 @@ categories:
   cite_options(citation_format = "pandoc", check.entries=FALSE) 
   rmarkdown::render("main.Rmd", "pdf_document")
   #browseURL("main.pdf")
+  rmarkdown::render("main.Rmd", "html_document")
+  #browseURL("main.html")
+  # to get the R code only 
+  knitr::knit("main.Rmd", tangle=T)
+  ```
 #+end_src
 
 #+RESULTS:
-: /home/ivan_hanigan/tools/disentangle/main.pdf
+: /home/ivan_hanigan/tools/disentangle/main.html
 
-** perhaps tangle out pure R
-#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no :padline no
-  ```
+*** Deprecated?  Not needed anymore? to tangle out pure R
+#+begin_src R :session *shell* :tangle no none :eval no :padline no
+
   ```{r echo = F, eval=F, results="hide"}  
   # http://stackoverflow.com/a/26066411
   # to tangle chunks even when eval = F use this (with eval=F)
@@ -4906,7 +5901,7 @@ categories:
   
   ```  
 #+end_src
-** bib
+*** bib
 #+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no :padline no
   
   ```{r, echo = F, results = 'hide'}
@@ -4918,20 +5913,22 @@ categories:
   
 #+end_src
 
-** Introduction
-*** intro
+*** Introduction
+**** intro
 #+name:intro
 #+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no :padline yes 
 # Intro
 This is the thing `r citep(     bib[["Hsiang2011"]])`.
 This is another thing `r citep( bib[["Hanigan2012"]])`.
 
-# section
+## subsection
+
+This is an example with a footnote [^com1].
 
 #+end_src
 
 
-** fig
+*** fig
 #+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no
   ## figure
   
@@ -4952,7 +5949,7 @@ This is another thing `r citep( bib[["Hanigan2012"]])`.
   \clearpage
   
 #+end_src
-** table
+*** table
 #+name:main.Rmd
 #+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no
   
@@ -4980,7 +5977,7 @@ This is another thing `r citep( bib[["Hanigan2012"]])`.
   
 #+end_src
 
-** COMMENT bib-code
+*** COMMENT bib-code
 #+name:bib
 #+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no
 
@@ -4989,14 +5986,15 @@ This is another thing `r citep( bib[["Hanigan2012"]])`.
   ```{r, echo=FALSE, message=FALSE, eval = T}
   write.bibtex(file="references.bib")
   ```
-  
+
+  [^com1]: more info on footnotes at [http://nancym.tumblr.com/post/59594358553/links-footnotes-and-abbreviations-in-markdown](http://nancym.tumblr.com/post/59594358553/links-footnotes-and-abbreviations-in-markdown)
 #+end_src
 
-** footnotes in markdown
+*** footnotes in markdown
 http://nancym.tumblr.com/post/59594358553/links-footnotes-and-abbreviations-in-markdown
-This is needed to  provide the trust that a data  analysis was appropriately conducted and avoided errors of execution,  or methodogical design [^comerrmeth].
+This is needed to  provide the trust that a data  analysis was appropriately conducted and avoided errors of execution,  or methodogical design [^com1].
 
-[^comermeth]: the footnote
+[^com1]: the footnote
 * Blogging
 *** COMMENT blog-code
 #+name:blog
@@ -5036,6 +6034,80 @@ jekyll serve
 | Auto-regeneration:                                           | enabled                                                      | for                 | '/home/ivan_hanigan/projects/ivanhanigan.github.com'               |            |           |         |                         |      |     |             |
 | [33mConfiguration                                          | file:                                                        | none[0m           |                                                                    |            |           |         |                         |      |     |             |
 | jekyll                                                       | 2.5.2                                                        |                     |                                                                    | Error:     | Address   | already | in                      | use  | 0   | bind(2)     |
+
+** 2015-09-22-open-notebook-science-jekyll-blogs-github-and-jerry-seinfelds-secret-to-productivity
+#+name:open-notebook-science-jekyll-blogs-github-and-jerry-seinfelds-secret-to-productivity-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-09-22-open-notebook-science-jekyll-blogs-github-and-jerry-seinfelds-secret-to-productivity.md :exports none :eval no :padline no
+---
+name: open-notebook-science-jekyll-blogs-github-and-jerry-seinfelds-secret-to-productivity
+layout: post
+title: Open Notebook Science, Jekyll Blogs, Github and Jerry Seinfeld's Secret to Productivity
+date: 2015-09-22
+categories:
+- disentangle
+tags:
+- blogging
+---
+  
+The other day I reported that I've implemented a new open science task management regime [http://ivanhanigan.github.io/2015/09/task-management-like-an-open-science-hacker/](http://ivanhanigan.github.io/2015/09/task-management-like-an-open-science-hacker/).
+
+This was instigated by my renewed enthusiasm for open science after a few high profile papers have come out in the last few months imploring scientists to take action on shonky statistics and the "morass of poorly conducted data analyses, with errors ranging from trivial and strange to devastating" (Peng 2015) [http://dx.doi.org/10.1111/j.1740-9713.2015.00827.x](http://dx.doi.org/10.1111/j.1740-9713.2015.00827.x).
+
+I believe that making ones electronic notebook open is one of the most obvious and easily achieved things to do toward that ambition.  I also think that keeping the TODO-list in the forefront of ones mind and continuously checking things off the list is a great boost for productivity and keeping on track.  This culminates in the advice to keep momentum by doing something toward the plan on a daily basis, no matter how trivial.  This is sometimes called Jerry Seinfeld's secret to productivity: Just keep at it. Don't break the streak. [http://dirk.eddelbuettel.com/blog/2014/10/12/](http://dirk.eddelbuettel.com/blog/2014/10/12/).
+
+So what was holding me back from a really useful daily publication of my open notebook?  I showed last post how I manage tasks in Emac Orgmode (a task organiser and calendar/agenda rolled up with code execution for running R scripts etc).  I also write my blog posts in orgmode.
+
+The only problem with that set up was that I was still using the code from Charlie Park [http://charliepark.org/jekyll-with-plugins/](http://charliepark.org/jekyll-with-plugins/) which adds the inadequate commit description '`Latest build`' every time.  What I needed was a way to actually log a summary of work each day, so I can look back over the history and know I actually did something everyday and was not just gaming the system by committing random little non-work additions (I want to balance this by doing _some_ work every day, but also take time off to read, exercise, socialize, and generally have fun).
+
+So anyway, the point of this post is to describe my revision to Charlie Park's code for building a jekyll blog:
+
+#### Code: put in ~/.bash_profile
+    function bb() {
+      cd ~/projects/ivanhanigan.github.com.raw && jekyll b && cp -r    
+      ~/projects/ivanhanigan.github.com.raw/_site/* ~/projects/ivanhanigan.github.com && 
+      cd ~/projects/ivanhanigan.github.com && git add . -A  && 
+      git commit -m "$*" && 
+      git push
+    }
+    
+<p></p>
+
+
+- That bit about `$*` was a bit difficult for me to get working as this is the first time I have written a bash script in anger.  The alternative was to use `$1` and require the git commit message to be passed within quotes, which also makes sense but I did not do that.
+- I also needed to change the terminal settings so that it always loads the bash_profile
+
+#### Bash terminal
+    Edit > Profile preferences
+    Title and Command > Run command as a login shell 
+
+<p></p>
+
+- And so now I just have to deposit a markdown blog post into the jekyll `_posts` folder and then
+
+#### Bash
+    bb Add a meaningful commit message about todays progress
+      
+    
+<p></p>
+
+There you have it, a meaningful message regarding what I have been doing towards my scientific output every day.
+
+![/images/seinfeld-streak-day9.png](/images/seinfeld-streak-day9-1.png)
+
+![/images/seinfeld-streak-day9.png](/images/seinfeld-streak-day9.png)
+
+  
+
+
+#### References
+    Peng, R. (2015). The reproducibility crisis in science: 
+    A statistical counterattack. Significance, 12(3), 30–32. 
+    doi:10.1111/j.1740-9713.2015.00827.x
+    
+    
+<p></p>
+      
+#+end_src
 
 * bibliometrics
 *** COMMENT gscraper-func-code
@@ -5306,153 +6378,4 @@ I’ve been trying to do this more often, for example in this 2011 article on th
 Still, I think the necessity of clearing-away-the-old creates an additional degree of difficulty in much of academic writing.
 
 What I found exciting in Pinker’s note above was his connection of this vague idea, which I arrived at by introspection, to research in cognition.
-* Web2py
-** sounds players
-# download web2py
-wget http://web2py.com/examples/static/web2py_src.zip
-unzip web2py_src.zip
-cd web2py
-
-# make the app using only core API
-mkdir applications/audio
-cp -r applications/welcome/* applications/audio
-echo "
-db.define_table('music',
-                Field('name',required=True),
-                Field('filename','upload',required=True),
-                auth.signature)
-" > applications/audio/models/db_audio.py
-echo "
-response.menu = [('Home',0,URL('index'))]
-
-# allows to browser, search, and upload new music (if logged in)
-def index():
-    # tell web2py that links to music files are to be
-    # represented as HTML5 audio embedded players
-    from gluon.contrib.autolinks import expand_one
-    db.music.filename.represent = lambda v,r: \
-        XML(expand_one(URL('download',args=v),{}))
-    return dict(grid = SQLFORM.grid(db.music))
-
-# perform login/logout/registration/etc.
-def user():
-    return dict(form=auth())
-
-# allow streaming of all files, including partial content of music files
-@cache.action()
-def download():
-    return response.download(request, db)
-" > applications/audio/controllers/default.py
-* Diagrams
-** causal DAGs with R
-http://donlelek.github.io/2015/03/31/dags-with-r/
-*** COMMENT test-code
-#+name:test
-#+begin_src R :session *R* :tangle no :exports none :eval no
-  #### name:test ####
-  library(DiagrammeR)
-  grViz("
-  digraph causal {
-  
-    # Nodes
-    node [shape = plaintext]
-    A [label = 'Age']
-    R [label = 'Retained\n Placenta']
-    M [label = 'Metritis']
-    O [label = 'Cistic ovarian\n disease']
-    F [label = 'Fertility']
-    
-    # Edges
-    #edge [color = black,
-    #      arrowhead = vee]
-    rankdir = LR
-    A->F [headlabel='+']
-    A->O [headlabel='-']
-    A->R
-    R->O [headlabel='+']
-    R->M
-    M->O
-    O->F
-    M->F
-    
-    # Graph
-    graph [overlap = true, fontsize = 10]
-  }")
-#+end_src
-** COMMENT diagrammer-code
-*** diagrammer tests
-#+begin_src R :session *R* :tangle no :exports none :eval no
-  #### name:diagrammer
-  install.packages('DiagrammeR')
-  library(DiagrammeR)
-  library(disentangle)
-  ###
-  # Create a graph with both nodes and edges
-  # defined, and, add some default attributes
-  # for nodes and edges
-  ###
-  
-  library(DiagrammeR)
-  # modified eg from http://rich-iannone.github.io/DiagrammeR/graphs.html
-  # Create a node data frame
-  nodes <-
-    create_nodes(nodes = c("a", "b", "c", "d"),
-                 label = c("one", "two", "three", "{{ { Name | Description } | { four | thing } }}"),
-                 type = "lower",
-                 style = c("filled","", "", ""),
-                 color = "aqua",
-                 shape = c("circle", "circle",
-                           "rectangle", "record"),
-                 data = c(3.5, 2.6, 9.4, 2.7),
-                 cluster = c("A", "A", "B", "B"))
-  nodes
-  nodes1 <- subset(nodes, cluster == "A")
-  nodes1
-  nodes2 <- subset(nodes, cluster == "B")
-  nodes2
-  edges <-
-    create_edges(from = c("a", "b", "c"),
-                 to = c("d", "c", "a"),
-                 relationship = "leading_to",
-                 label = c("+", "-", "?"))
-  edges
-  edges2 <-
-    create_edges(from = c("e", "a"),
-                 to = c("f", "e"),
-                 relationship = "leading_to",
-                 label = c("+", "-"))
-  edges2
-  graph1 <-
-    create_graph(nodes_df = nodes1,
-                 edges_df = edges,
-                 node_attrs = "fontname = Helvetica",
-                 edge_attrs = c("color = blue",
-                                "arrowsize = 2"))#,
-  #               graph_attrs = "rankdir = LR")
-  graph2 <-
-    create_graph(nodes_df = nodes2,
-                 edges_df = edges2,
-                 node_attrs = "fontname = Helvetica",
-                 edge_attrs = c("color = blue",
-                                "arrowsize = 2"))
-      # use create_graph on seperate nodes and edges data frames, one for
-      # each cluster
-      gr1 <- graph1$dot_code
-      gr2 <- graph2$dot_code
-      gr1 <- gsub("digraph", "subgraph cluster1", gr1)
-      gr2 <- gsub("digraph", "subgraph cluster2", gr2)
-      gr3 <- sprintf("digraph{\n%s\n\n %s\n}", gr1, gr2)
-      grViz(gr3)
-  
-  
-  # View the graph in the RStudio Viewer
-  #render_graph(graph)
-  #graph <- add_edges(graph, from = "b", to = "a",
-  #                   relationship = "leading_to")
-  #get_predecessors(graph, node = "a")
-  #graph <- add_edges(graph, from = "d", to = "b",
-  #                   relationship = "leading_to")
-  #render_graph(graph)
-  
-#+end_src
 
