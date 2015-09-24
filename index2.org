@@ -3350,7 +3350,7 @@ def download():
 ** R-newnode
 *** COMMENT newnode-code
 #+name:newnode
-#+begin_src R :session *R* :tangle R/newnode.r :exports none :eval no
+#+begin_src R :session *R* :tangle R/newnode.r :exports none :eval yes
   #' @title newnode
   #' @name newnode
   #' @param indat the input data.frame
@@ -3418,7 +3418,7 @@ def download():
                    inputs_listed, name2paste, name, desc, status, outputs_listed
                    )
         # cat(strng)
-        if(!status %in% c("DONE", "WONTDO")){ 
+        if(!status %in% c("DONE", "WONTDO", "", NA)){ 
           strng <- gsub("shape=record,", "shape=record, style = \"filled\", color=\"indianred\",", strng)
         }
       } else {
@@ -3462,7 +3462,7 @@ def download():
                    inputs_listed, name2paste, name, desc, status, outputs_listed
                    )
         # cat(strng)
-        if(!status %in% c("DONE", "WONTDO")){ 
+        if(!status %in% c("DONE", "WONTDO", "", NA)){ 
           strng <- gsub("shape=record,", "shape=record, style = \"filled\", color=\"indianred\",", strng)
         }
   } else {
@@ -4508,7 +4508,7 @@ Here I have reproduced the work of donlelek
     
 #+end_src
 
-** TODO 
+
 * Data Operation
 ** R-spatial
 *** TODO xy2shp
