@@ -66,7 +66,7 @@ strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description | Statu
                  inputs_listed, name2paste, name, desc, status, outputs_listed
                  )
       # cat(strng)
-      if(!status %in% c("DONE", "WONTDO", "")){ 
+      if(!status %in% c("DONE", "WONTDO", "", NA)){ 
         strng <- gsub("shape=record,", "shape=record, style = \"filled\", color=\"indianred\",", strng)
       }
     } else {
@@ -110,7 +110,7 @@ strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description | Statu
                  inputs_listed, name2paste, name, desc, status, outputs_listed
                  )
       # cat(strng)
-      if(!status %in% c("DONE", "WONTDO")){ 
+      if(!status %in% c("DONE", "WONTDO", "", NA)){ 
         strng <- gsub("shape=record,", "shape=record, style = \"filled\", color=\"indianred\",", strng)
       }
 } else {
