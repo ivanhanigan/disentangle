@@ -2,7 +2,7 @@
 ################################################################
 # name:R-AdminTemplate
 AdminTemplate <- function(rootdir = getwd()){
-  setwd(rootdir)
+  if(!exists(rootdir)) dir.create(rootdir)
   dir.create(file.path(rootdir,'01_planning'))
   dir.create(file.path(rootdir,'01_planning','proposal'))
   dir.create(file.path(rootdir,'01_planning','scheduling'))
