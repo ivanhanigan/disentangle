@@ -8106,13 +8106,15 @@ http://andrewgelman.com/2014/10/14/didnt-say-part-2/
   #' @param clusters_col optional column identifying clusters
   #' @param todo_col optional column with TODO status (DONE and WONTDO will be white, others are red)
   #' @return character string object that has the DOT language representatio of the input
-  newnode_rmd <- function(indat = NA,names_col = NA,in_col = NA,out_col = NA,desc_col = NA,clusters_col = NA, todo_col = NA, nchar_to_snip = 40){
-  if(any(is.na(indat) |
-         is.na(names_col) |
-         is.na(in_col) |
-         is.na(out_col) |
-         is.na(desc_col)
-         )) stop("data or arguments are not supplied")
+  newnode_rmd <- function(indat = NULL,names_col = NULL,in_col = NULL,out_col = NULL,desc_col = NULL,clusters_col = NULL, todo_col = NULL, nchar_to_snip = 40){
+  if (is.null(names_col)) stop("Names of the steps are needed")
+  if (is.null(in_col)) stop("Inputs are needed")
+  if (is.null(out_col)) stop("Outputs are needed")
+  if (is.null(desc_col)){
+    print("Descriptions are strongly recommended, we\'re creating empty records for you")
+    indat$descriptions <- ""
+    desc_col <- "descriptions"
+  }
   
     indat2 <- indat
     nodes_graph  <- ""
