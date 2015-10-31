@@ -19,6 +19,11 @@ if (is.null(desc_col)){
   desc_col <- "descriptions"
 }
 
+# sanitize any single quotes
+for(i in 1:ncol(indat)){
+ indat[,i] <- gsub("'","", indat[,i]) 
+}
+
 if(!is.null(clusters_col)){
 cluster_ids <- names(table(indat[,clusters_col]))
 #cluster_ids
