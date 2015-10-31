@@ -1,5 +1,5 @@
 "CLUSTER","STEP","INPUTS","OUTPUTS","DESCRIPTION","STATUS"
-"A","site_ids","GPS, helicopter","spatial, site doco","latitude and longitude of sites","DONE"
+"A","site_ids","GPS, helicopter","spatial, site doco","Ivan's latitude and longitude of sites","DONE"
 "A","weather","BoM","exposures","weather data from BoM","TODO"
 "B","trapped","spatial","trapped_no","counts of species caught in trap",
 "B","biomass","spatial","biomass_g",,

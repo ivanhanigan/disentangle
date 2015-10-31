@@ -2687,7 +2687,6 @@ Things to note:
   - and pick up or put down as needed
 #+end_src
 
-
 * Data Management 
 
 ** 2015-09-25-reproducible-research-and-managing-digital-assets part1
@@ -5940,6 +5939,7 @@ see the file at [[transformations-tracker.org][transformations-tracker.org]]
 
 * Exploratory Data Analysis
 ** COMMENT R-csv-fingerprint-code
+
 #+name:R-csv-fingerprint
 #+begin_src R :session *R* :tangle no :exports none :eval no
   #### name:R-csv-fingerprint####
@@ -5955,64 +5955,7 @@ see the file at [[transformations-tracker.org][transformations-tracker.org]]
   >> to look into that.
   >>
     
-   require(grDevices)
-  
-   #Plot Function
-   misstable <- function(atable){
-   op <- par(bg = "white")
-   plot(c(0, 400), c(0, 1000), type = "n", xlab="", ylab="",
-       main = "Missing Data Table")
-  
-  
-   pmin=000
-   pmax=400
-   stre=pmax-pmin
-   lnames=length(atable)
-   cstep = (stre/lnames)
-   for(titles in 1:lnames){
-   text((titles-1) * cstep+pmin+cstep/2,1000,colnames(atable)[titles])
-   }
-  
-   gmax=900
-   gmin=0
-   gstre=gmax-gmin
-   rvec = as.vector(atable[[1]])
-   dnames=length(rvec)
-   step = gstre / dnames
-   for(rows in 1:dnames){
-   text(30,gmax - (rows-1)*step-step/2,rvec[rows])
-   ymax=gmax - (rows-1)*step
-   ymin=gmax - (rows)*step
-   for(col in 2:lnames-1){
-   if(atable[rows,col+1] == F){
-   tcolor = "red"
-   }
-   if(atable[rows,col+1] == T){
-   tcolor = "white"
-   }
-   rect((col) * (stre/lnames)+pmin, ymin, (col+1) * (stre/lnames)+pmin,
-   ymax,col=tcolor,lty="blank")
-   }
-   }}
-  
-  
-   # Make a quick dataframe with true/false representing data availability
-   locs=c("Australia","India","New Zealand","Sri Lanka","Uruguay","Somalia")
-   f1=c(T,F,T,T,F,F)
-   f2=c(F,F,F,T,F,F)
-   f3=c(F,T,T,T,F,T)
-   atable=data.frame(locs,f1,f2,f3)
-   atable
-   #Draw the table.
-   misstable(atable)
-  
-  dat <- read.csv("~/data/LTERN/kwrt_woodland_restoration/kwrt_birds_spring_2013_p12/kwrt_birds_spring_p12t312.csv")
-  dat[,2:ncol(dat)] <-  is.na(dat[,2:ncol(dat)])
-  dat[1:10,1:4]
-  names(dat) <- paste("V", 1:ncol(dat), sep = "")
-  misstable(dat)
-  dev.off()
-  
+
 #+end_src
 
 ** 2015-10-14-a-set-of-guidelines-for-exploratory-data-analysis-and-cleaning
@@ -6190,6 +6133,197 @@ without Quality: Automated QA/QC for Streaming Environmental Sensor Data. BioSci
 574-585. [http://dx.doi.org/10.1525/bio.2013.63.7.10](http://dx.doi.org/10.1525/bio.2013.63.7.10)
 6. Mount, J. 2014. Excel spreadsheets are hard to get right. [http://www.win-vector.com/blog/2014/11/excel-spreadsheets-are-hard-to-get-right/](http://www.win-vector.com/blog/2014/11/excel-spreadsheets-are-hard-to-get-right/)
     
+#+end_src
+** 2015-10-26-show-missingness-in-large-dataframes
+
+#+name:show-missingness-in-large-dataframes-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-10-28-show-missingness-in-large-dataframes-v2.md :exports none :eval no :padline no
+---
+name: show-missingness-in-large-dataframes
+layout: post
+title: Show missingness in large dataframes, version 2
+date: 2015-10-28
+categories:
+- disentangle
+- Exploratory Data Analysis
+---
+
+- UPDATE: the other day I blogged this but I needed to tweak things, so this is a re-post with extra
+- Sometime ago I saw this example of a method for assessing missing data in a large data frame [http://flowingdata.com/2014/08/14/csv-fingerprint-spot-errors-in-your-data-at-a-glance/](http://flowingdata.com/2014/08/14/csv-fingerprint-spot-errors-in-your-data-at-a-glance/)
+- I asked my colleague Grant about doing this in R and he whipped up the following code to generate such an image:
+
+![/images/bankstown_traffic_counts_full_listing_june_2014.svg](/images/bankstown_traffic_counts_full_listing_june_2014.svg)
+
+#### Code
+    misstable <- function(atable){
+     op <- par(bg = "white")
+     plot(c(0, 400), c(0, 1000), type = "n", xlab="", ylab="",
+         main = "Missing Data Table")
+    
+    
+     pmin=000
+     pmax=400
+     stre=pmax-pmin
+     lnames=length(atable)
+     cstep = (stre/lnames)
+     for(titles in 1:lnames){
+     text((titles-1) * cstep+pmin+cstep/2,1000,colnames(atable)[titles])
+     }
+    
+     gmax=900
+     gmin=0
+     gstre=gmax-gmin
+     rvec = as.vector(atable[ [ 1 ] ])
+     dnames=length(rvec)
+     step = gstre / dnames
+     for(rows in 1:dnames){
+     text(30,gmax - (rows-1)*step-step/2,rvec[rows])
+     ymax=gmax - (rows-1)*step
+     ymin=gmax - (rows)*step
+     for(col in 2:lnames-1){
+     if(atable[rows,col+1] == F){
+     tcolor = "red"
+     }
+     if(atable[rows,col+1] == T){
+     tcolor = "white"
+     }
+     rect((col) * (stre/lnames)+pmin, ymin, (col+1) * (stre/lnames)+pmin,
+     ymax,col=tcolor,lty="blank")
+     }
+     }
+    }
+<p></p>
+
+- Now things to note are that the function expects the data to be TRUE if Not NA and  FALSE if is NA
+- so might need to massage things a bit first
+- here is the small test Grant supplied
+
+#### Code
+    require(grDevices)
+       
+    # Make a quick dataframe with true/false representing data availability
+    locs=c("Australia","India","New Zealand","Sri Lanka","Uruguay","Somalia")
+    f1=c(T,F,T,T,F,F)
+    f2=c(F,F,F,T,F,F)
+    f3=c(F,T,T,T,F,T)
+    atable=data.frame(locs,f1,f2,f3)
+    atable
+    #Draw the table.
+    misstable(atable)
+    
+<p></p>
+
+- here is the one I worked on today
+
+#### Code
+    # having defined the input dir and input file tried reading the excel sheet (without head 3 rows)
+    #dat <- readxl::read_excel(file.path(indir, infile), skip =3)
+    # got lots of warnings()
+    ## 50: In read_xlsx_(path, sheet, col_names = col_names, col_types = col_types,  ... :
+    ##   [1278, 4]: expecting date: got '[NULL]'
+    # I always worry about using excel connections so open in excel (in windows) 
+    # and save as to convert to CSV
+    dat <- read.csv(file.path(indir, gsub(".xlsx", ".csv", infile)), skip =3, stringsAsFactor = F)
+    str(dat)
+    # 'data.frame':	1396 obs. of  167 variables:
+    # but most of the cols and a third of the rows are empty!
+    # check missings
+    dat2 <- data.frame(id = 1:nrow(dat), dat)
+    str(dat2)
+    # first if they are empty strings
+    dat2[dat2 == ""] <- NA
+    # now if NA
+    dat2[,2:ncol(dat2)] <- !is.na(dat2[,2:ncol(dat2)])
+    
+    # Truncate the hundreds of empty cols
+    str(dat2[,1:18])
+    tail(dat2[,1:18])
+    svg(file.path(outdir, gsub(".csv", ".svg", outfile))    )
+    misstable(dat2[,1:18])
+    dev.off()
+    browseURL(file.path(outdir, gsub(".csv", ".svg", outfile))    )
+    
+    # cool, that is an effective way to look at the data
+    
+#+end_src
+
+*** COMMENT misstable-code
+#+name:misstable
+#+begin_src R :session *R* :tangle R/misstable.R :exports none :eval no
+  #### name:misstable ####
+    
+  #Plot Function
+  misstable <- function(atable){
+   op <- par(bg = "white")
+   plot(c(0, 400), c(0, 1000), type = "n", xlab="", ylab="",
+       main = "Missing Data Table")
+  
+  
+   pmin=000
+   pmax=400
+   stre=pmax-pmin
+   lnames=length(atable)
+   cstep = (stre/lnames)
+   for(titles in 1:lnames){
+   text((titles-1) * cstep+pmin+cstep/2,1000,colnames(atable)[titles])
+   }
+  
+   gmax=900
+   gmin=0
+   gstre=gmax-gmin
+   rvec = as.vector(atable[[1]])
+   dnames=length(rvec)
+   step = gstre / dnames
+   for(rows in 1:dnames){
+   text(30,gmax - (rows-1)*step-step/2,rvec[rows])
+   ymax=gmax - (rows-1)*step
+   ymin=gmax - (rows)*step
+   for(col in 2:lnames-1){
+   if(atable[rows,col+1] == F){
+   tcolor = "red"
+   }
+   if(atable[rows,col+1] == T){
+   tcolor = "white"
+   }
+   rect((col) * (stre/lnames)+pmin, ymin, (col+1) * (stre/lnames)+pmin,
+   ymax,col=tcolor,lty="blank")
+   }
+   }
+  }
+  
+    
+#+end_src
+
+#+RESULTS: misstable
+
+*** COMMENT test-code
+#+name:test
+#+begin_src R :session *R* :tangle test.R :exports none :eval no
+  #### name:test ####
+    
+    
+   require(grDevices)
+      
+   # Make a quick dataframe with true/false representing data availability
+   locs=c("Australia","India","New Zealand","Sri Lanka","Uruguay","Somalia")
+   f1=c(T,F,T,T,F,F)
+   f2=c(F,F,F,T,F,F)
+   f3=c(F,T,T,T,F,T)
+   atable=data.frame(locs,f1,f2,f3)
+   atable
+   #Draw the table.
+   misstable(atable)
+  
+  dat <- read.csv("~/data/LTERN/kwrt_woodland_restoration/kwrt_birds_spring_2013_p12/kwrt_birds_spring_p12t312.csv")
+  dat[,2:ncol(dat)] <-  is.na(dat[,2:ncol(dat)])
+  dat[1:10,1:4]
+  names(dat) <- paste("V", 1:ncol(dat), sep = "")
+  nrow(dat)
+  str(dat)
+  png("misstable.png", height=1800, width = 3000, res = 200)
+  misstable(dat[1:100,])
+  dev.off()
+  browseURL("misstable.png")
 #+end_src
 
 * Data Operation
@@ -6623,6 +6757,28 @@ legend(-117, 44, legend=names(attr(colcode, "table")),
   
 #+end_src
 
+** 2015-10-28-use-google-geocoding-api-from-r
+~/projects/ivanhanigan.github.com.raw/_posts/2015-10-28-use-google-geocoding-api-from-r.md
+#+name:use-google-geocoding-api-from-r-header
+#+begin_src markdown :tangle no :exports none :eval no :padline no
+  ---
+name: use-google-geocoding-api-from-r
+  layout: post
+title: Use google geocoding API from R
+  date: 2015-10-28
+categories:
+  - disentangle
+- Data Operation
+  - R-spatial
+---
+  
+- Google have provided a geocoding API
+  - Using it from R is a cinch
+- Use of this means you agree to their terms which for my purposes pretty much means I
+  
+
+      
+#+end_src
 
 ** COMMENT aggregate-list-of-dfs
 #+name:aggregate
@@ -7360,6 +7516,51 @@ names(qc3) <-  paste("V", 1:13, sep = "")
   
 #+end_src
 
+** projecting rasters
+CSIRO blend 2005
+===
+
+```{r, eval = F}
+library(rgdal)
+
+indir <- "Q:/Research/Environment_General/CTM_CSIRO/CSIRO_blend_2005/data_provided"
+infile <- "blended_no2_24h.txt"
+
+#had to be copied to 
+indir <- "Q:/Research/Environment_General/CTM_CSIRO/CSIRO_blend_2005/data_derived"
+infile <- "blended_no2_24h.grid"
+'
+with the header changed to 
+ncols 61 
+nrows 61
+xllcenter 264623.000 
+yllcenter 6204784.00 
+cellsize 1500.00000
+(delete second 1500)
+and then 
+'
+outdir <- "Q:/Research/Environment_General/CTM_CSIRO/CSIRO_blend_2005/data_derived"
+outfile <- "blended_no2_24h.tif"
+
+ctm <- rgdal::readGDAL(file.path(indir, infile))
+str(ctm)
+epsg <- make_EPSG()
+names(epsg)
+epsg[grep("AMG zone 56", epsg$note),]
+crs <- epsg[grep("AGD84 / AMG zone 56", epsg$note),"prj4"]
+crs
+ctm2 <- raster(ctm)
+proj4string(ctm2) <- CRS(crs)
+
+str(ctm2)
+crs2 <- epsg[grep(4283, epsg$code),"prj4"]
+crs2
+# thought this was logical not character? use directly
+ctm3 <- projectRaster(ctm2, crs = "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs")
+str(ctm3)
+writeRaster(ctm3, file.path(outdir, outfile), drivername="GTiff")
+```
+
 * Statistical Modelling
 ** 2015-09-12-effect-modification-and-mediation
 *** intro
@@ -7449,6 +7650,335 @@ Code:
 ** p-values and garden of forking paths
 The p-value is the probability of seeing something at least as extreme as the data, if the null hypothesis were true.
 http://andrewgelman.com/2014/10/14/didnt-say-part-2/
+
+R doesn’t offer a pseudo-R^2 with ordinary poisson GLM)
+ 
+From: Keith Dear
+Sent: Thursday, 11 November 2010 6:16 PM
+To: Ivan Hanigan
+Subject: RE: Psuedo-R-Squared for poisson GLM in R
+ 
+I have run Dobson’s small dataset through Stata, as below (since I don’t have your data) to see what R2 values we get:
+ 
+. clear
+. input counts
+18
+17
+15
+20
+10
+20
+25
+13
+12
+. end
+. egen byte outcome=seq(), to(3)
+. egen byte treatment=seq(), to(3) block(3)
+. poisson counts outcome treatment
+ 
+Poisson regression                                Number of obs   =          9
+ 
+                                                  LR chi2(2)      =       2.57
+ 
+                                                  Prob > chi2     =     0.2773
+ 
+Log likelihood = -24.824068                       Pseudo R2       =     0.0491
+ 
+------------------------------------------------------------------------------
+ 
+      counts |      Coef.   Std. Err.      z    P>|z|     [95% Conf. Interval]
+ 
+-------------+----------------------------------------------------------------
+ 
+     outcome |  -.1606877   .1006457    -1.60   0.110    -.3579497    .0365744
+ 
+   treatment |  -4.77e-17         .1    -0.00   1.000    -.1959964    .1959964
+ 
+       _cons |   3.126198   .2880594    10.85   0.000     2.561612    3.690784
+ 
+------------------------------------------------------------------------------
+ 
+. ereturn list
+ 
+/*
+ 
+partial list of saved quantities:
+ 
+                e(ll) =  -24.82406763934515
+ 
+               e(ll_0) =  -26.10681159435371
+ 
+               e(df_m) =  2
+ 
+               e(chi2) =  2.565487910017119
+ 
+                  e(p) =  .2772754243649355
+ 
+               e(r2_p) =  .0491344548288688
+ 
+So the “pseudo R2” reported by Stata is just the proportional reduction
+ 
+in deviance (or log-likelihood): only 4.9%
+ 
+*/
+ 
+. di (e(ll_0) - e(ll)) / e(ll_0)
+ 
+.04913445
+ 
+ Now calculate the max possible LL: sum of log Poisson probability for each observation x,
+ 
+ if each x came from a Poisson distribution with mean mu=x (the "saturated model").
+ 
+ note Poisson probabilities are (mu^x)exp(-mu)/x!, and lngamma(x+1) = ln(x!).
+ 
+. gen lmin = counts*ln(counts) - counts - lngamma(counts+1)
+ 
+. qui sum lmin
+ 
+. di r(sum)
+ 
+-20.816089
+ 
+ How far has the model moved us towards that upper limit?
+ 
+. di (e(ll_0) - e(ll)) / (e(ll_0) - (-20.816089))
+ 
+.24245156
+ 
+ 24.2% is a bit different!!
+ 
+ Now the formula you found:
+ 
+. scalar dev=-2*e(ll)
+ 
+. scalar dev0=-2*e(ll_0)
+ 
+. scalar n=9
+ 
+. di (1-exp((dev-dev0)/n))/(1-exp(-dev0/n))
+ 
+.24877856
+ 
+ Very similar, though I don’t understand why (guess I should read Maddalla)
+ 
+Keith
+ 
+_____________________________________________
+From: Ivan Hanigan
+Sent: Wednesday, 10 November 2010 11:36 AM
+To: Keith Dear
+Subject: Psuedo-R-Squared for poisson GLM in R
+ 
+Thanks for this tip!
+ 
+There seem to be a few formulae available but this one seemed easiest.
+ 
+http://www.math.yorku.ca/Who/Faculty/Monette/S-news/0422.html
+ 
+Rsquared.glm <- function(o) {
+ 
+n <- length(o$residuals) # number of observations
+ 
+R2 <- (1 - exp((o$deviance - o$null.deviance)/n))/(1 - exp( - o$null.deviance/n))
+ 
+names(R2) <- "pseudo.Rsquared"
+ 
+R2
+ 
+}
+ 
+## poisson GLM from Dobson (1990) Page 93: Randomized Controlled Trial :
+ 
+counts <- c(18,17,15,20,10,20,25,13,12)
+ 
+outcome <- gl(3,1,9)
+ 
+treatment <- gl(3,3)
+ 
+print(d.AD <- data.frame(treatment, outcome, counts))
+ 
+glm.D93 <- glm(counts ~ outcome + treatment, family=poisson())
+ 
+Rsquared.glm(glm.D93)
+** 2015-10-31-decisions-to-make-when-modelling-interactions
+#+name:decisions-to-make-when-modelling-interactions-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-10-31-decisions-to-make-when-modelling-interactions.md :exports none :eval no :padline no
+  ---
+  name: decisions-to-make-when-modelling-interactions
+  layout: post
+  title: Decisions to make when modelling interactions
+  date: 2015-10-31
+  categories:
+  - disentangle
+  - statistical modelling
+  ---
+
+  This post focuses on decision making during statistical
+  modelling.  The case of investigating effect modification is used as
+  an example.  The analyst has several options available to them when
+  constructing the model parametrisation for adjustment to explain
+  modification effectively.  Unlike confounding (in which the criterion
+  of substantial magnitude change of the effect estimate when
+  controlling for a third variable can be easily assessed), models
+  including effect modification can be hard to interpret.  Taking
+  account of effect modification becomes increasingly important when
+  modelling complex interactions.
+  
+  If an effect moderator is present then the relationship between
+  exposure and response varies between different levels of the
+  moderator. An example is provided by a paper we published, in which the
+  relationship between proximity to wetlands and Ross River virus
+  infection was found to be different for towns and rural areas, where the
+  'urban' variable is the 'effect moderator'.
+  
+  There are three common ways for data analysts to address this question
+  in statistical models: 
+  
+  1. multiple models for each group, 
+  1. interaction terms or 
+  1. re-parametrisation to explicitly depict interactions.  
+
+
+  The first way is
+  to split apart the dataset and conduct separate analyses of multiple
+  groups. For example, one could run the regression in the urban zone
+  and the rural zone seperately and see if there were different exposure
+  response functions in the two models.  This was the approach of our paper.
+  This approach has the strength that it is simple to do and yeilds
+  results that are easy to interpret.  A limitation of this method is
+  that by splitting the dataset one loses degrees of freedom and
+  therefore statistical power.
+  
+  The second approach (which removes that limitation of the first option) is to
+  fit interaction terms.  The example shown in Figure 1 is a multiplicative interaction model (Brambor 2006). 
+  This  approach was not taken in the models reported in our paper, but can easily be implemented and shows that the function of distance was
+  estimated to have different 'slopes' in each of the dichotomous urban
+  groups.
+
+  The statistical method can be easily implemented in 
+  software by including a multiplicative term between two variables,
+  however in practice the resulting post estimation regression outputs
+  can be difficult to interpret.  For example, say one wants to calculate
+  the effect and standard error for exposure X on health outcome Y with
+  the interaction of the effect modifier Z.  The form of this model can
+  be written as:
+  
+  $$ Y ~ \beta_{1}X + \beta_{2}Z + \beta_{3}XZ $$
+
+
+  where B1, B2 and B3 are the regression coefficients estimated and  the term XZ is the interaction between exposure and effect modifier.
+  
+  The difficulty for interpretation comes when using this method for calculating the marginal effect of X on Y and the conditional standard error.  The specific method described in Brambor et al. is:
+    
+  1. Calculate the coefficients and the variance-covariance matrix from the regression model
+  2. The marginal effect is $\beta_{1} + \beta_{3}XZ$ where Z is the level of the 
+  modifying factor (0 or 1 in the dichotomous effect modifier case)
+  3. The conditional standard error is:
+  
+  $$\sqrt{var(\beta_{1}) + Z^2 var(\beta_{3}) + 2Zcov(\beta_{1}\beta_{3})}$$
+  
+  Therefore the strengths of this approach is that it does not reduce
+  degrees of freedom and is straightforward to specify the model in
+  standard statistical software packages. The limitations are related to
+  interpretation of the resulting coefficients for both the main effects and the marginal effects, and standard errors for these.
+  
+  The third approach available to analysts makes it easier to access the
+  resulting regression output.  This method was employed in Paper 1 in
+  the final modelling phase in which estimates were calculated for the
+  different drought exposure-response funcitons in each of the
+  sub-groups. In the terms of Figure \ref{fig:effectmod.png} it is simple to:
+    
+  1. Calculate X1 = X * Z (i.e = exposure for condition is met, zero otherwise)
+  1. Calculate X0 = X * (1-Z) (i.e. = exposure for NON-condition, zero for condition is TRUE)
+  1. Instead of X, Z and XZ, fit X1, X0 and Z.  This model also contains three parameters and captures the same interactions as it is the same model with a different parametrisation.  The standard errors for the X1 and X0 are calculated directly from the regression.
+  
+  This method is much easier to implement and interpret.  This is also
+  considerably more flexible than the other two approaches.  A
+  limitation remains for this method in that the pre-processing steps
+  required are more complicated, and there are inherently more
+  possibilities for the data analyst to make errors in writing their
+  code as they make these changes to the analytical data.  
+
+  ```
+  # Demonstrating this with the data from the paper (available in table 2)
+  ## the following code shows the different parametrisations for the effect modification by urban
+  ## we show that the coeffs and se are equivalent but that the psuedo-R
+  ## squared will be better when including all our data in stratified analysis
+  
+  # model 0 effect in eastern
+  d_eastern
+  fit <- glm(cases~ buffer + offset(log(1+pops)),family='poisson', data=d_eastern )
+  summa <- summary(fit)
+  summa
+  ## Coefficients:
+  ##             Estimate Std. Error z value Pr(>|z|)
+  ## (Intercept) -4.82425    0.14451 -33.382  < 2e-16 ***
+  ## buffer      -0.24702    0.07921  -3.119  0.00182 **
+  
+  # model 1 effect in urban
+  fit1 <- glm(cases~ buffer + offset(log(1+pops)),family='poisson', data=d_urban )
+  summa <- summary(fit1)
+  summa
+  ## Coefficients:
+  ##             Estimate Std. Error z value Pr(>|z|)
+  ## (Intercept) -5.52363    0.33354 -16.561   <2e-16 ***
+  ## buffer       0.03853    0.06352   0.607    0.544
+  
+  # step 1, combine the urban and rural data
+  d_eastern$urban <- 0
+  d_urban$urban <- 1
+  dat2 <- rbind(d_eastern, d_urban)
+  str(dat2)
+  dat2
+  
+  # model 2 is a multiplicative term
+  fit2 <- glm(cases ~ buffer * urban + offset(log(1+pops)), family = 'poisson', data = dat2)
+  summa <- summary(fit2)
+  summa
+  ## Coefficients:
+  ##              Estimate Std. Error z value Pr(>|z|)
+  ## (Intercept)  -4.82425    0.14451 -33.382  < 2e-16 ***
+  ## buffer       -0.24702    0.07921  -3.119  0.00182 **
+  ## urban        -0.69938    0.36350  -1.924  0.05435 .
+  ## buffer:urban  0.28555    0.10153   2.812  0.00492 **
+  
+  # the coeff on buffer is for urban = 0 is main effect
+  # the coeff on buffer:urban is for urban = 1 is the marginal effect
+  b1 <- summa$coeff[2,1]
+  b3 <- summa$coeff[4,1]
+  b1 + b3
+  # 0.0385268
+  # but what about that p-value?  and the se?
+  str(fit2)
+  fit2_vcov <- vcov(fit2)
+  fit2_vcov
+  # now calculate the conditional standard error for the marginal effect of buffer for the value of the modifying variable (Z, urban =1)
+  varb1<-fit2_vcov[2,2]
+  varb3<-fit2_vcov[4,4]
+  covarb1b3<-fit2_vcov[2,4]
+  Z<-1
+  conditional_se <- sqrt(varb1+varb3*(Z^2)+2*Z*covarb1b3)
+  conditional_se
+  
+  
+  
+  # model 3 is the re-parametrisation
+  dat2$buffer_urban <- dat2$buffer * dat2$urban
+  dat2$buffer_eastern <- dat2$buffer * (1-dat2$urban)
+  
+  fit3 <- glm(cases ~ buffer_urban + buffer_eastern + urban + offset(log(1+pops)), family = 'poisson', data = dat2)
+  summa <- summary(fit3)
+  summa
+  
+  ## Coefficients:
+  ##                Estimate Std. Error z value Pr(>|z|)
+  ## (Intercept)    -4.82425    0.14451 -33.382  < 2e-16 ***
+  ## buffer_urban    0.03853    0.06352   0.607  0.54416
+  ## buffer_eastern -0.24702    0.07921  -3.119  0.00182 **
+  ## urban          -0.69938    0.36350  -1.924  0.05435 .
+  ```  
+#+end_src
 
 * Workflow Tools
 
@@ -7915,6 +8445,11 @@ http://andrewgelman.com/2014/10/14/didnt-say-part-2/
     desc_col <- "descriptions"
   }
   
+  # sanitize any single quotes
+  for(i in 1:ncol(indat)){
+   indat[,i] <- gsub("'","", indat[,i]) 
+  }
+  
   if(!is.null(clusters_col)){
   cluster_ids <- names(table(indat[,clusters_col]))
   #cluster_ids
@@ -8044,12 +8579,12 @@ http://andrewgelman.com/2014/10/14/didnt-say-part-2/
 #+begin_src R :session *R* :tangle tests/test-newnode.r :exports none :eval yes
   
   library(devtools)
-  document()
+  #document()
   load_all()
   library(stringr)
   ## filesList <- read.csv(textConnection('
-  ## CLUSTER ,  FILE    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
-  ## A  ,  siteIDs      , "GPS, helicopter"          , "spatial, site doco"                 , latitude and longitude of sites  
+  ## CLUSTER ,  STEP    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
+  ## A  ,  Ivan\'s siteIDs      , "Ivan\'s GPS, helicopter"          , "Ivan\'s spatial, site doco"                 , "Ivan\'s latitude and longitude of sites"
   ## A  ,  weather      , BoM                       , exposures                              , weather data from BoM            
   ## B  ,  trapped      , spatial                   , trapped_no                             , counts of species caught in trap 
   ## B  ,  biomass      , spatial                   , biomass_g                              ,                                  
@@ -8061,8 +8596,7 @@ http://andrewgelman.com/2014/10/14/didnt-say-part-2/
   filesList <- read.csv("fileTransformations.csv", stringsAsFactors = F, strip.white = T)
   
   str(filesList)
-  # filesList
-  
+  #filesList$STATUS <- "TODO"
   nodes <- newnode(
     indat = filesList
     ,
@@ -8080,6 +8614,7 @@ http://andrewgelman.com/2014/10/14/didnt-say-part-2/
     ,
     nchar_to_snip = 40
     )
+  DiagrammeR::grViz(nodes)
   
   sink("fileTransformations.dot")
   cat(nodes)
@@ -8762,6 +9297,177 @@ system("dot -Tpdf fig-basic.dot -o fig-basic.pdf")
     
 #+end_src
 
+** 2015-10-23-keeping-an-electronic-lab-notebook-for-computational-statistics-projects
+*** blog
+#+name:keeping-an-electronic-lab-notebook-for-computational-statistics-projects-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-10-23-keeping-an-electronic-lab-notebook-for-computational-statistics-projects.md :exports none :eval no :padline no
+---
+name: keeping-an-electronic-lab-notebook-for-computational-statistics-projects
+layout: post
+title: Keeping an electronic lab notebook for computational statistics projects
+date: 2015-10-23
+categories:
+- disentangle
+- Workflow tools
+---
+
+- In my previous post on this topic [http://ivanhanigan.github.io/2015/10/how-to-effectively-implement-electronic-lab-notebooks-in-epidemiology/](http://ivanhanigan.github.io/2015/10/how-to-effectively-implement-electronic-lab-notebooks-in-epidemiology/) I summarised some recommendations for electronic lab notebooks 
+- I've collated from a variety of sources for managing computational statistics projects in a reproducible research Pipelines
+- One thing I found while reading the literature around this topic is that the concepts are difficult to really grasp until I see them being used
+- The example worklog from Scott Long was a good insight into his method, that I really got more out of the figure below than from descriptions of the concept
+- screen shot taken from Long, S. (2012). Principles of Workflow in Data Analysis. Retrieved from [http://www.indiana.edu/~wim/docs/2012-long-slides.pdf](http://www.indiana.edu/~wim/docs/2012-long-slides.pdf) (accessed 2015-10-23).
+
+![/images/worklog-long.png](/images/worklog-long.png)
+
+<p></p>
+
+- I added a red box around an important aspect of this example, the communication of gory details, that are often difficult to track if not using a notebook to log our work
+- ARGH! indeed.
+
+## Replication from Noble's description
+- That looks good, but I also really liked the description in Noble's paper where scripts that do computations are linked to log entries
+- This was something that I felt I wanted to see in action
+- Without an example online, I had to have a go at creating one from the instructions
+- I also had to make some modifications to the method because I want to have this set up work in a multidisciplinary team with some users on windows and others on linux, sharing the project on a network folder
+
+
+## My paraphrasing of Noble's description
+
+- Worklog: this is the main file, like a 'lab notebook' for the analyst to track their work.  This  document resides in the root of the project directory and records your progress in detail. Entries in the notebook should be dated, and they should be relatively verbose, with links or embedded images or tables displaying the results of the experiments that you performed. In addition to describing precisely what you did, the notebook should record your observations, conclusions, and ideas for future work
+- For group work, this can also contain a 'working' folder for each person to store their messy day-to-day files that we don't want to clutter up the main folder (eg 'working_ivan')
+
+Conventions I used for writing the worklog entries are:
+
+- Names follow this structure [**] [date in ISO 8601 YYYY-MM-DD] [meeting/notes/results] [with/from UserName] [Re: topic shortname]
+- 'meetings' are for both agenda preparation and also notes of discussion
+- 'notes' are such things as emailed information or ad hoc Discovery
+- 'results' are entries related to a section of the 'results' folder. That is, this kind of entry is in parallel to the results entry (see below), however the log contains a prose description of the experiment, whereas the results folder contains scripts etc of all the gory details.
+
+## Tests
+- I use Emacs on linux for most of my work but I need to share with windows users so tested out keeping the log in a MS word doc.  This got corrupted quickly I think because I edited in Libre office.
+- I decided to try and just use a plain text format 
+- text files created in Ubuntu are so difficult to understand (read) when opened in Windows' Notepad. No matter how many lines have been used, all the lines appear in the same one line.
+To set the buffer coding to DOS style issue:
+
+`M-x set-buffer-file-coding-system utf-8-dos`
+
+### a couple of examples
+
+- As this is a plain text document opening it in emacs will not automatically render it in the Orgmode fashion
+- To achieve this the command is `M-x org-mode` and the file looks like below
+
+![/images/worklog-ivan1.png](/images/worklog-ivan1.png)
+<p></p>
+
+- From here I can keep adding new entries at the bottom, and have a section for URGENT ACTION a the top
+- Orgmode can expand the entries by moving to that line and hitting TAB, or use the command `C-u C-u C-u TAB` to expand all branches
+
+
+![/images/worklog-ivan2.png](/images/worklog-ivan2.png)
+<p></p>
+
+
+## the 'Experiment Results' level is about work you might do on a single day, or over a week or two
+
+- Each results subfolder would have workflow scripts that does the work
+- At this level each 'experiment' is written up in chronological order
+- It is recommended to store every command used while performing the experiment preferably as an executable script that carries out the entire experiment automatically
+- you should end up with a file that is parallel to the worklog entry
+- The worklog contains a prose description of the experiment, whereas the driver script contains all the gory details
+- this is the level I usually think of the distribution side of things
+-  You may want to pack up the results from one of these folders and email it to the collaborators, or decide on the one set of tables and figures to write into the manuscript for submission to a journal
+- If this is accepted for publication, this is the one combined package of 'analytical data and code' that I would consider putting up online as supporting information for the paper.
+
+### Example
+
+- I followed Noble's advice to create a driver script to set up the folder structure:
+- it is in my Github R package `disentangle`
+
+```
+> dir.create("exposures_blending")
+> setwd("exposures_blending")
+> disentangle::AdminTemplate()
+[1] TRUE
+> dir.create("results")
+> setwd("results")
+> makeProject::makeProject("2015-10-23-preliminary-modelling")
+Creating Directories ...
+Creating Code Files ...
+Complete ...
+> 
+```
+
+This populates the folders as shown below
+
+![/images/worklog-ivan3.png](/images/worklog-ivan3.png)
+<p></p>
+
+
+## Conclusions
+
+- I feel pretty happy with this as a replication of Noble's method
+- My colleagues can look at my work and see a high level log that links to the gory details of day to day life in the trenches
+- The only downside I can see at the moment is that my colleagues on windows will see a text file that is pretty dense, and will not be as easy to navigate as a word document (or emacs org file)
+- Perhaps notepad++ can be used instead.  On my windows machine I did a quick experiment with NPP and found that under the Language menu > Define your language there is a method to define code folding with ** as the opening.  Just need to define a closing tag.  I experimented with '---' which might be good, but ultimately I don't think my colleagues are going to want to do this on their machines.
+    
+#+end_src
+*** eg
+**** 2015-10-21 meeting with PI and statistician Re: study design
+- Meeting to identify the key deliverable will be a journal paper
+- Study type will be time-series
+- Data sets collected/used will be the survey and the weather data
+- Study population inclusion and exclusion criteria will be discussed later
+- Exposure variables will focus on extreme weather
+- Outcome measure will be self reported health
+- Covariates: need to consider potential confounders or effect modifiers from readings
+- Action 1: statistician will email an expert they know from related project
+
+**** 2015-10-22 notes from expert statistician Re: methods review for model
+On Thu, Oct 22, 2015 at 6:01 PM, Expert <a.expert@somewhere.edu.au> wrote:
+> Sounds good.
+>
+> Sent from my iPhone
+>
+> On 22 Oct 2015, at 14:00, "statistician" <statistician@somewhere.edu.au> wrote:
+>
+> Hi Expert,
+> Just introducing you to Ivan Hannigan who works with me.
+
+> We are working on a seed project looking at comparing/blending exposure models, 
+> and Ivan will be driving our model in the project.
+
+> Ivan may have a couple of stats questions re: the model build that are best
+> addressed to you, hence this email.
+
+> Any help you could offer would be much appreciated!
+> Cheers,
+
+**** 2015-10-23 results from Ivan Re: preliminary modelling
+Project directory is:
+~/projects/exposure_blending/results/2015-10-23-preliminary-modelling/
+
+Aims:
+- summarise understanding of model
+- add in exploratory results of the test data 
+- TODO write a short synopsis for discussion at next meeting
+
+Email to statistician:
+
+From: Ivan Hanigan <ivan.hanigan@gmail.com>
+Date: Fri, Oct 23, 2015 at 12:10 PM
+Subject: Blending exposures project, preliminary modelling
+To: statistician@somewhere.edu.au
+
+
+Dear Statistician,
+Here are some these preliminary results.
+I attach a Rmarkdown report of my explorations of the data and
+my conceptual understanding about how the modelling workflow will proceed.  
+
+I hope it makes sense.
+
+
+
 * Reproducible Research Reports
 
 ** 2015-09-16-reproducible-research-reports-with-rmarkdown-and-latex-for-stylish-reports
@@ -9268,7 +9974,7 @@ This model of the research pipeline sees a new relationship possible between the
 #+end_src
 
 #+RESULTS: Rmd
-: /home/ivan_hanigan/tools/disentangle/CitationsInRmarkdown.html
+: /home/ivan_hanigan/projects/ivanhanigan.github.com.raw/rmarkdown_utils/CitationsInRmarkdown_sanitize_mendeley.html
 
 *** rmd
 #+name:Rmd
@@ -9613,6 +10319,125 @@ NB also that the csl file in petrkeil's repo is an older version from 2012 of th
 
 #+end_src
 
+** 2015-10-24-sanitize-mendeley-references-in-r-markdown-reporting
+#+name:sanitize-mendeley-references-in-r-markdown-reporting-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-10-24-sanitize-mendeley-references-in-r-markdown-reporting.md :exports none :eval no :padline no
+---
+name: sanitize-mendeley-references-in-r-markdown-reporting
+layout: post
+title: Sanitize mendeley references in r markdown reporting
+date: 2015-10-24
+categories:
+- disentangle 
+- Reproducible Research Reports
+---
+
+A key challenge for Reproducible Research Reports in Rmarkdown remains adequate scholarly citation management; the machinery of scholarly citations and references. 
+
+The `knitcitations` R package does a great job of working with bibtex bibliography files, however the bibtex manager that I use is Mendeley and it has implemented some rules on the way it handles special characters that forces the bibtex references into a state with some 'escaped' elements that breaks their presentation via `knitcitations`.
+
+This is a post from my open notebook that shows the workaround I am using for sanitizing the Mendeley escaped underscores in URLS.
+
+Here is an example:
+
+<p>There is considerable public health impact from the effects on mental of drought <span class="citation">(<span>Sarathi Biswas</span> 2012)</span>. It is proposed that the best method to disentangle the multifactorial nature of this causal mechanism is the ‘five-capitals’ framework, indeed this method may even enable understanding the human carrying capacity of ecosystems <span class="citation">(McMichael &amp; Butler 2002)</span>.</p>
+
+<p>McMichael, A.J. &amp; Butler, C.D. (2002). Global health trends: Evidence for and against sustainable progress. <em>International Union for the Scientific Study of Population Committee on Emerging Health Threats</em>. <a href="http://www.demogr.mpg.de/papers/workshops/020619{\_}paper25.pdf">http://www.demogr.mpg.de/papers/workshops/020619{\_}paper25.pdf</a> [21 Sep. 2003]</p>
+<p><span>Sarathi Biswas</span>, P. (2012). Alcohol, drought lead to farmer’s suicide. <em>Daily News and Analysis</em>. <a href="http://www.dnaindia.com/pune/report{\_}alcohol-drought-lead-to-farmers-suicide{\_}1688976">http://www.dnaindia.com/pune/report{\_}alcohol-drought-lead-to-farmers-suicide{\_}1688976</a> [17 May 2012]</p>
+
+
+
+<p></p>
+
+## See those pesky curly braces `{` and `}` around the underscores?
+
+
+
+## The fix
+The fix I am using is to sanitize each record where this is an issue as I build my document, so the mendeley version stays as-is, while the R version has been sanitized by removing the escape characters.
+
+```
+# read mendeley bibtex file
+bib <- read.bibtex("~/references/library.bib")
+# ad hoc fix
+for(bibkey in c("SarathiBiswas2012", "Mcmichael2002a")){
+  bib[ [ bibkey ] ]$url <- gsub("\\{\\\\_\\}","_", bib[ [ bibkey ] ]$url)
+}
+```
+
+
+This is the result:
+
+<p>McMichael, A.J. &amp; Butler, C.D. (2002). Global health trends: Evidence for and against sustainable progress. <em>International Union for the Scientific Study of Population Committee on Emerging Health Threats</em>. <a href="http://www.demogr.mpg.de/papers/workshops/020619_paper25.pdf">http://www.demogr.mpg.de/papers/workshops/020619_paper25.pdf</a> [21 Sep. 2003]</p>
+<p><span>Sarathi Biswas</span>, P. (2012). Alcohol, drought lead to farmer’s suicide. <em>Daily News and Analysis</em>. <a href="http://www.dnaindia.com/pune/report_alcohol-drought-lead-to-farmers-suicide_1688976">http://www.dnaindia.com/pune/report_alcohol-drought-lead-to-farmers-suicide_1688976</a> [17 May 2012]</p>
+
+<p></p>
+
+#+end_src
+
+*** COMMENT Rmd-code
+#+name:Rmd
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/rmarkdown_utils/CitationsInRmarkdown_sanitize_mendeley.Rmd :exports none :eval no
+  ---
+  title: "Sanitizing Mendeley citations in Rmarkdown"
+  author: Ivan C. Hanigan
+  output: html_document
+  csl: meemodified.csl
+  bibliography: refssanitized.bib
+  ---
+  
+  ```{r, echo=F, eval = F}
+#+end_src
+*** go
+#+name:Rmd
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/rmarkdown_utils/CitationsInRmarkdown_sanitize_mendeley.Rmd :exports none :eval yes
+  # func
+  setwd("~/projects/ivanhanigan.github.com.raw/rmarkdown_utils")
+  library(rmarkdown)
+  library(knitr)
+  library(knitcitations)
+  library(bibtex)
+  cleanbib()
+  rm("bib")
+  #bib <- read.bibtex("~/references/library.bib")
+  
+  #options("cite_format"="pandoc")
+  cite_options(citation_format = "pandoc", check.entries=FALSE)
+  rmarkdown::render("~/projects/ivanhanigan.github.com.raw/rmarkdown_utils/CitationsInRmarkdown_sanitize_mendeley.Rmd", "html_document")
+#+end_src
+
+#+RESULTS: Rmd
+: /home/ivan_hanigan/tools/disentangle/CitationsInRmarkdown.html
+
+*** rmd
+#+name:Rmd
+#+begin_src R :session *R* :tangle ~/projects/ivanhanigan.github.com.raw/rmarkdown_utils/CitationsInRmarkdown_sanitize_mendeley.Rmd :exports none :eval no
+  ```
+  
+  ```{r, echo = F, eval = T}
+  # load my main bib file, generated from Mendeley
+  if(!exists("bib")){
+  bib <- read.bibtex("~/references/library.bib")
+  # ad hoc fix
+  for(bibkey in c("SarathiBiswas2012",
+    "Mcmichael2002a"  
+  )){
+  bib[[bibkey]]$url <- gsub("\\{\\\\_\\}","_", bib[[bibkey]]$url)
+  }
+  
+  }
+  ```
+  
+  There is considerable public health impact from the effects on mental of drought `r citep(bib[["SarathiBiswas2012"]])`.  It is proposed that the best method to disentangle the multifactorial nature of this causal mechanism is the 'five-capitals' framework, indeed this method may even enable understanding the human carrying capacity of ecosystems `r citep(bib[["Mcmichael2002a"]])`. 
+  
+  
+  ```{r, echo=FALSE, message=FALSE, eval = T}
+  write.bibtex(file="refssanitized.bib")
+  ```
+  # References  
+#+end_src
+
+
 * Writing
 ** One-pager
 focus
@@ -9734,6 +10559,11 @@ I’ve been trying to do this more often, for example in this 2011 article on th
 Still, I think the necessity of clearing-away-the-old creates an additional degree of difficulty in much of academic writing.
 
 What I found exciting in Pinker’s note above was his connection of this vague idea, which I arrived at by introspection, to research in cognition.
+** share txt files linux to Windows
+text files created in Ubuntu are so difficult to understand (read) when opened in Windows' Notepad. No matter how many lines have been used, all the lines appear in the same one line.
+To set the buffer coding to DOS style issue Meta + x :
+M-x set-buffer-file-coding-system utf-8-dos
+
 * Blogging
 *** COMMENT blog-code
 #+name:blog

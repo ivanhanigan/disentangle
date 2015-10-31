@@ -4,8 +4,8 @@ document()
 load_all()
 library(stringr)
 ## filesList <- read.csv(textConnection('
-## CLUSTER ,  FILE    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
-## A  ,  siteIDs      , "GPS, helicopter"          , "spatial, site doco"                 , latitude and longitude of sites  
+## CLUSTER ,  STEP    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
+## A  ,  Ivan\'s siteIDs      , "Ivan\'s GPS, helicopter"          , "Ivan\'s spatial, site doco"                 , "Ivan\'s latitude and longitude of sites"
 ## A  ,  weather      , BoM                       , exposures                              , weather data from BoM            
 ## B  ,  trapped      , spatial                   , trapped_no                             , counts of species caught in trap 
 ## B  ,  biomass      , spatial                   , biomass_g                              ,                                  
@@ -17,8 +17,7 @@ library(stringr)
 filesList <- read.csv("fileTransformations.csv", stringsAsFactors = F, strip.white = T)
 
 str(filesList)
-# filesList
-
+#filesList$STATUS <- "TODO"
 nodes <- newnode(
   indat = filesList
   ,
@@ -36,6 +35,7 @@ nodes <- newnode(
   ,
   nchar_to_snip = 40
   )
+DiagrammeR::grViz(nodes)
 
 sink("fileTransformations.dot")
 cat(nodes)
