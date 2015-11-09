@@ -1,7 +1,8 @@
 
-library(devtools)
-document()
-load_all()
+library(disentangle)
+#library(devtools)
+#document()
+#load_all()
 library(stringr)
 ## filesList <- read.csv(textConnection('
 ## CLUSTER ,  STEP    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      

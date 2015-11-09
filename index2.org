@@ -6757,6 +6757,16 @@ legend(-117, 44, legend=names(attr(colcode, "table")),
   
 #+end_src
 
+*** COMMENT 2015-11-05-kriging
+#+name:2015-11-05-kriging
+#+begin_src R :session *R* :tangle 2015-11-05-kriging.R :exports none :eval no
+#### name:2015-11-05-kriging ####
+http://www4.stat.ncsu.edu/~reich/CUSP/Ordinary_Kriging_in_R.pdf
+http://r-video-tutorial.blogspot.com.au/2015/08/spatio-temporal-kriging-in-r.html
+uses gstat
+
+#+end_src
+
 ** 2015-10-28-use-google-geocoding-api-from-r
 ~/projects/ivanhanigan.github.com.raw/_posts/2015-10-28-use-google-geocoding-api-from-r.md
 #+name:use-google-geocoding-api-from-r-header
@@ -8577,10 +8587,10 @@ Rsquared.glm(glm.D93)
 *** COMMENT test-newnode
 
 #+begin_src R :session *R* :tangle tests/test-newnode.r :exports none :eval yes
-  
-  library(devtools)
+  library(disentangle)
+  #library(devtools)
   #document()
-  load_all()
+  #load_all()
   library(stringr)
   ## filesList <- read.csv(textConnection('
   ## CLUSTER ,  STEP    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
@@ -8901,6 +8911,207 @@ Rsquared.glm(glm.D93)
 #+end_src
 
 
+
+** R-newnode_org_beamer
+*** COMMENT newnode_org_beamer
+#+name:newnode_rmd
+#+begin_src R :session *R* :tangle R/newnode_org_beamer.R :exports none :eval no
+  #' @title newnode_rmd
+  #' @name newnode_rmd
+  #' @param indat the input data.frame
+  #' @param names_col the name of each edge (the boxes)
+  #' @param in_col the name of the nodes that are inputs to each edge with comma seperated vals.  whitespace will be stripped
+  #' @param out_col the nodes that are outputs of each edge.
+  #' @param desc_col description
+  #' @param clusters_col optional column identifying clusters
+  #' @param todo_col optional column with TODO status (DONE and WONTDO will be white, others are red)
+  #' @return character string object that has the DOT language representatio of the input
+  #' @export
+  newnode_org_beamer <- function(indat = NULL,names_col = NULL,in_col = NULL,out_col = NULL,desc_col = NULL,clusters_col = NULL, todo_col = NULL, nchar_to_snip = 40){
+  if (is.null(names_col)) stop("Names of the steps are needed")
+  if (is.null(in_col)) stop("Inputs are needed")
+  if (is.null(out_col)) stop("Outputs are needed")
+  if (is.null(desc_col)){
+    print("Descriptions are strongly recommended, we\'re creating empty records for you")
+    indat$descriptions <- ""
+    desc_col <- "descriptions"
+  }
+  
+    indat2 <- indat
+    nodes_graph  <- ""
+  #  indat2
+      for(i in 1:nrow(indat2)){
+        # i <- 1
+        #i
+        indat2[i,]
+        name <- indat2[i,names_col]
+        desc <- indat2[i,desc_col]
+  
+        #if(nchar(name) > 140) print("that's a long name. consider shortening this")
+        #if(nchar(desc) > nchar_to_snip) desc <- paste(substr(desc, 1, nchar_to_snip), "[...]")
+        name2paste <- paste('', name, ':', sep = "")
+        inputs <- unlist(lapply(strsplit(indat2[i,in_col], ","), str_trim))      
+        inputs <- paste('## inputs\n',
+                        paste("- ", inputs, '\n',
+                                              sep = "", collapse = "")
+                        , collapse = "\n", sep = "")
+  #      cat(inputs)
+  #      inputs_listed <- paste(inputs, name2paste, sep = ' -> ', collapse = "\n")
+        #cat(inputs_listed)
+        outputs <- unlist(lapply(strsplit(indat2[i,out_col], ","), str_trim))
+        outputs <- paste('## outputs\n',
+                        paste("- ", outputs, '\n',
+                                              sep = "", collapse = "")
+                        , collapse = "\n", sep = "")      
+  #      outputs <- paste('"', outputs, '"', sep = "")  
+  #      outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
+  #      cat(outputs)
+  ## if(!is.na(todo_col)){
+  ##   status <- indat2[i,todo_col]
+         
+  ## strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description | Status } | { %s | %s | %s } }}"]\n%s\n\n',
+  ##                  inputs_listed, name2paste, name, desc, status, outputs_listed
+  ##                  )
+  ##       # cat(strng)
+  ##       if(!status %in% c("DONE", "WONTDO")){ 
+  ##         strng <- gsub("shape=record,", "shape=record, style = \"filled\", color=\"indianred\",", strng)
+  ##       }
+  ## } else {
+  strng <- sprintf('** %s\n# %s\n## Description\n\n%s\n\n%s\n\n%s\n\n',
+                   name2paste, name2paste,  desc, inputs, outputs
+                   )
+  names(indat2)  <- toupper(names(indat2))      
+  if(indat2[i,"GRAPH"] != ""){
+  strng <- sprintf('%s\n** %s graph\n# %s graph\n\n\\begin{figure}[!h]\n\\centering\n\\includegraphics[width=%s\\textwidth]{%s}\n\\end{figure}\n',
+                   strng,
+                   name2paste, name2paste,
+                   indat2[i,"GRAPH_SIZE"], indat2[i,"GRAPH"]
+                   )
+  
+  }
+  #cat(strng)
+  #nodes_graph  <- ""      
+        nodes_graph <- paste(nodes_graph, strng, "\n", sep = '')
+        cat(nodes_graph)
+  #}
+  }
+  nodes_graph <- paste("---\ntitle: Test report of Workflow
+  author: Ivan Hanigan
+  output:
+    html_document:
+      toc: true
+      theme: united
+      number_sections: yes
+  documentclass: article
+  classoption: a4paper\n---\n",
+                       nodes_graph,
+                       "\n", sep = '')
+  
+  #help_text <- c('# to run this graph
+  #sink("fileTransformations.dot")
+  #cat(nodes_graph)
+  #sink()
+  #system("dot -Tpdf fileTransformations.dot -o fileTransformations.pdf")
+  #')
+  #cat(help_text)
+  return(nodes_graph)
+  }
+  
+#+end_src
+
+*** COMMENT test-df-input-code3
+#+name:test-df-input
+#+begin_src R :session *R* :tangle no :exports none :eval yes
+  #### name:test-df-input####
+  library(devtools)
+  load_all()
+  library(stringr)
+  ## filesList <- read.csv(textConnection('
+  ## CLUSTER ,  FILE    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
+  ## A  ,  siteIDs      , "GPS, helicopter"          , "spatial, site doco"                 , latitude and longitude of sites  
+  ## A  ,  weather      , BoM                       , exposures                              , weather data from BoM            
+  ## B  ,  trapped      , spatial                   , trapped_no                             , counts of species caught in trap 
+  ## B  ,  biomass      , spatial                   , biomass_g                              ,                                  
+  ## B  ,  correlations , "exposures,trapped_no,biomass_g" , report1                         , A study we published             
+  ## C  ,  paper1       , report1                   , "open access repository, data package" ,                                  
+  ## D  ,  biomass revision, new estimates          , biomass_g                              , this came late
+  ## '), stringsAsFactors = F, strip.white = T)
+  #write.csv(filesList, "fileTransformations.csv", row.names = F)
+  filesList <- read.csv("fileTransformations.csv", stringsAsFactors = F, strip.white = T)
+  dir()
+  str(filesList)
+  # filesList
+  
+  txt2 <- newnode_org_beamer(
+    indat = filesList
+    ,
+    names_col = "STEP"
+    ,
+    in_col = "INPUTS"
+    ,
+    out_col = "OUTPUTS"
+    ,
+    desc_col = "DESCRIPTION"
+    ,
+    clusters_col = "CLUSTER"
+    ,
+    todo_col = NA #"STATUS"
+    ,
+    nchar_to_snip = 40
+    )
+  
+  txt2 <-  gsub("## Description\n", " ", txt2)
+  txt2 <-  gsub("## outputs", "\n\n## Outputs:", txt2)
+  txt2 <-  gsub("## inputs", "\n\n## Inputs:", txt2)
+  txt2 <-  gsub("classoption: a4paper", "* Workflow steps:", txt2)
+  txt2 <-  gsub("---", "## COMMENT snip", txt2)
+  
+  txt2 <-  gsub("##", "****", txt2)
+  txt2 <-  gsub("#", "***", txt2)
+  
+  cat(txt2)
+  #   '+latex_header: \\AtBeginSection[]{\\begin{frame}<beamer>\\frametitle{Topic}\\tableofcontents[currentsection]\\end{frame}}  
+  header <- paste("'+TITLE:     A test presentation
+  '+AUTHOR:    Ivan Hanigan
+  '+EMAIL:     ivan.hanigan@gmail.com
+  '+DATE:      ",Sys.Date(),"
+  '+DESCRIPTION:
+  '+KEYWORDS:
+  '+LANGUAGE:  en
+  '+OPTIONS:   H:3 num:t toc:t \\n:nil @:t ::t |:t ^:t -:t f:t *:t <:t
+  '+OPTIONS:   TeX:t LaTeX:t skip:ninl d:nil todo:t pri:nil tags:not-in-toc
+  '+INFOJS_OPT: view:nil toc:nil ltoc:t mouse:underline buttons:0 path:http://orgmode.org/org-info.js
+  '+EXPORT_SELECT_TAGS: export
+  '+EXPORT_EXCLUDE_TAGS: noexport
+  '+LINK_UP:   
+  '+LINK_HOME: 
+  '+XSLT:
+  '+LaTeX_CLASS: beamer
+  '+BEAMER_HEADER_EXTRA: \\institute[UCRH]{University of Sydney}
+  '+LaTeX_CLASS_OPTIONS: [bigger]
+  '+latex_header: \\mode<beamer>{\\usetheme{default}}
+  '+latex_header: \\usecolortheme{beaver}
+  '+latex_header: \\usepackage{verbatim}
+  '+latex_header: \\setbeamertemplate{headline}{}
+  '+latex_header: \\setbeamertemplate{navigation symbols}{}
+  '+BEAMER_FRAME_LEVEL: 3
+  '+COLUMNS: %40ITEM %10BEAMER_env(Env) %9BEAMER_envargs(Env Args) %4BEAMER_col(Col) %10BEAMER_extra(Extra)
+  ,* Introduction
+  ,** Introduction
+  ,*** Introduction
+  - The idea is that a table of steps, inputs and outputs can produce a graph, script, presentation and report
+  ,** Aims
+  ,*** Aims
+  This is a test
+  ", sep = "")
+  dir()
+  
+  sink("fileTransformations_pres.org")
+  cat(gsub("'", "#", header))
+  cat(txt2)
+  sink()
+  
+#+end_src
 
     
 ** 2013-11-25-setting-up-a-workflow-script

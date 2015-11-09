@@ -1,10 +1,10 @@
-"CLUSTER","STEP","INPUTS","OUTPUTS","DESCRIPTION","STATUS"
-"A","site_ids","GPS, helicopter","spatial, site doco","Ivan's latitude and longitude of sites","DONE"
-"A","weather","BoM","exposures","weather data from BoM","TODO"
-"B","trapped","spatial","trapped_no","counts of species caught in trap",
-"B","biomass","spatial","biomass_g",,
-"B","correlations","exposures,trapped_no,biomass_g","report1","A study we published",
-"C","Paper 1","report1, site doco, spatial","open access repository, data package",,"WONTDO"
-"D","biomass revision","new estimates","biomass_g","this came late",
-"E","a new cluster","biomass_g, data package","Paper 2","another thing todo",
-"E","a step in this cluster","Paper 2, open access repository","new repo",,
+"CLUSTER","STEP","INPUTS","OUTPUTS","DESCRIPTION","STATUS","GRAPH","GRAPH_SIZE"
+"A","site_ids","GPS, helicopter","spatial, site doco","Ivan's latitude and longitude of sites","DONE","suicide-drought.png",0.7
+"A","weather","BoM","exposures","weather data from BoM","TODO",,
+"B","trapped","spatial","trapped_no","counts of species caught in trap",,,
+"B","biomass","spatial","biomass_g",,,,
+"B","correlations","exposures,trapped_no,biomass_g","report1","A study we published",,"reproduce-donlelek.png",0.4
+"C","Paper 1","report1, site doco, spatial","open access repository, data package",,"WONTDO",,
+"D","biomass revision","new estimates","biomass_g","this came late",,,
+"E","a new cluster","biomass_g, data package","Paper 2","another thing todo",,,
+"E","a step in this cluster","Paper 2, open access repository","new repo",,,,
