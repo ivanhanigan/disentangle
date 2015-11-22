@@ -8588,9 +8588,10 @@ Rsquared.glm(glm.D93)
 
 #+begin_src R :session *R* :tangle tests/test-newnode.r :exports none :eval yes
   library(disentangle)
-  #library(devtools)
+  library(devtools)
   #document()
   #load_all()
+  source("R/newnode.r")
   library(stringr)
   ## filesList <- read.csv(textConnection('
   ## CLUSTER ,  STEP    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
@@ -8606,7 +8607,10 @@ Rsquared.glm(glm.D93)
   filesList <- read.csv("fileTransformations.csv", stringsAsFactors = F, strip.white = T)
   
   str(filesList)
-  #filesList$STATUS <- "TODO"
+  nrow(filesList)
+  filesList$COL <- c("red", "yellow", "blue", "green", "orange", "blue", "red", "red", "blue")
+  filesList[,c("STEP", "COL")]
+  
   nodes <- newnode(
     indat = filesList
     ,
@@ -8623,6 +8627,8 @@ Rsquared.glm(glm.D93)
     todo_col = "STATUS"
     ,
     nchar_to_snip = 40
+    ,
+    colour_col = "COL"
     )
   DiagrammeR::grViz(nodes)
   
@@ -8636,6 +8642,43 @@ Rsquared.glm(glm.D93)
   
 #+end_src
 
+** 2015-11-17-a-picture-of-the-newnode-function-for-workflow-visualisation-in-r
+#+name:a-picture-of-the-newnode-function-for-workflow-visualisation-in-r-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-11-17-a-picture-of-the-newnode-function-for-workflow-visualisation-in-r.md :exports none :eval no :padline no
+  ---
+  name: a-picture-of-the-newnode-function-for-workflow-visualisation-in-r
+  layout: post
+  title: a-picture-of-the-newnode-function-for-workflow-visualisation-in-r
+  date: 2015-11-17
+  categories:
+  - disentangle 
+  tags:
+  - workflow tools
+  ---
+
+  ## Newnode: An R function for visualising workflows
+  
+  The scientific workflow concept is essentially a pipeline.  The method step is the key atomic unit of a scientific pipeline.  It consists of inputs, outputs and a rationale for why the step is taken.
+  
+  A simple way to keep track of the steps, inputs and outputs is shown in Table below:
+  
+  ```
+  CLUSTER ,  STEP       , INPUTS                   , OUTPUTS                   
+  A  ,       Step1      , "Input 1, Input 2"       , Output 1                 
+  A  ,       Step2      ,  Input 3                 , Output 2                   
+  B  ,       Step3      , "Output 1, Output 2"     , Output 3                  
+  ```  
+  
+  The steps and data listed in this way can be visualised.
+  To achieve this an R function was written as part of my PhD project and is distributed in the R package available on Github [https://github.com/ivanhanigan/disentangle](https://github.com/ivanhanigan/disentangle).
+  
+  This is the `newnode` function.  The function returns a string of text
+  written in the `dot` language which can be rendered in R using the
+  `DiagrammeR` package, or the standalone `graphviz` package.   This creates the graph of this pipeline shown in Figure below.  Note that a new field was added for Descriptions as these are highly recommended.
+    
+    
+  ![/images/steps_basic_rstudio-test.png](/images/steps_basic_rstudio-test.png)    
+#+end_src
 
 ** R-newnode_rmd
 *** COMMENT newnode-code
@@ -8941,7 +8984,7 @@ Rsquared.glm(glm.D93)
     nodes_graph  <- ""
   #  indat2
       for(i in 1:nrow(indat2)){
-        # i <- 1
+        #i <- 2
         #i
         indat2[i,]
         name <- indat2[i,names_col]
@@ -8980,12 +9023,14 @@ Rsquared.glm(glm.D93)
   strng <- sprintf('** %s\n# %s\n## Description\n\n%s\n\n%s\n\n%s\n\n',
                    name2paste, name2paste,  desc, inputs, outputs
                    )
-  names(indat2)  <- toupper(names(indat2))      
-  if(indat2[i,"GRAPH"] != ""){
+  # I assume graph and graphsiz, but not sure about case
+  indat3 <- indat2      
+  names(indat3)  <- toupper(names(indat2))      
+  if(indat3[i,"GRAPH"] != ""){
   strng <- sprintf('%s\n** %s graph\n# %s graph\n\n\\begin{figure}[!h]\n\\centering\n\\includegraphics[width=%s\\textwidth]{%s}\n\\end{figure}\n',
                    strng,
                    name2paste, name2paste,
-                   indat2[i,"GRAPH_SIZE"], indat2[i,"GRAPH"]
+                   indat3[i,"GRAPH_SIZE"], indat3[i,"GRAPH"]
                    )
   
   }
@@ -10712,6 +10757,7 @@ title: how-to-say-why-before-what
 date: 2015-09-03
 categories:
 - disentangle
+tags:
 - writing
 ---
 
@@ -10774,6 +10820,36 @@ What I found exciting in Pinker’s note above was his connection of this vague 
 text files created in Ubuntu are so difficult to understand (read) when opened in Windows' Notepad. No matter how many lines have been used, all the lines appear in the same one line.
 To set the buffer coding to DOS style issue Meta + x :
 M-x set-buffer-file-coding-system utf-8-dos
+
+** 2015-11-12-adopting-a-bullet-point-style
+#+name:adopting-a-bullet-point-style-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-11-12-adopting-a-bullet-point-style.md :exports none :eval no :padline no
+---
+name: adopting-a-bullet-point-style
+layout: post
+title: Adopting a bullet point style
+date: 2015-11-12
+categories:
+- disentangle
+tags:
+- writing 
+---
+
+With respect to bullet points:
+
+- there are a range of styles accepted
+- you just have to be consistent
+- I have decided I like the bullet point style from
+[http://www.monash.edu/about/editorialstyle/editing/punctuation](http://www.monash.edu/about/editorialstyle/editing/punctuation).
+
+```
+End the introductory phrase preceding a list of bullet points in a
+colon. If the individual bullet points are sentence fragments, don't
+use a full stop, comma or semi-colon. Leave it bare until the last
+bullet point, and then use a full stop. Don't use capitals. Use full
+stops if each bullet point is a complete sentence.
+```
+#+end_src
 
 * Blogging
 *** COMMENT blog-code
@@ -10961,7 +11037,7 @@ It was that I was on Twitter at all.
     
 #+end_src
 
-* bibliometrics
+* bibliometrics and literature reviewing
 *** COMMENT gscraper-func-code
 #+name:gscraper-func
 #+begin_src R :session *R* :tangle no :exports none :eval yes
@@ -11109,6 +11185,353 @@ It was that I was on Twitter at all.
   
   
 #+end_src
+
+** 2015-11-13-judging-the-evidence-using-a-literature-review-database
+*** judging-the-evidence-using-a-literature-review-database-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-11-13-judging-the-evidence-using-a-literature-review-database.md :exports none :eval no :padline no
+---
+name: judging-the-evidence-using-a-literature-review-database
+layout: post
+title: Judging the evidence using a literature review database
+date: 2015-11-13
+categories:
+- disentangle
+tags:
+- bibliometrics and literature reviewing
+---
+
+I recently read through a lecture slide deck called 'Judging the Evidence' by  Adrian Sleigh for a course PUBH7001 Introduction to Epidemiology, April 30, 2001.
+
+It had a lot of great material in it but I especially liked the section 'CRITIQUE OF AN EPIDEMIOLOGIC STUDY' and slide 11 'Quantity of data, duplication' which says:
+
+```
+Set clear criteria for admission of studies to your ‘judgement of evidence’
+Devise ways to tabulate the information
+‘Evidence tables’ show key features of design 
+  (source, sample and study pop, N)
+  exposures-outcomes measured
+  observation methods
+  confounding
+  key results
+```    
+<p></p>
+
+I thought this was a great idea, to build a database for keeping 'evidence tables' for each study I read.
+
+I then read through all the slides.  There is a lot of great information here, but it was spread out across the narrative.  I realised I wanted to collate these into a 'evidence table'. I also compared this with my understanding of the Ecological Metadata Language (EML) schema and the 'ANU Data Analysis Plan Template' and have put together a bit of a 'cross-walk' that lets me combine all this info and create a evidence table (database).  
+
+I have started to use the database I built which uses EML concepts heavily and I include some these other ideas into my free `data_inventory` application for a web2py database [https://github.com/ivanhanigan/data_inventory](https://github.com/ivanhanigan/data_inventory).
+
+It is a webform style data entry interface, and I think good for these 'evidence tables'.
+In the first instance I piggy back a lot of the elements into single EML tags, especially the abstract.
+This may make it hard to parse.  The simple solution is to try to keep each element on a seperate line of the absract.
+
+## The key info for an evidence table entry per study
+
+<table border=1>
+<tr> <th> EML </th> <th> ANU </th> <th> Adrian_Sleigh </th>  </tr>
+  <tr> <td> dataset/title </td> <td>  Study name </td> <td>   </td> </tr>
+  <tr> <td> dataset/creator </td> <td>  Person conducting analysis </td> <td>   </td> </tr>
+  <tr> <td> project/personnel/[data_owner or orginator] </td> <td>  Chief investigator </td> <td>   </td> </tr>
+  <tr> <td> dataset/abstract </td> <td>  Background to the study </td> <td>  Purpose of Study </td> </tr>
+  <tr> <td>          </td> <td>   Study research question  </td> <td>  </td> </tr>
+  <tr> <td>          </td> <td>   Specific hypothesis under study </td> <td>   </td> </tr>
+  <tr> <td>          </td> <td>  outcomes of interest/ Exposure variables /Covariates </td> <td>  exposures-outcomes measured </td> </tr>
+  <tr> <td>          </td> <td>   </td> <td>  key results </td> </tr>
+  <tr> <td> dataset/studyextent </td> <td>  Study population </td> <td>  Study Setting </td> </tr>
+  <tr> <td>                     </td> <td>                   </td> <td>  source / sample and study pop </td> </tr>
+  <tr> <td> dataset/temporalcoverage </td> <td>  Duration of study </td> <td>   </td> </tr>
+  <tr> <td> dataset/methods_protocol </td> <td>  Study Type </td> <td>  Type of study </td> </tr>
+  <tr> <td> dataset/sampling_desc </td> <td>    </td> <td>  Subject Selection </td> </tr>
+  <tr> <td> dataset/methods_steps </td> <td>  analytical strategy </td> <td>  Statistical procedures </td> </tr>
+  <tr> <td>                       </td> <td>  exposures/ potential confounders or effect modifiers </td> <td>  Confounding </td> </tr>
+  <tr> <td> entity/numberOfRecords </td> <td>  Number study subjects </td> <td>  N </td> </tr>
+  <tr> <td> dataset/distribution_methods </td> <td>  dissemination strategy </td> <td>    </td> </tr>
+   </table>
+
+
+<p></p>
+
+## Here is a screen shot of my data inventory data entry form
+
+![/images/datinv_entry.png](/images/datinv_entry.png)
+
+#+end_src
+*** COMMENT table
+#+name:table
+#+begin_src R :session *R* :tangle no :exports none :eval yes
+  #### name:table ####
+  # sources
+  #ANU
+  # /home/ivan_hanigan/Dropbox/projects/DataManagementPolicy/References/NCEPH-Handbook
+  # Adrian /home/ivan_hanigan/Dropbox/references/Sleigh-epi-lectures/Judging2001.ppt
+  # EML ~/tools/web2py/applications/data_inventory/
+  dat <- read.csv(textConnection("EML, ANU, Adrian_Sleigh
+  dataset/title, Study name, 
+  dataset/creator, Person conducting analysis, 
+  project/personnel/[data_owner or orginator], Chief investigator, 
+  dataset/abstract, Background to the study, Purpose of Study
+          ,  Study research question ,
+          ,  Specific hypothesis under study, 
+          , outcomes of interest/ Exposure variables /Covariates, exposures-outcomes measured
+          , , key results
+  dataset/studyextent, Study population, Study Setting
+                     ,                 , source / sample and study pop
+  dataset/temporalcoverage, Duration of study, 
+  dataset/methods_protocol, Study Type, Type of study
+  dataset/sampling_desc,  , Subject Selection
+  dataset/methods_steps, analytical strategy, Statistical procedures
+                       , exposures/ potential confounders or effect modifiers, Confounding
+  entity/numberOfRecords, Number study subjects, N
+  dataset/distribution_methods, dissemination strategy,  
+  "))
+  print(xtable::xtable(dat), type = "html", include.rownames = F)
+#+end_src
+
+#+RESULTS: table
+| <!-- html table generated in R 3.2.2 by xtable 1.7-4 package -->   |
+| <!-- Sat Nov 14 10:12:49 2015 -->                                  |
+| <table border=1>                                                   |
+| <tr> <th> data_inventory_field </th> <th> description </th>  </tr> |
+| <tr> <td> Citation </td> <td>  </td> </tr>                         |
+| <tr> <td> Key results </td> <td>  </td> </tr>                      |
+| <tr> <td> Background to the study </td> <td>  </td> </tr>          |
+| <tr> <td> Research question </td> <td>  </td> </tr>                |
+| <tr> <td> Study extent </td> <td>  </td> </tr>                     |
+| <tr> <td> Outcomes </td> <td>  </td> </tr>                         |
+| <tr> <td> Exposures </td> <td>  </td> </tr>                        |
+| <tr> <td> Covariates </td> <td>  </td> </tr>                       |
+| <tr> <td> Method protocol </td> <td>  </td> </tr>                  |
+| <tr> <td> General Comments </td> <td>  </td> </tr>                 |
+| </table>                                                           |
+|                                                                    |
+
+** 2015-11-14-developing-a-lit-review-database
+#+name:developing-a-lit-review-database-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-11-14-developing-a-lit-review-database.md :exports none :eval no :padline no
+---
+name: developing-a-lit-review-database
+layout: post
+title: Developing a lit review database
+date: 2015-11-14
+categories:
+- disentangle
+tags:
+- bibliometrics and literature reviewing
+---
+
+
+My work yesterday on implementing [a lit review section of my data inventory database](/2015/11/judging-the-evidence-using-a-literature-review-database) 
+went pretty well, and I tested this while collating information on the papers I compile into my thesis.
+
+However, as I worked through the information for each paper I realised that attaching this stuff at the EML/dataset level is not always going to work.
+In particular I have projects in which several papers are part of the one dataset.  To deal with this I have invented a non-EML relationship module for publications.
+So in my new schema the following is possible
+
+```
+eml/project/
+           /dataset1/
+                    /publication1
+                    /publication2
+           /dataset2/
+                    /etc  
+```
+
+<p></p>
+
+In this scenario a single dataset (ie bushfire smoke, temperature and mortality) can be used to write one paper focused on smoke, controlling for temperature.  Another paper on heatwaves, controlling for smoke. Indeed we might use time-series Poisson models for one and case-crossover design for the other (this is similar to what I did with Johnston and Morgan).
+
+So the simple thing to do is input these 'evidence tables' fields at the publication level, rather than the dataset as I did yesterday.
+
+This also partially solves my problem about aggregating these non-EML tags inside the text of the abstract, and worrying about parsing that to extract the elements of information.
+
+## The fields
+
+<!-- html table generated in R 3.2.2 by xtable 1.7-4 package -->
+<!-- Sat Nov 14 10:12:49 2015 -->
+<table border=1>
+<tr> <th> data_inventory_field </th> <th> description </th>  </tr>
+  <tr> <td> Citation </td> <td> At a minimum author-date-journal, perhaps DOI? </td> </tr>
+  <tr> <td> Key results </td> <td> Include both effect estimates and uncertainty </td> </tr>
+  <tr> <td> Background to the study </td> <td>  </td> </tr>
+  <tr> <td> Research question </td> <td>  </td> </tr>
+  <tr> <td> Study extent </td> <td>  </td> </tr>
+  <tr> <td> Outcomes </td> <td>  </td> </tr>
+  <tr> <td> Exposures </td> <td>  </td> </tr>
+  <tr> <td> Covariates </td> <td> Include covariates, effect modifiers, confounders and subgroups </td> </tr>
+  <tr> <td> Method protocol </td> <td>  </td> </tr>
+  <tr> <td> General Comments </td> <td>  </td> </tr>
+   </table>
+<p></p>
+
+## An example
+
+![/images/datinv_pub.png](/images/datinv_pub.png)
+    
+#+end_src
+
+
+
+- Citation: Powers, J. R., Dobson, A. J., Berry, H. L., Graves, A. M., Hanigan, I. C., and Loxton, D. (2015). Lack of association between drought and mental health in a cohort of 45-61 year old rural Australian women. ANZJPH. http://dx.doi.org/doi:10.1111/1753-6405.12369
+- Key results: Drought was not associated with depression in mid-aged women in general, or in groups of potentially vulnerable women
+- Background to the study: Quantitative evidence on the effect of drought on mental health is scant and inconclusive.
+- Research question: Is drought associated with poorer mental health in rural women?
+- Study extent: Large nationally representative sample of 45 to 61 year old women, data were collected prospectively over 12 years (96/07)
+- Outcomes: Medical Outcomes Study Short Form 36 (SF36), where score less than 53 = depression
+- Exposures: Hutchinson Drought Index
+- Covariates: Looked for effect modification by isolation, poverty, education, co-morbidities etc. 
+- Method protocol: Linear mixed models of longitudinal data, taking into account the correlation within individuals
+- General Comments: Given the strong suicide link in men shown by Hanigan et al 2012, this result implies a complicated relationship between drought and depression modified by gender.
+
+*** COMMENT table
+#+name:table
+#+begin_src R :session *R* :tangle no :exports none :eval yes
+  #### name:table ####
+  # sources
+  #ANU
+  # /home/ivan_hanigan/Dropbox/projects/DataManagementPolicy/References/NCEPH-Handbook
+  # Adrian /home/ivan_hanigan/Dropbox/references/Sleigh-epi-lectures/Judging2001.ppt
+  # EML ~/tools/web2py/applications/data_inventory/
+  dat <- read.csv(textConnection("data_inventory_field, description
+  Citation,
+  Key results,
+  Background to the study,
+  Research question,
+  Study extent, 
+  Outcomes,
+  Exposures,
+  Covariates,
+  Method protocol,       
+  General Comments,
+  "))
+  print(xtable::xtable(dat), type = "html", include.rownames = F)
+#+end_src
+
+
+** 2015-11-15-putting-bibtex-key-into-my-lit-review-database-needs-sanitized-latex-characters
+#+name:putting-bibtex-key-into-my-lit-review-database-needs-sanitized-latex-characters-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-11-15-putting-bibtex-key-into-my-lit-review-database-needs-sanitized-latex-characters.md :exports none :eval no :padline no
+---
+name: putting-bibtex-key-into-my-lit-review-database-needs-sanitized-latex-characters
+layout: post
+title: Putting bibtex key into my lit review database needs sanitized latex characters
+date: 2015-11-15
+categories:
+- disentangle
+---
+
+As I compile my papers for the thesis I am keeping notes for my presentation to discuss the results and scope of each study.  The work on the 'evidence tables' I described in the last two posts has proved useful here.  I allowed my self a breif distraction to dig out some code I had developed for a database of case studies demonstrating eco-social tipping points from historical evidence, and show here how to include bibtex info.  The bibtex key (from Mendeley in my case) is added to the database, and then the following code:
+
+
+```
+library(xtable)
+library(rpostgrestools) # my own work
+if(!exists("ch")) ch <- connect2postgres2("data_inventory_hanigan_dev4")
+
+dat <- dbGetQuery(ch,
+"SELECT id, dataset_id, bibtex_key, title,  key_results,background_to_study, 
+       research_question, study_extent, outcomes, exposures,  covariates, method_protocol,
+        general_comments
+  FROM publication
+  where key_results is not null and key_results != '';
+")
+names(dat) <- gsub("_", " ", names(dat))
+tabcode <- xtable(dat[,1:8])
+align(tabcode) <-  c( 'l', 'p{.7in}','p{.8in}','p{1.7in}', 'p{1.7in}', 'p{1.7in}','p{1.8in}','p{1.7in}', 'p{1.7in}')
+print(tabcode,  include.rownames = F, table.placement = '!ht',
+      floating.environment='sidewaystable',
+      sanitize.text.function = function(x) x)
+
+```
+
+<p></p>
+
+Produces the below table:
+
+![/images/bibtable.png](/images/bibtable.png)
+
+
+#+end_src
+
+*** COMMENT aa
+#+name:aa
+#+begin_src R :session *R* :tangle sanitize_bib_table.Rmd :exports none :eval no
+  ---
+  title: "Using bibtex key in tables "
+  author: Ivan C. Hanigan
+  header-includes:
+    - \usepackage{rotating}
+  output: 
+    pdf_document:
+      keep_tex: true
+  ---
+  
+  ```{r, results = 'asis'}
+  library(xtable)
+  library(rpostgrestools) # my own work
+  if(!exists("ch")) ch <- connect2postgres2("data_inventory_hanigan_dev4")
+  
+  dat <- dbGetQuery(ch,
+  "SELECT id, dataset_id, bibtex_key, title,  key_results,background_to_study, 
+         research_question, study_extent, outcomes, exposures,  covariates, method_protocol,
+          general_comments
+    FROM publication
+    where key_results is not null and key_results != '';
+  ")
+  names(dat) <- gsub("_", " ", names(dat))
+  tabcode <- xtable(dat[,1:8])
+  align(tabcode) <-  c( 'l', 'p{.7in}','p{.8in}','p{1.7in}', 'p{1.7in}', 'p{1.7in}','p{1.8in}','p{1.7in}', 'p{1.7in}')
+  print(tabcode,  include.rownames = F, table.placement = '!ht',
+        floating.environment='sidewaystable',
+        sanitize.text.function = function(x) x)
+  
+  ```
+#+end_src
+*** COMMENT go
+#+name:go
+#+begin_src sh :session *shell* :tangle no :exports none :eval no
+#### name:go ####
+
+#+end_src
+
+** USyd framework for environmental health risk assessment
+Geoff Morgan.
+
+Introduction/ Issue identification
+(approx. 200 words)
+1. identify the key issues 
+2. identify if there are multiple interacting hazards or an isolated hazard
+3. discuss the level of public anxiety related to the issue
+
+Hazard identification
+5 marks (approx. 200 words)
+1. describe in general terms the toxicology and epidemiological evidence of health effects related to exposures of interest (in this assignment exposure can be associated with risks AND/OR benefits)
+
+Dose response assessment
+10 marks  (approx. 450 words)
+1. quantify (if possible) the magnitude of health risks due to exposure from available research
+2. quantify (if possible) the magnitude of any health benefits related to the activity from available research
+3. identify standards / guidelines based on the exposure response relationship such as effect levels, thresholds, margins of safety.
+4. discuss uncertainties and limitations
+
+Exposure assessment 
+5 marks (approx. 250 words)
+1. Identify exposed populations (to risks AND/OR benefits)
+2. describe exposure pathways
+3. quantify typical population exposures (to risks AND/OR benefits) related to the issue 
+4. describe uncertainties and assumptions
+
+Risk characterization
+10 marks (approx. 450 words)
+1. quantify (if possible) the magnitude of health risks AND/OR benefits in exposed populations and make statements (quantitative and/ qualitative) about the magnitude / relative importance of health risk and benefit in exposed populations
+2. describe any sensitive subgroups (eg adults, children…)
+3. describe uncertainties and assumptions
+
+Risk management / Conclusions / Recommendations
+10 marks (approx. 450 words)
+1. summarise the risks AND/OR benefits including any ways in which risks can be effectively managed and any benefits maximized – consider policies, procedures, programs, different types of controls that can be implemented
+2. discuss the many different factors that influence decision making about risk management for the hazard– eg: health, economic, social, political
+3. make recommendations based on data/evidence presented throughout your assignment
 
 * Graphical User Interfaces
 ** web2py
