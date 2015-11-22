@@ -83,12 +83,13 @@ strng <- sprintf('%s\n%s  [ shape=record, style = \"filled\", fillcolor=\"white\
 }
       nodes_graph <- paste(nodes_graph, strng, "\n")
       if(nrow(indat2) == 1) break
-    }
 
-# cat(nodes_graph)
-# set col
-if(!is.na(indat2[i,colour_col])){
- nodes_graph <- gsub("white", indat2[i,colour_col], nodes_graph)
+
+      # cat(nodes_graph)
+      # set col
+      if(!is.na(indat2[i,colour_col])){
+       nodes_graph <- gsub("white", indat2[i,colour_col], nodes_graph)
+      }
 }
 #cat(nodes_graph)
 ###########
@@ -156,4 +157,4 @@ DiagrammeR::grViz("file_name.dot")
 
 return(nodes_graph)
 }
-cat(nodes_graph)
+#cat(nodes_graph)

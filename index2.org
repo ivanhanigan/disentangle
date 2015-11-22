@@ -8635,7 +8635,7 @@ Rsquared.glm(glm.D93)
   sink("fileTransformations.dot")
   cat(nodes)
   sink()
-  DiagrammeR::grViz("fileTransformations.dot")
+  #DiagrammeR::grViz("fileTransformations.dot")
   system("dot -Tpdf fileTransformations.dot -o fileTransformations.pdf")
   browseURL("fileTransformations.pdf")
   
