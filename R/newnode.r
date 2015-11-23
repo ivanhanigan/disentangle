@@ -21,7 +21,7 @@ if (is.null(desc_col)){
 
 # sanitize any single quotes
 for(i in 1:ncol(indat)){
- indat[,i] <- gsub("'","", indat[,i])
+ indat[,i] <- gsub("'","", indat[,i]) 
 }
 
 if(!is.null(clusters_col)){
@@ -38,13 +38,13 @@ for(cluster_i in cluster_ids){
   } else {
     nodes_graph <- paste(nodes_graph, sprintf('subgraph cluster_%s {
     label = "%s"
-    ', cluster_i, cluster_i))
+    ', cluster_i, cluster_i))  
   }
-#  cat(nodes_graph)
+#  cat(nodes_graph)    
   indat2 <- indat[indat[,clusters_col] == cluster_i,]
-# indat2
+#  indat2
     for(i in 1:nrow(indat2)){
-      #i <- 2
+      # i <- 1
       #i
       indat2[i,]
       name <- indat2[i,names_col]
@@ -60,10 +60,9 @@ for(cluster_i in cluster_ids){
       #inputs
       inputs_listed <- paste(inputs, name2paste, sep = ' -> ', collapse = "\n")
       #cat(inputs_listed)
-      outputs <- paste('"', outputs, '"', sep = "")
+      outputs <- paste('"', outputs, '"', sep = "")  
       outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
       #cat(outputs_listed)
-
 if(!is.null(todo_col)){
 
       status <- indat2[i,todo_col]
@@ -115,17 +114,17 @@ strng <- sprintf('%s\n%s  [ shape=record, style = \"filled\", fillcolor=\"white\
       #inputs
       inputs_listed <- paste(inputs, name2paste, sep = ' -> ', collapse = "\n")
       #cat(inputs_listed)
-      outputs <- paste('"', outputs, '"', sep = "")
+      outputs <- paste('"', outputs, '"', sep = "")  
       outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
       #cat(outputs_listed)
 if(!is.null(todo_col)){
   status <- indat2[i,todo_col]
-
+       
 strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description | Status } | { %s | %s | %s } }}"]\n%s\n\n',
                  inputs_listed, name2paste, name, desc, status, outputs_listed
                  )
       # cat(strng)
-      if(!status %in% c("DONE", "WONTDO", "", NA)){
+      if(!status %in% c("DONE", "WONTDO", "", NA)){ 
         strng <- gsub("shape=record,", "shape=record, style = \"filled\", color=\"indianred\",", strng)
       }
 } else {
@@ -137,8 +136,6 @@ strng <- sprintf('%s\n%s  [ shape=record, style = \"filled\", fillcolor=\"white\
       nodes_graph <- paste(nodes_graph, strng, "\n")
 }
 }
-
-
 nodes_graph <- paste("digraph transformations {\n\n",
                      nodes_graph,
                      "}\n")
@@ -157,4 +154,3 @@ DiagrammeR::grViz("file_name.dot")
 
 return(nodes_graph)
 }
-#cat(nodes_graph)

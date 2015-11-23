@@ -1,8 +1,9 @@
 
 library(disentangle)
-#library(devtools)
+library(devtools)
 #document()
-#load_all()
+load_all()
+#source("R/newnode.r")
 library(stringr)
 ## filesList <- read.csv(textConnection('
 ## CLUSTER ,  STEP    , INPUTS                    , OUTPUTS                                , DESCRIPTION                      
@@ -18,7 +19,10 @@ library(stringr)
 filesList <- read.csv("fileTransformations.csv", stringsAsFactors = F, strip.white = T)
 
 str(filesList)
-#filesList$STATUS <- "TODO"
+nrow(filesList)
+filesList$COL <- c("red", "yellow", "blue", "green", "orange", "blue", "red", "red", "blue")
+filesList[,c("STEP", "COL")]
+
 nodes <- newnode(
   indat = filesList
   ,
@@ -35,12 +39,14 @@ nodes <- newnode(
   todo_col = "STATUS"
   ,
   nchar_to_snip = 40
+  ,
+  colour_col = "COL"
   )
 DiagrammeR::grViz(nodes)
 
 sink("fileTransformations.dot")
 cat(nodes)
 sink()
-DiagrammeR::grViz("fileTransformations.dot")
+#DiagrammeR::grViz("fileTransformations.dot")
 system("dot -Tpdf fileTransformations.dot -o fileTransformations.pdf")
 browseURL("fileTransformations.pdf")
