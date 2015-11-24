@@ -120,21 +120,35 @@ strng <- sprintf('%s\n%s  [ shape=record, style = \"filled\", fillcolor=\"white\
 if(!is.null(todo_col)){
   status <- indat2[i,todo_col]
        
-strng <- sprintf('%s\n%s  [ shape=record, label="{{ { Name | Description | Status } | { %s | %s | %s } }}"]\n%s\n\n',
+strng <- sprintf('%s\n%s  [ shape=record, style = \"filled\", fillcolor=\"white\", label="{{ { Name | Description | Status } | { %s | %s | %s } }}"]\n%s\n\n',
                  inputs_listed, name2paste, name, desc, status, outputs_listed
                  )
       # cat(strng)
       if(!status %in% c("DONE", "WONTDO", "", NA)){ 
         strng <- gsub("shape=record,", "shape=record, style = \"filled\", color=\"indianred\",", strng)
       }
+
+      # set col
+      if(!is.na(indat2[i,colour_col])){
+       strng <- gsub("white", indat2[i,colour_col], strng)
+      }
+
 } else {
 
 strng <- sprintf('%s\n%s  [ shape=record, style = \"filled\", fillcolor=\"white\", label="{{ { Name | Description } | { %s | %s } }}"]\n%s\n\n',
                  inputs_listed, name2paste, name, desc, outputs_listed
                  )
+      # set col
+      if(!is.na(indat2[i,colour_col])){
+       strng <- gsub("white", indat2[i,colour_col], strng)
+      }
+
 }
+
+
       nodes_graph <- paste(nodes_graph, strng, "\n")
 }
+#  cat(nodes_graph)
 }
 nodes_graph <- paste("digraph transformations {\n\n",
                      nodes_graph,

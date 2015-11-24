@@ -1,8 +1,9 @@
 
-library(disentangle)
 library(devtools)
 #document()
-load_all()
+#load_all()
+install_github("ivanhanigan/disentangle", ref = "gh-pages")
+library(disentangle)
 #source("R/newnode.r")
 library(stringr)
 ## filesList <- read.csv(textConnection('
