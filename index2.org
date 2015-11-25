@@ -8687,7 +8687,7 @@ http://joelcadwell.blogspot.com.au/2015/11/statistical-models-that-support-desig
   ---
   name: a-picture-of-the-newnode-function-for-workflow-visualisation-in-r
   layout: post
-  title: a-picture-of-the-newnode-function-for-workflow-visualisation-in-r
+  title: A picture of the newnode function for workflow visualisation in R
   date: 2015-11-17
   categories:
   - disentangle 
@@ -11106,6 +11106,32 @@ Alternatively, if you're looking for a non-Javascript solution, you could use ma
 <object data="myfile.pdf" type="application/pdf" width="100%" height="100%">
   <p>Alternative text - include a link <a href="myfile.pdf">to the PDF!</a></p>
 </object>
+** 2015-11-26-visualisation-tools-for-communicating-data-management-concepts
+#+name:visualisation-tools-for-communicating-data-management-concepts-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-11-26-visualisation-tools-for-communicating-data-management-concepts.md :exports none :eval no :padline no
+---
+name: visualisation-tools-for-communicating-data-management-concepts
+layout: post
+title: Visualisation tools for communicating data management concepts
+date: 2015-11-26
+categories:
+- disentangle 
+---
+
+# Hyperlinked table of contents that looks like a filing system
+
+This looks like it might be useful to display information about filing systems, with a clickable toc that looks like a filing system!
+
+Source:
+
+- [http://tex.stackexchange.com/a/36185](http://tex.stackexchange.com/a/36185)
+
+<object data="/images/tikz_hlink.pdf" type="application/pdf" width="600" height="800">
+  <p>Alternative text - include a link <a href="images/tikz_hlink.pdf">to the PDF!</a></p>
+</object>
+
+    
+#+end_src
 
 
 * bibliometrics and literature reviewing
