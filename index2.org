@@ -4221,6 +4221,10 @@ Perhaps an example would be easier to understand.  Here is a set of file names t
   
 #+end_src
 
+
+** TODO Data Reference Syntax via Dr Climate (Damien Irving)
+https://drclimate.wordpress.com/2015/09/04/managing-your-data/
+https://github.com/DamienIrving/climate-analysis/blob/master/data_reference_syntax.md
 ** 2015-10-07-a-quick-review-of-a-quick-guide-to-organizing-computational-biology-projects
 #+name:a-quick-review-of-a-quick-guide-to-organizing-computational-biology-projects-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-10-07-a-quick-review-of-a-quick-guide-to-organizing-computational-biology-projects.md :exports none :eval no :padline no
@@ -5194,6 +5198,7 @@ eml_write(ds,
   vl
   
 #+end_src
+
 * Diagrams
 
 
@@ -6326,6 +6331,10 @@ categories:
   browseURL("misstable.png")
 #+end_src
 
+** TODO visualising survey data,  communicating uncertainty and change in Surveys
+http://rud.is/b/2015/11/08/visualizing_survey_data/
+https://gist.github.com/hrbrmstr/f7ab55e7ae1fc8569df3
+see visu surv data zip and unpacked
 * Data Operation
 ** R-spatial
 *** TODO xy2shp
@@ -7990,6 +7999,12 @@ Rsquared.glm(glm.D93)
   ```  
 #+end_src
 
+
+** TODO driver analysis versus partial correlation maps
+Instead of a driver analysis that narrows our thinking to a single dependent variable and its highest regression weights, the partial correlation map opens us to the possibilities
+
+What can we learn from the data? The answer is a good deal more than can be revealed by the largest coefficient in a single regression equation
+http://joelcadwell.blogspot.com.au/2015/11/statistical-models-that-support-design.html
 * Workflow Tools
 
 ** TODO-list
@@ -9748,6 +9763,14 @@ I hope it makes sense.
 
 
 
+** TODO tikz with hyperlinks
+http://tex.stackexchange.com/a/36185
+is in  tikz_hlink.tex 
+
+# failed with hidelink undefined
+http://tex.stackexchange.com/a/36111
+
+
 * Reproducible Research Reports
 
 ** 2015-09-16-reproducible-research-reports-with-rmarkdown-and-latex-for-stylish-reports
@@ -10717,6 +10740,16 @@ This is the result:
   # References  
 #+end_src
 
+** TODO summarise minimum standard Re Dr Climate 
+
+
+1    A description of the software packages and operating system used
+2    A (preferably version controlled and publicly accessible) code repository, and
+3    A collection of supplementary log files that capture the data processing steps taken in producing each key result
+
+https://drclimate.wordpress.com/2015/11/05/a-call-for-reproducible-research-volunteers/
+http://journals.ametsoc.org/doi/pdf/10.1175/BAMS-D-15-00010.1
+https://www.authorea.com/users/5641/articles/12197/_show_article
 
 * Writing
 ** One-pager
@@ -10876,7 +10909,7 @@ stops if each bullet point is a complete sentence.
 #+end_src
 
 * Blogging
-*** COMMENT blog-code
+** COMMENT blog-code
 #+name:blog
 #+begin_src sh :session *shell* :tangle no :exports none :eval yes
 #### name:blog ####
@@ -11060,6 +11093,20 @@ It was that I was on Twitter at all.
 - but a couple of recent emails asking me for data that I published years ago [like this Australian Postcode Area Weather Estimates stuff](https://gislibrary-extreme-weather.anu.edu.au/poa_weather) made me think I really need to get my stuff exposed so it is **LOT** more visible.
     
 #+end_src
+
+
+** TODO embedding pdfs into webpages
+http://stackoverflow.com/a/14081168
+
+
+You could consider using PDFObject by Philip Hutchison.
+
+Alternatively, if you're looking for a non-Javascript solution, you could use markup like this:
+
+<object data="myfile.pdf" type="application/pdf" width="100%" height="100%">
+  <p>Alternative text - include a link <a href="myfile.pdf">to the PDF!</a></p>
+</object>
+
 
 * bibliometrics and literature reviewing
 *** COMMENT gscraper-func-code
