@@ -4440,29 +4440,6 @@ makeProjectNoble <- function(rootdir = getwd()){
 #+RESULTS: makeProjectBigger
 
 
-** Exemplar Data Management Policies
-*** NCEPH
-~/Dropbox/projects/DataManagementPolicy/ 
-- References/NCEPH-Handbook
-*** LTERN/SuperSites
-~/projects/asn-ltern.bitbucket.org/data_portal_project_plan/
-*** UCRH
-~/Dropbox/projects/air_pollution_ucrh/
-*** Reproducible Research Pipeline Template
-#+begin_src R :session *R* :tangle no :exports none :eval yes
-  # This is a script to build a pipeline template, and accompany the github repository
-  #setwd("~/tools/disentangle")
-  #devtools::load_all()
-  #setwd("~/tools/")
-  #makeProject::makeProject("ReproducibleResearchPipelineTemplate")
-  makeProjectBigger("ReproducibleResearchPipelineTemplate", "~/tools", force = T)
-  #setwd(projdir)
-  #matrix(dir())
-  
-#+end_src
-
-#+RESULTS:
-
 * Data Documentation
 ** 2015-03-19-r-eml-to-mitigate-risks-in-morpho-metacat-data-publishing
 
