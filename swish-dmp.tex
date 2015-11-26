@@ -3,6 +3,40 @@
 \usepackage[hidelinks]{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{calc}
+
+\usepackage{tikz}
+%------------------%
+\makeatletter
+\newcount\dirtree@lvl
+\newcount\dirtree@plvl
+\newcount\dirtree@clvl
+\def\dirtree@growth{%
+  \ifnum\tikznumberofcurrentchild=1\relax
+  \global\advance\dirtree@plvl by 1
+  \expandafter\xdef\csname dirtree@p@\the\dirtree@plvl\endcsname{\the\dirtree@lvl}
+  \fi
+  \global\advance\dirtree@lvl by 1\relax
+  \dirtree@clvl=\dirtree@lvl
+  \advance\dirtree@clvl by -\csname dirtree@p@\the\dirtree@plvl\endcsname
+  \pgf@xa=0.5cm\relax % change the length to your needs
+  \pgf@ya=-0.75cm\relax % change the length to your needs
+  \pgf@ya=\dirtree@clvl\pgf@ya
+  \pgftransformshift{\pgfqpoint{\the\pgf@xa}{\the\pgf@ya}}%
+  \ifnum\tikznumberofcurrentchild=\tikznumberofchildren
+  \global\advance\dirtree@plvl by -1
+  \fi
+}
+\tikzset{ %definition of a new style "dirtree"
+  dirtree/.style={
+    growth function=\dirtree@growth,
+    every node/.style={anchor=north},
+    every child node/.style={anchor=west},
+    edge from parent path={(\tikzparentnode\tikzparentanchor) |- (\tikzchildnode\tikzchildanchor)}
+  }
+}
+\makeatother
+
+
 \begin{document}
 \tikzset{
     hyperlink node/.style={
@@ -19,27 +53,63 @@
         }
     }
 }
-\hypertarget{pageone}{Page One}
 
-\tikz \node [draw, inner sep=2ex,hyperlink node=pagetwo] {Go to Page Two};
+%\hypertarget{pageone}{Page One}
+%}
+
+
+%\tikz \node [draw, inner sep=2ex,hyperlink node=pagetwo] {Go to Page Two};
 %\tikz \node (author) at (-2.5,4.1) [draw=black!50,dashed,rectangle,fill=green!20,hyperlink node=pagetwo]{Author}; 
 
 %\tikz \node (reader) at (-2.5, -2.0) [draw=black!50,dashed,rectangle,fill=green!20,hyperlink node=pagetwo] {Go to Page Three};
 
-     \makebox[\textwidth][c]{
-        \begin{tikzpicture}[
+%     \makebox[.4\textwidth][r]{
+
+%    \makebox[.4\textwidth][l]{
+ 
+\begin{tikzpicture}[dirtree] % it's what we defined above
+
+\node [draw=black!50,dashed,rectangle,fill=green!20]{\textbf{Root directory}}
+    child { node {\hyperref[dmp]{DMP} }}
+    child { node {\hyperref[datinv]{Data Inventory} }}
+    child { node {\hyperref[install]{Project} }
+        child { node {\hyperref[linux]{README}} }
+        child { node {\hyperref[mac]{dataset}} 
+            child { node {\hyperref[mac2]{workplan}} }            
+            child { node {\hyperref[mac3]{worklog}} }
+            }
+        child { node {\hyperref[win]{Windows}} }
+    }
+    child {node {\hyperref[start]{workinguser}}
+        child { node {\hyperref[caseA]{do A}} }
+        child { node {\hyperref[caseB]{do B}} }
+    }
+    child {node {\hyperref[trbl-shoot]{troubleshoot}}
+        child {node {\hyperref[caseX]{if X happens}}}
+        child {node {\hyperref[caseY]{if Y happens}}}
+    }
+    % I've put the external resources to the end:
+    child {node {Looking Further}
+        child { node {\href{file:sanitize_bib_table.pdf}{manual}} }% works only, if "manual.pdf" is in
+                                                       % the same directory as the compiled
+                                                       % version of this document
+        child { node {\href{http://www.google.com/}{online}} }
+    };
+\end{tikzpicture}
+\hspace{0.1cm}
+\begin{tikzpicture}[
               outpt/.style={->,blue!80!black,very thick},
               >=stealth,
            every node/.append style={align=center}]
   
-              \node (anadata) at (0,0) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}Analytic \\ data \end{tabular}};\
+              \node (anadata) at (0,0) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}Analytic \\ data \end{tabular}};
                 \node (measdata) at (-2.4,.7) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=pagetwo]{Measured \\ data}; 
-                \node (hypothesis) at (2,-15) [draw=black!50,dashed,circle,fill=red!30,hyperlink node=pagethree]{Hypothesis \\ + design}; 
+                \node (hypothesis) at (2,-2) [draw=black!50,dashed,circle,fill=red!30,hyperlink node=pagethree]{Hypothesis \\ + design}; 
               \draw[outpt](measdata)--(anadata);
               \draw[outpt](hypothesis)--(measdata);
   
-        \end{tikzpicture}
-}
+\end{tikzpicture}
+%}
 
 \clearpage
 \tikz \node [draw, inner sep=2ex,hyperlink node=pageone] {Go to Page One};
@@ -47,5 +117,39 @@
 \hypertarget{pagetwo}{Page Two}
 \clearpage
 \hypertarget{pagethree}{Page Three}
+
+\clearpage
+\section*{Installation}\label{install}
+
+\subsection*{Data Management Plan}\label{dmp}
+
+\subsection*{Linux}\label{linux}
+Some content.
+
+\subsection*{Mac}\label{mac}
+Some content.
+
+\subsection*{Windows}\label{win}
+Some content.
+\clearpage
+\section*{Get started}\label{start}
+\subsection*{First: Do A}\label{caseA}
+Some content.
+
+\subsection*{Second: Do B}\label{caseB}
+ Some content.
+\clearpage
+\section*{Trouble shooting}\label{trbl-shoot}
+\subsection*{If X happens:}\label{caseX}
+Some content.
+
+\subsection*{If Y happens:}\label{caseY}
+ Some content.
+
+\subsection*{Data Inventory}\label{datinv}
+\subsection*{Worklog2}\label{mac2}
+
+
+\subsection*{Worklog}\label{mac3}
 
 \end{document}
