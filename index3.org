@@ -1,0 +1,191 @@
+#+TITLE:index3 
+#+AUTHOR: Ivan Hanigan
+#+email: ivan.hanigan@anu.edu.au
+#+LaTeX_CLASS: article
+#+LaTeX_CLASS_OPTIONS: [a4paper]
+#+LATEX: \tableofcontents
+-----
+* Data Management
+** Exemplar Data Management Policies
+*** NCEPH
+~/Dropbox/projects/DataManagementPolicy/ 
+- References/NCEPH-Handbook
+*** LTERN/SuperSites
+~/projects/asn-ltern.bitbucket.org/data_portal_project_plan/
+*** UCRH
+~/Dropbox/projects/air_pollution_ucrh/
+*** Reproducible Research Pipeline Template
+#+begin_src R :session *R* :tangle no :exports none :eval yes
+  # This is a script to build a pipeline template, and accompany the github repository
+  #setwd("~/tools/disentangle")
+  #devtools::load_all()
+  #setwd("~/tools/")
+  #makeProject::makeProject("ReproducibleResearchPipelineTemplate")
+  makeProjectBigger("ReproducibleResearchPipelineTemplate", "~/tools", force = T)
+  #setwd(projdir)
+  #matrix(dir())
+  
+#+end_src
+
+#+RESULTS:
+
+** swish-dmp
+this is built for the swish ideas
+*** COMMENT go
+#+name:go
+#+begin_src R :session *R* :tangle go.R :exports none :eval yes
+#### name:go ####
+system("pdflatex swish-dmp.tex")
+#browseURL("swish-dmp.pdf")
+#+end_src
+
+#+RESULTS: go
+: 0
+
+*** COMMENT swish-dmp
+#+name:swish-dmp
+#+begin_src latex :tangle swish-dmp.tex :exports none :eval no
+\documentclass{article}
+\usepackage[hidelinks]{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+
+\usepackage{tikz}
+%------------------%
+\makeatletter
+\newcount\dirtree@lvl
+\newcount\dirtree@plvl
+\newcount\dirtree@clvl
+\def\dirtree@growth{%
+  \ifnum\tikznumberofcurrentchild=1\relax
+  \global\advance\dirtree@plvl by 1
+  \expandafter\xdef\csname dirtree@p@\the\dirtree@plvl\endcsname{\the\dirtree@lvl}
+  \fi
+  \global\advance\dirtree@lvl by 1\relax
+  \dirtree@clvl=\dirtree@lvl
+  \advance\dirtree@clvl by -\csname dirtree@p@\the\dirtree@plvl\endcsname
+  \pgf@xa=0.5cm\relax % change the length to your needs
+  \pgf@ya=-0.75cm\relax % change the length to your needs
+  \pgf@ya=\dirtree@clvl\pgf@ya
+  \pgftransformshift{\pgfqpoint{\the\pgf@xa}{\the\pgf@ya}}%
+  \ifnum\tikznumberofcurrentchild=\tikznumberofchildren
+  \global\advance\dirtree@plvl by -1
+  \fi
+}
+\tikzset{ %definition of a new style "dirtree"
+  dirtree/.style={
+    growth function=\dirtree@growth,
+    every node/.style={anchor=north},
+    every child node/.style={anchor=west},
+    edge from parent path={(\tikzparentnode\tikzparentanchor) |- (\tikzchildnode\tikzchildanchor)}
+  }
+}
+\makeatother
+
+
+\begin{document}
+\tikzset{
+    hyperlink node/.style={
+        alias=sourcenode,
+        append after command={
+            let     \p1 = (sourcenode.north west),
+                \p2=(sourcenode.south east),
+                \n1={\x2-\x1},
+                \n2={\y1-\y2} in
+            node [inner sep=0pt, outer sep=0pt,anchor=north west,at=(\p1)] {\hyperlink{#1}{\phantom{\rule{\n1}{\n2}}}}
+                    %xelatex needs \XeTeXLinkBox, won't create a link unless it
+                    %finds text --- rules don't work without \XeTeXLinkBox.
+                    %Still builds correctly with pdflatex and lualatex
+        }
+    }
+}
+
+%\hypertarget{pageone}{Page One}
+%}
+
+
+%\tikz \node [draw, inner sep=2ex,hyperlink node=pagetwo] {Go to Page Two};
+%\tikz \node (author) at (-2.5,4.1) [draw=black!50,dashed,rectangle,fill=green!20,hyperlink node=pagetwo]{Author}; 
+
+%\tikz \node (reader) at (-2.5, -2.0) [draw=black!50,dashed,rectangle,fill=green!20,hyperlink node=pagetwo] {Go to Page Three};
+
+%     \makebox[.4\textwidth][r]{
+
+%    \makebox[.4\textwidth][l]{
+ 
+\begin{tikzpicture}[dirtree] % it's what we defined above
+
+\node [draw=black!50,dashed,rectangle,fill=green!20]{\textbf{COOL TOC}}
+    child { node {\hyperref[install]{installation} }
+        child { node {\hyperref[linux]{Linux}} }
+        child { node {\hyperref[mac]{Mac}} 
+            child { node {\hyperref[mac2]{Mac2}} }
+}
+        child { node {\hyperref[win]{Windows}} }
+    }
+    child {node {\hyperref[start]{Get Started}}
+        child { node {\hyperref[caseA]{do A}} }
+        child { node {\hyperref[caseB]{do B}} }
+    }
+    child {node {\hyperref[trbl-shoot]{troubleshoot}}
+        child {node {\hyperref[caseX]{if X happens}}}
+        child {node {\hyperref[caseY]{if Y happens}}}
+    }
+    % I've put the external resources to the end:
+    child {node {Looking Further}
+        child { node {\href{file:sanitize_bib_table.pdf}{manual}} }% works only, if "manual.pdf" is in
+                                                       % the same directory as the compiled
+                                                       % version of this document
+        child { node {\href{http://www.google.com/}{online}} }
+    };
+\end{tikzpicture}
+\hspace{0.1cm}
+\begin{tikzpicture}[
+              outpt/.style={->,blue!80!black,very thick},
+              >=stealth,
+           every node/.append style={align=center}]
+  
+              \node (anadata) at (0,0) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}Analytic \\ data \end{tabular}};
+                \node (measdata) at (-2.4,.7) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=pagetwo]{Measured \\ data}; 
+                \node (hypothesis) at (2,-2) [draw=black!50,dashed,circle,fill=red!30,hyperlink node=pagethree]{Hypothesis \\ + design}; 
+              \draw[outpt](measdata)--(anadata);
+              \draw[outpt](hypothesis)--(measdata);
+  
+\end{tikzpicture}
+%}
+
+\clearpage
+\tikz \node [draw, inner sep=2ex,hyperlink node=pageone] {Go to Page One};
+
+\hypertarget{pagetwo}{Page Two}
+\clearpage
+\hypertarget{pagethree}{Page Three}
+
+\clearpage
+\section*{Installation}\label{install}
+\subsection*{Linux}\label{linux}
+Some content.
+
+\subsection*{Mac}\label{mac}
+Some content.
+
+\subsection*{Windows}\label{win}
+Some content.
+\clearpage
+\section*{Get started}\label{start}
+\subsection*{First: Do A}\label{caseA}
+Some content.
+
+\subsection*{Second: Do B}\label{caseB}
+ Some content.
+\clearpage
+\section*{Trouble shooting}\label{trbl-shoot}
+\subsection*{If X happens:}\label{caseX}
+Some content.
+
+\subsection*{If Y happens:}\label{caseY}
+ Some content.
+
+
+\end{document} 
+#+end_src
