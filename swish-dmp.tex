@@ -1,6 +1,6 @@
 
 \documentclass{article}
-\usepackage[hidelinks]{hyperref}
+\usepackage{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{calc}
 
@@ -74,10 +74,19 @@
     child { node {\hyperref[datinv]{Data Inventory} }}
     child { node {\hyperref[install]{Project1} }
         child { node {\hyperref[linux]{README}} }
+        child { node {\hyperref[mac3]{project management}} }
         child { node {\hyperref[mac]{dataset1}} 
             child { node {\hyperref[mac2]{workplan}} }            
             child { node {\hyperref[mac3]{worklog}} }
-            }
+            child { node {\hyperref[workflow]{workflow}} }
+            child { node {\hyperref[dataprov]{data provided}} }
+            child { node {\hyperref[dataprov]{data derived}} 
+              child { node {\hyperref[mac]{files}}} 
+              child { node {\hyperref[mac2]{versions}}}                
+               }                                      
+            child { node {\hyperref[mac2]{results}} }            
+            child { node {\hyperref[mac3]{reports}} }
+}
         child { node {\hyperref[win]{dataset2}} }
     }
     child {node {\hyperref[trbl-shoot]{Project2}}
@@ -93,7 +102,7 @@
         child { node {\href{file:sanitize_bib_table.pdf}{Backups}} }% works only, if "manual.pdf" is in
                                                        % the same directory as the compiled
                                                        % version of this document
-        child { node {\href{http://www.google.com/}{Version Control}} }
+%        child { node {\href{http://www.google.com/}{Version Control}} }
     };
 \end{tikzpicture}
 \hspace{0.1cm}
@@ -102,11 +111,15 @@
               >=stealth,
            every node/.append style={align=center}]
   
-              \node (anadata) at (0,0) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}Analytic \\ data \end{tabular}};
-                \node (measdata) at (-2.4,.7) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=pagetwo]{Measured \\ data}; 
-                \node (hypothesis) at (2,-2) [draw=black!50,dashed,circle,fill=red!30,hyperlink node=pagethree]{Hypothesis \\ + design}; 
-              \draw[outpt](measdata)--(anadata);
-              \draw[outpt](hypothesis)--(measdata);
+                \node (measdata) at (-2.4,9) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=pagetwo]{Distributed data}; 
+                \node (hypothesis) at (2,9) [draw=black!50,dashed,rectangle,fill=red!30,hyperlink node=pagethree]{Permissions \\ + citations}; 
+              \node (anadata) at (0,7.5) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}feedback \end{tabular}};
+              \node (anadata3) at (0,0) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}Version control\end{tabular}};
+
+              \draw[outpt](anadata)--(measdata);
+              \draw[outpt](measdata)--(hypothesis);
+              \draw[outpt](hypothesis)--(anadata);
+
   
 \end{tikzpicture}
 %}
@@ -151,5 +164,9 @@ Some content.
 
 
 \subsection*{Worklog}\label{mac3}
+
+\subsection*{Workflow}\label{workflow}
+
+\subsection*{Data Provided}\label{dataprov}
 
 \end{document}
