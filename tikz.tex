@@ -1,0 +1,26 @@
+\documentclass{article}
+\usepackage{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\begin{document}
+\tikzset{
+    hyperlink node/.style={
+        alias=sourcenode,
+        append after command={
+            let     \p1 = (sourcenode.north west),
+                \p2=(sourcenode.south east),
+                \n1={\x2-\x1},
+                \n2={\y1-\y2} in
+            node [inner sep=0pt, outer sep=0pt,anchor=north west,at=(\p1)] {\hyperlink{#1}{\phantom{\rule{\n1}{\n2}}}}
+                    %xelatex needs \XeTeXLinkBox, won't create a link unless it
+                    %finds text --- rules don't work without \XeTeXLinkBox.
+                    %Still builds correctly with pdflatex and lualatex
+        }
+    }
+}
+
+\tikz \node [draw, inner sep=2ex,hyperlink node=pagetwo] {Go to Page Two};
+
+\clearpage
+\hypertarget{pagetwo}{Page Two}
+\end{document} 
