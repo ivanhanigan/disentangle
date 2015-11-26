@@ -72,28 +72,28 @@
 \node [draw=black!50,dashed,rectangle,fill=green!20]{\textbf{Root directory}}
     child { node {\hyperref[dmp]{DMP} }}
     child { node {\hyperref[datinv]{Data Inventory} }}
-    child { node {\hyperref[install]{Project} }
+    child { node {\hyperref[install]{Project1} }
         child { node {\hyperref[linux]{README}} }
-        child { node {\hyperref[mac]{dataset}} 
+        child { node {\hyperref[mac]{dataset1}} 
             child { node {\hyperref[mac2]{workplan}} }            
             child { node {\hyperref[mac3]{worklog}} }
             }
-        child { node {\hyperref[win]{Windows}} }
+        child { node {\hyperref[win]{dataset2}} }
     }
-    child {node {\hyperref[start]{workinguser}}
+    child {node {\hyperref[trbl-shoot]{Project2}}
+        child {node {\hyperref[caseX]{dataset3}}}
+        child {node {\hyperref[caseY]{dataset4}}}
+    }
+    child {node {\hyperref[start]{working\_user}}
         child { node {\hyperref[caseA]{do A}} }
         child { node {\hyperref[caseB]{do B}} }
     }
-    child {node {\hyperref[trbl-shoot]{troubleshoot}}
-        child {node {\hyperref[caseX]{if X happens}}}
-        child {node {\hyperref[caseY]{if Y happens}}}
-    }
     % I've put the external resources to the end:
-    child {node {Looking Further}
-        child { node {\href{file:sanitize_bib_table.pdf}{manual}} }% works only, if "manual.pdf" is in
+    child {node {Versions}
+        child { node {\href{file:sanitize_bib_table.pdf}{Backups}} }% works only, if "manual.pdf" is in
                                                        % the same directory as the compiled
                                                        % version of this document
-        child { node {\href{http://www.google.com/}{online}} }
+        child { node {\href{http://www.google.com/}{Version Control}} }
     };
 \end{tikzpicture}
 \hspace{0.1cm}
