@@ -1,0 +1,47 @@
+\documentclass{article}
+\usepackage[hidelinks]{hyperref}
+\usepackage{tikz}
+\usetikzlibrary{calc}
+\begin{document}
+\tikzset{
+    hyperlink node/.style={
+        alias=sourcenode,
+        append after command={
+            let     \p1 = (sourcenode.north west),
+                \p2=(sourcenode.south east),
+                \n1={\x2-\x1},
+                \n2={\y1-\y2} in
+            node [inner sep=0pt, outer sep=0pt,anchor=north west,at=(\p1)] {\hyperlink{#1}{\phantom{\rule{\n1}{\n2}}}}
+                    %xelatex needs \XeTeXLinkBox, won't create a link unless it
+                    %finds text --- rules don't work without \XeTeXLinkBox.
+                    %Still builds correctly with pdflatex and lualatex
+        }
+    }
+}
+
+%\tikz \node [draw, inner sep=2ex,hyperlink node=pagetwo] {Go to Page Two};
+%\tikz \node (author) at (-2.5,4.1) [draw=black!50,dashed,rectangle,fill=green!20,hyperlink node=pagetwo]{Author}; 
+
+%\tikz \node (reader) at (-2.5, -2.0) [draw=black!50,dashed,rectangle,fill=green!20,hyperlink node=pagetwo] {Go to Page Three};
+
+     \makebox[\textwidth][c]{
+        \begin{tikzpicture}[
+              outpt/.style={->,blue!80!black,very thick},
+              >=stealth,
+           every node/.append style={align=center}]
+  
+              \node (anadata) at (0,.7) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}Analytic \\ data \end{tabular}};\
+                \node (measdata) at (-2.4,.7) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=pagetwo]{Measured \\ data}; 
+                \node (hypothesis) at (-2.4,2.7) [draw=black!50,dashed,circle,fill=red!30,hyperlink node=pagethree]{Hypothesis \\ + design}; 
+              \draw[outpt](measdata)--(anadata);
+              \draw[outpt](hypothesis)--(measdata);
+  
+        \end{tikzpicture}
+}
+
+\clearpage
+\hypertarget{pagetwo}{Page Two}
+\clearpage
+\hypertarget{pagethree}{Page Three}
+
+\end{document} 
