@@ -5,6 +5,414 @@
 #+LaTeX_CLASS_OPTIONS: [a4paper]
 #+LATEX: \tableofcontents
 -----
+* Data documentation
+** Scales and units
+***  Morpho’s definitions
+
+The concept of a measurement scale as defined by Stevens is useful for
+classifying data despite the weaknesses of the approach that have been
+pointed out by several practitioners. In particular, the
+classification allows us to determine some of the mathematical
+operations that are appropriate for a given set of data, and allows us
+to determine which types of metadata are needed for a given set of
+data. For example, categorical data never have a "unit" of
+measurement.  Here is a brief overview of the measurement scales we
+have employed in EML. They are based on Steven's original typology,
+with the addition of "Date-Time" for purely pragmatic reasons (we need
+to distinguish date time values in order to collect certain essential
+metadata about date and time representation).
+
+**** NOMINAL
+- The nominal scale places values into named categories. The
+ different values within a set are unordered. Some examples of
+ nominal scales include gender (Male/Female) and marital status
+ (single/married/divorced). Text fields should be classified as
+ nominal.
+**** ORDINAL
+- The ordinal scale places values in a set order. All ordinal values
+ are also nominal. Ordinal data show a particular value's position
+ relative to other values, such as "low, medium, high, etc." The
+ ordinal scale doesn't indicate the distance between each item.
+**** INTERVAL
+- The interval scale uses equal-sized units of measurement on a
+ scale between values. It therefore allows the comparison of the
+ differences between two values on the scale. With interval data,
+ the allowable values start from an arbitrary point (not a
+ meaningful zero), and so there is no concept of 'zero' of the
+ measured quantity. Consequently, ratios of interval values are not
+ meaningful. For example, one can not infer that someone with a
+ value of 80 on an ecology test knows twice as much ecology as
+ someone who scores 40 on the test, or that an object at 40 degrees
+ C has twice the kinetic energy as an object at 20 degrees C. All
+ interval values are also ordered and therefore are ordinal scale
+ values as well.
+**** RATIO
+- The ratio scale is an interval scale with a meaningful zero
+ point. The ratio scale begins at a true zero point that represents
+ an absolute lack of the quality being measured. Thus, ratios of
+ values are meaningful. For example, an object that is at elevation
+ of 100 meters above sea level is twice as high as an object that
+ is at an elevation of 50 meters above sea level (where sea level
+ is the zero point). Also, an object at 300 degrees Kelvin has
+ three times the kinetic energy of an object at 100 degrees Kelvin
+ (where absolute zero (no motion) defines the zero point of the
+ Kelvin scale). Interval values can often be converted to ratio
+ values in order to make ratio comparisons legitimate. For example,
+ an object at 40 degrees C is 313.15 degrees Kelvin, an object at
+ 20 degrees C is 293.15 degrees Kelvin, and so the first object has
+ approximately 1.07 times more kinetic energy (note the wrong
+ answer you would have gotten had you taken the ratio of the values
+ in Celsius).
+**** DATE-TIME
+- Date and time values in the Gregorian calendar are very strange to
+ use in calculations in that they have properties of both interval
+ and ratio scales. They also have some properties that do not
+ conform to the interval scale because of the adjustments that are
+ made to time to account for the variations in the period of the
+ Earth around the sun. While the Gregorian calendar has a
+ meaningful zero point, it would be difficult to say that a value
+ taken on midnight January 1, 1000 is twice as old as a value taken
+ on midnight January 1 2000 because the scale has many
+ irregularities in length in practice. However, over short
+ intervals the scale has equidistant points based on the SI second,
+ and so can be considered interval for some purposes, especially
+ with respect to measuring the timing of short-term ecological
+ events. Date and time values can be represented using several
+ distinct notations, and so we have distinct metadata needs in
+ terms of specifying the format of the value
+ representation. Because of these pragmatic issues, we separated
+ Date-time into its own measurement scale. Examples of date-time
+ values are '2003-05-05', '1999/10/10', and
+ '2001-10-10T14:23:20.3'.
+
+*** Advice for best practices can be found:
+https://im.lternet.edu/sites/im.lternet.edu/files/LTERunitBestPractices_V13.pdf
+*** Rainfall
+ 
+On the basis of Morpho's recommendations rainfall data is interval data – then 0 just another
+value in “interval data” terms.  The confusion arises because there are
+two different versions of “meaningful” here – 0 is certainly a
+meaningful (& sensible) rainfall value – in terms of observations and
+physical processes (no rain) – but this is not the sort of
+“meaningful” they are talking about.
+ 
+Their “meaningful zero” is precisely a value that CANNOT be observed
+since all the values are by definition positive (so that valid ratios
+can be formed).
+ 
+The two “meaningfuls” don’t mesh at all well.  Especially since, as
+mentioned, it is common practice to refer to ratios of rainfall (when
+they are not zero).
+
+
+*** Counts
+For DATA “counts” use the following:
+
+- Category = Relative (interval)
+- Standard unit = dimensionless -> number
+- Number type = whole or natural
+
+*** Altitude
+
+- Category = Relative (interval)
+- Standard unit = length -> metre (or other length unit)
+- Number type = whole or real
+
+* Exploratory Data Analysis
+** 2015-10-26-show-missingness-in-large-dataframes
+*** post
+#+name:show-missingness-in-large-dataframes-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-10-28-show-missingness-in-large-dataframes-v2.md :exports none :eval no :padline no
+---
+name: show-missingness-in-large-dataframes
+layout: post
+title: Show missingness in large dataframes, version 2
+date: 2015-10-28
+categories:
+- disentangle
+- Exploratory Data Analysis
+---
+
+- UPDATE: the other day I blogged this but I needed to tweak things, so this is a re-post with extra
+- UPDATE 2: Today an R blogger has posted a new solution [/2015/12/show-missingness-in-large-dataframes-with-ggplot-thanks-to-r-blogger](/2015/12/show-missingness-in-large-dataframes-with-ggplot-thanks-to-r-blogger)
+
+
+## The old post
+
+- Sometime ago I saw this example of a method for assessing missing data in a large data frame [http://flowingdata.com/2014/08/14/csv-fingerprint-spot-errors-in-your-data-at-a-glance/](http://flowingdata.com/2014/08/14/csv-fingerprint-spot-errors-in-your-data-at-a-glance/)
+- I asked my colleague Grant about doing this in R and he whipped up the following code to generate such an image:
+
+![/images/bankstown_traffic_counts_full_listing_june_2014.svg](/images/bankstown_traffic_counts_full_listing_june_2014.svg)
+
+#### Code
+    misstable <- function(atable){
+     op <- par(bg = "white")
+     plot(c(0, 400), c(0, 1000), type = "n", xlab="", ylab="",
+         main = "Missing Data Table")
+    
+    
+     pmin=000
+     pmax=400
+     stre=pmax-pmin
+     lnames=length(atable)
+     cstep = (stre/lnames)
+     for(titles in 1:lnames){
+     text((titles-1) * cstep+pmin+cstep/2,1000,colnames(atable)[titles])
+     }
+    
+     gmax=900
+     gmin=0
+     gstre=gmax-gmin
+     rvec = as.vector(atable[ [ 1 ] ])
+     dnames=length(rvec)
+     step = gstre / dnames
+     for(rows in 1:dnames){
+     text(30,gmax - (rows-1)*step-step/2,rvec[rows])
+     ymax=gmax - (rows-1)*step
+     ymin=gmax - (rows)*step
+     for(col in 2:lnames-1){
+     if(atable[rows,col+1] == F){
+     tcolor = "red"
+     }
+     if(atable[rows,col+1] == T){
+     tcolor = "white"
+     }
+     rect((col) * (stre/lnames)+pmin, ymin, (col+1) * (stre/lnames)+pmin,
+     ymax,col=tcolor,lty="blank")
+     }
+     }
+    }
+<p></p>
+
+- Now things to note are that the function expects the data to be TRUE if Not NA and  FALSE if is NA
+- so might need to massage things a bit first
+- here is the small test Grant supplied
+
+#### Code
+    require(grDevices)
+       
+    # Make a quick dataframe with true/false representing data availability
+    locs=c("Australia","India","New Zealand","Sri Lanka","Uruguay","Somalia")
+    f1=c(T,F,T,T,F,F)
+    f2=c(F,F,F,T,F,F)
+    f3=c(F,T,T,T,F,T)
+    atable=data.frame(locs,f1,f2,f3)
+    atable
+    #Draw the table.
+    misstable(atable)
+    
+<p></p>
+
+- here is the one I worked on today
+
+#### Code
+    # having defined the input dir and input file tried reading the excel sheet (without head 3 rows)
+    #dat <- readxl::read_excel(file.path(indir, infile), skip =3)
+    # got lots of warnings()
+    ## 50: In read_xlsx_(path, sheet, col_names = col_names, col_types = col_types,  ... :
+    ##   [1278, 4]: expecting date: got '[NULL]'
+    # I always worry about using excel connections so open in excel (in windows) 
+    # and save as to convert to CSV
+    dat <- read.csv(file.path(indir, gsub(".xlsx", ".csv", infile)), skip =3, stringsAsFactor = F)
+    str(dat)
+    # 'data.frame':	1396 obs. of  167 variables:
+    # but most of the cols and a third of the rows are empty!
+    # check missings
+    dat2 <- data.frame(id = 1:nrow(dat), dat)
+    str(dat2)
+    # first if they are empty strings
+    dat2[dat2 == ""] <- NA
+    # now if NA
+    dat2[,2:ncol(dat2)] <- !is.na(dat2[,2:ncol(dat2)])
+    
+    # Truncate the hundreds of empty cols
+    str(dat2[,1:18])
+    tail(dat2[,1:18])
+    svg(file.path(outdir, gsub(".csv", ".svg", outfile))    )
+    misstable(dat2[,1:18])
+    dev.off()
+    browseURL(file.path(outdir, gsub(".csv", ".svg", outfile))    )
+    
+    # cool, that is an effective way to look at the data
+    
+#+end_src
+
+*** COMMENT misstable-code
+#+name:misstable
+#+begin_src R :session *R* :tangle R/misstable.R :exports none :eval no
+  #### name:misstable ####
+    
+  #Plot Function
+  misstable <- function(atable){
+   op <- par(bg = "white")
+   plot(c(0, 400), c(0, 1000), type = "n", xlab="", ylab="",
+       main = "Missing Data Table")
+  
+  
+   pmin=000
+   pmax=400
+   stre=pmax-pmin
+   lnames=length(atable)
+   cstep = (stre/lnames)
+   for(titles in 1:lnames){
+   text((titles-1) * cstep+pmin+cstep/2,1000,colnames(atable)[titles])
+   }
+  
+   gmax=900
+   gmin=0
+   gstre=gmax-gmin
+   rvec = as.vector(atable[[1]])
+   dnames=length(rvec)
+   step = gstre / dnames
+   for(rows in 1:dnames){
+   text(30,gmax - (rows-1)*step-step/2,rvec[rows])
+   ymax=gmax - (rows-1)*step
+   ymin=gmax - (rows)*step
+   for(col in 2:lnames-1){
+   if(atable[rows,col+1] == F){
+   tcolor = "red"
+   }
+   if(atable[rows,col+1] == T){
+   tcolor = "white"
+   }
+   rect((col) * (stre/lnames)+pmin, ymin, (col+1) * (stre/lnames)+pmin,
+   ymax,col=tcolor,lty="blank")
+   }
+   }
+  }
+  
+    
+#+end_src
+
+#+RESULTS: misstable
+
+*** COMMENT test-code
+#+name:test
+#+begin_src R :session *R* :tangle test.R :exports none :eval no
+  #### name:test ####
+    
+    
+   require(grDevices)
+      
+   # Make a quick dataframe with true/false representing data availability
+   locs=c("Australia","India","New Zealand","Sri Lanka","Uruguay","Somalia")
+   f1=c(T,F,T,T,F,F)
+   f2=c(F,F,F,T,F,F)
+   f3=c(F,T,T,T,F,T)
+   atable=data.frame(locs,f1,f2,f3)
+   atable
+   #Draw the table.
+   misstable(atable)
+  
+  dat <- read.csv("~/data/LTERN/kwrt_woodland_restoration/kwrt_birds_spring_2013_p12/kwrt_birds_spring_p12t312.csv")
+  dat[,2:ncol(dat)] <-  is.na(dat[,2:ncol(dat)])
+  dat[1:10,1:4]
+  names(dat) <- paste("V", 1:ncol(dat), sep = "")
+  nrow(dat)
+  str(dat)
+  png("misstable.png", height=1800, width = 3000, res = 200)
+  misstable(dat[1:100,])
+  dev.off()
+  browseURL("misstable.png")
+#+end_src
+
+
+** 2015-12-02-show-missingness-in-large-dataframes-with-ggplot-thanks-to-r-blogger
+#+name:show-missingness-in-large-dataframes-with-ggplot-thanks-to-r-blogger-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-12-02-show-missingness-in-large-dataframes-with-ggplot-thanks-to-r-blogger.md :exports none :eval no :padline no
+---
+name: show-missingness-in-large-dataframes-with-ggplot-thanks-to-r-blogger
+layout: post
+title: show-missingness-in-large-dataframes-with-ggplot-thanks-to-r-blogger
+date: 2015-12-02
+categories:
+- disentangle
+tags:
+- exploratory data analysis
+---
+
+- This is a revision of my post [/2015/10/show-missingness-in-large-dataframes-v2](/2015/10/show-missingness-in-large-dataframes-v2)
+- This guy posted [http://www.njtierney.com/r/missing%20data/rbloggers/2015/12/01/ggplot-missing-data/](http://www.njtierney.com/r/missing%20data/rbloggers/2015/12/01/ggplot-missing-data/)
+
+### Let's try it out!
+
+```
+library(devtools)
+# depends
+install.packages("gbm")
+install_github("tierneyn/neato")
+library(neato)
+# small eg
+locs=c("Australia","India","New Zealand","Sri Lanka","Uruguay","Somalia")
+f1=c(T,F,T,T,F,F)
+f2=c(F,F,F,T,F,F)
+f3=c(F,T,T,T,F,T)
+atable=data.frame(locs,f1,f2,f3)
+atable[atable == FALSE] <- NA
+atable
+png("ggplotmissing.png")
+ggplot_missing(atable)
+dev.off()
+
+```
+<p></p>
+
+![/images/ggplotmissing.png](/images/ggplotmissing.png)
+
+- The one I had problems with because too large is:
+
+```
+# Cool but what about a big one?
+dat <- read.csv("~/path/to/file.csv")
+str(dat)
+png("ggplotmissing2.png", height=1800, width = 3000, res = 200)
+ggplot_missing(dat)
+dev.off()
+
+```
+
+![/images/ggplotmissing2.png](/images/ggplotmissing2.png)
+
+#+end_src
+*** COMMENT code
+#+name:code
+#+begin_src R :session *R* :tangle code.R :exports none :eval no
+  #### name:code ####
+  library(devtools)
+  # depends
+  install.packages("gbm")
+  install_github("tierneyn/neato")
+  library(neato)
+  
+  locs=c("Australia","India","New Zealand","Sri Lanka","Uruguay","Somalia")
+  f1=c(T,F,T,T,F,F)
+  f2=c(F,F,F,T,F,F)
+  f3=c(F,T,T,T,F,T)
+  atable=data.frame(locs,f1,f2,f3)
+  atable[atable == FALSE] <- NA
+  atable
+  png("ggplotmissing.png")
+  ggplot_missing(atable)
+  dev.off()
+  
+  
+  # Cool but what about a big one?
+  dat <- read.csv("~/data/LTERN/kwrt_woodland_restoration/kwrt_birds_spring_2013_p12/kwrt_birds_spring_p12t312.csv")
+  dat[,2:ncol(dat)] <-  is.na(dat[,2:ncol(dat)])
+  dat[1:10,1:4]
+  names(dat) <- paste("V", 1:ncol(dat), sep = "")
+  nrow(dat)
+  dat[dat == FALSE] <- NA
+  str(dat)
+  png("ggplotmissing2.png", height=1800, width = 3000, res = 200)
+  ggplot_missing(dat)
+  dev.off()
+  browseURL("ggplotmissing2.png")
+  
+#+end_src
+
+** recursive queries with SQL
+http://blog.revolutionanalytics.com/2015/12/exploring-recursive-ctes-with-sqldf.html
 * Data Management
 ** Exemplar Data Management Policies
 *** NCEPH
@@ -33,7 +441,7 @@
 this is built for the swish ideas
 *** COMMENT go
 #+name:go
-#+begin_src R :session *R* :tangle go.R :exports none :eval yes
+#+begin_src R :session *R* :tangle no :exports none :eval yes
 #### name:go ####
 system("pdflatex swish-dmp.tex")
 #browseURL("swish-dmp.pdf")
@@ -43,10 +451,234 @@ system("pdflatex swish-dmp.tex")
 : 0
 
 *** COMMENT swish-dmp
+**** header
 #+name:swish-dmp
 #+begin_src latex :tangle swish-dmp.tex :exports none :eval no
+  \documentclass{article}
+  \usepackage{hyperref}
+  \usepackage{tikz}
+  \usetikzlibrary{calc}
+  
+  \usepackage{tikz}
+  %------------------%
+  \makeatletter
+  \newcount\dirtree@lvl
+  \newcount\dirtree@plvl
+  \newcount\dirtree@clvl
+  \def\dirtree@growth{%
+    \ifnum\tikznumberofcurrentchild=1\relax
+    \global\advance\dirtree@plvl by 1
+    \expandafter\xdef\csname dirtree@p@\the\dirtree@plvl\endcsname{\the\dirtree@lvl}
+    \fi
+    \global\advance\dirtree@lvl by 1\relax
+    \dirtree@clvl=\dirtree@lvl
+    \advance\dirtree@clvl by -\csname dirtree@p@\the\dirtree@plvl\endcsname
+    \pgf@xa=0.5cm\relax % change the length to your needs
+    \pgf@ya=-0.75cm\relax % change the length to your needs
+    \pgf@ya=\dirtree@clvl\pgf@ya
+    \pgftransformshift{\pgfqpoint{\the\pgf@xa}{\the\pgf@ya}}%
+    \ifnum\tikznumberofcurrentchild=\tikznumberofchildren
+    \global\advance\dirtree@plvl by -1
+    \fi
+  }
+  \tikzset{ %definition of a new style "dirtree"
+    dirtree/.style={
+      growth function=\dirtree@growth,
+      every node/.style={anchor=north},
+      every child node/.style={anchor=west},
+      edge from parent path={(\tikzparentnode\tikzparentanchor) |- (\tikzchildnode\tikzchildanchor)}
+    }
+  }
+  \makeatother
+  
+  
+  \begin{document}
+  \tikzset{
+      hyperlink node/.style={
+          alias=sourcenode,
+          append after command={
+              let     \p1 = (sourcenode.north west),
+                  \p2=(sourcenode.south east),
+                  \n1={\x2-\x1},
+                  \n2={\y1-\y2} in
+              node [inner sep=0pt, outer sep=0pt,anchor=north west,at=(\p1)] {\hyperlink{#1}{\phantom{\rule{\n1}{\n2}}}}
+                      %xelatex needs \XeTeXLinkBox, won't create a link unless it
+                      %finds text --- rules don't work without \XeTeXLinkBox.
+                      %Still builds correctly with pdflatex and lualatex
+          }
+      }
+  }
+  
+  %\hypertarget{pageone}{Page One}
+  %}
+  
+  
+  %\tikz \node [draw, inner sep=2ex,hyperlink node=pagetwo] {Go to Page Two};
+  %\tikz \node (author) at (-2.5,4.1) [draw=black!50,dashed,rectangle,fill=green!20,hyperlink node=pagetwo]{Author}; 
+  
+  %\tikz \node (reader) at (-2.5, -2.0) [draw=black!50,dashed,rectangle,fill=green!20,hyperlink node=pagetwo] {Go to Page Three};
+  
+  %     \makebox[.4\textwidth][r]{
+  
+  %    \makebox[.4\textwidth][l]{
+#+end_src
+**** COMMENT main computer
+#+begin_src latex :tangle swish-dmp.tex :exports none :eval no  
+  \begin{tikzpicture}[dirtree] % it's what we defined above
+  
+  \node [draw=black!50,dashed,rectangle,fill=green!20]{\hyperref[dmp]{* main computer} }
+      child { node {\hyperref[dmp]{Data Management Plan} }}
+      child { node {\hyperref[datinv]{Data Inventory} }}
+      child { node {\hyperref[install]{** Project1} }
+          child { node {\hyperref[linux]{README}} }
+          child { node {\hyperref[proj]{project management}} }
+          child { node {\hyperref[mac]{*** dataset1}} 
+              child { node {\hyperref[mac2]{**** workplan and protocol}} }            
+              child { node {\hyperref[mac3]{worklog}} }
+              child { node {\hyperref[workflow]{workflow}} }
+              child { node {\hyperref[dataprov]{**** entities1 data provided}} }
+              child { node {\hyperref[dataprov]{**** entities2 data derived}} 
+                child { node {\hyperref[mac]{files}}} 
+                child { node {\hyperref[mac2]{versions}}}                
+                 }                                      
+              child { node {\hyperref[mac2]{**** results}} 
+                child { node {YYYY-MM-DD}}
+                 }            
+              child { node {\hyperref[mac3]{reports}} }
+  }
+          child { node {\hyperref[win]{dataset2}} }
+      }
+      child {node {\hyperref[trbl-shoot]{Project2}}
+          child {node {\hyperref[caseX]{dataset3}}}
+          child {node {\hyperref[caseY]{dataset4}}}
+      }
+      child {node {\hyperref[start]{working\_user}}
+          child { node {\hyperref[caseA]{do A}} }
+          child { node {\hyperref[caseB]{do B}} }
+      };
+      % I've put the external resources to the end:
+%      child {node {Versions}
+%          child { node {\href{file:sanitize_bib_table.pdf}{Backups}} }% works only, if "manual.pdf" is in
+                                                         % the same directory as the compiled
+                                                         % version of this document
+  %        child { node {\href{http://www.google.com/}{Version Control}} }
+%      };
+  \end{tikzpicture}
+  \hspace{0.1cm}
+#+end_src
+**** COMMENT auxiliary resources
+#+begin_src latex :tangle swish-dmp.tex :exports none :eval no  :padline no
+  \begin{tikzpicture}[
+                outpt/.style={->,blue!80!black,very thick},
+                >=stealth,
+             every node/.append style={align=center}]
+                  \node (aux) at (0,18) [draw=black!50,dashed,rectangle,fill=green!30,hyperlink node=pagetwo]{Auxiliary resources}; 
+                  \node (aux) at (0,17) [draw=black!50,dashed,rectangle,fill=yellow!30,hyperlink node=pagetwo]{Dropbox}; 
+    
+                  \node (measdata) at (-2.4,9) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=pagetwo]{Distributed data}; 
+                  \node (hypothesis) at (2,9) [draw=black!50,dashed,rectangle,fill=red!30,hyperlink node=pagethree]{Permissions \\ + citations}; 
+                \node (anadata) at (0,7.5) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}feedback \end{tabular}};
+                \node (anadata3) at (0,0) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}Version control\end{tabular}};
+  
+                \draw[outpt](anadata)--(measdata);
+                \draw[outpt](measdata)--(hypothesis);
+                \draw[outpt](hypothesis)--(anadata);
+  
+    
+  \end{tikzpicture}
+  %}
+#+end_src
+**** COMMENT main computer
+#+begin_src latex :tangle swish-dmp.tex :exports none :eval no  :padline no
+  
+  \clearpage
+  \tikz \node [draw, inner sep=2ex,hyperlink node=pageone] {Main Computer};
+  
+  \hypertarget{pagetwo}{Page Two}
+  \clearpage
+  \hypertarget{pagethree}{Page Three}
+  
+  \clearpage
+  \section*{Installation}\label{install}
+  
+  \subsection*{Data Management Plan}\label{dmp}
+  
+  \subsection*{Linux}\label{linux}
+  Some content.
+  
+  \subsection*{Mac}\label{mac}
+  Some content.
+  
+  \subsection*{Windows}\label{win}
+  Some content.
+  \clearpage
+  \section*{Get started}\label{start}
+  \subsection*{First: Do A}\label{caseA}
+  Some content.
+  
+  \subsection*{Second: Do B}\label{caseB}
+   Some content.
+  \clearpage
+  \section*{Trouble shooting}\label{trbl-shoot}
+  \subsection*{If X happens:}\label{caseX}
+  Some content.
+  
+  \subsection*{If Y happens:}\label{caseY}
+   Some content.
+  
+  \subsection*{Data Inventory}\label{datinv}
+  \subsection*{Worklog2}\label{mac2}
+  
+#+end_src
+**** worklog
+#+begin_src latex :tangle swish-dmp.tex :exports none :eval no  :padline no
+  
+\subsection*{Worklog}\label{mac3}
+
+Conventions used for writing these entries are:
+\begin{quote}
+- Names follow this structure [**] [date in ISO 8601] [meeting/notes/results] [from UserName] [Re: topic shortname]
+- 'meetings' are for both agenda preparation and also notes of discussion
+- 'notes' are such things as emailed information or ad hoc Discovery
+- 'results' are entries related to a section of the 'results' folder. 
+  That is, this kind of entry is in parallel to the results entry,
+  however the log contains a prose description of the experiment,
+  whereas the results folder contains scripts etc of all the gory
+  details.  
+\end{quote}
+#+end_src
+**** end
+#+begin_src latex :tangle swish-dmp.tex :exports none :eval no  :padline no
+
+  \subsection*{Workflow}\label{workflow}
+  
+  \subsection*{Data Provided}\label{dataprov}
+#+end_src
+**** proj
+#+begin_src latex :tangle swish-dmp.tex :exports none :eval no  :padline no
+\clearpage
+\subsection*{Project Management}\label{proj}
+
+\begin{tikzpicture}[dirtree] % it's what we defined above
+  
+\node [draw=black!50,dashed,rectangle,fill=green!20]{{project plan} }
+      child { node {{proposal} }
+          child { node {{approved version: this is the master plan}} }
+      }
+      child { node {{meetings} }
+          child { node {{meeting1}} }
+      };
+
+\end{tikzpicture}
+#+end_src
+**** end
+#+begin_src latex :tangle swish-dmp.tex :exports none :eval no  :padline no
+  \end{document}  
+#+end_src
+*** versions
+**** this one exlcludes working and versions
 \documentclass{article}
-\usepackage[hidelinks]{hyperref}
+\usepackage{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{calc}
 
@@ -112,50 +744,73 @@ system("pdflatex swish-dmp.tex")
 %     \makebox[.4\textwidth][r]{
 
 %    \makebox[.4\textwidth][l]{
- 
+        \resizebox {.65\columnwidth} {!} {
 \begin{tikzpicture}[dirtree] % it's what we defined above
+  
+  \node [draw=black!50,dashed,rectangle,fill=green!20]{\hyperref[dmp]{* main computer} }
+      child { node {\hyperref[dmp]{Data Management Plan} }}
+      child { node {\hyperref[datinv]{Data Inventory} }}
+      child { node {\hyperref[install]{** Project1} }
+          child { node {\hyperref[linux]{README}} }
+          child { node {\hyperref[proj]{project management}} }
+          child { node {\hyperref[mac]{*** dataset1}} 
+              child { node {\hyperref[mac2]{**** workplan and protocol}} }            
+              child { node {\hyperref[mac3]{worklog}} }
+              child { node {\hyperref[workflow]{workflow}} }
+              child { node {\hyperref[dataprov]{**** entities1 data provided}} }
+              child { node {\hyperref[dataprov]{**** entities2 data derived}} 
+                child { node {\hyperref[mac]{files}}} 
+                child { node {\hyperref[mac2]{versions}}}                
+                 }                                      
+              child { node {\hyperref[mac2]{**** results}} 
+                child { node {YYYY-MM-DD}}
+                 }            
+              child { node {\hyperref[mac3]{reports}} }
+  }
+          child { node {\hyperref[win]{dataset2}} }
+      }
+      child {node {\hyperref[trbl-shoot]{Project2}}
+          child {node {\hyperref[caseX]{dataset3}}}
+%          child {node {\hyperref[caseY]{dataset4}}}
+      };
+%      child {node {\hyperref[start]{working\_user}}
+%          child { node {\hyperref[caseA]{do A}} }
+%          child { node {\hyperref[caseB]{do B}} }
+%      }
+      % I've put the external resources to the end:
+%      child {node {Versions}
+%          child { node {\href{file:sanitize_bib_table.pdf}{Backups}} }% works only, if "manual.pdf" is in
+                                                         % the same directory as the compiled
+                                                         % version of this document
+  %        child { node {\href{http://www.google.com/}{Version Control}} }
+%      };
 
-\node [draw=black!50,dashed,rectangle,fill=green!20]{\textbf{COOL TOC}}
-    child { node {\hyperref[install]{installation} }
-        child { node {\hyperref[linux]{Linux}} }
-        child { node {\hyperref[mac]{Mac}} 
-            child { node {\hyperref[mac2]{Mac2}} }
+  \end{tikzpicture}
 }
-        child { node {\hyperref[win]{Windows}} }
-    }
-    child {node {\hyperref[start]{Get Started}}
-        child { node {\hyperref[caseA]{do A}} }
-        child { node {\hyperref[caseB]{do B}} }
-    }
-    child {node {\hyperref[trbl-shoot]{troubleshoot}}
-        child {node {\hyperref[caseX]{if X happens}}}
-        child {node {\hyperref[caseY]{if Y happens}}}
-    }
-    % I've put the external resources to the end:
-    child {node {Looking Further}
-        child { node {\href{file:sanitize_bib_table.pdf}{manual}} }% works only, if "manual.pdf" is in
-                                                       % the same directory as the compiled
-                                                       % version of this document
-        child { node {\href{http://www.google.com/}{online}} }
-    };
-\end{tikzpicture}
-\hspace{0.1cm}
+  \hspace{0.1cm}
+\resizebox {.35\columnwidth} {!} {
 \begin{tikzpicture}[
               outpt/.style={->,blue!80!black,very thick},
               >=stealth,
            every node/.append style={align=center}]
+                \node (aux) at (0,18) [draw=black!50,dashed,rectangle,fill=green!30,hyperlink node=pagetwo]{Auxiliary resources}; 
+                \node (aux) at (0,17) [draw=black!50,dashed,rectangle,fill=yellow!30,hyperlink node=pagetwo]{Dropbox}; 
   
-              \node (anadata) at (0,0) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}Analytic \\ data \end{tabular}};
-                \node (measdata) at (-2.4,.7) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=pagetwo]{Measured \\ data}; 
-                \node (hypothesis) at (2,-2) [draw=black!50,dashed,circle,fill=red!30,hyperlink node=pagethree]{Hypothesis \\ + design}; 
-              \draw[outpt](measdata)--(anadata);
-              \draw[outpt](hypothesis)--(measdata);
+                \node (measdata) at (-2.4,9) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=pagetwo]{Distributed data}; 
+                \node (hypothesis) at (2,9) [draw=black!50,dashed,rectangle,fill=red!30,hyperlink node=pagethree]{Permissions \\ + citations}; 
+              \node (anadata) at (0,7.5) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}feedback \end{tabular}};
+              \node (anadata3) at (0,0) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}Version control\end{tabular}};
+
+              \draw[outpt](anadata)--(measdata);
+              \draw[outpt](measdata)--(hypothesis);
+              \draw[outpt](hypothesis)--(anadata);
+
   
 \end{tikzpicture}
+}
 %}
-
 \clearpage
-\tikz \node [draw, inner sep=2ex,hyperlink node=pageone] {Go to Page One};
+\tikz \node [draw, inner sep=2ex,hyperlink node=pageone] {Main Computer};
 
 \hypertarget{pagetwo}{Page Two}
 \clearpage
@@ -163,6 +818,9 @@ system("pdflatex swish-dmp.tex")
 
 \clearpage
 \section*{Installation}\label{install}
+
+\subsection*{Data Management Plan}\label{dmp}
+
 \subsection*{Linux}\label{linux}
 Some content.
 
@@ -186,6 +844,188 @@ Some content.
 \subsection*{If Y happens:}\label{caseY}
  Some content.
 
+\subsection*{Data Inventory}\label{datinv}
+\subsection*{Worklog2}\label{mac2}
+\subsection*{Worklog}\label{mac3}
 
-\end{document} 
+Conventions used for writing these entries are:
+\begin{quote}
+- Names follow this structure [**] [date in ISO 8601] [meeting/notes/results] [from UserName] [Re: topic shortname]
+- 'meetings' are for both agenda preparation and also notes of discussion
+- 'notes' are such things as emailed information or ad hoc Discovery
+- 'results' are entries related to a section of the 'results' folder. 
+  That is, this kind of entry is in parallel to the results entry,
+  however the log contains a prose description of the experiment,
+  whereas the results folder contains scripts etc of all the gory
+  details.  
+\end{quote}
+\subsection*{Workflow}\label{workflow}
+
+\subsection*{Data Provided}\label{dataprov}
+\clearpage
+\subsection*{Project Management}\label{proj}
+
+\begin{tikzpicture}[dirtree] % it's what we defined above
+  
+\node [draw=black!50,dashed,rectangle,fill=green!20]{{project plan} }
+      child { node {{proposal} }
+          child { node {{approved version: this is the master plan}} }
+      }
+      child { node {{meetings} }
+          child { node {{meeting1}} }
+      };
+
+\end{tikzpicture}
+\end{document}
+
+** 2015-11-29-notes-from-dr-climate-re-data-reference-syntax-models-for-file-organisation-and-naming
+#+name:notes-from-dr-climate-re-data-reference-syntax-models-for-file-organisation-and-naming-header
+#+begin_src markdown :tangle no :exports none :eval no :padline no
+---
+name: notes-from-dr-climate-re-data-reference-syntax-models-for-file-organisation-and-naming
+layout: post
+title: Notes from Dr Climate Re data reference syntax models for file organisation and naming
+date: 2015-11-29
+categories:
+- disentangle
+tags:
+- data management
+---
+
+- This is an excellent explanation of the Australian Integrated Marine Observing System (IMOS) Data Reference Syntax by Damien Irving on the Dr Climate blog  [https://drclimate.wordpress.com/2015/09/04/managing-your-data/](https://drclimate.wordpress.com/2015/09/04/managing-your-data/)
+- A Data Reference Syntax (DRS) – a convention for naming your files
+
+```
+<computer>/<project>/<organisation>/<collection>/<facility>/<data-type>/<site-code>/<year>/
+
+The data type has a sub-DRS of its own, which tells us that the data
+represents the 1-hourly average surface current for a single month
+(October 2012), and that it is archived on a regularly spaced spatial
+grid and has not been quality controlled.
+
+Just in case the file gets separated from this informative directory
+structure, much of the information is repeated in the file name
+itself, along with some more detailed information about the start and
+end time of the data, and the last time the file was modified:
+
+<project>_<facility>_V_<time-start>_<site-code>_FV00_<data-type>_<time-end>_<modified>.nc.gz
+
+In the first instance this level of detail seems like a bit of
+overkill... 
+
+Since the data are so well labelled,
+locating all monthly timescale ACORN data from the Turquoise Coast and
+Rottnest Shelf sites (which represents hundreds of files) would be as
+simple as typing the following at the command line:
+
+$ ls */ACORN/monthly_*/{TURQ,ROT}/*/*.nc
+
+```
+<p></p>
+
+## Damien's personalised DRS
+
+- It is worthwhile thinking through these ideas and incorporating them in ones data management system as early as possible
+- Damien has also helpfully openly shared his own DRS at [https://github.com/DamienIrving/climate-analysis/blob/master/data_reference_syntax.md](https://github.com/DamienIrving/climate-analysis/blob/master/data_reference_syntax.md)
+- Here is a summary of some key items I'm going to implement versions of for my own work
+
+```
+Basic data files
+
+<var>_<dataset>_<level>_<time>_<spatial>.nc
+
+Sub-categories:  
+
+,* <time>: <tstep>-<aggregation>-<season>
+,* <spatial>: <grid>-<region>-<bounds>-<np>
+
+Where:  
+
+,* <tstep>: daily, monthly
+,* <aggregation>: 030day-runmean, anom-wrt-1979-2011, anom-wrt-all
+,* <season>: JJA, MJJASO
+,* <grid>: native or something like y181x360, which describes the number of latitude (181) and longitude (360) points (in this case it is a 1 by 1 degree horizontal grid).
+,* <region>: Region names are defined in netcdf_io.py
+,* <bounds>: e.g. lon225E335E-lat10S10N or mermax, zonal-anom 
+,* <np>: North pole location, e.g. np20N260E
+
+Examples include:  
+psl_Merra_surface_daily_y181x360.nc 
+
+More complex file names
+
+<inside>_<filters>_<prev-var>_<dataset>_<level>_<time>_<spatial>.nc 
+
+Sub-categories:
+
+,* <inside>: The variable inside the file. e.g. tas-composite, datelist
+,* <filters>: e.g. samgt90pct (gt and lt and used for greater and less than, pct for percentile)
+,* <prev-var>: if it's not obvious what variable <inside> was created from, include the previous variable/s
+
+Examples:  
+tas-composite_pwigt90pct_ERAInterim_500hPa_030day-runmean-anom-wrt-all_native-sh.png
+```
+<p></p>
+
+### Principles of Tidy Data
+
+In the words of Hadley Wickham the order that data should be
+arranged in follows some generic principles:
+
+```
+'A good ordering makes it easier to scan the raw values. One way of
+organizing variables is by their role in the analysis: are values
+fixed by the design of the data collection, or are they measured
+during the course of the experiment? Fixed variables describe the
+experimental design and are known in advance. Computer scientists
+often call fixed variables dimensions, and statisticians usually
+denote them with subscripts on random variables. Measured variables
+are what we actually measure in the study. Fixed variables should come
+first, followed by measured variables, each ordered so that related
+variables are contiguous. Rows can then be ordered by the first
+variable, breaking ties with the second and subsequent (fixed)
+variables.'
+```
+<p></p>
+### An exemplar
+
+In my last project the protocol we developed (for an ecology and biodiversity database) had a naming convention which relied heavily on a sequence of information being used to order the names of folders, subfolders and files.  This is:
+
+1. The project name (and optional sub-project name)
+1. Data type (such as experimental unit, observational unit, and/or measurement methods)
+1. Geographic location (locality name, State, Country)
+1. Temporal frequency and coverage (such as annual or seasonal tranches).
+
+### The concepts of slow moving dimensions and fast moving variables
+
+The concept of dimensions and variables can be useful here, and especially for deciding on filenames.  Dimensions are fixed or change slowly while variables change more quickly.  By 'change', this  means that there are more of them. For example the project name is 'fixed', that is it does not change across the files, but the sub-project name does change, just more slowly (say there may be 2-3 different sub-projects within a project). Then there may be a set of data types, and these 'change' more quickly than the sub-project name.  Then the geographic and temporal variables might change quickest of all.
+
+So a general rule for the order of things can be stated. The fixed and slowly changing variables should come first (those things that don't change, or don't change much), 
+followed by the more fluid variables (or things that change more across the project). 
+List elements can then be ordered so that the groups of things that are similar will always be contiguous, and vary sequentially within clusters.
+
+So the only thing I disagree with Damien about is his decision to put space after time:
+
+`<var>_<dataset>_<level>_<time>_<spatial>.nc`
+
+<p></p>
+
+This is  because I think that the geography is more stable than the time period for a data collection, and as most of my studies look at changes of variables measured at a location over time I generally want to compare the same spot at multiple times.  There are pros and cons of each approach such as if the analyst wants to make maps of a variable measured at several locations at a single point in time then having the data arranged by time first and then location may make that job simpler.
+
+I also notice however that the IMOS syntax puts the site spatial location before the year.
+
+
+
+
+    
 #+end_src
+
+* writing
+** environmental health risk assessment (simple)
+- define the range of health effects and environmental exposures
+- characterise the main health outcomes and exposure pathways
+- discuss multiple interacting environmental and social factors
+- the magnitude of public health impacts related to the issue (also the level of public concern)
+- The epidemiological evidence of health effects related to the exposures of interest (in general terms) 
+- Specific exposed populations and sensitive subgroups
+- uncertainties or limitations of the literature are noted.
