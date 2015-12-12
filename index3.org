@@ -1072,13 +1072,13 @@ http://jmbh.github.io//Estimation-of-mixed-graphical-models/
 - a confounder, W is associated with both exposure (tempera- ture) and outcome (mortality) and provides an unblocked backdoor path between mortal- ity and temperature, in the language of DAGs (Greenland et al. 1999) p34 2nd col (from \cite{Reid2012})
 ** causal diagrams
 Greenland, S., Pearl, J., & Robins, J. M. (1999). Causal diagrams for epidemiologic research. Epidemiology (Cambridge, Mass.), 10(1), 37–48. doi:10.1097/00001648-199901000-00008
-
-** causal_diagram
-*** R-causal_diagram
-#+name:causal_diagram
-#+begin_src R :session *R* :tangle R/causal_diagram.r :exports none :eval no
+* Diagrams
+** newgraph
+*** R-newgraph
+#+name:newgraph
+#+begin_src R :session *R* :tangle R/newgraph.r :exports none :eval no
     
-  causal_diagram <- function(
+  newgraph <- function(
   indat2  = nodes
   ,
   in_col = "causes"
@@ -1126,12 +1126,12 @@ Greenland, S., Pearl, J., & Robins, J. M. (1999). Causal diagrams for epidemiolo
   
 #+end_src
 
-#+RESULTS: causal_diagram
+#+RESULTS: newgraph
 
-*** test-causal_diagram
-#+name:causal_diagram
-#+begin_src R :session *R* :tangle tests/test-causal_diagram.r :exports none :eval yes
-  # name:causal_diagram
+*** test-newgraph
+#+name:newgraph
+#+begin_src R :session *R* :tangle tests/test-newgraph.r :exports none :eval yes
+  # name:newgraph
   library(DiagrammeR)
   library(stringr)
   nodes  <- read.csv(textConnection('causes,         effect, colour, pos
@@ -1145,7 +1145,7 @@ Greenland, S., Pearl, J., & Robins, J. M. (1999). Causal diagrams for epidemiolo
   '), stringsAsFactors = F, strip.white = T)
   nodes
   
-  dotty <- causal_diagram(
+  dotty <- newgraph(
     indat2  = nodes
     ,
     in_col = "causes"

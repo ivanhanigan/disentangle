@@ -1,5 +1,5 @@
 
-# name:causal_diagram
+# name:newgraph
 library(DiagrammeR)
 library(stringr)
 nodes  <- read.csv(textConnection('causes,         effect, colour, pos
@@ -13,7 +13,7 @@ Depression,                             Suicide   , lightgreen,        "7,0!"
 '), stringsAsFactors = F, strip.white = T)
 nodes
 
-dotty <- causal_diagram(
+dotty <- newgraph(
   indat2  = nodes
   ,
   in_col = "causes"

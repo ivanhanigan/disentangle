@@ -1,5 +1,5 @@
 
-causal_diagram <- function(
+newgraph <- function(
 indat2  = nodes
 
 in_col = "causes"
