@@ -9454,6 +9454,9 @@ categories:
   
 #+end_src
 
+** orgmode and dot/graphviz
+http://www.tonyballantyne.com/graphs.html
+
 * R Packages
 * Project Management
 ** Gantt Charts

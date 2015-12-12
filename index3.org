@@ -1020,7 +1020,336 @@ I also notice however that the IMOS syntax puts the site spatial location before
     
 #+end_src
 
-* writing
+* Statistical modelling
+** causal influence diagrams with tikz
+*** COMMENT go
+#+name:go
+#+begin_src R :session *R* :tangle no :exports none :eval yes
+  #### name:go ####
+  dir()
+  system("pdflatex causes.tex")
+  #browseURL("causes.pdf")
+#+end_src
+
+*** header
+#+name:swish-dmp
+#+begin_src latex :tangle causes.tex :exports none :eval no
+  
+  \documentclass{article}
+  \usepackage{hyperref}
+  \usepackage{tikz}
+  \usetikzlibrary{calc}
+  
+  \usepackage{tikz}
+    \begin{document}
+  
+  \begin{tikzpicture}[
+    outpt/.style={->,blue!80!black,very thick},
+    >=stealth,
+    every node/.append style={align=center}]
+    \node (aux) at (0,18) [draw=black!50,dashed,rectangle,fill=green!30]{Auxiliary resources}; 
+    \node (aux) at (0,17) [draw=black!50,dashed,rectangle,fill=yellow!30]{Dropbox}; 
+    
+    \node (measdata) at (-2.4,9) [draw=black!50,dashed,rectangle,fill=orange!30]{Distributed data}; 
+    \node (hypothesis) at (2,9) [draw=black!50,dashed,rectangle,fill=red!30]{Permissions \\ + citations}; 
+    \node (anadata) at (0,7.5) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}feedback \end{tabular}};
+    \node (anadata3) at (0,0) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}Version control\end{tabular}};
+  
+    \draw[outpt](anadata)--(measdata);
+    \draw[outpt](measdata)--(hypothesis);
+    \draw[outpt](hypothesis)--(anadata);
+    
+  \end{tikzpicture}
+  \end{document}
+  
+  
+#+end_src
+
+** graphical models
+http://jmbh.github.io//Estimation-of-mixed-graphical-models/
+** Confounding definition
+- TODO Confounding is defined as a distortion in an 'effect measure introduced by an extraneous variate'. Rothman, K. J. (1976). Causes. Journal of Epidemiology, 104(6), 587–592.
+- a confounder, W is associated with both exposure (tempera- ture) and outcome (mortality) and provides an unblocked backdoor path between mortal- ity and temperature, in the language of DAGs (Greenland et al. 1999) p34 2nd col (from \cite{Reid2012})
+** causal diagrams
+Greenland, S., Pearl, J., & Robins, J. M. (1999). Causal diagrams for epidemiologic research. Epidemiology (Cambridge, Mass.), 10(1), 37–48. doi:10.1097/00001648-199901000-00008
+
+** causal_diagram
+*** R-causal_diagram
+#+name:causal_diagram
+#+begin_src R :session *R* :tangle R/causal_diagram.r :exports none :eval no
+    
+  causal_diagram <- function(
+  indat2  = nodes
+  ,
+  in_col = "causes"
+  ,
+  out_col  = "effect"
+  ,
+  colour_col = "colour"
+  ,
+  pos_col = "pos"
+  ){
+  nodes2 <-as.data.frame(matrix(ncol = 2, nrow = 0))
+  names(nodes2)  <- c("inputs", "outputs")
+  nameslist <- character(0)
+  colourslist <- character(0)
+  poslist <- character(0)
+  for(i in 1:nrow(indat2)){
+  #  i <- 1
+    #i
+    indat2[i,]
+    inputs <- unlist(lapply(strsplit(indat2[i,in_col], ","), str_trim))
+    outputs <- unlist(lapply(strsplit(indat2[i,out_col], ","), str_trim))
+    if(length(inputs) > 0){
+      nodes2 <- rbind(nodes2, cbind(inputs, outputs))
+    }
+    nameslist <- c(nameslist, outputs)
+    colourslist <- c(colourslist, indat2[i, colour_col]) 
+    poslist <- c(poslist, indat2[i, pos_col])
+  }
+  ## nodes2
+  ## nameslist
+  ## colourslist
+  ## poslist
+  edges_outcome <- create_edges(from = nodes2$inputs,
+                          to =   nodes2$outputs
+                          )
+  
+  nodes_outcome <- create_nodes(nodes = nameslist,
+                          label = TRUE,
+                          color = colourslist, pos = poslist)
+  #nodes_outcome
+  graph_outcome <- create_graph(nodes_df = nodes_outcome,
+                         edges_df = edges_outcome)
+  return(graph_outcome)
+  }
+  
+#+end_src
+
+#+RESULTS: causal_diagram
+
+*** test-causal_diagram
+#+name:causal_diagram
+#+begin_src R :session *R* :tangle tests/test-causal_diagram.r :exports none :eval yes
+  # name:causal_diagram
+  library(DiagrammeR)
+  library(stringr)
+  nodes  <- read.csv(textConnection('causes,         effect, colour, pos
+                  , Rainfall deficit,                           , "-1,3!"
+  Rainfall deficit, Drought,                                 indianred, "-0.5,2!"
+                 , Insular society, ,                             "1.5,3!"
+  Insular society, Anomie, ,                                      "1,2!"
+  "Drought, Anomie", Altered social structures and dynamics, gray,  "0,0!"
+  Altered social structures and dynamics, Depression, lightblue,         "4,0!"
+  Depression,                             Suicide   , lightgreen,        "7,0!"
+  '), stringsAsFactors = F, strip.white = T)
+  nodes
+  
+  dotty <- causal_diagram(
+    indat2  = nodes
+    ,
+    in_col = "causes"
+    ,
+    out_col  = "effect"
+    ,
+    colour_col = "colour"
+    ,
+    pos_col = "pos"
+    )
+  #cat(dotty$dot_code)
+  
+  # just test this out
+  #render_graph(dotty)
+  #render_graph(dotty, output = "visNetwork")
+  
+  # actual control
+  dotty2 <- gsub("digraph \\{",
+  "digraph \\{
+  graph [layout = neato]
+  node [fontname = Helvetica,
+       style = filled]
+  edge [color = gray20,
+       arrowsize = 1,
+       fontname = Helvetica]",
+  dotty$dot_code)
+  #cat(dotty2)
+  grViz(dotty2)
+  
+#+end_src
+
+#+RESULTS: code
+
+* Reproducible Research Reports
+** manuscript_template
+- An Rmarkdown manuscript template, inspired by https://github.com/jhollist/manuscriptPackage
+- I reviewed that work but I think it takes it to an uneccessary level of complicated-ness
+- Mine is the same but built like an emacs orgmode file not an R package
+
+** RRR template simple
+*** headers
+#+begin_src R :session *R* :tangle main.Rmd :exports none :eval no :padline no
+  ---
+  title: "Rmarkdown LaTeX tests"
+  author: Ivan C. Hanigan
+  header-includes:
+    - \usepackage{graphicx}
+    - \usepackage{longtable}
+  output:
+    html_document:
+      toc: true
+      theme: united
+      number_sections: yes    
+    pdf_document:
+      toc: true
+      toc_depth: 3
+      highlight: zenburn
+      keep_tex: true
+      number_sections: no        
+  documentclass: article
+  classoption: a4paper
+  csl: mee.csl
+  bibliography: references.bib
+  ---
+  
+  ```{r echo = F, eval=F, results="hide"}
+#+end_src
+*** run-able R
+#+begin_src R :session *R* :tangle main.Rmd :exports none :eval yes :padline no
+  dir()
+  library(rmarkdown)
+  library(knitr)
+  library(knitcitations)
+  library(bibtex)
+  cleanbib()
+  cite_options(citation_format = "pandoc", check.entries=FALSE) 
+  rmarkdown::render("main.Rmd", "pdf_document")
+  #browseURL("main.pdf")
+  rmarkdown::render("main.Rmd", "html_document")
+  #browseURL("main.html")
+  # to get the R code only 
+  knitr::knit("main.Rmd", tangle=T)
+  ```
+#+end_src
+
+#+RESULTS:
+: /home/ivan_hanigan/tools/disentangle/main.html
+
+*** Deprecated?  Not needed anymore? to tangle out pure R
+#+begin_src R :session *shell* :tangle no none :eval no :padline no
+
+  ```{r echo = F, eval=F, results="hide"}  
+  # http://stackoverflow.com/a/26066411
+  # to tangle chunks even when eval = F use this (with eval=F)
+  library(knitr)
+  knit_hooks$set(purl = function(before, options) {
+    if (before) return()
+    input  = current_input()  # filename of input document
+    output = paste(tools::file_path_sans_ext(input), 'R', sep = '.')
+    if (knitr:::isFALSE(knitr:::.knitEnv$tangle.start)) {
+      assign('tangle.start', TRUE, knitr:::.knitEnv)
+      unlink(output)
+    }
+    cat(options$code, file = output, sep = '\n', append = TRUE)
+  })
+  
+  ```  
+#+end_src
+*** bib
+#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no :padline no
+  
+  ```{r, echo = F, results = 'hide'}
+  # load
+  if(!exists("bib")){
+  bib <- read.bibtex("~/references/library.bib")
+  }
+  ```
+  
+#+end_src
+
+*** Introduction
+**** intro
+#+name:intro
+#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no :padline yes 
+# Intro
+This is the thing `r citep(     bib[["Hsiang2011"]])`.
+This is another thing `r citep( bib[["Hanigan2012"]])`.
+
+## subsection
+
+This is an example with a footnote [^com1].
+
+#+end_src
+
+
+*** fig
+#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no
+  ## figure
+  
+  shown in figure \ref{fig:fig}
+  
+  ```{r, eval = F, echo = F}
+  png("fig.png", res = 150, height = 1000, width = 1000)
+  pairs(airquality)
+  dev.off()
+  ```
+  
+  \begin{figure}[!h]
+  \centering
+  \includegraphics[width=.5\textwidth]{fig.png}
+  \caption{fig}
+  \label{fig:fig}
+  \end{figure}
+  \clearpage
+  
+#+end_src
+*** table
+#+name:main.Rmd
+#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no
+  
+  ## a table
+  
+  ```{r, eval = F, echo = F}
+  library(xtable)
+  library(disentangle)
+  library(nycflights13)
+  dd <- data_dictionary(flights)
+  
+  sink('tab1.tex')
+  print(xtable(dd, caption = "Table of nominal variables.", lab = "tab:table1"),
+  tabular.environment='longtable',
+  floating=FALSE,
+  caption.placement = "top", add.to.row = list(pos = list(0),
+  command = "\\hline \\endhead "),  include.rownames = F)
+  sink()
+  ```
+  
+  Shown in Table \ref{tab:table1} is ... 
+  
+  \input{tab1.tex}
+  \clearpage
+  
+#+end_src
+
+*** COMMENT bib-code
+#+name:bib
+#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no
+
+  **References**
+
+  ```{r, echo=FALSE, message=FALSE, eval = T}
+  write.bibtex(file="references.bib")
+  ```
+
+  [^com1]: more info on footnotes at [http://nancym.tumblr.com/post/59594358553/links-footnotes-and-abbreviations-in-markdown](http://nancym.tumblr.com/post/59594358553/links-footnotes-and-abbreviations-in-markdown)
+#+end_src
+
+*** footnotes in markdown
+http://nancym.tumblr.com/post/59594358553/links-footnotes-and-abbreviations-in-markdown
+This is needed to  provide the trust that a data  analysis was appropriately conducted and avoided errors of execution,  or methodogical design [^com1].
+
+[^com1]: the footnote
+
+* Writing
 ** environmental health risk assessment (simple)
 - define the range of health effects and environmental exposures
 - characterise the main health outcomes and exposure pathways

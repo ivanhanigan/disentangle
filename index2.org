@@ -5763,7 +5763,7 @@ Here I have reproduced the work of donlelek
 #+end_src
 
 #+RESULTS:
-*** COMMENT a-code
+*** visNetwork
 #+name:a
 #+begin_src R :session *R* :tangle no :exports none :eval yes
   #### name:a ####
@@ -9716,169 +9716,6 @@ I hope this might help others develop their own templates for RRR that look grea
 #+end_src
 
 
-** RRR template simple
-*** headers
-#+begin_src R :session *R* :tangle main.Rmd :exports none :eval no :padline no
-  ---
-  title: "Rmarkdown LaTeX tests"
-  author: Ivan C. Hanigan
-  header-includes:
-    - \usepackage{graphicx}
-    - \usepackage{longtable}
-  output:
-    html_document:
-      toc: true
-      theme: united
-      number_sections: yes    
-    pdf_document:
-      toc: true
-      toc_depth: 3
-      highlight: zenburn
-      keep_tex: true
-      number_sections: no        
-  documentclass: article
-  classoption: a4paper
-  csl: mee.csl
-  bibliography: references.bib
-  ---
-  
-  ```{r echo = F, eval=F, results="hide"}
-#+end_src
-*** run-able R
-#+begin_src R :session *R* :tangle main.Rmd :exports none :eval yes :padline no
-  dir()
-  library(rmarkdown)
-  library(knitr)
-  library(knitcitations)
-  library(bibtex)
-  cleanbib()
-  cite_options(citation_format = "pandoc", check.entries=FALSE) 
-  rmarkdown::render("main.Rmd", "pdf_document")
-  #browseURL("main.pdf")
-  rmarkdown::render("main.Rmd", "html_document")
-  #browseURL("main.html")
-  # to get the R code only 
-  knitr::knit("main.Rmd", tangle=T)
-  ```
-#+end_src
-
-#+RESULTS:
-: /home/ivan_hanigan/tools/disentangle/main.html
-
-*** Deprecated?  Not needed anymore? to tangle out pure R
-#+begin_src R :session *shell* :tangle no none :eval no :padline no
-
-  ```{r echo = F, eval=F, results="hide"}  
-  # http://stackoverflow.com/a/26066411
-  # to tangle chunks even when eval = F use this (with eval=F)
-  library(knitr)
-  knit_hooks$set(purl = function(before, options) {
-    if (before) return()
-    input  = current_input()  # filename of input document
-    output = paste(tools::file_path_sans_ext(input), 'R', sep = '.')
-    if (knitr:::isFALSE(knitr:::.knitEnv$tangle.start)) {
-      assign('tangle.start', TRUE, knitr:::.knitEnv)
-      unlink(output)
-    }
-    cat(options$code, file = output, sep = '\n', append = TRUE)
-  })
-  
-  ```  
-#+end_src
-*** bib
-#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no :padline no
-  
-  ```{r, echo = F, results = 'hide'}
-  # load
-  if(!exists("bib")){
-  bib <- read.bibtex("~/references/library.bib")
-  }
-  ```
-  
-#+end_src
-
-*** Introduction
-**** intro
-#+name:intro
-#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no :padline yes 
-# Intro
-This is the thing `r citep(     bib[["Hsiang2011"]])`.
-This is another thing `r citep( bib[["Hanigan2012"]])`.
-
-## subsection
-
-This is an example with a footnote [^com1].
-
-#+end_src
-
-
-*** fig
-#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no
-  ## figure
-  
-  shown in figure \ref{fig:fig}
-  
-  ```{r, eval = F, echo = F}
-  png("fig.png", res = 150, height = 1000, width = 1000)
-  pairs(airquality)
-  dev.off()
-  ```
-  
-  \begin{figure}[!h]
-  \centering
-  \includegraphics[width=.5\textwidth]{fig.png}
-  \caption{fig}
-  \label{fig:fig}
-  \end{figure}
-  \clearpage
-  
-#+end_src
-*** table
-#+name:main.Rmd
-#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no
-  
-  ## a table
-  
-  ```{r, eval = F, echo = F}
-  library(xtable)
-  library(disentangle)
-  library(nycflights13)
-  dd <- data_dictionary(flights)
-  
-  sink('tab1.tex')
-  print(xtable(dd, caption = "Table of nominal variables.", lab = "tab:table1"),
-  tabular.environment='longtable',
-  floating=FALSE,
-  caption.placement = "top", add.to.row = list(pos = list(0),
-  command = "\\hline \\endhead "),  include.rownames = F)
-  sink()
-  ```
-  
-  Shown in Table \ref{tab:table1} is ... 
-  
-  \input{tab1.tex}
-  \clearpage
-  
-#+end_src
-
-*** COMMENT bib-code
-#+name:bib
-#+begin_src R :session *shell* :tangle main.Rmd :exports none :eval no
-
-  **References**
-
-  ```{r, echo=FALSE, message=FALSE, eval = T}
-  write.bibtex(file="references.bib")
-  ```
-
-  [^com1]: more info on footnotes at [http://nancym.tumblr.com/post/59594358553/links-footnotes-and-abbreviations-in-markdown](http://nancym.tumblr.com/post/59594358553/links-footnotes-and-abbreviations-in-markdown)
-#+end_src
-
-*** footnotes in markdown
-http://nancym.tumblr.com/post/59594358553/links-footnotes-and-abbreviations-in-markdown
-This is needed to  provide the trust that a data  analysis was appropriately conducted and avoided errors of execution,  or methodogical design [^com1].
-
-[^com1]: the footnote
 ** 2015-09-28-the-best-thing-about-reproducibility-is-not-reproducibility-but-transparency-and-rigour
 #+name:the-best-thing-about-reproducibility-is-not-reproducibility-but-transparency-and-rigour-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-09-28-the-best-thing-about-reproducibility-is-not-reproducibility-but-transparency-and-rigour.md :exports none :eval no :padline no
@@ -11423,7 +11260,7 @@ Risk management / Conclusions / Recommendations
 
 query can be db.dataset.contact.like('Lach%')
 * Web2py
-** sounds players
+** boot strap an app: sounds players
 # download web2py
 wget http://web2py.com/examples/static/web2py_src.zip
 unzip web2py_src.zip
