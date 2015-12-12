@@ -1076,24 +1076,27 @@ Greenland, S., Pearl, J., & Robins, J. M. (1999). Causal diagrams for epidemiolo
 ** newgraph
 *** R-newgraph
 #+name:newgraph
-#+begin_src R :session *R* :tangle R/newgraph.r :exports none :eval no
+#+begin_src R :session *R* :tangle R/newgraph.r :exports none :eval yes
     
   newgraph <- function(
-  indat2  = nodes
-  ,
-  in_col = "causes"
-  ,
-  out_col  = "effect"
-  ,
-  colour_col = "colour"
-  ,
-  pos_col = "pos"
+    indat2  = nodes
+    ,
+    in_col = "causes"
+    ,
+    out_col  = "effect"
+    ,
+    colour_col = "colour"
+    ,
+    pos_col = "pos"
+    ,
+    label_col = TRUE
   ){
   nodes2 <-as.data.frame(matrix(ncol = 2, nrow = 0))
   names(nodes2)  <- c("inputs", "outputs")
   nameslist <- character(0)
   colourslist <- character(0)
   poslist <- character(0)
+  labellist <- character(0)
   for(i in 1:nrow(indat2)){
   #  i <- 1
     #i
@@ -1104,6 +1107,7 @@ Greenland, S., Pearl, J., & Robins, J. M. (1999). Causal diagrams for epidemiolo
       nodes2 <- rbind(nodes2, cbind(inputs, outputs))
     }
     nameslist <- c(nameslist, outputs)
+    labellist <- c(labellist, indat2[i, label_col])
     colourslist <- c(colourslist, indat2[i, colour_col]) 
     poslist <- c(poslist, indat2[i, pos_col])
   }
@@ -1111,12 +1115,18 @@ Greenland, S., Pearl, J., & Robins, J. M. (1999). Causal diagrams for epidemiolo
   ## nameslist
   ## colourslist
   ## poslist
+  #labellist
   edges_outcome <- create_edges(from = nodes2$inputs,
                           to =   nodes2$outputs
                           )
-  
+  if(label_col == TRUE){
+    label2 <- TRUE
+  } else {
+    label2 <- labellist
+  }
+  #label2
   nodes_outcome <- create_nodes(nodes = nameslist,
-                          label = TRUE,
+                          label = label2,
                           color = colourslist, pos = poslist)
   #nodes_outcome
   graph_outcome <- create_graph(nodes_df = nodes_outcome,
@@ -1134,14 +1144,14 @@ Greenland, S., Pearl, J., & Robins, J. M. (1999). Causal diagrams for epidemiolo
   # name:newgraph
   library(DiagrammeR)
   library(stringr)
-  nodes  <- read.csv(textConnection('causes,         effect, colour, pos
-                  , Rainfall deficit,                           , "-1,3!"
-  Rainfall deficit, Drought,                                 indianred, "-0.5,2!"
-                 , Insular society, ,                             "1.5,3!"
-  Insular society, Anomie, ,                                      "1,2!"
-  "Drought, Anomie", Altered social structures and dynamics, gray,  "0,0!"
-  Altered social structures and dynamics, Depression, lightblue,         "4,0!"
-  Depression,                             Suicide   , lightgreen,        "7,0!"
+  nodes  <- read.csv(textConnection('causes,         effect, colour, pos, label
+                  , Rainfall deficit,                           , "-1,3!", and this is a very\\llong line
+  Rainfall deficit, Drought,                                 indianred, "-0.5,2!", b
+                 , Insular society, ,                             "1.5,3!", c
+  Insular society, Anomie, ,                                      "1,2!", d
+  "Drought, Anomie", Altered social structures and dynamics, gray,  "0,0!", e
+  Altered social structures and dynamics, Depression, lightblue,         "4,0!", f
+  Depression,                             Suicide   , lightgreen,        "7,0!", g
   '), stringsAsFactors = F, strip.white = T)
   nodes
   
@@ -1155,11 +1165,13 @@ Greenland, S., Pearl, J., & Robins, J. M. (1999). Causal diagrams for epidemiolo
     colour_col = "colour"
     ,
     pos_col = "pos"
+    ,
+    label_col = "label"
     )
-  #cat(dotty$dot_code)
+  cat(dotty$dot_code)
   
   # just test this out
-  #render_graph(dotty)
+  render_graph(dotty)
   #render_graph(dotty, output = "visNetwork")
   
   # actual control
