@@ -444,7 +444,7 @@ this is built for the swish ideas
 #+begin_src R :session *R* :tangle no :exports none :eval yes
 #### name:go ####
 system("pdflatex swish-dmp.tex")
-#browseURL("swish-dmp.pdf")
+browseURL("swish-dmp.pdf")
 #+end_src
 
 #+RESULTS: go
@@ -522,8 +522,9 @@ system("pdflatex swish-dmp.tex")
   
   %    \makebox[.4\textwidth][l]{
 #+end_src
-**** COMMENT main computer
-#+begin_src latex :tangle swish-dmp.tex :exports none :eval no  
+**** COMMENT DEPRECATED main computer
+swish-dmp.tex
+#+begin_src latex :tangle no :exports none :eval no  
   \begin{tikzpicture}[dirtree] % it's what we defined above
   
   \node [draw=black!50,dashed,rectangle,fill=green!20]{\hyperref[dmp]{* main computer} }
@@ -575,7 +576,7 @@ system("pdflatex swish-dmp.tex")
                   \node (aux) at (0,18) [draw=black!50,dashed,rectangle,fill=green!30,hyperlink node=pagetwo]{Auxiliary resources}; 
                   \node (aux) at (0,17) [draw=black!50,dashed,rectangle,fill=yellow!30,hyperlink node=pagetwo]{Dropbox}; 
     
-                  \node (measdata) at (-2.4,9) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=pagetwo]{Distributed data}; 
+                  \node (measdata) at (-2.4,9) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=proj]{Distributed data}; 
                   \node (hypothesis) at (2,9) [draw=black!50,dashed,rectangle,fill=red!30,hyperlink node=pagethree]{Permissions \\ + citations}; 
                 \node (anadata) at (0,7.5) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}feedback \end{tabular}};
                 \node (anadata3) at (0,0) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}Version control\end{tabular}};
@@ -658,7 +659,7 @@ Conventions used for writing these entries are:
 #+begin_src latex :tangle swish-dmp.tex :exports none :eval no  :padline no
 \clearpage
 \subsection*{Project Management}\label{proj}
-
+\hypertarget{proj}{Project Management stuff}
 \begin{tikzpicture}[dirtree] % it's what we defined above
   
 \node [draw=black!50,dashed,rectangle,fill=green!20]{{project plan} }
@@ -878,7 +879,8 @@ Conventions used for writing these entries are:
 \end{tikzpicture}
 \end{document}
 
-** 2015-11-29-notes-from-dr-climate-re-data-reference-syntax-models-for-file-organisation-and-naming
+** 2015-11-29-notes-from-dr-climate
+-re-data-reference-syntax-models-for-file-organisation-and-naming
 #+name:notes-from-dr-climate-re-data-reference-syntax-models-for-file-organisation-and-naming-header
 #+begin_src markdown :tangle no :exports none :eval no :padline no
 ---
@@ -1020,6 +1022,149 @@ I also notice however that the IMOS syntax puts the site spatial location before
     
 #+end_src
 
+** reporting from metacat XMLs
+~/Dropbox/data/ltern_data_inventory/errata_and_addenda/metadata_checking
+
+** 2015-12-22-my-framework-of-scientific-workflow
+-and-integration-software-for-holistic-data-analysis
+
+*** header
+#+name:my-framework-of-scientific-workflow-and-integration-software-for-holistic-data-analysis-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-12-22-my-framework-of-scientific-workflow-and-integration-software-for-holistic-data-analysis.md :exports none :eval no :padline no
+---
+name: my-framework-of-scientific-workflow-and-integration-software-for-holistic-data-analysis
+layout: post
+title: My framework of scientific workflow and integration software for holistic data analysis
+date: 2015-12-22
+categories:
+- data management
+- swish
+---
+
+Scientific workflow and integration software for holistic data analysis (SWISH) is a 
+title I have given to describe the area of my research that focuses on the tools and techniques 
+of reproducible data analysis.
+
+Reproducibility is the ability to recompute the results of a data
+analysis with the original data.  It is possible to have analyses that
+are reproducible with varying degrees of difficulty. A data
+analysis might be reproducible but require thousands of hours of work to
+piece together the datasets, transformations, manipulations, calculations and interpretations of computational results.
+A primary challenge to reproducible data analysis is to make analyses
+that are _easy_ to reproduce.
+
+To achieve this, a guiding principle is that analysts should
+effectively implement 'pipelines' of method steps and tools.  Data
+analysts should employ standardised and evidence-based methods based
+on conventions developed from many data analysts approaching the
+problems in a similar way, rather than each analyst configuring 
+pipelines to suit particular individual or domain-specific
+preferences.
+
+## Planning and implementing a pipeline
+
+It can be much easier to conceptualise a complicated data analysis
+method than to implement this as a reproducible research pipeline. The
+most effective way to implement a pipeline is by methodically tracking
+each of the steps taken, the data inputs needed and all the outputs of
+the step.  If done in a disciplined way then the analyst or some other
+person could 'audit' the procedure easily and access the details of
+the pipeline they need to scrutinise.
+
+### Toward a standardised data analysis pipeline framework
+
+In my own work I have tried a diverse variety of configurations based on 
+things I have read and discussions I have had.  Coming to the end of 
+my PhD project I have reflected on the framework that I have arrived at and 
+present this below as a schematic overview.
+#+end_src
+*** schematic
+#+name:my-framework-of-scientific-workflow-and-integration-software-for-holistic-data-analysis-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-12-22-my-framework-of-scientific-workflow-and-integration-software-for-holistic-data-analysis.md :exports none :eval no :padline no
+
+```
+  ,*   /home/
+  ,**    /overview.org 
+           - summary data_inventory
+           - DMP
+  ,**    /worklog.org    
+           - YYYY-MM-DD
+  ,**   /projects/
+  ,***      /project1_data_analysis_project_health_research
+               - index.org
+               - git (local private, gitignore all subfolders)
+               - workplan
+               - worklog
+               - workflow
+                   - main.Rmd
+  ,****         /data1_provided
+  ,****         /data2_derived
+  ,*****            - workflow script
+  ,****         /code
+  ,****         /results/  (this has all the pathways explored)
+  ,*****            - README.md
+                   - git (public Github)
+                   /YYYY-MM-DD-shortname (i.e. EDA, prelim, model-selection, sensitivity)
+                       /main.Rmd
+                       /code/
+                       /data/
+  ,****         /report/
+                   /manuscript.Rmd
+                       - main results recomputed in production/publication quality
+                       - supporting_information (but also can refer to github/results)
+                   /figures_and_tables/
+                       - png
+                       - csv
+  ,*****           /journal_submission/
+                       - cover letter
+                       - approval signatures
+                       - submitted manuscript
+  ,*****           /journal_revision/
+                       - response.org
+  ,***      /project2_data_analysis_project_exposure_assessment
+               - index.org
+               - git
+               /data1_provided
+               /data2_derived 
+                   - stored here or
+                   - web2py crud or
+                   - geoserver
+               /data1_and_data2_backups
+               /reports/
+                   - manuscript.Rmd -> publish with the data somehow
+               /tools (R package)
+                   - git/master -> Github
+           /methods_or_literature_review_project
+  ,**   /tools/
+           /web2py
+               /applications
+                   /data_inventory
+                       - holdings
+                       - prospective
+                   /database_crud
+            /disentangle (R package)
+            /pipeline_templates
+  ,**   /data/
+           /postgis_hanigan
+           /postgis_anu_gislibrary
+           /geoserver_anu_gislibrary
+  ,**   /references/
+           - mendeley
+           - bib
+           - PDFs annotated
+  ,**   /KeplerData/workflows/MyWorkflows/
+  ,***      /data_analysis_workflow_using_kepler (implemented as an R package)
+  ,****         /inst/doc/A01_load.R
+  ,***      /data_analysis_workflow_using_kepler (implemented as an R LCFD workflow)
+               - main.Rmd (raw R version)
+               - main.xml (this is kepler)
+  ,****         /data/
+                   - file1.csv
+                   - file2.csv
+  ,****         /code/
+                   - load.R
+```  
+#+end_src
 * Statistical modelling
 ** causal influence diagrams with tikz
 *** COMMENT go
@@ -1072,6 +1217,83 @@ http://jmbh.github.io//Estimation-of-mixed-graphical-models/
 - a confounder, W is associated with both exposure (tempera- ture) and outcome (mortality) and provides an unblocked backdoor path between mortal- ity and temperature, in the language of DAGs (Greenland et al. 1999) p34 2nd col (from \cite{Reid2012})
 ** causal diagrams
 Greenland, S., Pearl, J., & Robins, J. M. (1999). Causal diagrams for epidemiologic research. Epidemiology (Cambridge, Mass.), 10(1), 37–48. doi:10.1097/00001648-199901000-00008
+* bibliometrics and literature reviewing
+** TODO author indices
+*** scholar metrics
+http://datascienceplus.com/hindex-gindex-pubmed-rismed/
+
+*** text mining
+http://tuxette.nathalievilla.org/?p=1682
+
+** 2015-12-17-using-scholar-rankings-to-provide-weights-in-systematic-literature-reviews-part-1
+
+
+#+name:using-scholar-rankings-to-provide-weights-in-systematic-literature-reviews-part-1-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-12-17-using-scholar-rankings-to-provide-weights-in-systematic-literature-reviews-part-1.md :exports none :eval no :padline no
+---
+name: using-scholar-rankings-to-provide-weights-in-systematic-literature-reviews-part-1
+layout: post
+title: Using scholar rankings to provide weights in systematic literature reviews part 1
+date: 2015-12-17
+categories:
+- disentangle
+---
+
+
+- I've been thinking alot recently about an approach used in this recent systematic review 
+
+```
+Vins, H., Bell, J., Saha, S., & Hess, J. (2015). The mental health
+outcomes of drought: A systematic review and causal process
+diagram. International Journal of Environmental Research and Public
+Health, 12(10), 13251–13275. doi:10.3390/ijerph121013251
+```
+<p></p>
+
+- They identify causal pathways from papers and ascribe the supporting evidentiary weight based on the number of papers published with findings that support this cause-effect pathway
+- The raw number of papers is probably not a good metric, prone to bias so I was thinking of ways to ascribe weight based on quality of journal or authors 
+- This is not supposed to replace the need to actually read the papers, but purely as an additional source of information
+- This recent post on scholar metrics provided some impetus via h-indices
+[http://datascienceplus.com/hindex-gindex-pubmed-rismed/](http://datascienceplus.com/hindex-gindex-pubmed-rismed/)
+- I also think this approach of text mining the abstracts could be useful [http://tuxette.nathalievilla.org/?p=1682](http://tuxette.nathalievilla.org/?p=1682)
+
+### Sanity check of the two options using myself as guinea pig
+
+```   
+library(RISmed)
+x <- "hanigan+ic[Author]"
+res <- EUtilsSummary(x, type="esearch", db="pubmed", datetype='pdat', mindate=1900, 
+  maxdate=2015, retmax=500)
+str(res)
+citations1 <- Cited(res)
+citations <- as.data.frame(citations1)
+citations <- citations[order(citations$citations,decreasing=TRUE),]
+citations <- as.data.frame(citations)
+str(citations)
+citations <- cbind(id=rownames(citations),citations)
+citations$id<- as.character(citations$id)
+citations$id<- as.numeric(citations$id)
+hindex <- max(which(citations$id<=citations$citations))
+
+hindex
+# 5
+
+library(scholar)
+myid <- "cGN1P0wAAAAJ"
+y <- scholar::get_publications(myid)
+str(y)
+y[,c("author", "cites")]
+y$id <- as.numeric(row.names(y))
+hindex2 <- max(which(y$id<=y$cites))
+hindex2
+# 15
+
+```
+
+### Clearly the pubmed and google scholar search engines makes a big difference to my score!
+
+#+end_src
+
 * Diagrams
 ** newgraph
 *** R-newgraph
@@ -1190,6 +1412,48 @@ Greenland, S., Pearl, J., & Robins, J. M. (1999). Causal diagrams for epidemiolo
 #+end_src
 
 #+RESULTS: code
+
+** boxes-arrows-and-curves
+*** COMMENT code
+#+name:code
+#+begin_src tex :session *shell* :tangle no :exports none :eval no
+%https://hstuart.dk/2007/02/21/drawing-trees-in-latex/
+\documentclass{article}
+\usepackage{tikz}
+\usepackage{pgfplots}
+\usetikzlibrary{positioning}
+\usetikzlibrary{fit}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{calc}
+\usetikzlibrary{shapes}
+\usetikzlibrary{mindmap}
+\usetikzlibrary{decorations.text}
+
+\begin{document}
+ \begin{tikzpicture} [
+            outpt/.style={->,blue!80!black,very thick},
+            >=stealth,
+         every node/.append style={align=center}]
+\tikzstyle{every node}=[draw,rectangle] 
+\node (root) at (0,0) {UCRH Data Warehouse }
+%  child { 
+node (CC)[above left=of root]{Collaborator 1} 
+%} 
+%  child { 
+node (JH)[left=of root]{Collaborator 2}
+%} 
+%  child { 
+node (rightmost)[below left=of root] {Collaborator 3}  
+%}
+ ; 
+\tikzstyle{every node}=[] 
+\draw[-latex,color=red] (root) .. controls +(east:6cm) and +(right:8cm) .. node[near end,above right,color=black] {Re-distribute complete DB (v1, v2 etc)} (rightmost); 
+\draw [outpt] (CC)--(root);
+\draw [outpt] (JH)--(root);
+\draw [outpt] (rightmost)--(root);
+\end{tikzpicture} 
+\end{document}
+#+end_src
 
 * Reproducible Research Reports
 ** manuscript_template
@@ -1361,6 +1625,191 @@ This is needed to  provide the trust that a data  analysis was appropriately con
 
 [^com1]: the footnote
 
+** 2015-12-20-this-is-an-open-notebook-but-selected-content-delayed
+*** blog
+#+name:this-is-an-open-notebook-but-selected-content-delayed-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-12-20-this-is-an-open-notebook-but-selected-content-delayed.md :exports none :eval no :padline no
+---
+name: this-is-an-open-notebook-but-selected-content-delayed
+layout: post
+title: This is an open notebook but selected content delayed
+date: 2015-12-20
+categories:
+- disentangle
+---
+
+#### Open Notebook Science, Selected Content, Delayed (ONS-SCD)
+
+I am trying to juggle my work in a dual Open-And-Closed way.  
+
+To explain: I try to keep an electronic ‘Open Notebook’ that aligns
+with the principles of the Open Notebook Science (ONS) movement’s
+‘Selected Content – Delayed’ category (ONS-SCD).  Back in 2012 when I started my notebook I looked 
+around for models of what style of publication I wanted.  I knew that some of my work was owned
+by the university I work at, and I am not allowed to publish this openly.
+Then there is other stuff I owned as part of my PhD, but that I might 
+not want to release all the details of my work.  So I settled on a 'Selected Content - Delayed' category and got the logo shown here from the (now-defunct) website [http://onsclaims.wikispaces.com/](http://onsclaims.wikispaces.com/).  The ONS movement
+is still described on Wikipedia though [https://en.wikipedia.org/wiki/Open_notebook_science](https://en.wikipedia.org/wiki/Open_notebook_science).
+
+![/images/ONS-SCD.png](/images/ONS-SCD.png)
+
+In this publication model I
+make publicly available the content of my research notebook (like a
+blog), in which I write reports of the details of the data, code and
+documents related to my research. I selectively make material open on
+github, and I sometimes delay publication of the material that I keep
+in my private research notebook.  That work is kept private either
+because it includes unpublished work that I wish to keep embargoed
+until after publication, or because it is all the gory details of
+process of writing code to create or analyse data that is not
+appropriate for open publication.
+
+
+In previous work I have either paid for additional private repos on
+github, and made the repo open once the paper is published, or
+alternately used bitbucket with unlimited free private repos for
+university students and then just put together a public repo for
+sharing 'polished' outputs.
+
+The upshot is that I use this part open / part closed approach during the data exploration, cleaning, analysis and writing. In my opinion as long as the final workflow is clearly and openly documented and reproducible, that's  the most important thing.
+
+
+#### The motivation stems back to the Climategate scandal and infamous 'Harry Readme' file
+
+My supervisors over the years have all been really supportive of working in an open way and I have flirted with the idea of being completely open.  However, I got a little worried about the implications of working too openly when malicious people might dig though my work for vexatious reasons, such as looking for errors or embarrassing comments I might inadvertently make that, when taken out of context, might make me sound foolish.
+
+This sounds far fetched, but as an example of this, a few years ago there was a fair amount of heat generated by a lot of
+emails and other documents from the University of East Anglia Climate
+Research University.  I was particularly interested because I was
+struggling to make sense of a lot of weird and wonderful databases and
+I felt a lot of sympathy for 'Harry', someone who as far as I could
+tell was doing a pretty good job of exploring, cleaning and
+documenting their work.
+
+Here is one journalists summary of this issue [http://blogs.telegraph.co.uk/technology/iandouglas/100004334/harry_read_me-txt-the-climategate-gun-that-does-not-smoke/](http://blogs.telegraph.co.uk/technology/iandouglas/100004334/harry_read_me-txt-the-climategate-gun-that-does-not-smoke/):
+
+``` 
+
+the contents of the harry_read_me.txt file, apparently leaked from the
+University of East Anglia and now becoming a totem for climate change
+sceptics to gather around as though it were a piece of the true cross.
+
+This file – thousands of lines of annotations kept on the process of
+re-developing a computer model of the climate form figures submitted
+by weather stations around the world and other historical data sets –
+holds a personal commentary written by an un-named developer (let's
+call him Harry), frustrated and often tied up in knots, working late
+into the night and the weekend trying to squeeze differently-formatted
+numbers into a consistent narrative.  
+
+``` 
+
+<p></p>
+
+#### Using git and Github in an ONS-SCD model
+
+- Recall Noble's framework?  The results folder is what I want to publish
+- Noble recommended the following folder and file structures [http://dx.doi.org/10.1371/journal.pcbi.1000424.g001](http://dx.doi.org/10.1371/journal.pcbi.1000424.g001)
+- I revised his conceptual diagram, and I blogged about this at [/2015/10/a-quick-review-of-a-quick-guide-to-organizing-computational-biology-projects/](/2015/10/a-quick-review-of-a-quick-guide-to-organizing-computational-biology-projects/)
+
+```
+/projectname (eg msms)/
+    /doc/
+        /ms-analysis.html 
+        /paper/
+            /msms.tex
+            /msms.pdf
+    /data/
+        /YYYY-MM-DD/
+            /yeast/
+                /README
+                /yeast.sqt
+            /worm/
+                /README
+                /worm.sqt
+    /src/
+        /ms-analysis.c
+    /bin/
+        /parse-sqt.py
+    /results/
+        /notebook.html 
+        /YYYY-MM-DD-1/
+            /runall
+            /split1/
+            /split2/
+        /YYYY-MM-DD-2/
+            /runall
+```
+
+<p></p>
+
+#### I want to publish my results, rather than my process
+
+- I had the realisation that [/2015/10/how-to-effectively-implement-electronic-lab-notebooks-in-epidemiology/](/2015/10/how-to-effectively-implement-electronic-lab-notebooks-in-epidemiology/)
+
+
+```
+
+    the 'Experiment Results' level is about work you might do on a 
+       single day, or over a week
+
+    Workflow scripts: At this level each 'experiment' is written up in
+    chronological order, as entries to the Worklog at the meso level
+
+    Noble recommends 'create either a README file, in which I store
+    every command line that I used while performing the experi- ment,
+    or a driver script (I usually call this runall) that carries out
+    the entire experiment automatically'...
+
+    and 'you should end up with a file that is parallel to the lab
+    notebook entry. The lab notebook contains a prose description of
+    the exper- iment, whereas the driver script contains all the gory
+    details.'
+
+    this is the level I usually think of managing the distribution
+    side of things. I will want to pack up the results and email to my
+    collaborators, or decide on the one set of tables and figures to
+    write into the manuscript for submission to a journal. If this is
+    accepted for publication, this is the one combined package of
+    'analytical data and code' that I would consider putting up online
+    (to github) as supporting information for the paper.
+
+```
+
+<p></p>
+
+#### Public Github repo within a private local `overview` git repo: My setup 
+
+- I mostly use one single Emacs orgmode file to run the whole project, using tangle to send chunks of code to scripts, after testing them out using the library of babel
+- To keep this version controlled I created a git repo for this
+- To test out  have created a fake-data-analysis-project and this includes a local git repository
+- in the `.gitignore` file I added the commend `*` to ignore all subfolders and files
+- If I want to add files to this I need to use `git add -f thefile`
+- Then I create a public github repo in the results folder (I named the repo: `THE-PROJECT-NAME-results`
+
+```
+
+$ cd ~/projects/fake-data-analysis-project
+$ mkdir results
+$ cd results/
+/results$ git init
+Initialized empty Git repository in /home/ivan_hanigan/tools/ReproducibleResearchPipelineTemplate/results/.git/
+/results$ mkdir 2015-12-20-eda
+/results$ git remote add origin git@github.com:ivanhanigan/ReproducibleResearchPipelineTemplate-results.git
+$ git push -u origin master
+```
+<p></p>
+
+#### The Result
+
+- An example of these results are now published at [https://github.com/ivanhanigan/ReproducibleResearchPipelineTemplate-results](https://github.com/ivanhanigan/ReproducibleResearchPipelineTemplate-results)
+- But the rest of my work is privately held, and version controlled.
+
+#+end_src
+
+
+
+
 * Writing
 ** environmental health risk assessment (simple)
 - define the range of health effects and environmental exposures
@@ -1370,3 +1819,6 @@ This is needed to  provide the trust that a data  analysis was appropriately con
 - The epidemiological evidence of health effects related to the exposures of interest (in general terms) 
 - Specific exposed populations and sensitive subgroups
 - uncertainties or limitations of the literature are noted.
+* Blogging
+** Jekyll
+http://statistics.rainandrhino.org/2015/12/15/jekyll-r-blogger-knitr-hyde.html

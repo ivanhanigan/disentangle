@@ -7431,25 +7431,84 @@ Code:
 #+name:eg
 #+begin_src R :session *R* :tangle eg.R :exports none :eval no
   #### name:eg ####
-  
-  
-  
-    plot(1, type="n", xlim=c(-3,5), ylim=c(-2,2), xlab="Experience", ylab="Self-concept", main="General Workplace")
-    curve(exp=-.008*x + .137*-2 + .100*-2*x, from=-3, to=3, add=TRUE)
-    curve(exp=-.008*x + .137*2  + .100*2*x,  from=-3, to=3, lty=3, add=TRUE)
-    #locator()
-    #used locator to get position of text
-    text(4, .85, "High Seniority (+2 SD)")
-    text(4, -.90, "Low Seniority (-2 SD)")
-  
-    Bryan said Isn't that must multicollinearity between two of the predictors? 
-  
-    Lazar replied you are correct (in that the varibles must obviously be colinear). The distinction to be made is that 
-    a theoretical interpretation is applied to this (and all of the associated causal ordering baggage that this brings with it). 
-    This theoretical formation is conceptualised as a path model and the relationship between y and x is decomposed as above. 
-  
     
+    
+    
+  plot(1, type="n", xlim=c(-3,5), ylim=c(-2,2), xlab="Experience", ylab="Self-concept", main="General Workplace")
+  curve(exp=-.008*x + .137*-2 + .100*-2*x, from=-3, to=3, add=TRUE)
+  curve(exp=-.008*x + .137*2  + .100*2*x,  from=-3, to=3, lty=3, add=TRUE)
+  #locator()
+  #used locator to get position of text
+  text(4, .85, "High Seniority (+2 SD)")
+  text(4, -.90, "Low Seniority (-2 SD)")
+    
+  Bryan said Isn't that must multicollinearity between two of the predictors? 
+    
+  Lazar replied you are correct (in that the varibles must obviously be colinear). The distinction to be made is that 
+  a theoretical interpretation is applied to this (and all of the associated causal ordering baggage that this brings with it). 
+  This theoretical formation is conceptualised as a path model and the relationship between y and x is decomposed as above. 
+    
+  
 #+end_src
+*** COMMENT after_brambor
+#+name:after_brambor
+#+begin_src R :session *R* :tangle after_brambor.R :exports none :eval yes
+  #### name:after_brambor ####
+  
+  x  <- seq(-3,3, by = 0.05)
+  #y  <- (-.008*x + .137*-2 + .100*-2*x) + sample(rnorm(length(x),0,0.05))
+  y <- -0.5 + sample(rnorm(length(x),0,0.05))
+  y2 <- (-.008*x + .137* 2  + .100* 2*x) + sample(rnorm(length(x),0,0.05))
+  
+  
+  pdf("effect_modification.pdf")#,  width = 1000, height = 550)
+  par(mar = c(3,3,2,1))
+  plot(1, type="n", xlim=c(-3.3,3), ylim=c(-1,1), xlab="", ylab="", axes = F)
+  axis(1, labels = F); axis(2, labels = F)
+  mtext("Y", 2, 1 , at = 0, las = 2)
+  mtext("X", 1, 1 , at = 0)
+  title(expression(paste("Regression model Y = ", beta[0] + beta[1],"X + ", beta[2], "Z + ", beta[3], "XZ + ", epsilon )))
+  #, 3, 0, at = 1, cex = .85)
+  segments(-3, -0.5, 3, -0.5, lwd=2)    
+  points(x,y, pch = 1, cex = .5)
+  
+  #curve(exp=-.008*x + .137*-2 + .100*-2*x, from=-3, to=3, lwd=2,
+  #add=TRUE)
+  #mtext(expression(paste("Y = ", beta[0] + beta[1] ,"X when Z = 0")),
+  #  4, 0, las = 2, at = -0.5, cex = .85)
+   
+  #mtext(expression(paste("Y = (", beta[0] + beta[2],") + (", beta[1] + beta [3],")X")),
+  #  4, 0, las = 2, at = 0.85, cex = .85)
+  #mtext("when Z = 1",
+  #  4, 0, las = 2, at = 0.775, cex = .85)
+  
+  
+  
+  curve(exp=-.008*x + .137*2  + .100*2*x,  from=-3, to=3, lwd=2, add=TRUE)
+  points(x, y2, pch = 3, cex = .5)
+  
+  text(x = -1.2, y = 0.6, expression(paste("Y = (", beta[0] + beta[2],") + (", beta[1] + beta [3],")X when Z = 1")))
+  text(x = -2.1, y = 0.5, expression(paste("Slope = ", beta[1] + beta[3])))
+
+  #text(x = -3.4, y = -0.4, '{', srt = 0, cex = 3)
+  text(x = -3.3, y = -0.4, expression(beta[2]))
+  text(x = 0.57, y = -0.21,  expression(paste("Y = ", beta[0] + beta[1] ,"X when Z = 0")))
+  text(x = 0, y = -0.3, expression(paste("Slope = ", beta[1])))
+  segments(-3, -0.3, -3, -0.5, lty = 1, col = 'grey', lwd = 6)
+  segments(-3.9, -0.5, -3, -0.5, lty = 3)
+  segments(-3.9, -0.3, -3, -0.3, lty = 3)
+  #mtext(expression(beta[2]),2,2, at = -0.4, las = 2)
+  #text(x = -3.4, y = -.75, '{', srt = 0, cex = 3)
+  text(x = -3.3, y = -.75, expression(beta[0]))
+  segments(-3, -0.5, -3, -1, lty = 3)
+  #mtext(expression(beta[0]),2,2, at = -0.75, las = 2)
+  dev.off()
+  #browseURL("effect_modification.pdf")
+#+end_src
+
+#+RESULTS: after_brambor
+: 2
+
 
 ** p-values and garden of forking paths
 The p-value is the probability of seeing something at least as extreme as the data, if the null hypothesis were true.
