@@ -66,48 +66,6 @@
 %     \makebox[.4\textwidth][r]{
 
 %    \makebox[.4\textwidth][l]{
-
-\begin{tikzpicture}[dirtree] % it's what we defined above
-  
-  \node [draw=black!50,dashed,rectangle,fill=green!20]{\hyperref[dmp]{* main computer} }
-      child { node {\hyperref[dmp]{Data Management Plan} }}
-      child { node {\hyperref[datinv]{Data Inventory} }}
-      child { node {\hyperref[install]{** Project1} }
-          child { node {\hyperref[linux]{README}} }
-          child { node {\hyperref[proj]{project management}} }
-          child { node {\hyperref[mac]{*** dataset1}} 
-              child { node {\hyperref[mac2]{**** workplan and protocol}} }            
-              child { node {\hyperref[mac3]{worklog}} }
-              child { node {\hyperref[workflow]{workflow}} }
-              child { node {\hyperref[dataprov]{**** entities1 data provided}} }
-              child { node {\hyperref[dataprov]{**** entities2 data derived}} 
-                child { node {\hyperref[mac]{files}}} 
-                child { node {\hyperref[mac2]{versions}}}                
-                 }                                      
-              child { node {\hyperref[mac2]{**** results}} 
-                child { node {YYYY-MM-DD}}
-                 }            
-              child { node {\hyperref[mac3]{reports}} }
-  }
-          child { node {\hyperref[win]{dataset2}} }
-      }
-      child {node {\hyperref[trbl-shoot]{Project2}}
-          child {node {\hyperref[caseX]{dataset3}}}
-          child {node {\hyperref[caseY]{dataset4}}}
-      }
-      child {node {\hyperref[start]{working\_user}}
-          child { node {\hyperref[caseA]{do A}} }
-          child { node {\hyperref[caseB]{do B}} }
-      };
-      % I've put the external resources to the end:
-%      child {node {Versions}
-%          child { node {\href{file:sanitize_bib_table.pdf}{Backups}} }% works only, if "manual.pdf" is in
-                                                         % the same directory as the compiled
-                                                         % version of this document
-  %        child { node {\href{http://www.google.com/}{Version Control}} }
-%      };
-  \end{tikzpicture}
-  \hspace{0.1cm}
 \begin{tikzpicture}[
               outpt/.style={->,blue!80!black,very thick},
               >=stealth,
@@ -115,7 +73,7 @@
                 \node (aux) at (0,18) [draw=black!50,dashed,rectangle,fill=green!30,hyperlink node=pagetwo]{Auxiliary resources}; 
                 \node (aux) at (0,17) [draw=black!50,dashed,rectangle,fill=yellow!30,hyperlink node=pagetwo]{Dropbox}; 
   
-                \node (measdata) at (-2.4,9) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=pagetwo]{Distributed data}; 
+                \node (measdata) at (-2.4,9) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=proj]{Distributed data}; 
                 \node (hypothesis) at (2,9) [draw=black!50,dashed,rectangle,fill=red!30,hyperlink node=pagethree]{Permissions \\ + citations}; 
               \node (anadata) at (0,7.5) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}feedback \end{tabular}};
               \node (anadata3) at (0,0) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}Version control\end{tabular}};
@@ -182,7 +140,7 @@ Conventions used for writing these entries are:
 \subsection*{Data Provided}\label{dataprov}
 \clearpage
 \subsection*{Project Management}\label{proj}
-
+\hypertarget{proj}{Project Management stuff}
 \begin{tikzpicture}[dirtree] % it's what we defined above
   
 \node [draw=black!50,dashed,rectangle,fill=green!20]{{project plan} }

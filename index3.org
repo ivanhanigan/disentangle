@@ -444,7 +444,7 @@ this is built for the swish ideas
 #+begin_src R :session *R* :tangle no :exports none :eval yes
 #### name:go ####
 system("pdflatex swish-dmp.tex")
-#browseURL("swish-dmp.pdf")
+browseURL("swish-dmp.pdf")
 #+end_src
 
 #+RESULTS: go
@@ -522,8 +522,9 @@ system("pdflatex swish-dmp.tex")
   
   %    \makebox[.4\textwidth][l]{
 #+end_src
-**** COMMENT main computer
-#+begin_src latex :tangle swish-dmp.tex :exports none :eval no  
+**** COMMENT DEPRECATED main computer
+swish-dmp.tex
+#+begin_src latex :tangle no :exports none :eval no  
   \begin{tikzpicture}[dirtree] % it's what we defined above
   
   \node [draw=black!50,dashed,rectangle,fill=green!20]{\hyperref[dmp]{* main computer} }
@@ -575,7 +576,7 @@ system("pdflatex swish-dmp.tex")
                   \node (aux) at (0,18) [draw=black!50,dashed,rectangle,fill=green!30,hyperlink node=pagetwo]{Auxiliary resources}; 
                   \node (aux) at (0,17) [draw=black!50,dashed,rectangle,fill=yellow!30,hyperlink node=pagetwo]{Dropbox}; 
     
-                  \node (measdata) at (-2.4,9) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=pagetwo]{Distributed data}; 
+                  \node (measdata) at (-2.4,9) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=proj]{Distributed data}; 
                   \node (hypothesis) at (2,9) [draw=black!50,dashed,rectangle,fill=red!30,hyperlink node=pagethree]{Permissions \\ + citations}; 
                 \node (anadata) at (0,7.5) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}feedback \end{tabular}};
                 \node (anadata3) at (0,0) [draw=black!50,dashed,rectangle,fill=orange!30] {\begin{tabular}{@{}c}Version control\end{tabular}};
@@ -658,7 +659,7 @@ Conventions used for writing these entries are:
 #+begin_src latex :tangle swish-dmp.tex :exports none :eval no  :padline no
 \clearpage
 \subsection*{Project Management}\label{proj}
-
+\hypertarget{proj}{Project Management stuff}
 \begin{tikzpicture}[dirtree] % it's what we defined above
   
 \node [draw=black!50,dashed,rectangle,fill=green!20]{{project plan} }
@@ -878,7 +879,8 @@ Conventions used for writing these entries are:
 \end{tikzpicture}
 \end{document}
 
-** 2015-11-29-notes-from-dr-climate-re-data-reference-syntax-models-for-file-organisation-and-naming
+** 2015-11-29-notes-from-dr-climate
+-re-data-reference-syntax-models-for-file-organisation-and-naming
 #+name:notes-from-dr-climate-re-data-reference-syntax-models-for-file-organisation-and-naming-header
 #+begin_src markdown :tangle no :exports none :eval no :padline no
 ---
@@ -1023,7 +1025,12 @@ I also notice however that the IMOS syntax puts the site spatial location before
 ** reporting from metacat XMLs
 ~/Dropbox/data/ltern_data_inventory/errata_and_addenda/metadata_checking
 
+<<<<<<< HEAD
 ** 2015-12-22-my-framework-of-scientific-workflow-and-integration-software-for-holistic-data-analysis
+=======
+** 2015-12-22-my-framework-of-scientific-workflow
+-and-integration-software-for-holistic-data-analysis
+>>>>>>> ec11ef97fa689d03a0de1192d52fd8fc6b7114fe
 
 *** header
 #+name:my-framework-of-scientific-workflow-and-integration-software-for-holistic-data-analysis-header
