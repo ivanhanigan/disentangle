@@ -86,7 +86,7 @@
                 child { node {\hyperref[mac]{files}}} 
                 child { node {\hyperref[mac2]{versions}}}                
                  }                                      
-              child { node {\hyperref[mac2]{**** results}} 
+              child { node (res1) {\hyperref[mac2]{**** results}} 
                 child { node {YYYY-MM-DD}}
                  }            
               child { node {\hyperref[mac3]{reports}} }
@@ -131,6 +131,8 @@
 %}
 \begin{tikzpicture}[overlay]
 	\draw (aux1) -- (dmp1);
+	\draw (anadata) .. controls (10,7) .. (res1);
+
 \end{tikzpicture}
 \clearpage
 \tikz \node [draw, inner sep=2ex,hyperlink node=pageone] {Main Computer};
