@@ -1,5 +1,5 @@
 
-\documentclass{article}
+\documentclass[a4paper]{article}
 \usepackage{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{calc}
@@ -40,6 +40,7 @@
 
 \begin{document}
 \tikzstyle{every picture}+=[remember picture]
+
 \tikzset{
     hyperlink node/.style={
         alias=sourcenode,
@@ -69,7 +70,7 @@
 
 %    \makebox[.4\textwidth][l]{
 
-\begin{tikzpicture}[dirtree] % it's what we defined above
+\begin{tikzpicture}[dirtree, every node/.style={font=\footnotesize}] % it's what we defined above
   
   \node [draw=black!50,dashed,rectangle,fill=green!20]{\hyperref[dmp]{* main computer} }
       child { node (dmp1) {\hyperref[dmp]{Data Management Plan} }}
@@ -113,7 +114,7 @@
 \begin{tikzpicture}[
               outpt/.style={->,blue!80!black,very thick},
               >=stealth,
-           every node/.append style={align=center}]
+           every node/.append style={align=center}, every node/.append style={font=\footnotesize}]
                 \node (aux) at (0,18) [draw=black!50,dashed,rectangle,fill=green!30,hyperlink node=pagetwo]{Auxiliary resources}; 
                 \node (aux1) at (0,17) [draw=black!50,dashed,rectangle,fill=yellow!30,hyperlink node=pagetwo]{Dropbox}; 
   
