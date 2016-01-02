@@ -444,7 +444,7 @@ this is built for the swish ideas
 #+begin_src R :session *R* :tangle no :exports none :eval yes
 #### name:go ####
 system("pdflatex swish-dmp.tex")
-browseURL("swish-dmp.pdf")
+#browseURL("swish-dmp.pdf")
 #+end_src
 
 #+RESULTS: go
@@ -523,8 +523,8 @@ browseURL("swish-dmp.pdf")
   %    \makebox[.4\textwidth][l]{
 #+end_src
 **** COMMENT DEPRECATED main computer
-swish-dmp.tex
-#+begin_src latex :tangle no :exports none :eval no  
+
+#+begin_src latex :tangle swish-dmp.tex :exports none :eval no  
   \begin{tikzpicture}[dirtree] % it's what we defined above
   
   \node [draw=black!50,dashed,rectangle,fill=green!20]{\hyperref[dmp]{* main computer} }
@@ -1085,89 +1085,89 @@ present this below as a schematic overview.
 *** schematic
 #+name:my-framework-of-scientific-workflow-and-integration-software-for-holistic-data-analysis-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-12-22-my-framework-of-scientific-workflow-and-integration-software-for-holistic-data-analysis.md :exports none :eval no :padline no
-
+  
 ```
-  ,*   /home/
-  ,**    /overview.org 
-           - summary data_inventory
+    ,,*   /home/
+  ,,**    /overview.org 
+             - summary data_inventory
            - DMP
-  ,**    /worklog.org    
+    ,,**    /worklog.org    
            - YYYY-MM-DD
-  ,**   /projects/
-  ,***      /project1_data_analysis_project_health_research
-               - index.org
+    ,,**   /projects/
+  ,,***      /project1_data_analysis_project_health_research
+                 - index.org
                - git (local private, gitignore all subfolders)
-               - workplan
+                 - workplan
                - worklog
-               - workflow
+                 - workflow
                    - main.Rmd
-  ,****         /data1_provided
-  ,****         /data2_derived
-  ,*****            - workflow script
-  ,****         /code
-  ,****         /results/  (this has all the pathways explored)
-  ,*****            - README.md
-                   - git (public Github)
+    ,,****         /data1_provided
+  ,,****         /data2_deriveds
+    ,,*****            - workflow script
+  ,,****         /code
+    ,,****         /results/  (this has all the pathways explored)
+  ,,*****            - README.md
+                     - git (public Github)
                    /YYYY-MM-DD-shortname (i.e. EDA, prelim, model-selection, sensitivity)
-                       /main.Rmd
+                         /main.Rmd
                        /code/
-                       /data/
-  ,****         /report/
-                   /manuscript.Rmd
+                         /data/
+  ,,****         /report/
+                     /manuscript.Rmd
                        - main results recomputed in production/publication quality
-                       - supporting_information (but also can refer to github/results)
+                         - supporting_information (but also can refer to github/results)
                    /figures_and_tables/
-                       - png
+                         - png
                        - csv
-  ,*****           /journal_submission/
+    ,,*****           /journal_submission/
                        - cover letter
-                       - approval signatures
+                         - approval signatures
                        - submitted manuscript
-  ,*****           /journal_revision/
+    ,,*****           /journal_revision/
                        - response.org
-  ,***      /project2_data_analysis_project_exposure_assessment
+    ,,***      /project2_data_analysis_project_exposure_assessment
                - index.org
-               - git
+                 - git
                /data1_provided
-               /data2_derived 
+                 /data2_derived 
                    - stored here or
-                   - web2py crud or
+                     - web2py crud or
                    - geoserver
-               /data1_and_data2_backups
+                 /data1_and_data2_backups
                /reports/
-                   - manuscript.Rmd -> publish with the data somehow
+                     - manuscript.Rmd -> publish with the data somehow
                /tools (R package)
-                   - git/master -> Github
+                     - git/master -> Github
            /methods_or_literature_review_project
-  ,**   /tools/
+    ,,**   /tools/
            /web2py
-               /applications
+                 /applications
                    /data_inventory
-                       - holdings
+                         - holdings
                        - prospective
-                   /database_crud
+                     /database_crud
             /disentangle (R package)
-            /pipeline_templates
-  ,**   /data/
-           /postgis_hanigan
+              /pipeline_templates
+  ,,**   /data/
+             /postgis_hanigan
            /postgis_anu_gislibrary
-           /geoserver_anu_gislibrary
-  ,**   /references/
-           - mendeley
+             /geoserver_anu_gislibrary
+  ,,**   /references/
+             - mendeley
            - bib
-           - PDFs annotated
-  ,**   /KeplerData/workflows/MyWorkflows/
-  ,***      /data_analysis_workflow_using_kepler (implemented as an R package)
-  ,****         /inst/doc/A01_load.R
-  ,***      /data_analysis_workflow_using_kepler (implemented as an R LCFD workflow)
+             - PDFs annotated
+  ,,**   /KeplerData/workflows/MyWorkflows/
+    ,,***      /data_analysis_workflow_using_kepler (implemented as an R package)
+  ,,****         /inst/doc/A01_load.R
+    ,,***      /data_analysis_workflow_using_kepler (implemented as an R LCFD workflow)
                - main.Rmd (raw R version)
-               - main.xml (this is kepler)
-  ,****         /data/
-                   - file1.csv
+                 - main.xml (this is kepler)
+  ,,****         /data/
+                     - file1.csv
                    - file2.csv
-  ,****         /code/
+    ,,****         /code/
                    - load.R
-```  
+  ```  
 #+end_src
 * Statistical modelling
 ** causal influence diagrams with tikz
