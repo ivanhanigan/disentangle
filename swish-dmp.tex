@@ -1,10 +1,9 @@
 
-\documentclass[a4paper]{article}
+\documentclass{article}
 \usepackage{hyperref}
 \usepackage{tikz}
 \usetikzlibrary{calc}
 
- 
 \usepackage{tikz}
 %------------------%
 \makeatletter
@@ -39,8 +38,6 @@
 
 
 \begin{document}
-\tikzstyle{every picture}+=[remember picture]
-
 \tikzset{
     hyperlink node/.style={
         alias=sourcenode,
@@ -70,10 +67,10 @@
 
 %    \makebox[.4\textwidth][l]{
 
-\begin{tikzpicture}[dirtree, every node/.style={font=\footnotesize}] % it's what we defined above
+\begin{tikzpicture}[dirtree] % it's what we defined above
   
   \node [draw=black!50,dashed,rectangle,fill=green!20]{\hyperref[dmp]{* main computer} }
-      child { node (dmp1) {\hyperref[dmp]{Data Management Plan} }}
+      child { node {\hyperref[dmp]{Data Management Plan} }}
       child { node {\hyperref[datinv]{Data Inventory} }}
       child { node {\hyperref[install]{** Project1} }
           child { node {\hyperref[linux]{README}} }
@@ -87,7 +84,7 @@
                 child { node {\hyperref[mac]{files}}} 
                 child { node {\hyperref[mac2]{versions}}}                
                  }                                      
-              child { node (res1) {\hyperref[mac2]{**** results}} 
+              child { node {\hyperref[mac2]{**** results}} 
                 child { node {YYYY-MM-DD}}
                  }            
               child { node {\hyperref[mac3]{reports}} }
@@ -114,9 +111,9 @@
 \begin{tikzpicture}[
               outpt/.style={->,blue!80!black,very thick},
               >=stealth,
-           every node/.append style={align=center}, every node/.append style={font=\footnotesize}]
+           every node/.append style={align=center}]
                 \node (aux) at (0,18) [draw=black!50,dashed,rectangle,fill=green!30,hyperlink node=pagetwo]{Auxiliary resources}; 
-                \node (aux1) at (0,17) [draw=black!50,dashed,rectangle,fill=yellow!30,hyperlink node=pagetwo]{Dropbox}; 
+                \node (aux) at (0,17) [draw=black!50,dashed,rectangle,fill=yellow!30,hyperlink node=pagetwo]{Dropbox}; 
   
                 \node (measdata) at (-2.4,9) [draw=black!50,dashed,rectangle,fill=orange!30,hyperlink node=proj]{Distributed data}; 
                 \node (hypothesis) at (2,9) [draw=black!50,dashed,rectangle,fill=red!30,hyperlink node=pagethree]{Permissions \\ + citations}; 
@@ -130,11 +127,6 @@
   
 \end{tikzpicture}
 %}
-\begin{tikzpicture}[overlay]
-	\draw (aux1) -- (dmp1);
-	\draw (anadata) .. controls (10,7) .. (res1);
-
-\end{tikzpicture}
 \clearpage
 \tikz \node [draw, inner sep=2ex,hyperlink node=pageone] {Main Computer};
 

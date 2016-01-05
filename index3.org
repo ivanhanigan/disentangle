@@ -1459,7 +1459,7 @@ node (rightmost)[below left=of root] {Collaborator 3}
 \end{document}
 #+end_src
 
-* Reproducible Research Reports
+* Reproducible Research Pipelines
 ** manuscript_template
 - An Rmarkdown manuscript template, inspired by https://github.com/jhollist/manuscriptPackage
 - I reviewed that work but I think it takes it to an uneccessary level of complicated-ness
@@ -1813,6 +1813,66 @@ $ git push -u origin master
 
 
 
+** 2016-01-03-exemplars-of-distributing-data-and-code-ropensci
+#+name:exemplars-of-distributing-data-and-code-ropensci-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2016-01-03-exemplars-of-distributing-data-and-code-ropensci.md :exports none :eval no :padline no
+---
+name: exemplars-of-distributing-data-and-code-ropensci
+layout: post
+title: Exemplars of distributing data and code - rOpenSci
+date: 2016-01-03
+categories:
+- disentangle
+- reproducible research pipelines
+---
+
+The practice of distributing data and code has a wide variety of possible approaches.  There are many resources available to be used to post data and code to the internet for dissemination, and it is very easy to access these resources.  It is more difficult to find exemplars of how data and code are easily and effectively distributed.  I am conducting a review of some of the resources that describe procedures for this and present exemplars in this and following notes.
+
+A paper that describes the rOpenSci project's approach is [http://dx.doi.org/10.5334/jors.bu](http://dx.doi.org/10.5334/jors.bu):
+
+``` 
+Boettiger, C., Chamberlain, S., Hart, E., & Ram,
+K. (2015). Building Software, Building Community: Lessons from the
+rOpenSci Project. Journal of Open Research Software,
+3(1). 
+```
+
+This paper is focused on the way the community development and capacity building part of the project was conducted.  The diagram shown below is introduced as an example of the style that rOpenSci recommend a data analysis workflow be constructed.
+
+![/images/workflow-ropensci.png](/images/workflow-ropensci.png)
+
+The focus on publishing data to a public repository so early in the project (prior to final analysis and manuscript) seems premature to me. But then, I do feel that I am somewhat more concerned with vexatious activity by climate skeptics than the rOpenSci team.
+
+#+end_src    
+
+
+** 2016-01-dd-exemplars-of-distributing-data-and-code-openair
+*** head
+#+name:exemplars-of-distributing-data-and-code-openair-header
+#+begin_src markdown :tangle no :exports none :eval no :padline no
+---
+name: exemplars-of-distributing-data-and-code-openair
+layout: post
+title: Exemplars of distributing data and code: openair
+date: 2016-01-dd
+categories:
+- disentangle
+- reproducible research pipelines
+---
+
+#### Code:exemplars-of-distributing-data-and-code-openair
+    
+#+end_src
+*** COMMENT import
+#+name:import
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:import ####
+  library(openair)
+  marylebone  <-  importAURN(site = 'my1', year = 2000:2002)
+  ## view first few lines
+  head(marylebone)
+  str(marylebone)
+#+end_src
 
 * Writing
 ** environmental health risk assessment (simple)
@@ -1823,6 +1883,45 @@ $ git push -u origin master
 - The epidemiological evidence of health effects related to the exposures of interest (in general terms) 
 - Specific exposed populations and sensitive subgroups
 - uncertainties or limitations of the literature are noted.
+** reviewing lessons
+#### Introduction
+This post is an attempt to put together a standard framework for reviewing lessons.  I've been to numerous workshops, master classes, tutorials and lectures and always take ad hoc notes that I generally re-write and re-organise afterwards.  I hope to develop a clearer methodology for reviewing what I learnt in each lesson.
+
+#### Context
+
+- When:
+Either just the date and time or include more context like the broader event such as a conference, season, public holidays.  
+
+- Who:
+The presenter will give a bio at the start so make notes, especially to identify what disciplinary perspective they come from.
+
+- Where:
+Includes the address, city, lecture theatre.  These are cues for memory.
+
+- Why:
+Both why is the presenter here talking and also why am I hear listening.  It is important to critically reflect on what I want to get out of this lesson.
+
+- What:
+What is this lesson all about?  This might start with a synopsis overview and will probably move on to a sequence of notes as the presenter's narrative unfolds, and my thoughts on the topic evolve.  
+
+#### Three Stages: Thesis, Antithesis, Synthesis
+A guiding principle I use for writing the 'What' section is the three stages: thesis, antithesis, synthesis.  I am not a philosopher so I don't know the proper use of these concepts in that discipline, but for me they are useful to structure my notes as I go through the process of a lesson.  Here is how I think of these stages:
+
+- Thesis: 
+This is where I might pick out the key topics that are being presented, and write down my prior knowledge and preconceptions about the topic.
+
+- Antithesis:
+What's the main message(s) of the presenter?  What are their priorities?  What secondary (surrogate) topics emerge around the main points?  If I bring questions to the lesson are they answered by the presenter?  If not why?
+
+- Synthesis:
+My new understanding of the topic.  
+
+#### Other tools
+Other things I use are:
+
+- Mind maps: a central topic with a spiderweb of links extending out in a circle.
+- TODO
+
 * Blogging
 ** Jekyll
 http://statistics.rainandrhino.org/2015/12/15/jekyll-r-blogger-knitr-hyde.html
