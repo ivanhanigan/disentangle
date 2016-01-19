@@ -9,6 +9,8 @@
 #' @param clusters_col optional column identifying clusters
 #' @param todo_col optional column with TODO status (DONE and WONTDO will be white, others are red)
 #' @return character string object that has the DOT language representatio of the input
+#' @export
+#'
 newnode <- function(indat, names_col = NULL, in_col = NULL, out_col = NULL, desc_col = NULL, clusters_col = NULL, todo_col = NULL, nchar_to_snip = 40, colour_col = NULL){
 if (is.null(names_col)) stop("Names of the steps are needed")
 if (is.null(in_col)) stop("Inputs are needed")
@@ -21,7 +23,7 @@ if (is.null(desc_col)){
 
 # sanitize any single quotes
 for(i in 1:ncol(indat)){
- indat[,i] <- gsub("'","", indat[,i]) 
+ indat[,i] <- gsub("'","", indat[,i])
 }
 
 if(!is.null(clusters_col)){
@@ -38,9 +40,9 @@ for(cluster_i in cluster_ids){
   } else {
     nodes_graph <- paste(nodes_graph, sprintf('subgraph cluster_%s {
     label = "%s"
-    ', cluster_i, cluster_i))  
+    ', cluster_i, cluster_i))
   }
-#  cat(nodes_graph)    
+#  cat(nodes_graph)
   indat2 <- indat[indat[,clusters_col] == cluster_i,]
 #  indat2
     for(i in 1:nrow(indat2)){
@@ -60,7 +62,7 @@ for(cluster_i in cluster_ids){
       #inputs
       inputs_listed <- paste(inputs, name2paste, sep = ' -> ', collapse = "\n")
       #cat(inputs_listed)
-      outputs <- paste('"', outputs, '"', sep = "")  
+      outputs <- paste('"', outputs, '"', sep = "")
       outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
       #cat(outputs_listed)
 if(!is.null(todo_col)){
@@ -114,17 +116,17 @@ strng <- sprintf('%s\n%s  [ shape=record, style = \"filled\", fillcolor=\"white\
       #inputs
       inputs_listed <- paste(inputs, name2paste, sep = ' -> ', collapse = "\n")
       #cat(inputs_listed)
-      outputs <- paste('"', outputs, '"', sep = "")  
+      outputs <- paste('"', outputs, '"', sep = "")
       outputs_listed <- paste(name2paste, outputs, sep = ' -> ', collapse = "\n")
       #cat(outputs_listed)
 if(!is.null(todo_col)){
   status <- indat2[i,todo_col]
-       
+
 strng <- sprintf('%s\n%s  [ shape=record, style = \"filled\", fillcolor=\"white\", label="{{ { Name | Description | Status } | { %s | %s | %s } }}"]\n%s\n\n',
                  inputs_listed, name2paste, name, desc, status, outputs_listed
                  )
       # cat(strng)
-      if(!status %in% c("DONE", "WONTDO", "", NA)){ 
+      if(!status %in% c("DONE", "WONTDO", "", NA)){
         strng <- gsub("shape=record,", "shape=record, style = \"filled\", color=\"indianred\",", strng)
       }
 

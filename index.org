@@ -9072,6 +9072,9 @@ categories:
       
 #+end_src
 
+** sync a fork with upstream
+https://help.github.com/articles/syncing-a-fork/
+
 * Latex/Sweave/orgmode/knitr
 ** Orgmode headers
 *** 2013-11-26-a-sharp-looking-orgmode-latex-export-header

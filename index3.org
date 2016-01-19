@@ -973,6 +973,37 @@ present this below as a schematic overview.
   ```
   
 #+end_src
+** 7z_checkout
+*** COMMENT 7z_checkout
+  # Instructions
+  ## you have to run the 7zip installer, just install to user/documents
+  ## set the location of your exe
+  ## ensure the desired folders are in the list (exclude the prefix
+  ## 'Q:\Research\Environment_General', and use windows style slashes '\\')
+
+
+#+begin_src R :session *R* :tangle R/7z_checkout.R :exports none :eval no
+#' @name 7z_checkout
+#' @title 7z checkout files
+#' @param archive_id a name
+#' @param dirlist a list of paths
+#' @param 7zloc a path to your 7z location 
+#' @param checkin_or_out this creates a flag file called checkedin or checkedout in the dirs 
+#' @return dataframe with droughtIndices
+#' @export
+#'
+7z_checkout <- function(
+archive_id  <- "air_pollution_testing_checkin_to_q_drive"
+dirlist <- 'Air_pollution_modelling_LUR_Western_Sydney/LUR_Western_Sydney_passive_samplers/" "projects/Air_Pollution_Monitoring_Stations_NSW/AP_monitor_NSW_2014_2015/'
+  
+  cmd <- sprintf('7z a -t7z versions/%s_%s.7z "%s"', archive_id, gsub(":", "-", gsub(" ", "-", Sys.time())),
+                 dirlist)
+  cat(cmd)
+  
+
+#+end_src
+
+
 * Data documentation
 ** Scales and units
 ***  Morpho’s definitions
@@ -1085,6 +1116,11 @@ For DATA “counts” use the following:
 - Category = Relative (interval)
 - Standard unit = length -> metre (or other length unit)
 - Number type = whole or real
+** EML package and wide data frames
+
+https://github.com/ropensci/EML/blame/master/manuscripts/one-simple-way.Rmd#L234
+rows should be cols?
+
 * Exploratory Data Analysis
 ** 2015-10-26-show-missingness-in-large-dataframes
 *** post
@@ -1432,6 +1468,29 @@ http://jmbh.github.io//Estimation-of-mixed-graphical-models/
 - a confounder, W is associated with both exposure (tempera- ture) and outcome (mortality) and provides an unblocked backdoor path between mortal- ity and temperature, in the language of DAGs (Greenland et al. 1999) p34 2nd col (from \cite{Reid2012})
 ** causal diagrams
 Greenland, S., Pearl, J., & Robins, J. M. (1999). Causal diagrams for epidemiologic research. Epidemiology (Cambridge, Mass.), 10(1), 37–48. doi:10.1097/00001648-199901000-00008
+** measurement
+** 2016-01-18-validity-of-measurements
+#+name:validity-of-measurement-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2016-01-18-validity-of-measurement.md :exports none :eval no :padline no
+---
+name: validity-of-measurement
+layout: post
+title: Validity of measurement
+date: 2016-01-18
+categories:
+- disentangle
+- statistical modelling
+---
+
+I have needed to describe validity recently and found it useful to paraphrase some of this statistics blog post: [http://andrewgelman.com/2015/04/28/whats-important-thing-statistics-thats-not-textbooks/]()
+
+I've been working a lot on air pollution modelling recently, where 'validation' is used to assess how well the modelled pollution predicted values represent the actual pollution observed. I tend to think of validity as formalised in statistical terms, i.e. as correlations between different measurements of the same thing, or between measurement and 'truth', and statistics are used for assessing and calibrating measurements.
+
+I am guessing that when applied to the validity behind a research proposal, the issue might be whether the measurement is suitable for addressing the issue the researcher (and research question) is interested in, and therefore supporting the researchers to make valid inferences from the outcome of statistical methods. I have heard lots of anecdotes from statisticians in which when they are asked to help with analysing data, their advice was essentially that in order for a valid analysis that addresses the research question one would rather need to have collected different measurements. 
+
+
+#+end_src
+
 * bibliometrics and literature reviewing
 ** TODO author indices
 *** scholar metrics
