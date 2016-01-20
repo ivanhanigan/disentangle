@@ -980,23 +980,29 @@ present this below as a schematic overview.
   ## set the location of your exe
   ## ensure the desired folders are in the list (exclude the prefix
   ## 'Q:\Research\Environment_General', and use windows style slashes '\\')
+  + `7za x archive_name` on linux
+  + "c:\path\to\7z.exe" x archive_name on windows
 
 
-#+begin_src R :session *R* :tangle R/checkout7z.R :exports none :eval no
+#+begin_src R :session *R* :tangle R/checkout7z.R :exports none :eval yes
   #' @name 7z_checkout
   #' @title 7z checkout files
   #' @param archive_id a name
   #' @param dirlist a list of paths
-  #' @param 7zloc a path to your 7z location 
+  #' @param loc_7z a path to your 7z location 
   #' @param checkin_or_out this creates a flag file called checkedin or checkedout in the dirs 
   #' @return cmd line
   #' @export
   #'
-  checkout7z <- function(archive_id  = "air_pollution_testing_checkin_to_q_drive",
-  dirlist = c("Air_pollution_modelling_LUR_Western_Sydney/LUR_Western_Sydney_passive_samplers/", "projects/Air_Pollution_Monitoring_Stations_NSW/AP_monitor_NSW_2014_2015/")
+  checkout7z <- function(archive_id  = "versions/air_pollution_testing_checkin_to_q_drive",
+                         dirlist = c("Air_pollution_modelling_LUR_Western_Sydney/LUR_Western_Sydney_passive_samplers/",
+                           "projects/Air_Pollution_Monitoring_Stations_NSW/AP_monitor_NSW_2014_2015/"),
+                         loc_7z = "c:\\Users\\ivan.hanigan\\Documents\\7-zip\\7z.exe"
     ){
     
-    cmd <- sprintf('7z a -t7z versions/%s_%s.7z "%s"', archive_id,
+    cmd <- sprintf('"%s" a -t7z %s_%s.7z "%s"',
+                   loc_7z,
+                   archive_id,
                    gsub(":", "-", gsub(" ", "-", Sys.time())),
                    paste(dirlist, sep = "", collapse = '" "')
                    )
@@ -1004,6 +1010,9 @@ present this below as a schematic overview.
     return(cmd)
   }
 #+end_src
+
+#+RESULTS:
+
 *** COMMENT test checkout7z
 #+name:test
 #+begin_src R :session *R* :tangle no :exports none :eval no
@@ -1011,7 +1020,8 @@ present this below as a schematic overview.
   
   
   cmd  <- checkout7z("SEEF_exposures",
-                     "/home/ivan_hanigan/projects_environment_general_local/SEEF/SEEF_exposures/")
+                     "/home/ivan_hanigan/projects_environment_general_local/SEEF/SEEF_exposures/",
+                     loc_7z = "7z")
   cat(cmd)
   '
   7z a -t7z /home/ivan_hanigan/Dropbox/projects_environment_general_transfers/SEEF_exposures_2016-01-20-17-00-18.7z "/home/ivan_hanigan/projects_environment_general_local/SEEF/SEEF_exposures/"
