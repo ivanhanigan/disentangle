@@ -973,8 +973,8 @@ present this below as a schematic overview.
   ```
   
 #+end_src
-** 7z_checkout
-*** COMMENT 7z_checkout
+** checkout7z
+*** COMMENT checkout7z
   # Instructions
   ## you have to run the 7zip installer, just install to user/documents
   ## set the location of your exe
@@ -982,25 +982,42 @@ present this below as a schematic overview.
   ## 'Q:\Research\Environment_General', and use windows style slashes '\\')
 
 
-#+begin_src R :session *R* :tangle R/7z_checkout.R :exports none :eval no
-#' @name 7z_checkout
-#' @title 7z checkout files
-#' @param archive_id a name
-#' @param dirlist a list of paths
-#' @param 7zloc a path to your 7z location 
-#' @param checkin_or_out this creates a flag file called checkedin or checkedout in the dirs 
-#' @return dataframe with droughtIndices
-#' @export
-#'
-7z_checkout <- function(
-archive_id  <- "air_pollution_testing_checkin_to_q_drive"
-dirlist <- 'Air_pollution_modelling_LUR_Western_Sydney/LUR_Western_Sydney_passive_samplers/" "projects/Air_Pollution_Monitoring_Stations_NSW/AP_monitor_NSW_2014_2015/'
+#+begin_src R :session *R* :tangle R/checkout7z.R :exports none :eval no
+  #' @name 7z_checkout
+  #' @title 7z checkout files
+  #' @param archive_id a name
+  #' @param dirlist a list of paths
+  #' @param 7zloc a path to your 7z location 
+  #' @param checkin_or_out this creates a flag file called checkedin or checkedout in the dirs 
+  #' @return cmd line
+  #' @export
+  #'
+  checkout7z <- function(archive_id  = "air_pollution_testing_checkin_to_q_drive",
+  dirlist = c("Air_pollution_modelling_LUR_Western_Sydney/LUR_Western_Sydney_passive_samplers/", "projects/Air_Pollution_Monitoring_Stations_NSW/AP_monitor_NSW_2014_2015/")
+    ){
+    
+    cmd <- sprintf('7z a -t7z versions/%s_%s.7z "%s"', archive_id,
+                   gsub(":", "-", gsub(" ", "-", Sys.time())),
+                   paste(dirlist, sep = "", collapse = '" "')
+                   )
+    #cat(cmd)
+    return(cmd)
+  }
+#+end_src
+*** COMMENT test checkout7z
+#+name:test
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:test ####
   
-  cmd <- sprintf('7z a -t7z versions/%s_%s.7z "%s"', archive_id, gsub(":", "-", gsub(" ", "-", Sys.time())),
-                 dirlist)
+  
+  cmd  <- checkout7z("SEEF_exposures",
+                     "/home/ivan_hanigan/projects_environment_general_local/SEEF/SEEF_exposures/")
   cat(cmd)
-  
-
+  '
+  7z a -t7z /home/ivan_hanigan/Dropbox/projects_environment_general_transfers/SEEF_exposures_2016-01-20-17-00-18.7z "/home/ivan_hanigan/projects_environment_general_local/SEEF/SEEF_exposures/"
+  '
+  # needs trailing slash on linux, \\* on windows
+  # 
 #+end_src
 
 
