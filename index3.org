@@ -994,9 +994,9 @@ present this below as a schematic overview.
   #' @return cmd line
   #' @export
   #'
-  checkout7z <- function(archive_id  = "versions/air_pollution_testing_checkin_to_q_drive",
-                         dirlist = c("Air_pollution_modelling_LUR_Western_Sydney/LUR_Western_Sydney_passive_samplers/",
-                           "projects/Air_Pollution_Monitoring_Stations_NSW/AP_monitor_NSW_2014_2015/"),
+  checkout7z <- function(dirlist = c("Air_pollution_modelling_LUR_Western_Sydney/LUR_Western_Sydney_passive_samplers/",
+                         "projects/Air_Pollution_Monitoring_Stations_NSW/AP_monitor_NSW_2014_2015/"),
+                         archive_id  = "versions/air_pollution_testing_checkin_to_q_drive",
                          loc_7z = "c:\\Users\\ivan.hanigan\\Documents\\7-zip\\7z.exe"
     ){
     
@@ -1007,6 +1007,7 @@ present this below as a schematic overview.
                    paste(dirlist, sep = "", collapse = '" "')
                    )
     #cat(cmd)
+    print("remember needs trailing slash on linux, \\* on windows")
     return(cmd)
   }
 #+end_src
@@ -1018,16 +1019,27 @@ present this below as a schematic overview.
 #+begin_src R :session *R* :tangle no :exports none :eval no
   #### name:test ####
   
+  source("~/tools/disentangle/R/checkout7z.R")
+  args(checkout7z)
   
-  cmd  <- checkout7z("SEEF_exposures",
-                     "/home/ivan_hanigan/projects_environment_general_local/SEEF/SEEF_exposures/",
-                     loc_7z = "7z")
-  cat(cmd)
+  projdir <- "/home/ivan_hanigan/projects_environment_general_local"
+  projdir <- "Q:\\Research\\Environment_General"
+  cmd  <- checkout7z(dirlist = c("Air_pollution_modelling_LUR_LCT\\LUR_LCT_passive_samplers_2006_2008\\*",
+                       "CTM_CSIRO\\TAPM_2007_HD\\*",
+                       "CTM_CSIRO\\Shipping_TIFs_RB\\*",
+                       "Study_Region\\greater_syd_metro_reg_2006\\*",
+                       "ABS_Boundary_Files\\abs_sa2\\*")
+                     ,
+                     archive_id = "versions/foo")
+  #,
+  #                   loc_7z = "7z")
+  cat(sprintf("cd %s\n%s", projdir, cmd))
+  
   '
   7z a -t7z /home/ivan_hanigan/Dropbox/projects_environment_general_transfers/SEEF_exposures_2016-01-20-17-00-18.7z "/home/ivan_hanigan/projects_environment_general_local/SEEF/SEEF_exposures/"
   '
   # needs trailing slash on linux, \\* on windows
-  # 
+  # want to run this from the place you want to have the rel path start from
 #+end_src
 
 
@@ -1147,6 +1159,96 @@ For DATA “counts” use the following:
 
 https://github.com/ropensci/EML/blame/master/manuscripts/one-simple-way.Rmd#L234
 rows should be cols?
+
+** list all files and folders 
+*** folders_all
+#+name:folders_all
+#+begin_src R :session *R* :tangle no :exports none :eval no
+#### name:folders_all ####
+setwd("Q:/Research/Environment_General/working_ivan/data_inventory_and_migration")
+# list directories in a project
+dloads <- getwd()
+folders2list <- read.csv(file.path(dloads, "folders_to_inventory.csv"), stringsAsFactors = F)
+folders2list[,1:3]
+folders2list <- folders2list[
+-  grep("^Not", folders2list$additional_metadata),
+]
+prjs <- names(table(folders2list$project_title))
+prjs
+finfo <- F
+if(finfo){
+flist_out <- data.frame(project_title='',dataset_shortname='',additional_metadata='',entity_name='',
+                        entity_description='',physical_distribution='',
+                        file_modified='', file_size = '', physical_distribution_additionalinfo='')
+#paste(names(flist2), sep = "", collapse = "='',")
+flist_out$file_modified <- character(1)
+flist_out$file_size <- numeric(1)
+
+} else {
+  flist_out <- data.frame(project_title='',dataset_shortname='',additional_metadata='',entity_name='',
+                          entity_description='',physical_distribution='',
+                          physical_distribution_additionalinfo='')
+}
+  
+for(i in 1:length(prjs)){
+#i = 5
+  project <- prjs[i]
+print(project)
+dsets <- folders2list[folders2list$project_title == project,]
+#dsets
+  for(j in 1:nrow(dsets)){
+#    j = 1
+    dataset <- dsets[j, "dataset_shortname"]
+    projectdir <- dsets[j, "additional_metadata"]
+print(dataset)
+#getwd()
+flist <- as.data.frame(dir(projectdir, recursive = T, full.names = T))
+flist2 <- data.frame(entity_name = basename(as.character(flist[,1])),
+ physical_distribution = as.character(flist[,1]),
+ project_title = project,
+ dataset_shortname = dataset,
+ additional_metadata = "",
+ entity_description = "",
+ physical_distribution_additionalinfo = dirname(as.character(flist[,1]))
+)
+if(finfo){
+  flist2$file_modified <- as.character(file.mtime(as.character(flist2$physical_distribution)))
+  flist2$file_size <- file.size(as.character(flist2$physical_distribution))/1024/1024
+#matrix(names(flist2))
+flist2 <- flist2[,c('project_title','dataset_shortname','additional_metadata',"entity_name","entity_description",
+                    "physical_distribution","file_modified", "file_size", "physical_distribution_additionalinfo")]
+} else {
+  flist2 <- flist2[,c('project_title','dataset_shortname','additional_metadata',"entity_name","entity_description",
+                      "physical_distribution", "physical_distribution_additionalinfo")]
+}
+
+#head(flist2)
+flist_out <- rbind(flist_out, flist2)
+}
+}
+project
+dataset
+str(flist_out)
+flist_out[2,]
+flist_out[1,]
+write.csv(flist_out[-1,], "environment_general_data_inventory_files.csv", row.names = F)
+
+# date modified for files in arcmap mxd
+#flist_out generated with finfo
+#write.csv(flist_out[-1,], "arcmap_mxd_data_inventory_files_20150730.csv", row.names = F)
+
+
+# check exist
+# dir(dloads)
+# qc <- read.csv(file.path(dloads, "environment_general_ucrh_data_inventory_20150731.csv"), stringsAsFactors = F)
+# for(fi in qc$COPY_TO){
+#   #print(fi)
+#   #print(
+#   if(!file.exists(fi)) cat(sprintf("%s not there", fi))
+#   }
+
+
+#+end_src
 
 * Exploratory Data Analysis
 ** 2015-10-26-show-missingness-in-large-dataframes
@@ -2296,6 +2398,221 @@ Pritsker, M., 2012. Studies show only 10% of published science articles are repr
 
 From the economic perspective, iIt is estimated US $28 billion per year is spent on preclinical research that is not repeatable reproducible and it is also reported that non-repeatability of publicationsirreproducibility ranges from 51% to 89% (Freedman et al., 2015).  In the same study, Freedman et al., estimated that the contribution of data analysis towards repeatability problemsirreproducibility is 26%.
 
+** 2016-01-22-reproducibility-vs-replication-definitional-variations
+#+name:reproducibility-vs-replication-definitional-variations-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2016-01-22-reproducibility-vs-replication-definitional-variations.md :exports none :eval no :padline no
+---
+name: reproducibility-vs-replication-definitional-variations
+layout: post
+title: Reproducibility vs replication - Definitional variations
+date: 2016-01-22
+categories:
+- disentangle
+---
+
+There is confusion between the definitions of reproducibility, repeatability and replicability. 
+I strongly feel we need to tackle that head on and come to an agreed definition. 
+I prefer Peng 2011:
+
+- Reproduciblity is using the same data and getting the exact same result.
+- Replication is getting a new sample and doing the analysis again and getting a similar result.  
+
+```
+Peng, R. D. (2011). Reproducible research in computational
+science. Science, 334(6060), 1226–1227. doi:10.1126/science.1213847
+```
+
+<p></p>
+
+There are many people using these interchangeably or around the opposite way. For example Drummond got it round the wrong way in 'Drummond, C., 2009. Replicability is not reproducibility: nor is it good science' [http://cogprints.org/7691/7/icmlws09.pdf](http://cogprints.org/7691/7/icmlws09.pdf) 
+and then reverted it in 'Reproducible Research: a Dissenting Opinion'. [http://cogprints.org/8675/1/ReproducibleResearch.pdf](http://cogprints.org/8675/1/ReproducibleResearch.pdf) 
+(Check out Peng's reaction: [http://simplystatistics.org/2012/11/15/reproducible-research-with-us-or-against-us-3/](http://simplystatistics.org/2012/11/15/reproducible-research-with-us-or-against-us-3/))
+
+And this blog but also gets the definitions around the wrong way [http://jermdemo.blogspot.com.au/2012/12/the-reproducible-research-guilt-trip.html](http://jermdemo.blogspot.com.au/2012/12/the-reproducible-research-guilt-trip.html) (even tho being quite entertaining to read and had this great picture.... not sure what the picture means???)
+
+![/images/thinker2.jpg](/images/thinker2.jpg)
+
+#### Sure, OK, it is fine that people define things differently to one another but:
+    The single biggest problem in communication 
+    is the illusion that it has taken place.
+    George Bernard Shaw quotes from BrainyQuote.com
+
+<p></p>
+
+We rely on a common defintion to ensure we are talking about the same thing.
+
+![/images/communication-bnewell.png](/images/communication-bnewell.png)
+
+Source: Newell, B. (2012). Simple models, powerful ideas: Towards effective integrative practice. Global Environmental Change, 22(3), 776–783. [http://dx.doi.org/10.1016/j.gloenvcha.2012.03.006](http://dx.doi.org/10.1016/j.gloenvcha.2012.03.006)
+
+It is regrettable that in Ecology (my favourite discipline) there seems to be quite a wide gap between various author's definitions.  In CASSEY, P., & BLACKBURN, T. M. (2006). Reproducibility and
+Repeatability in Ecology. BioScience, 56(12), 958. [http://bioscience.oxfordjournals.org/content/56/12/958.full](http://bioscience.oxfordjournals.org/content/56/12/958.full) they agree with the definition of Peng 2011. However another author gives a very confused and overlapping view:
+
+```
+
+because that context changes through time and space, it is virtually
+impossible to reproduce precisely or quantitatively any single
+experimental or observational field study in ecology. Yet many
+ecological studies can be repeated. In particular, ecological
+synthesis – the assembly of derived datasets and their subsequent
+analysis, re-analysis, and meta-analysis – should be easy to repeat
+and reproduce
+
+```
+
+<p></p>
+
+Ellison, A. (2010). Repeatability and Transparency in Ecological Research. 
+Ecology.  [https://dash.harvard.edu/bitstream/handle/1/3123279/Ellison_Repeatability.pdf?sequence=2](https://dash.harvard.edu/bitstream/handle/1/3123279/Ellison_Repeatability.pdf?sequence=2) Accessed 12 Jan 16
+
+
+In another interesting approach Freedman, L. P., Cockburn, I. M., & Simcoe, T. S. (2015). The Economics of Reproducibility in Preclinical Research. PLOS Biology, 13(6), e1002165. [http://dx.doi.org/10.1371/journal.pbio.1002165](http://dx.doi.org/10.1371/journal.pbio.1002165) chose instead to define _irreproducibility_ such that it:
+
+```
+that encompasses the existence and propagation of one or more errors,
+flaws, inadequacies, or omissions (collectively referred to as errors) 
+that prevent replication of results
+```
+
+<p></p>
+
+Leaving us to assume that the opposite of this is therefore _reproducibility_, although avoiding defining this themselves.  Looking back at the two heads in the picture above... it is interesting to ponder how some people would receive the signal of Freedman et al, having defined the opposite of the thing that is the object of their discussion, rather than the thing itself!
+
+
+Let's all agree with Peng and Cassey/Blackburn and move on already!
+
+
+#+end_src
+    
+** 2016-01-25-repeatability-vs-replication-definitional-variations
+#+name:reproducibility-vs-replication-definitional-variations-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2016-01-25-repeatability-vs-replication-definitional-variations.md :exports none :eval no :padline no
+---
+name: repeatability-vs-replication-definitional-variations
+layout: post
+title: Repeatability vs replication - Definitional variations
+date: 2016-01-25
+categories:
+- disentangle
+---
+
+In my previous post I bemoaned the variability in definitions of reproducibility and replication.  
+The definition of reproducibility in particular concerns me as I finalise my thesis on 'Reproducible Research Pipelines'.  However I also have noticed a confusion of Repeatability and Replication that is worth noting.  In various author's definitions.  In CASSEY, P., & BLACKBURN, T. M. (2006). Reproducibility and Repeatability in Ecology. BioScience, 56(12), 958. [http://bioscience.oxfordjournals.org/content/56/12/958.full](http://bioscience.oxfordjournals.org/content/56/12/958.full) they agree with the definition of Peng 2011 that Reproducibility is to re-calculate the same result from the same data and they use Repeatability as a synonym for Peng's Replication.
+
+According to Cassey and Blackburn (2006), reproducibility is the case that: 
+
+```
+from the information presented in the study, a third party could
+replicate (sic) the reported results identically.
+```
+
+<p></p>
+
+This definition distinguishes reproducibility from repeatability which is when 
+
+```
+a third party must be able to perform a study using identical methodological protocols 
+and analyze the resulting data in an identical manner
+```
+
+<p></p>
+
+Which is what Peng terms 'replicability'.  This leads me to conclude that:
+
+### Cassey and Blackburn conflate Repeatability with Replicability.
+
+However another author gives a very confused and overlapping view Ellison, A. (2010). Repeatability and Transparency in Ecological Research. Ecology.  [https://dash.harvard.edu/bitstream/handle/1/3123279/Ellison_Repeatability.pdf?sequence=2](https://dash.harvard.edu/bitstream/handle/1/3123279/Ellison_Repeatability.pdf?sequence=2) Accessed 12 Jan 2016.
+
+To add further confusion I have dug up the latest dictionary of epidemiology and find that whilst this agrees with Reproducibility and Replication, it treates Repeatability as a synonym of Reproducibility!
+
+- Porta, Miquel S. Dictionary of Epidemiology (6th Edition). New York, NY, USA: Oxford University Press, USA, 2014. ProQuest ebrary. Web. 24 January 2016.
+Copyright © 2014. Oxford University Press, USA. All rights reserved. 
+
+
+```
+
+Repeatability (Syn: reproducibility): The value below which the
+absolute difference between two single test results may be expected to
+lie with a probability of 95%, when the results are obtained by the
+same method and equipment from identical test material in the same
+setting by the same operator within short intervals of time. A test or
+measurement is repeatable if the results are identical or closely
+similar each time it is conducted. 1-3,5-9,91 See also measurement,
+terminology of; reliability.
+
+Replication: The execution of an observational or experimental study
+more than once so as to confirm the findings, increase precision, and
+obtain a closer estimation of sampling error. Exact replication should
+be distinguished from consistency of results on replication. Exact
+replication is often possible in the physical sciences, but in the
+health, life, and social sciences consistency of results on
+replication is often the best that can be
+attained. 1,2,6,25,39,42,91,206-208,270,273,533 Consistency of results
+on replication is perhaps the most important consideration in
+judgements of CAUSALITY.
+
+Reproducibility: see REPEATABILITY.
+
+```
+
+<p></p>
+ 
+## Whatever happens, never cite Drummond 2009!
+
+It is unclear whether Drummond's self-published conference paper was peer reviewed (or reviewed by the conference committee) but the following quote is unsupported assertion and should be ignored.
+
+```
+Reproducibility requires changes; replicability avoids them.
+```
+
+<p></p>
+
+Drummond, C. (2009). Replicability is not Reproducibility: Nor is it Good Science. Proceedings of the Evaluation Methods for Machine Learning Workshop 26th International Conference for Machine Learning. Retrieved January 25, 2016, from [http://cogprints.org/7691/7/icmlws09.pdf](http://cogprints.org/7691/7/icmlws09.pdf)
+
+Indeed in 2012 Drummond (in another self-published, working paper without evidence of peer review) did a backflip and said:
+
+```
+Reproducibility requires that the experiment originally carried out be duplicated 
+as far as is reasonably possible. The aim is to minimize the difference from 
+the first experiment including its flaws, to produce
+independent verification of the result as reported
+```
+
+<p></p>
+
+Drummond, C. (2012). Reproducible research: A dissenting opinion. Unpublished draft. Retrieved October 9, 2015, from [http://cogprints.org/8675/](http://cogprints.org/8675/)
+
+#+end_src
+
+** 2016-01-28-release-checklist-references
+#+name:release-checklist-references-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2016-01-28-release-checklist-references.md :exports none :eval no :padline no
+---
+name: release-checklist-references
+layout: post
+title: Release checklist references
+date: 2016-01-28
+categories:
+- disentangle 
+---
+
+## Some good reading and best-practice advice 
+
+- Driessen, V. (2010). A successful Git branching model. Nvie.Com. Retrieved January 28, 2016, from [http://nvie.com/posts/a-successful-git-branching-model/](http://nvie.com/posts/a-successful-git-branching-model/)
+
+<object data="/images/nvie2010-2.pdf" type="application/pdf" width="675" height="800">
+  <p>Alternative text - include a link <a href="images/nvie2010-2.pdf.pdf">to the PDF!</a></p>
+</object>
+
+- Huff, K. D. (n.d.). A Software Release Checklist. Retrieved January 28, 2016, from [http://bids.berkeley.edu/news/software-release-checklist](http://bids.berkeley.edu/news/software-release-checklist)
+
+![/images/Huff2016.png](/images/Huff2016.png)
+ 
+- Stanisic, L., Legrand, A., & Danjean, V. (2015). An Effective Git And Org-Mode Based Workflow For Reproducible Research. ACM SIGOPS Operating Systems  …. Retrieved from [http://dl.acm.org/citation.cfm?id=2723881](http://dl.acm.org/citation.cfm?id=2723881)
+
+![/images/Stanisic2015.png](/images/Stanisic2015.png)
+#+end_src
+
 * Writing
 ** environmental health risk assessment (simple)
 - define the range of health effects and environmental exposures
@@ -2343,6 +2660,53 @@ Other things I use are:
 
 - Mind maps: a central topic with a spiderweb of links extending out in a circle.
 - TODO
+
+** 2016-01-31-the perfect is the enemy of the good
+#+name:the perfect is the enemy of the good-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2016-01-31-the-perfect-is-the-enemy-of-the-good.md :exports none :eval no :padline no
+---
+name: the-perfect-is-the-enemy-of-the-good
+layout: post
+title: The perfect is the enemy of the good
+date: 2016-01-31
+categories:
+- disentangle
+- writing
+---
+
+According to Wikipedia [https://en.wikipedia.org/wiki/Perfect_is_the_enemy_of_good](https://en.wikipedia.org/wiki/Perfect_is_the_enemy_of_good)
+this phrase was popularised by Voltaire, and Shakespeare via King Lear: "striving to better, oft we mar what's well" 
+
+This phrase is a favourite of several people I respect and admire.  On the other hand it has always vaguely troubled me.
+I think there may be two dimensions of this phrase that are worth pondering.
+
+## One: "the good" is a quality of the work 
+
+The first dimension is better expressed in King Lear, and on the wiki page where it is suggested the meaning is "that we might never complete a task if we have decided not to stop until it is perfect."
+This is correct, however not an absolutely faithful interpretation of the phrase "striving to better".  To my mind this does not necessarily lead to the position "will not stop until perfect".
+If one strives for perfection but admits that this is beyond the scope of one's ambition then one will eventually stop when "it" is "good enough", and that state will be better if one were striving for perfection than if one where aiming for "satisfactory".
+
+## Two: "the good" is the impact the work may have on the world around us
+
+The second dimension resonates more clearly with me and that is that "the good" is a public good, an impact that we feel would make the world a better place.
+To aim for a satisfactory action or intervention on the world around is would then be the goal, and we should try to achieve this as soon as possible, without delaying our work with minutia or trivia that might be that extra 1 percent that we would hope elevates our work further than satisfactory.  One extra rung up the ladder toward perfection.
+
+## Stirzaker's "simplicity cycle"
+
+On page 175 of Stirzaker, R. (2010). Out of the scientists garden: A story of water and food. Canberra, Australia: CSIRO.
+I copied the image and show it below, but I have flipped it around so the axis are reversed from his original.
+This shows a couple of trajectories we can head along in terms of striving for enhancements, and the effect this has on how "good" the results are.
+
+![/images/stirzacker.jpg](/images/stirzacker.jpg)
+
+## Seriousness aside
+
+I used this image in my last project as a rallying call to the team to focus on both striving for the perfection while also balancing our aims to impact on the good.
+My colleagues pointed out that the flipped over version is easily turned into a stickman, a la XKCD!
+
+![/images/stirzacker2.jpg](/images/stirzacker2.jpg)
+    
+#+end_src
 
 * Blogging
 ** Jekyll

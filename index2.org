@@ -6296,7 +6296,49 @@ categories:
     
 #+end_src
 
+*** 2016-01-29-gis-issues-when-r-used-transforming-coordinate-systems-update
+#+name:gis-issues-when-r-used-transforming-coordinate-systems-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2016-01-29-gis-issues-when-r-used-transforming-coordinate-systems.md :exports none :eval no :padline no
+---
+name: gis-issues-when-r-used-transforming-coordinate-systems-update
+layout: post
+title: UPDATE to post 'GIS Issues when R is Used for Transforming Coordinate Systems'
+date: 2016-01-29
+categories:
+- Data Operation
+- spatial
+---
 
+- UPDATE to post [http://ivanhanigan.github.com//2015/10/gis-issues-when-r-used-transforming-coordinate-systems](http://ivanhanigan.github.com//2015/10/gis-issues-when-r-used-transforming-coordinate-systems)
+- Recall that RGDAL transforms and write out spatial data in GDA94 with a problem in that ArcGIS does not like the prj file and complains
+- This seems an ok workaround
+
+```
+infile <- "western_sydney_passive_samplers_site_details.csv"
+indir <- "data_derived"
+
+outdir <- indir
+outfile <- file.path(outdir, gsub(".csv",".shp",infile))
+
+dat <- read.csv(file.path(indir, infile), as.is=T)
+str(dat)
+  
+dat2 <- SpatialPointsDataFrame(data.frame(x=dat$long, y=dat$lat), dat,
+                                proj4string=CRS(epsg$prj4[epsg$code %in% '4283'])
+                                )
+
+writeOGR(dat2, outfile,
+         outdir, driver='ESRI Shapefile'
+         )
+# fix the prj file 
+download.file("http://spatialreference.org/ref/epsg/4283/prj/",
+              gsub(".shp", ".prj", outfile), mode = "wb"
+              )
+```
+
+![/images/samplers_sydney.png](/images/samplers_sydney.png)
+
+#+end_src
 *** TODO gIntersection
 #+name:gIntersection
 #+begin_src R :session *shell* :tangle no :exports none :eval no
@@ -6558,6 +6600,32 @@ legend(-117, 44, legend=names(attr(colcode, "table")),
 http://www4.stat.ncsu.edu/~reich/CUSP/Ordinary_Kriging_in_R.pdf
 http://r-video-tutorial.blogspot.com.au/2015/08/spatio-temporal-kriging-in-r.html
 uses gstat
+
+#+end_src
+
+*** COMMENT points-with-cols
+#+name:points-with-cols
+#+begin_src R :session *R* :tangle points-with-cols.R :exports none :eval no
+#### name:points-with-cols ####
+indir <- "data_derived"
+dir(indir)
+infile  <- "lane_cove_tunnel_passive_samplers_no2_mean.csv"
+
+dat <- read.csv(file.path(indir, infile), as.is=T)
+str(dat)
+
+library(RColorBrewer)
+library(rgdal)
+library(classInt)
+dat2 <- SpatialPointsDataFrame(data.frame(x=dat$LONGITUDE, y=dat$LATITUDE), dat)
+plot(dat2)
+cuts <- classIntervals(dat2@data$no2_mean, style="fixed",
+                       fixedBreaks=c(summary(dat2@data$no2_mean)))
+plotclr <- rev(brewer.pal(5, "Spectral"))
+colcode <- findColours(cuts, plotclr)
+plot(dat2, col=colcode, pch=19)
+legend("bottomright", legend=names(attr(colcode, "table")), fill=attr(colcode, "palette"), bty="n")
+text(x=dat$LONGITUDE, y=dat$LATITUDE, labels = round(dat$no2_mean,1), cex = .6)
 
 #+end_src
 
@@ -7320,6 +7388,217 @@ names(qc3) <-  paste("V", 1:13, sep = "")
   
 #+end_src
 
+
+*** 2016-02-01 Mon 
+**** TODO-list 
+***** TODO 
+**** timesheet
+#+begin_src txt :tangle work-log.csv :eval no :padline no
+2016-02-01 Mon, climate-grids-thredds-european-data, 50
+#+end_src
+** 2016-02-02-climate-grids-thredds-european-data
+see workings at ~/projects/weather_european_eobs/eobs_temperature_tg_dataset/index.org
+#+name:climate-grids-thredds-european-data-header
+~/projects/ivanhanigan.github.com.raw/_posts/2016-02-02-climate-grids-thredds-european-data.md
+#+begin_src markdown :tangle no :exports none :eval no :padline no
+---
+name: climate-grids-thredds-european-data
+layout: post
+title: climate-grids-thredds-european-data
+date: 2016-02-02
+categories:
+- disentangle
+- climate data
+---
+
+    
+#+end_src
+
+** european netcdf
+http://opendap.knmi.nl/knmi/thredds/dodsC/e-obs_0.22rotated/tg_0.22deg_rot_v12.0.nc
+*** COMMENT play
+#+name:play
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:play ###
+  #library(ncdf4)
+  library(ncdf)
+  library(raster)
+  projdir <- "~/projects/IvanPhD/Papers/FSZAFKKDHTPH_letter"
+  outdir <- "data_provided"
+  outdir <- file.path(projdir, outdir)
+  #dir.create(outdir, recursive = T)
+  setwd(outdir)
+                                          #strt <-'2012-01-01'
+  #end <- '2012-01-04'
+  #dates <- seq(as.Date(strt),as.Date(end),1)          
+  #dates
+  #par(mfrow = c(2,2))
+  #for(i in 1:length(dates)){
+   # i=1
+  #  date_i <- dates[i]
+  
+  #infile <- "http://opendap.knmi.nl/knmi/thredds/dodsC/e-obs_0.22rotated/tg_0.22deg_rot_v12.0.nc"
+  #?tg[0:1:1][40:1:40][22:1:22]"
+  # or
+  dl <- "http://www.ecad.eu/download/ensembles/data/Grid_0.22deg_rot/tg_0.22deg_rot_1965-1979_v12.0.nc.gz"
+  dir()
+  download.file(dl, destfile = basename(dl), mode = "wb")
+  " (250MB)"
+  infile <- "/home/ivan_hanigan/projects/suicide_and_climate_change/tg_0.22deg_rot_1950-1964_v12.0.nc"
+  #  nc <- nc_open(infile)
+  nc <- open.ncdf(infile)
+    str(nc)
+    print(nc)
+  #  vals <- ncvar_get(nc, varid="tg")
+  #  vals <- get.var.ncdf(nc, varid="tg", start = c(23922,1,23922), count = c(1,1,23922))
+  ?get.var.ncdf
+  #class(nc)
+       print(paste("The file has",nc$nvars,"variables"))
+  
+  v3
+  v3      <- nc$var[[4]]
+       varsize <- v3$varsize
+       ndims   <- v3$ndims
+       nt      <- varsize[ndims]  # Remember timelike dim is always the LAST dimension!
+  nt
+  for( i in 2:nt ) {
+         i = 1
+               # Initialize start and count to read one timestep of the variable.
+               start <- rep(1,ndims)   # begin with start=(1,1,1,...,1)
+               start[ndims] <- i       # change to start=(1,1,1,...,i) to read timestep i
+               count <- varsize        # begin w/count=(nx,ny,nz,...,nt), reads entire var
+               count[ndims] <- 1       # change to count=(nx,ny,nz,...,1) to read 1 tstep
+               data3 <- get.var.ncdf( nc, v3, start=start, count=count )
+       
+               # Now read in the value of the timelike dimension
+               timeval <- get.var.ncdf( nc, v3$dim[[ndims]]$name, start=i, count=1 )
+       
+               print(paste("Data for variable",v3$name,"at timestep",i,
+                       " (time value=",timeval,v3$dim[[ndims]]$units,"):"))
+  # [1] "Data for variable tg at timestep 1  (time value= 0 days since 1950-01-01 00:00 ):"
+         
+  #             print(data3)
+  #image(data3)
+  dat1 <- list()
+  dat1$x <- get.var.ncdf(nc, varid="Actual_longitude")
+  #dat1$x <- dat1$x[,1]       
+  dat1$y <- get.var.ncdf(nc, varid="Actual_latitude")
+  #dat1$y <- dat1$y[1,]              
+  dat1$z <- get.var.ncdf(nc, v3, start=start, count=count )
+  str(dat1$z)
+  image(dat1$z)
+  #map("world", xlim = c(xmin, xmax), ylim = c(ymin, ymax))
+  #with(dat1, points(x, y, cex = .1, pch = 16))
+  dat2 <- data.frame(
+  x =        as.vector(dat1$x)      ,
+  y =        as.vector(dat1$y),
+  z =        as.vector(dat1$z)
+    )
+  #str(dat2)
+  
+         setwd("/home/ivan_hanigan/projects/suicide_and_climate_change")
+  save(dat2, file = sprintf("eobs_tg_%s.RData",i))           
+  load(sprintf("eobs_tg_%s.RData",i))
+  write.csv(dat2, sprintf("eobs_tg.csv",i), row.names = F, na = "")       
+  }
+       
+  
+  vals <- data3
+    str(vals)
+         str(nc)
+         print(nc)
+  head(vals)
+    nc.att <-    nc$var$tg
+  head(nc.att)
+    xmin <- min(get.var.ncdf(nc, varid="Actual_longitude"))
+      #nc.att$dim[[1]]$vals)
+    xmax <- max(get.var.ncdf(nc, varid="Actual_longitude"))
+      #nc.att$dim[[1]]$vals)
+    ymin <- min(get.var.ncdf(nc, varid="Actual_latitude"))
+      #nc.att$dim[[2]]$vals)
+    ymax <- max(get.var.ncdf(nc, varid="Actual_latitude"))
+      #nc.att$dim[[2]]$vals)
+  #  nc_close(nc) 
+    print(c(xmin,xmax))
+    print(c(ymin,ymax))
+   
+    r <- raster(t(vals),
+                xmn=xmin, xmx=xmax,
+                ymn=ymin, ymx=ymax)
+  r <- flip(r, direction = "y")
+  
+         
+    #str(r)
+         par(mfrow=c(3,1))
+         map("world")
+  plot(r, xlim = c(xmin,xmax), ylim = c(ymin,ymax), add = T)
+  #}
+  r2 <- raster("/home/ivan_hanigan/Dropbox/projects/IvanPhD/Papers/FSZAFKKDHTPH_letter/tg_eobs_map_2015-6-30.tif")
+         str(r2)
+                map("world")
+  
+  plot(r2, xlim = c(xmin,xmax), ylim = c(ymin,ymax), add = T)       
+  
+  xmin <- r2$bbox@extent@xmin
+  xmax <- r2$bbox@extent@xmax
+  ymin <- r2$bbox@extent@ymin
+  ymax <- r2$bbox@extent@ymax
+         image(vals)
+         head(vals)
+         
+  a <-   t(     vals[100:101,100:101])
+  a <-   t(     vals)
+  
+  a <- apply(a, 2, rev) 
+    r <- raster(a,
+                xmn=xmin, xmx=xmax,
+                ymn=ymin, ymx=ymax)
+  plot(r)       
+  #r <- flip(r, direction = "y")
+  crs <- "+proj=ob_tran +o_proj=longlat +lon_0=18 +o_lat_p=39.25 +a=6367470 +e=0"
+  
+    
+  proj4string(r) <- CRS(crs)
+  #"+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0"            
+  #r <- projectRaster(r, crs = "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs")
+  str(r)                   
+  plot(r)    
+  map("world")
+  plot(r, xlim = c(xmin,xmax), ylim = c(ymin,ymax), add = T)
+  
+  
+  
+  dat1 <- list()
+  dat1$x <- get.var.ncdf(nc, varid="Actual_longitude")
+  #dat1$x <- dat1$x[,1]       
+  dat1$y <- get.var.ncdf(nc, varid="Actual_latitude")
+  #dat1$y <- dat1$y[1,]              
+  dat1$z <- get.var.ncdf(nc, v3, start=start, count=count )
+  str(dat1)
+  
+  map("world", xlim = c(xmin, xmax), ylim = c(ymin, ymax))
+  with(dat1, points(x, y, cex = .1, pch = 16))
+  dat2 <- data.frame(
+  x =        as.vector(dat1$x)      ,
+  y =        as.vector(dat1$y),
+  z =        as.vector(dat1$z)
+    )
+  str(dat2)
+  write.csv(dat2, "~/Desktop/foo.csv", row.names = F, na = "")       
+  r <- raster(dat1$z,
+              crs = CRS("+proj=ob_tran +o_proj=longlat +lon_0=18 +o_lat_p=39.25 +a=6367470 +e=0")
+              )
+  r <- flip(r, direction = "y")
+         plot(r)
+  r <- projectRaster(r, crs = "+proj=longlat +ellps=GRS80 +towgs84=0,0,0,0,0,0,0 +no_defs")
+  #r <- flip(r, direction = "y")
+  #r <- flip(r, direction = "x")              
+          plot(r)
+  r <- flip(r, direction = "y")
+  r <- flip(r, direction = "x")              
+#+end_src
+
+
 ** projecting rasters
 CSIRO blend 2005
 ===
@@ -7507,7 +7786,6 @@ Code:
 #+end_src
 
 #+RESULTS: after_brambor
-: 2
 
 
 ** p-values and garden of forking paths

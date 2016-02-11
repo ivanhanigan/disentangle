@@ -8,9 +8,9 @@
 #' @return cmd line
 #' @export
 #'
-checkout7z <- function(archive_id  = "versions/air_pollution_testing_checkin_to_q_drive",
-                       dirlist = c("Air_pollution_modelling_LUR_Western_Sydney/LUR_Western_Sydney_passive_samplers/",
-                         "projects/Air_Pollution_Monitoring_Stations_NSW/AP_monitor_NSW_2014_2015/"),
+checkout7z <- function(dirlist = c("Air_pollution_modelling_LUR_Western_Sydney/LUR_Western_Sydney_passive_samplers/",
+                       "projects/Air_Pollution_Monitoring_Stations_NSW/AP_monitor_NSW_2014_2015/"),
+                       archive_id  = "versions/air_pollution_testing_checkin_to_q_drive",
                        loc_7z = "c:\\Users\\ivan.hanigan\\Documents\\7-zip\\7z.exe"
   ){
   
@@ -21,5 +21,6 @@ checkout7z <- function(archive_id  = "versions/air_pollution_testing_checkin_to_
                  paste(dirlist, sep = "", collapse = '" "')
                  )
   #cat(cmd)
+  print("remember needs trailing slash on linux, \\* on windows")
   return(cmd)
 }
