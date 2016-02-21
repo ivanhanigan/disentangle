@@ -2182,55 +2182,6 @@ apply(dat, 1, function(x) paste(x, sep='', collapse=' '))
 
 #+end_src
 
-** TODO fill ragged matrix
-
-#+name:fill
-#+begin_src R :session *R* :eval no
-#### name:fill####
-
-
-      person        fruit    suburb something
-1        Tom      oranges   Scullin       3.0
-2                  apples                 6.0
-3                   pears                 9.0
-4                tim tams                 2.0
-5   Gertrude       durian Charnwood       3.7
-6            dragon fruit                 7.0
-7                 lychees                 4.9
-8               pineapple               100.9
-9                  apples                98.0
-10 Pennelope      cashews   Higgins       2.0
-11              beer nuts                 5.6
-12               Pringles                 4.0
- 
- 
-fill.col <- function(x, col.name) {
-      s <- which(!x[[col.name]] == "")
-      item <- x[[col.name]][s]
-      hold <- vector('list', length(item))      
-      for(i in 1: length(hold)) hold[[i]] <- rep(item[i], ifelse(is.na(s[i+1]), dim(x)[1] + 1, s[i+1]) - s[i])
-      x[[col.name]] <- unlist(hold)
-      x
-      }
-     
-d <- fill.col(d, 'person')   
-fill.col(d, 'suburb')  
- 
-      person        fruit    suburb something
-1        Tom      oranges   Scullin       3.0
-2        Tom       apples   Scullin       6.0
-3        Tom        pears   Scullin       9.0
-4        Tom     tim tams   Scullin       2.0
-5   Gertrude       durian Charnwood       3.7
-6   Gertrude dragon fruit Charnwood       7.0
-7   Gertrude      lychees Charnwood       4.9
-8   Gertrude    pineapple Charnwood     100.9
-9   Gertrude       apples Charnwood      98.0
-10 Pennelope      cashews   Higgins       2.0
-11 Pennelope    beer nuts   Higgins       5.6
-12 Pennelope     Pringles   Higgins       4.0
-#+end_src
-
 ** names_lcu
 *** R-lcu
 

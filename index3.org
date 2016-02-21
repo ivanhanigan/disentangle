@@ -973,6 +973,8 @@ present this below as a schematic overview.
   ```
   
 #+end_src
+*** schematic as orgmode
+swish-dmp/folders.org
 ** checkout7z
 *** COMMENT checkout7z
   # Instructions
@@ -1042,6 +1044,46 @@ present this below as a schematic overview.
   # want to run this from the place you want to have the rel path start from
 #+end_src
 
+** TODO 2016-02-21-review-best-practices-for-recoding-variables-with-r
+#+name:review-best-practices-for-recoding-variables-with-r-header
+# ~/projects/ivanhanigan.github.com.raw/_posts/2016-02-21-a-couple-best-practices-for-recoding-variables-with-r.md
+#+begin_src markdown :tangle no :exports none :eval no :padline no
+---
+name: a-couple-best-practices-for-recoding-variables-with-r
+layout: post
+title: A couple best practices for recoding variables with R
+date: 2016-02-21
+categories:
+- data management
+---
+
+Starting a new data analysis project often involves recoding variables, especially when the data come from a social science survey where values often are enumerated value lists.  Here are some notes I gathered from a quick review of recommended best practices for recoding variables with R.
+
+## Tip 1: separate recoding operations from the target data.frame
+#+end_src
+This advice comes from  [http://r.iq.harvard.edu/docs/zelig/3.4-8/Coding_and_Recoding.html](http://r.iq.harvard.edu/docs/zelig/3.4-8/Coding_and_Recoding.html) who state:
+
+```
+ 
+While it is not difficult to recode variables, the process is prone to
+human error. Thus, we recommend that before altering the data, you
+save your existing data frame, that you only recode one variable at a
+time, and that you recode the variable outside the data frame and then
+return it to the data frame.
+
+```
+
+However they also note that 'Do not sort the extracted variable or delete observations from it. If you do, the ith observation in var will no longer match the ith observation in data.'
+
+It would seem to be best then to:
+
+1. ensure a primary key exists (a unique id for each row)
+2. extract the target variable and the id to a new dataframe
+3. add the recoded variable to this new dataframe and save this 
+4. repeat for all variables
+5. recombine 
+
+[http://handsondatascience.com/DataO.pdf](http://handsondatascience.com/DataO.pdf)
 
 * Data documentation
 ** Scales and units
@@ -1249,6 +1291,105 @@ write.csv(flist_out[-1,], "environment_general_data_inventory_files.csv", row.na
 
 
 #+end_src
+
+** TODO 2016-02-21-test-eml2
+~/projects/ivanhanigan.github.com.raw/_posts/2016-02-21-test-eml2.md
+#+name:test-eml2-header
+#+begin_src markdown :tangle no :exports none :eval no :padline no
+---
+name: test-eml2
+layout: post
+title: test-eml2
+date: 2016-02-21
+categories:
+- data documentation
+---
+
+Some notes re my tests of eml2, the updated EML package for R.
+
+{% highlight r %}
+#+end_src
+*** COMMENT code
+#+name:code
+#+begin_src R :session *R* :tangle code.R :exports none :eval no
+library(devtools
+install_github("cboettig/eml2")
+
+
+{% endhighlight %}
+    
+#+end_src
+
+* Data Operation
+** TODO fill ragged matrix
+*** code
+#+name:fill_columns
+#+begin_src R :session *R* :tangle R/fill_columns.R :exports none :eval no
+  #' @name fill_columns
+  #' @title fill columns
+  #' @param x a data frame
+  #' @param col.name a column name
+  #' @return a filled data frame
+  #' @export
+  #'
+  fill_columns <- function(x, col.name) {
+      s <- which(!x[[col.name]] == "")
+      item <- x[[col.name]][s]
+      hold <- vector('list', length(item))      
+      for(i in 1: length(hold)) hold[[i]] <- rep(item[i], ifelse(is.na(s[i+1]), dim(x)[1] + 1, s[i+1]) - s[i])
+      x[[col.name]] <- unlist(hold)
+      return(x)
+      }
+
+#+end_src
+*** test
+#+name:fill
+#+begin_src R :session *R* :eval no
+#### name:fill####
+
+
+      person        fruit    suburb something
+1        Tom      oranges   Scullin       3.0
+2                  apples                 6.0
+3                   pears                 9.0
+4                tim tams                 2.0
+5   Gertrude       durian Charnwood       3.7
+6            dragon fruit                 7.0
+7                 lychees                 4.9
+8               pineapple               100.9
+9                  apples                98.0
+10 Pennelope      cashews   Higgins       2.0
+11              beer nuts                 5.6
+12               Pringles                 4.0
+ 
+ 
+fill.col <- function(x, col.name) {
+      s <- which(!x[[col.name]] == "")
+      item <- x[[col.name]][s]
+      hold <- vector('list', length(item))      
+      for(i in 1: length(hold)) hold[[i]] <- rep(item[i], ifelse(is.na(s[i+1]), dim(x)[1] + 1, s[i+1]) - s[i])
+      x[[col.name]] <- unlist(hold)
+      x
+      }
+     
+d <- fill.col(d, 'person')   
+fill.col(d, 'suburb')  
+ 
+      person        fruit    suburb something
+1        Tom      oranges   Scullin       3.0
+2        Tom       apples   Scullin       6.0
+3        Tom        pears   Scullin       9.0
+4        Tom     tim tams   Scullin       2.0
+5   Gertrude       durian Charnwood       3.7
+6   Gertrude dragon fruit Charnwood       7.0
+7   Gertrude      lychees Charnwood       4.9
+8   Gertrude    pineapple Charnwood     100.9
+9   Gertrude       apples Charnwood      98.0
+10 Pennelope      cashews   Higgins       2.0
+11 Pennelope    beer nuts   Higgins       5.6
+12 Pennelope     Pringles   Higgins       4.0
+#+end_src
+
 
 * Exploratory Data Analysis
 ** 2015-10-26-show-missingness-in-large-dataframes
@@ -1545,6 +1686,76 @@ dev.off()
 
 ** recursive queries with SQL
 http://blog.revolutionanalytics.com/2015/12/exploring-recursive-ctes-with-sqldf.html
+** 2016-02-19-r-base-graphics-are-fine-except-barplot
+#+name:r-base-graphics-are-fine-except-barplot-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2016-02-19-r-base-graphics-are-fine-except-barplot.md :exports none :eval no :padline no
+---
+name: r-base-graphics-are-fine-except-barplot
+layout: post
+title: R base graphics are fine except barplot
+date: 2016-02-19
+categories:
+- exploratory data analysis
+---
+
+I concur with Jeff Leek that once spent time learning base graphics in R there is less incentive to learn ggplot2 [http://simplystatistics.org/2016/02/11/why-i-dont-use-ggplot2/](http://simplystatistics.org/2016/02/11/why-i-dont-use-ggplot2/)
+
+However I always hate the way `barplot` works.  Here is an example:
+
+{% highlight r %}
+
+qc <- read.csv(textConnection("id,  OnlinePaper, Q, freq, totals,       prop
+1,      Online,         ,1768,   9950, 0.17768844
+2,      Online,      No ,4022,   9950, 0.40422111
+3,      Online,     Yes ,4160,   9950, 0.41809045
+4,       Paper,         , 256,   3355, 0.07630402
+5,       Paper,      No , 979,   3355, 0.29180328
+6,       Paper,     Yes ,2120,   3355, 0.63189270"))
+
+qc1 <- cast(qc, OnlinePaper ~ Q74 , value = "prop")
+qc1
+barplot(as.matrix(qc1), beside = T, legend.text = qc1[,1], ylim = c(0,1))
+
+{% endhighlight %}
+
+![/images/barplot_base.png](/images/barplot_base.png)
+
+{% highlight r %}
+
+ggplot(data=qc, aes(x=Q, y=prop, fill=OnlinePaper)) +
+    geom_bar(stat="identity", position=position_dodge())
+{% endhighlight %}
+
+![/images/barplot_gg.png](/images/barplot_gg.png)
+
+
+#### Going to extremes
+
+I should say though that I have found barplot can produce very customised graphs that serve a specific purpose such as that below (I have de-identified the content as this is unpublished research)
+
+![/images/barplot-gonuts.png](/images/barplot-gonuts.png)
+
+This made heavy use of the following approach
+
+{% highlight r %}
+# original by Joseph Guillaume 2009
+SideBySideBarPlot2 <- function(aggAllData, ...) {
+  par(mar=c(8,7,4,2))
+  bp<-barplot(aggAllData,
+              horiz=FALSE,
+              col=gray.colors(nrow(aggAllData)),
+              las=1, axisnames = FALSE, ...)
+  labels <- names(as.data.frame(aggAllData))
+  text(bp, par('usr')[3], labels = labels, srt = 45, 
+       adj = c(1.1,1.1), xpd = TRUE, cex=.9)
+    return(bp)
+}
+# with width = xvar (proportions)
+
+{% endhighlight %}
+    
+#+end_src
+
 * Statistical modelling
 ** causal influence diagrams with tikz
 *** COMMENT go
