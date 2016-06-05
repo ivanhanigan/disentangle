@@ -1026,15 +1026,15 @@ swish-dmp/folders.org
   
   projdir <- "/home/ivan_hanigan/projects_environment_general_local"
   projdir <- "Q:\\Research\\Environment_General"
-  cmd  <- checkout7z(dirlist = c("Air_pollution_modelling_LUR_LCT\\LUR_LCT_passive_samplers_2006_2008\\*",
-                       "CTM_CSIRO\\TAPM_2007_HD\\*",
-                       "CTM_CSIRO\\Shipping_TIFs_RB\\*",
-                       "Study_Region\\greater_syd_metro_reg_2006\\*",
-                       "ABS_Boundary_Files\\abs_sa2\\*")
+  
+  dlist <- "CTM_CSIRO/CTM_CSIRO_Sydney_Shipping_2010_2011/"
+  #  c("Air_pollution_modelling_LUR_LCT/LUR_LCT_passive_samplers_2006_2008/",                     "CTM_CSIRO/TAPM_2007_HD/", "Study_Region/greater_syd_metro_reg_2006/", "Neighbourhood_Exposures/")
+    
+  cmd  <- checkout7z(dirlist = dlist
                      ,
-                     archive_id = "versions/foo")
-  #,
-  #                   loc_7z = "7z")
+                     archive_id = "versions/foo"
+  ,
+                     loc_7z = "7z")
   cat(sprintf("cd %s\n%s", projdir, cmd))
   
   '
@@ -1312,13 +1312,171 @@ Some notes re my tests of eml2, the updated EML package for R.
 *** COMMENT code
 #+name:code
 #+begin_src R :session *R* :tangle code.R :exports none :eval no
-library(devtools
-install_github("cboettig/eml2")
+  library(devtools)
+  install_github("ropensci/EML")
+  library(EML)
+  ?get_attributes
+  ?set_attributes
+  #testthat::context("get_attributes")
+  
+  eml <- read_eml(system.file("xsd/test/eml-datasetWithAttributelevelMethods.xml", package = "EML"))
+  A <- eml@dataset@dataTable[[1]]@attributeList
+  A
+  df <- get_attributes(A)
+  df
+  eml <- read_eml(system.file("xsd/test/eml-i18n.xml", package = "EML"))
+  A <- eml@dataset@dataTable[[1]]@attributeList
+  A
+  df1 <- get_attributes(A, join = FALSE)
+  df1
+  
+  df2 <- get_attributes(A, join = TRUE)
+  #testthat::expect_equal(dim(df2$attributes)[1], 12)
+  df2
+  
+  df2$attributes
+  df2$factors[,1:2]
+  attributeList <- set_attributes(df2$attributes, df2$factors)
+  #testthat::expect_equal(length(attributeList@attribute), 12)
+  attributeList
+  ## df1$datetimes %>% dplyr::full_join(df1$numerics) %>% dplyr::full_join(df1$chars) %>% dplyr::full_join(df1$columns) %>% dplyr::as_data_frame()
+  #merge(merge(merge(df1$datetimes, df1$numerics, all = TRUE), df1$chars, all = TRUE), df1$columns, all = TRUE)  %>% dplyr::as_data_frame()
+  
+  ## merge(merge(merge(df1$numerics, df1$datetimes, all = TRUE), df1$chars, all = TRUE), df1$columns, all = TRUE)  %>% dplyr::as_data_frame()
+#+end_src  
+*** COMMENT compare to jbryer
+#+name:compare to jbryer
+#+begin_src R :session *R* :tangle codebooks_jbryer/jbryer.Rmd :exports none :eval no
+  ---
+  output:
+    md_document:
+      variant: markdown_github
+  ---
+  ```{r}  
+  #### from http://jason.bryer.org/posts/2013-01-10/Function_for_Reading_Codebooks_in_R.html
+  require(devtools)
+  source_gist(4497585)
+  parse.codebook
+  "
+  http://jason.bryer.org/codebooks/ccdCodebook.txt
+  The codebook provided is in plain text and required two modifications: One, general file information at the top of the file was deleted, and two, any descriptions that spanned lines need to be modified so the are on only one line.
+  "
+  setwd("~/tools/disentangle/codebooks_jbryer")
+  ccd.codebook <- parse.codebook(
+    file = 'ccdCodebook.txt'
+    , 
+                                  var.names=c('variable','order','type','description')
+    ,
+                                  level.names=c('level','label')
+    ,
+                                  level.sep='='
+    , 
+                                  var.widths=c(13, 7, 7, Inf)
+    )
+  
+  head(ccd.codebook)
+  str(ccd.codebook)
+  ccd.var.levels <- attr(ccd.codebook, 'levels')
+  names(ccd.var.levels)
+  ccd.var.levels[['FIPST']]
+  ```
+#+end_src  
+  {% endhighlight %}
+      
 
 
-{% endhighlight %}
-    
+*** COMMENT usecase-biomass-db
+#+name:usecase-biomass-db
+#+begin_src R :session *R* :tangle usecase-biomass-db.R :exports none :eval no
+#### name:usecase-biomass-db ####
+
 #+end_src
+
+** EML
+*** metadata
+
+#+name:README.Rmd
+#+begin_src R :session *shell* :tangle README.Rmd :exports none :eval no :padline no
+  ---
+  output:
+    md_document:
+      variant: markdown_github
+  ---
+  
+  <!-- README.md is generated from README.Rmd. Please edit that file -->
+  
+  # Title
+
+  ## Metadata for these files in EML 
+  
+  
+  ```{r, eval = F}
+  library(EML)
+
+  indir <- "TBA"
+  infile <- "TBA"
+  inpath <- file.path(indir, infile)
+  indat <- read.csv(inpath)
+  
+  # data file format
+  entity1 <- new("XXX",
+             entityName = infile,
+             entityDescription = "TBA")
+  physical <- new("physical", distribution = inpath)
+  entity1@physical <- c(physical)
+  entity1
+  
+  # coverage
+  bb <- bbox(indat)
+  coverage <- set_coverage(begin = '', end = '',
+    geographicDescription = "",
+    west = bb[1,1], east = bb[1,2],
+    north = bb[2,2], south = bb[2,1])
+  
+  coverage
+  # Methods
+  step1 = "TBA."
+  step2 = "TBA."
+  methods <- new("methods", methodStep = c(new("methodStep", description = step1),
+    new("methodStep", description = step2)))
+  methods
+  
+  # parties
+  creator <- as(c(as.person("Ivan Hanigan <ivan.hanigan@gmail.com>")),
+    "creator")
+  creator
+  # add it together
+  dataset <- new("dataset",
+    title = "TBA",
+    creator = creator,
+    intellectualRights = "TBA.",
+    abstract = "TBA.",
+    coverage = coverage,
+    methods = methods,
+    spatialRaster = entity1
+  )
+  
+  # create the EML
+  uuid::UUIDgenerate()
+  eml <- new("eml",
+             packageId = "TBA",  # from uuid::UUIDgenerate()
+             system = "uuid", # type of identifier
+             dataset = dataset)
+  
+  setwd(projdir)
+  dir()
+  eml_validate(eml)
+  
+  ```
+  
+  # The result
+  
+  ```{r, eval = F}
+  write_eml(eml, "CTM_CSIRO_Sydney_Shipping_2010_2011_metadata.xml")
+  eml
+  ```
+#+end_src
+
 
 * Data Operation
 ** TODO fill ragged matrix
@@ -1756,6 +1914,64 @@ SideBySideBarPlot2 <- function(aggAllData, ...) {
     
 #+end_src
 
+** stacked bar plots
+*** COMMENT foo
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:foo ####
+  # https://www.kim-herzig.de/2012/03/14/stacked-bar-plots-with-ggplot2/
+  # vs
+  # http://thecoatlessprofessor.com/programming/creating-stacked-barplot-and-grouped-barplot-in-r-using-base-graphics-no-ggplot2/
+  
+  library(RColorBrewer)
+  library(ggplot2)
+  library(reshape)
+  project <- c('ArgoUML','ArgoUML','ArgoUML','ArgoUML','ArgoUML','GWT','GWT','GWT','GWT','GWT','Jaxen','Jaxen','Jaxen','Jaxen','Jaxen','JRuby','JRuby','JRuby','JRuby','JRuby')
+  
+  component <- c('FileDistance','PackageDistance','DataDependency','CallGraphDistance','ChangeCouplings','FileDistance','PackageDistance','DataDependency','CallGraphDistance','ChangeCouplings','FileDistance','PackageDistance','DataDependency','CallGraphDistance','ChangeCouplings','FileDistance','PackageDistance','DataDependency','CallGraphDistance','ChangeCouplings')
+  
+  numbers <- c(16,22,46,10,6,46,22,10,12,10,20,20,20,20,20,0,36,33,20,11)
+  
+  df <- data.frame(project,component,numbers)
+  df
+  #plot the stacked bar plot
+  ggplot(df, aes(x = project)) +
+    geom_bar(aes(weight=numbers, fill = component), position = 'fill') +
+    scale_y_continuous("", breaks=NULL) +
+    scale_fill_manual(values = rev(brewer.pal(6, "Purples")))
+  
+  
+  # horiz
+  ggplot(df, aes(x = project)) +
+    geom_bar(aes(weight=numbers, fill = component), position = 'fill') +  
+    scale_y_continuous("", breaks=NULL) +
+    scale_fill_manual(values = rev(brewer.pal(6, "Purples"))) +
+    coord_flip()
+  
+  
+  # vs
+  df2  <- as.matrix(cast(df, component ~ project))
+  df2  <- prop.table(df2, 2)
+  df2
+  collist  <- rev(brewer.pal(6, "Purples"))
+  
+  dev.new(height = 8, width = 12)
+  layout(rbind(1, 2), height=c(1, 7))
+  #layout.show(2)
+  #par(mai=c(1,2,1,1), xpd=TRUE)
+  par(mar=c(0,0,3,0))
+  plot.new()
+  legend("center", fill = collist, legend=rownames(df2), horiz = T, bty = "n")
+  title("This is a stacked barplot that is kind of like what you get with excel")
+  par(mar=c(5,7,0,1))
+  bp <- barplot(df2, horiz = T,
+          las = 1,
+          col = collist,
+          xlab = "% respondents"
+          )
+  #box()
+  # dev.off()
+#+end_src
+
 * Statistical modelling
 ** causal influence diagrams with tikz
 *** COMMENT go
@@ -1831,6 +2047,241 @@ I am guessing that when applied to the validity behind a research proposal, the 
 
 #+end_src
 
+** Geostatistics and BME
+- We are using a Bayesian ME model for blending modelled output with measurements to provide a spatial map of better predictions along with better capture of uncertainties.
+- Hengl commented in 2009 thjat the Bayesian Maximum Entropy (BME) approach ... is a promising development, their computational complexity makes it still far from use in operational mapping
+- A Practical Guide to
+Geostatistical Mapping
+by Tomislav Hengl 3
+November 2009 
+http://spatial-analyst.net/book/  ISBN 978-90-9024981-0
+- and then the BME port to python seems to have been abandoned  http://sourceforge.net/projects/bmelibpy/ and http://bmelibpy.sourceforge.net/
+
+** Point estimate and Confidence intervals as Percentage
+Calculating the effect estimate as % change
+In this case per interquartile change (xvar.q1q3)
+
+glmest<-summary.glm(fit)$coefficients[2:3,],
+glmest<-summary.glm(fit)$coefficients[2:4,])#6,])
+
+Just the % change
+(exp(glmest[m,1]*xvar.q1q3)-1)*100
+
+ALL the relevant output
+
+names(glmest)<-NULL
+
+glmci<-c(glmest[m,],glmest[m,1]-glmest[m,2]*1.96,glmest[m,1]+glmest[m,2]*1.96,xvar.q1q3,
+(exp(glmest[m,1]*xvar.q1q3)-1)*100,
+(exp((glmest[m,2]*1.96)*xvar.q1q3)-1)*100,
+(exp((glmest[m,1]-glmest[m,2]*1.96)*xvar.q1q3)-1)*100,
+(exp((glmest[m,1]+glmest[m,2]*1.96)*xvar.q1q3)-1)*100)
+** treating ordinal as continuous for regression
+http://stats.stackexchange.com/questions/93680/treating-ordinal-variables-as-continuous-for-regression-problems
+In the social sciences I have encountered that it is common to treat ordinal variables as continuous, for example variables originating from rating or Likert scales (strongly disagree, disagree, agree, strongly agree).
+
+This topic has been discussed for example in this post from 2010: Under what conditions should Likert scales be used as ordinal or interval data? http://stats.stackexchange.com/questions/10/under-what-conditions-should-likert-scales-be-used-as-ordinal-or-interval-data
+
+AND
+http://stats.stackexchange.com/questions/539/does-it-ever-make-sense-to-treat-categorical-data-as-continuous
+http://stats.stackexchange.com/a/541
+If there are only two categories, then transforming them to (0,1) makes sense. In fact, this is commonly done where the resulting dummy variable is used in regression models.
+
+If there are more than two categories, then I think it only makes sense if the data are ordinal, and then only in very specific circumstances. For example, if I am doing regression and fit a nonparametric nonlinear function to the ordinal-cum-numeric variable, I think that is ok. But if I use linear regression, then I am making very strong assumptions about the relative difference between consecutive values of the ordinal variable, and I'm usually reluctant to do that.
+shareimprove this answer
+	
+answered Jul 23 '10 at 6:22
+Rob Hyndman
+24k1072122
+	
+   	 
+	
+"[T]hen I am making very strong assumptions about the relative difference between consecutive values of the ordinal variable." I think this is the key point, really. i.e. how strongly can you argue that the difference between groups 1 and 2 is comparable to that between 2 and 3? – Freya Harrison Jul 23 '10 at 10:43
+   	 
+	
+I think you should make some assumption about how the continuous variable should be distributed and then try to fit this "psudohistogram" of each categorical variable frequency (I mean find bin widths which will transform it into a fitted histogram). Still, I'm not an expert in this field, its a fast&dirty idea. – mbq♦ Jul 23 '10 at 13:56
+   	 
+	
+Recasting binary categories as {0,1} makes sense, but turning that into a continuous [0,1] interval seems like a bit of a leap. On the broader front, I'm totally with your reluctance to weight ordinals equally unless there are powerful arguments from the model. – walkytalky Jul 23 '10 at 15:29 
+** proportion with confidence intervals
+*** compare
+TODO compare with:
+http://www.measuringux.com/adjustedwald.htm
+http://graphpad.com/support/faq/the-modified-wald-method-for-computing-the-confidence-interval-of-a-proportion/
+http://www.measuringu.com/wald.htm
+
+*** latex
+from
+http://search.r-project.org/library/prevalence/html/propCI.html
+  (modify alpha and sqrt to show this as in) 
+http://prevalence.cbra.be/?main=functions&sub=propCI
+\documentclass{article}
+\usepackage{amssymb,amsmath}
+\begin{document}
+
+\section{Proportion CI}
+
+$ \tilde{n} = n + z_{1-\frac{\alpha}{2}}^2$ \\
+
+$ \tilde{p} = \frac{1}{\tilde{n}}(x + \frac{1}{2} z_{1-\frac{\alpha}{2}}^2)$ \\
+
+$ \tilde{p} \pm z_{1-\frac{\alpha}{2}} \sqrt{\frac{\tilde{p}(1-\tilde{p})}{\tilde{n}}}$
+
+
+
+\end{document}
+
+
+*** COMMENT propCI
+#+name:propCI
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:propCI ####
+  #install.packages("prevalence", dependencies = T)
+  library(prevalence)
+  ?propCI
+  propCI(x = 142, n = 742)
+#+end_src
+
+** COMMENT sample weights in RWS
+#+name:sample weights
+#+begin_src R :session *R* :tangle sample weights.R :exports none :eval no
+  #### name:sample weights ####
+
+
+  # in RWS
+  #### name:init ####
+  library(sqldf)  
+  library(survey)
+  library(readxl)
+  projdir <- "/home/ivan_hanigan/ownCloud/Regional Wellbeing Study/RWSurvey 2015/RWS Reports/Drought and extreme weather"
+  datadir <- "~/ownCloud/Regional Wellbeing Study/RWSurvey 2015/RWS Data/RWS Data Analysis/Weighting process/"
+  setwd(datadir)
+  dir()
+  indir <- "working_ivan/data_provided"
+  dir(indir)
+  
+  infile <- "2015 RWS data set_Masterfile_17May2016.csv"
+  ## -    Notfarmer1DrylandFarmer2Irrigator3UnspecFmr4: This variable is my best estimate of whether 
+  ## a respondent was (1) Not a farmer, (2) Dryland farmer, (3) Irrigator or (4) Farmer unspecified. It 
+  ## has been produced based not only on the I am a dryland farmer and I irrigate all or part of my 
+  ## land variable, but also includes inferred values for around 400 of the farmers who did not 
+  ## answer those questions, based on (i) what they produce on the farm, (ii) whether they answered 
+  ## later irrigation questions in a way suggesting they are an irrigator, and (iii) their geographic 
+  ## location (there is no irrigation in some districts, which allowed me to infer the person was a 
+  ## dryland farmer)
+  ## -    FarmerTypeSimple: This variable is based on what a farmer described as their most important 
+  ## farm business activity AND their major farming activities. Data have been coded to the most 
+  ## common combinations. I am currently writing a full metadata entry for this variable as the logic 
+  ## used to classify farmers who did multiple activities is complex. 
+  
+  dat <- read.csv(file.path(indir, infile))
+  nrow(dat)
+  ncol(dat)
+  infile_farmers <- "Farmer type coding.csv"
+  dat_farmers <- read.csv(file.path(indir, infile_farmers))
+  nrow(dat_farmers)
+  ncol(dat_farmers)
+  names(dat_farmers)
+  dat_farmers <- dat_farmers[,c("cSURVID", "Notfarmer1DrylandFarmer2Irrigator3UnspecFmr4",
+                                "FarmerTypeSimple")]
+  dat <- merge(dat, dat_farmers)
+  names(dat)
+  
+  indir2 <- "data_derived"
+  dir(indir2)
+  infile2  <- "TestOutweightsDataset_NoEdu_Cut.csv"
+  
+  dat2 <- read.csv(file.path(indir2, infile2))
+  str(dat2)
+  wtvar <- c("cSURVID", "GReg_Weight_NoEdu_Cut")
+  wts <- dat2[,wtvar]
+  head(wts)
+  
+  metadata  <- read_excel(file.path(indir, "2015 RWS Metadata.xlsx"), col_types = rep("text", 9))
+  str(metadata)
+  matrix(names(metadata))
+  metadata$sortorder <- row.names(metadata)
+  setwd(projdir)
+
+  sectionlabel <- "drought_ewe_farmers_ste"
+  
+  mainvars <- c("cNATDISdroughthappen12mo",
+  "cNATDIScoldsnaphappen",
+  "cNATDISheatwavehappen",
+  "cNATDISbushfirehappen",
+  "cNATDISseverestormcyclonehappen",
+  "cNATDISfloodhappen")
+  
+  mainvars_df <- data.frame(var = mainvars)
+  mainvars_df
+  mainvars_df <- merge(mainvars_df, metadata, by.x = "var", by.y = "Variable name")
+  nrow(mainvars_df)
+  names(mainvars_df)
+  
+  mainvars_df <-  mainvars_df[, c('sortorder', 'var',
+                  "Item stem - exact wording seen by respondents",
+                  "Item - exact wording seen by respondent OR description of variable",
+                  "Piping or display logic")]
+  
+  mainvars_df <- mainvars_df[order(mainvars_df$sortorder),]
+  mainvars_df[,c(1:2,4)]
+  cap <- mainvars_df[1,3]
+  cap
+  invar <- c("cSURVID","cGEOGSTE", mainvars)
+  table(dat$Notfarmer1DrylandFarmer2Irrigator3UnspecFmr4)
+  ## -999    1    2    3    4 
+  ##  848 8034 2880 1158  383 
+  table(dat$cGEOGSTE)
+  
+  datin <- dat[dat$Notfarmer1DrylandFarmer2Irrigator3UnspecFmr4 != "-999" &
+               dat$Notfarmer1DrylandFarmer2Irrigator3UnspecFmr4 != "1" &
+               dat$cGEOGSTE != "-999"
+               ,invar]
+  datin$cGEOGSTE <- factor(datin$cGEOGSTE)
+  head(datin)
+  str(datin)
+  summary(datin)
+  
+  
+  datout <- merge(datin, wts)
+  nrow(datout)
+  # 4397
+  lapply(datout[,mainvars], table)
+  
+  head(datout[,1:5])
+  summa_out <- matrix(NA, nrow = 0, ncol = 5)
+  for(i in 1:length(mainvars)){
+  #  mainvars
+  i=1
+    mainvar  <- mainvars[i]
+  d00 <- datout[datout[,mainvar] != "-999",c("cSURVID", mainvar, "GReg_Weight_NoEdu_Cut", "cGEOGSTE")]
+  head(d00)
+  d00[,mainvar]  <- factor(d00[,mainvar])
+  n <- table(d00$cGEOGSTE)
+  n
+  small.w <- svydesign(ids = ~cGEOGSTE, data = d00, weights = d00$GReg_Weight_NoEdu_Cut)
+   summary(small.w)
+  str(small.w)
+  qc0 <- cbind(d00,small.w$allprob)
+  head(qc0)
+  txt <- paste("summa <- cbind('",mainvar,"', t(prop.table(svytable(~",mainvar,"+cGEOGSTE, design = small.w))), n)", sep = '')
+  txt
+
+   qc <- prop.table(
+     t(svytable(~cNATDISdroughthappen12mo+cGEOGSTE, design = small.w))
+     ,1
+     )
+  #table(d00$cGEOGSTE, d00$cNATDISdroughthappen12mo)
+  qc
+  qc[,1]+qc[,2]
+  ?prop.table
+  m <- matrix(1:4, 2)
+  m
+  # for rows
+  prop.table(m, 1)
+  # for cols
+  prop.table(m, 2)
+#+end_src
 * bibliometrics and literature reviewing
 ** TODO author indices
 *** scholar metrics
@@ -2239,6 +2690,12 @@ This is needed to  provide the trust that a data  analysis was appropriately con
 
 [^com1]: the footnote
 
+** Steve Miller has a good Rmarkdown manuscript template
+https://github.com/svmiller/svm-r-markdown-templates
+http://svmiller.com/blog/2016/02/svm-r-markdown-manuscript/
+
+** Scuro for dark pdf slides from rmarkdown
+https://github.com/agoldst/scuro
 ** 2015-12-20-this-is-an-open-notebook-but-selected-content-delayed
 *** blog
 #+name:this-is-an-open-notebook-but-selected-content-delayed-header
@@ -2922,3 +3379,9 @@ My colleagues pointed out that the flipped over version is easily turned into a 
 * Blogging
 ** Jekyll
 http://statistics.rainandrhino.org/2015/12/15/jekyll-r-blogger-knitr-hyde.html
+* Emacs
+** tangling to multiple files
+http://permalink.gmane.org/gmane.emacs.orgmode/62011
+first /home/ivan_hanigan/projects/swish-dmp/temp
+second /home/ivan_hanigan/test123
+employed this idea in the Spatiotemporal-multilevel-models tutorial on Dropbox/projects 

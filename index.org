@@ -7771,9 +7771,9 @@ The attached papers suggest a method to test differences between nested trees ie
   head(cuse)
   d2 <- cast(cuse,  age + educ + desire ~ cuse, value = 'n')
   head(arrange(d2, age, educ))
-  d2
+  lapply(d2, table)
   lrfit <- glm(cbind(Yes, No) ~ age + educ + desire, data = d2, family = binomial)
-  lrfit
+  summary(lrfit)
   
   ## Recall that R sorts the levels of a factor in alphabetical order. Because <25 comes before 25-29, 30-39, and 40-49, it has been picked as the reference cell for age. Similarly, high is the reference cell for education because high comes before low! Finally, R picked no as the base for wantsMore.
   
@@ -7784,9 +7784,35 @@ The attached papers suggest a method to test differences between nested trees ie
   
   
   lrfit <- glm(cbind(Yes, No) ~  age + hiEduc + noMore, data = d2, family = binomial)
-  lrfit
+  summary(lrfit)
   
   str(summary(lrfit))
+  
+  # this is not the same data on website page, so rip that
+  cuse <- read.table(textConnection("age education wantsMore notUsing using 
+     <25       low       yes       53     6
+     <25       low        no       10     4
+     <25      high       yes      212    52
+     <25      high        no       50    10
+   25-29       low       yes       60    14
+   25-29       low        no       19    10
+   25-29      high       yes      155    54
+   25-29      high        no       65    27
+   30-39       low       yes      112    33
+   30-39       low        no       77    80
+   30-39      high       yes      118    46
+   30-39      high        no       68    78
+   40-49       low       yes       35     6
+   40-49       low        no       46    48
+   40-49      high       yes        8     8
+   40-49      high        no       12    31"), sep = "")
+  str(cuse)
+  "
+  http://data.princeton.edu/wws509/datasets/#cuse
+  Here are the contraceptive use data from page 46 of the lecture notes (and from the Stata handout), showing the distribution of 1607 currently married and fecund women interviewed in the Fiji Fertility Survey, according to age, education, desire for more children and current use of contraception.
+  Reference: Little, R. J. A. (1978). Generalized Linear Models for Cross-Classified Data from the WFS. World Fertility Survey Technical Bulletins, Number 5.
+  "
+  
 #+end_src
 
 
@@ -9713,61 +9739,61 @@ alias br="build_r"
 * Big Data Tips
 * Writing
 ** COMMENT Review Template
-\noindent{\textbf{ Background  }} 
+Background   
 - The main issue is 
 - The author's question are about 
 - It is important because 
 
-\noindent{\textbf{ Method  }} 
+Method   
 - Data: 
 - What outcome measures? What exposure measures?
 - Do they deal with confounding variables?
 - What data analysis approach? (Statistical? Simulation? Narrative?)
 - Generalisability
 
-\noindent{\textbf{ Results  }} 
+Results   
 - Do they show their data along with their models?
 - Do they report all the details?
 
-\noindent{\textbf{ Discussion}} 
+Discussion 
 
 
-\noindent{\textbf{ Principal findings  }} 
+Principal findings   
 - What happened / what was found?
 - Does the result of the analysis support the author's theory / question about the issue?
 
-\noindent{\textbf{ Strengths  }} 
+Strengths   
 - Quality of data?
 - Control of confounders?
 - Do models use a robust accepted method?
 - Is causality criteria addressed?
 
-\noindent{\textbf{ Weaknesses  }} 
+Weaknesses   
 - Population size?
 - Alternative exposure variables not included?
 
-\noindent{\textbf{ Comparison with other studies  }} 
+Comparison with other studies   
 - How do these results compare with other studies?
 
-\noindent{\textbf{ What do the results mean?  }} 
+What do the results mean?   
 - What are the main unanswered questions?
 - What are the implications for researchers in this field?
 
-\noindent{\textbf{ What are the policy implications?  }} 
+What are the policy implications?   
 - Who in the policy community will read this?
 - What main message will they take from this?
 - What should they do?
 
-\noindent{\textbf{ Conclusion }} 
+Conclusion  
 - What are the main unanswered questions?
 - What are the implications for researchers in this field?
 
-\noindent{\textbf{ What are the policy implications? }} 
+What are the policy implications?  
 - Who in the policy community will read this?
 - What main message will they take from this?
 - What should they do?
 
-\noindent{\textbf{ Conclusion }} 
+Conclusion  
 - So what is the main 'take-home' message?
 - How do you rate the paper overall?
 ** Blogging

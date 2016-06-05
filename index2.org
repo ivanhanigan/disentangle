@@ -2188,7 +2188,7 @@ This is with MCHP resource repository - a general overview of this process is de
     text(focal_date, bumped_up$loc2 - smidge_lab, labels = bumped_up$task_id, pos = 4,
          cex = cex_detail_labels, col = 'darkred')
     }
-
+  
     bumped_up2 <- indat[indat$start_date < focal_date & indat$status == 'DONE' & indat$end_date >= focal_date,]
     if(nrow(bumped_up2) > 0){
     text(focal_date, bumped_up2$loc2 - smidge_lab, labels = bumped_up2$task_id, pos = 4,
@@ -5704,7 +5704,7 @@ Here I have reproduced the work of donlelek
                           )
   graph_social <- create_graph(nodes_df = nodes_social,
                          edges_df = edges_social)
-  # render_graph(graph_social)
+   render_graph(graph_social)
   
   #### now the financial capital factors
   nodes_financial <- 
@@ -5763,6 +5763,9 @@ Here I have reproduced the work of donlelek
 #+end_src
 
 #+RESULTS:
+=0
+
+
 *** visNetwork
 #+name:a
 #+begin_src R :session *R* :tangle no :exports none :eval yes
@@ -5914,6 +5917,80 @@ render_graph(graph, output = "visNetwork")
 
 
     
+#+end_src
+
+** 2016-02-26-complexity-of-graphs-and-groupings-update
+#+name:complexity-of-graphs-and-groupings-update-header
+#+begin_src markdown :tangle no :exports none :eval no :padline no
+---
+name: complexity-of-graphs-and-groupings-update
+layout: post
+title: complexity-of-graphs-and-groupings-update
+date: 2016-02-26
+categories:
+categories:
+- disentangle
+tags:
+- diagrams 
+---
+
+### 
+
+    
+#+end_src
+*** COMMENT code
+#+name:code
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  
+    library(DiagrammeR)
+    nodes_outcome <- create_nodes(nodes = c('suicide','depression','anxiety'),
+                            label = TRUE,
+                            colour = "black")
+    graph_outcome <- create_graph(nodes_df = nodes_outcome)
+    
+    nodes_social <- 
+      create_nodes(nodes =  c("stress", "decreased community support", "migration"),
+                   label = TRUE,
+                   color = "blue")
+    
+    graph_social <- create_graph(nodes_df = nodes_social)
+    
+    gr0 <- graph_outcome$dot_code
+    gr1 <- graph_social$dot_code
+    gr0 <- gsub("digraph", "subgraph cluster0", gr0)
+    gr1 <- gsub("digraph", "subgraph cluster1", gr1)
+    # and then combine the subgraphs into one graph
+    subgraphs_dot_code_vector <- sprintf("digraph{\n%s\n\n %s\n", gr0, gr1)
+    cat(subgraphs_dot_code_vector)
+    
+    # as recommended by gitchub, keep edges sep
+    edges <- create_edges(from =  c("stress", "stress", "decreased community support",
+                              "migration", "depression", "anxiety"),
+                            to =   c("anxiety", "depression", "anxiety",
+                              "decreased community support", "suicide", "suicide")
+                            )
+    #edges
+    edges_only_dot_code <- gsub('digraph \\{', '',
+                                create_graph(edges_df = edges)$dot_code
+                                )
+    #cat(edges_only_dot_code)
+    dot_code <- paste0(
+                       paste0(subgraphs_dot_code_vector, collapse = ' ')
+                       ,
+                       edges_only_dot_code
+                       , collapse = ' '
+                       )
+    
+    #cat(dot_code)
+    
+    grViz(dot_code, allow_subst = FALSE)
+    
+    # that is as expected however
+    render_graph(dot_code, output="visNetwork")
+    # returns
+    # Error: class(graph) == "dgr_graph" is not TRUE
+  
+  
 #+end_src
 
 ** transformations tracker
@@ -6409,10 +6486,23 @@ download.file("http://spatialreference.org/ref/epsg/4283/prj/",
 #+begin_src R :session *shell* :tangle no :exports none :eval no
 #### name:shapefile_attributes_join ####
 see ramnath
+http://stackoverflow.com/a/3652472
+sp@data = data.frame(sp@data, df[match(sp@data[,by], df[,by]),])
+
+
+
+
+Let df = data frame, sp = spatial polygon object and by = name or column number of common column. You can then merge the data frame into the sp object using the following line of code
 
 sp@data = data.frame(sp@data, df[match(sp@data[,by], df[,by]),])
 
+Here is how the code works. The match function inside aligns the columns so that order is preserved. So when we merge it with sp@data, order is correctly preserved. A quick check to see if the code has worked is to inspect the two columns corresponding to the common column and see if they are identical (the common columns get duplicated and it is easy to remove the copy, but i keep it as it is a good check)
+
 #+end_src
+*** toronto eg
+http://www.everydayanalytics.ca/2016/03/plotting-choropleths-from-shapefiles-in-R.html
+
+
 *** COMMENT shapefile_colour_ramp-code
 #+name:shapefile_colour_ramp
 #+begin_src R :session *shell* :tangle no :exports none :eval no
@@ -7768,7 +7858,7 @@ Code:
   
   text(x = -1.2, y = 0.6, expression(paste("Y = (", beta[0] + beta[2],") + (", beta[1] + beta [3],")X when Z = 1")))
   text(x = -2.1, y = 0.5, expression(paste("Slope = ", beta[1] + beta[3])))
-
+  
   #text(x = -3.4, y = -0.4, '{', srt = 0, cex = 3)
   text(x = -3.3, y = -0.4, expression(beta[2]))
   text(x = 0.57, y = -0.21,  expression(paste("Y = ", beta[0] + beta[1] ,"X when Z = 0")))
@@ -7943,7 +8033,7 @@ glm.D93 <- glm(counts ~ outcome + treatment, family=poisson())
  
 Rsquared.glm(glm.D93)
 ** 2015-10-31-decisions-to-make-when-modelling-interactions
-#+name:decisions-to-make-when-modelling-interactions-header
+*** decisions-to-make-when-modelling-interactions-header
 #+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2015-10-31-decisions-to-make-when-modelling-interactions.md :exports none :eval no :padline no
   ---
   name: decisions-to-make-when-modelling-interactions
@@ -8119,6 +8209,93 @@ Rsquared.glm(glm.D93)
   ## buffer_eastern -0.24702    0.07921  -3.119  0.00182 **
   ## urban          -0.69938    0.36350  -1.924  0.05435 .
   ```  
+#+end_src
+*** COMMENT another way
+#+name:another way
+#+begin_src R :session *R* :tangle no :exports none :eval no
+  #### name:another way ####
+  # http://datascienceplus.com/assessing-significance-of-slopes-in-regression-models-with-interaction/
+  # a good post, but  Steve Politzer-Ahles • 11 hours ago
+  
+  ## Also, I think you may have accidentally posted an old example of your code; while the model part at the beginning uses variables 'Site' and 'Temp', the rest (plotting and getting stuff out of the model) uses 'Fac' and 'x', which causes the code to crash; also, the code for the plot doesn't add the scatter points.
+  
+  ## Here's the code that would recreate our example, as best as I could backwards-engineer it:
+    
+  set.seed(20160315)
+  #simulate some data
+  X<-data.frame(Temp=runif(100,-2,2),Site=gl(n=2,k=50))
+  #the model matrix
+  mm<-model.matrix(~Temp*Site,X)
+  #the coefficients for the models
+  bs<-c(1,1.5,-2,3)
+  #simulate the response
+  X$y<-rnorm(100,mean=mm%*%bs,sd=1)
+  #fit the model
+  m<-lm(y~Temp*Site,X)
+  #summary table
+  summary(m)
+  
+  #a nice plot
+  new_x<-seq(-2,2,length=10)
+  plot(y~Temp,X,col=c("red","blue")[X$Fac],pch=16)
+  lines(new_x,coef(m)["(Intercept)"]+coef(m)["Temp"]*new_x,col="red",lwd=3)
+  lines(new_x,(coef(m)["(Intercept)"]+coef(m)["Site2"])+(coef(m)["Temp"]+coef(m)["Temp:Site2"])*new_x,col="blue",lwd=3)
+  points( X[X$Site==1,"Temp"], X[X$Site==1,"y"], col="red", pch=19 )
+  points( X[X$Site==2,"Temp"], X[X$Site==2,"y"], col="blue", pch=19 )
+  
+  #get the estimated slope for Fac2
+  b<-coef(m)[2]+coef(m)[4]
+  b
+  #get the standard error for the slope of Fac2
+  se<-sqrt(vcov(m)["Temp","Temp"]+vcov(m)["Temp:Site2","Temp:Site2"]+2*vcov(m)["Temp","Temp:Site2"])
+  se
+  #compute the two-sided p-values that the slope for Fac2 is different from 0
+  pt(b/se, df = nrow(X)-length(coef(m)),lower.tail=FALSE)*2
+  
+  # another way
+  ## Steve Politzer-Ahles • 11 hours ago
+  
+  ## An even easier way to do this is to nest the factors:
+  
+  m2 <- lm( y ~ Site/Temp, X )
+  
+  ## This model gives the slope for each level of Site. And while the coefficients are expressed in the same way, it's essentially the same model (you can check both the nested and crossed models to see that they have the same R2, etc.); it's the same idea as using e.g. dummy vs. sum vs. helmert coding, which will give coefficients representing different things but still ultimately have the same fit.
+  
+  summary(m2)
+  summary(m)
+  
+  Thanks this is very useful information. Yet another way is the re-parametrisation below
+  1. Calculate X1 = X * Z (i.e = exposure condition is met, zero otherwise).
+  2. Calculate X0 = X * (1-Z) (i.e. = exposure for NON-condition, zero otherwise). 
+  3. Instead of X, Z and XZ, fit X1, X0  and Z.
+  
+  ```r
+  str(X)
+  X$Site1_Temp <- X$Temp * (X$Site == '1')
+  X$Site2_Temp <- X$Temp * (X$Site == '2')
+  X
+  m3 <- lm(y ~ Site + Site1_Temp + Site2_Temp, data = X)
+  summary(m3)
+  
+  # in addition this allows to explore complex responses like curves using GAMs
+  library(mgcv)
+  # let's make this response function more interesting
+  X$y2  <-  ifelse(X$Site == 1, X$y + X$Temp^2, X$y)
+  # mgcv uses GCV and penalised splines to estimate best curve
+  m3.1 <- gam(y2 ~ Site + s(Site1_Temp) + Site2_Temp, data = X)
+  summary(m3.1)
+  # and easily plot the partial residuals
+  png("interactions_with_gam_example.png")
+  par(mfrow = c(2,1))
+  plot(m3.1, select = 1, se = T)
+  plot(m3.1, select = 3, se = T, all.terms = T)
+  dev.off()
+  ```
+  
+  This model also contains three parameters and captures the same interactions as it is the same model with a different parametrisation.  The standard errors for the X1 and X0 coefficients are available directly from the regression output.
+  
+  I find this method easier to interpret and is considerably more flexible than the other two approaches when many interaction terms are being compared.  A limitation remains for this method in that the pre-processing steps required are more complicated, and there are inherently more possibilities for the data analyst to make errors in writing their code as they make these changes to the analytical data.
+  
 #+end_src
 
 
@@ -11590,6 +11767,65 @@ Risk management / Conclusions / Recommendations
 1. summarise the risks AND/OR benefits including any ways in which risks can be effectively managed and any benefits maximized – consider policies, procedures, programs, different types of controls that can be implemented
 2. discuss the many different factors that influence decision making about risk management for the hazard– eg: health, economic, social, political
 3. make recommendations based on data/evidence presented throughout your assignment
+
+** 2016-05-10-judging-the-evidence-part2
+#+name:judging-the-evidence-part2-header
+#+begin_src markdown :tangle ~/projects/ivanhanigan.github.com.raw/_posts/2016-05-10-judging-the-evidence-part2.md :exports none :eval no :padline no
+---
+name: judging-the-evidence-part2
+layout: post
+title: Judging the evidence part 2
+date: 2016-05-10
+categories:
+- bibliometrics and literature reviewing
+---
+
+I previously reported on a lecture slide deck called 'Judging the Evidence' by  Adrian Sleigh for a course PUBH7001 Introduction to Epidemiology, April 30, 2001.  [http://ivanhanigan.github.com/2015/11/judging-the-evidence-using-a-literature-review-database](http://ivanhanigan.github.com/2015/11/judging-the-evidence-using-a-literature-review-database)
+
+I have also now extracted several slides into a template outline for reviewing epidemiological and other research.
+
+#### Adrian Sleigh's Protocol
+##### Object of Study, Hypotheses or Research Questions
+
+1. Purpose of Study:  Objectives of study; why was it done?
+2. Reference Population: 
+    - To whom do authors generalize results?  
+    - To whom should the findings be generalized?
+
+##### Sampling
+
+From the Reference Pop (target population) -> 
+
+Source Pop -> Eligible population
+
+`
+The source population may be defined directly, as a matter of defining its membership criteria; or the definition may be indirect, as the catchment population of a defined way of identifying cases of the illness. The catchment population is, at any given time, the totality of those in the ‘were-would’ state of:  were the illness now to occur, it would be ‘caught’ by that case identification scheme Source: Miettinen OS, 2007 [http://www.teachepi.org/documents/courses/fundamentals/Pai_Lecture6_Selection%20bias.pdf](http://www.teachepi.org/documents/courses/fundamentals/Pai_Lecture6_Selection%20bias.pdf)
+`
+
+##### Sample Pop:
+1. Refusals, Dropouts           
+2. Participants  ->  Study Pop
+
+##### Design of study
+1. Study setting: Where and when was the study done?  What were the circumstances?  Ethics?
+2. Type of study: Experimental vs natural, descriptive vs analytical (trial, cohort, case-control, prevalence, ecological, case-report, etc).  If case-control or cohort, was the timing of data collection retrospective or prospective?
+3. Subjects: Who (number, age, sex, etc.)?  How were they selected?
+4. Comparison groups: What control group or standard of comparison?  How appropriate? 
+5. Study size: Was the sample size adequate to give you confidence in the finding of "no association 
+6. Bias and Confounding
+    - a) Selection bias: Were groups comparable for subjects who entered and stayed in study?  Selection influenced by exposure (c-c) or effect (cohort) under study?  Drop-outs?
+    - b) Confounding: Control of potential confounding variables in design of the study - matching or subject restriction?
+
+##### Observations
+1. Procedure: How are the variables in the study defined and measured, ie how were data collected?
+2. Definition of terms: Are definitions of diagnostic criteria, measurements and outcome unambiguous?  Could be reproduced? 
+3. Bias and Confounding
+    - a) Observation bias: Were study groups comparable for measurements or mode of observation?  Mis-classification in determining exposure or disease categories? Differential between groups, or 'random'?
+    - b) Confounding: Information recorded on variables that could confound the association under study (to permit adjustment in the analysis)?
+    
+
+### THANKS Prof Sleigh!
+#+end_src
 
 * Graphical User Interfaces
 ** web2py
