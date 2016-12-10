@@ -11875,7 +11875,7 @@ def download():
 * XML
 ** COMMENT review-xml-code
 #+name:review-xml
-#+begin_src R :session *R* :tangle no :exports none :eval no
+#+begin_src R :session *R2* :tangle no :exports none :eval no
   #### name:review-xml####
   require(XML)
   # first read one without a public access

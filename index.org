@@ -1396,6 +1396,7 @@ So I thought what's the other 10?  Here's a few contenders for my work:
 #+end_src
 
 ** R-levenshtein
+also see http://bigdata-doctor.com/fuzzy-string-matching-survival-skill-tackle-unstructured-information-r/
 *** R-levenshtein
 #+name:levenshtein
 #+begin_src R :session *R* :tangle R/levenshtein.r :exports none :eval no
@@ -2326,7 +2327,7 @@ locs
     
 #+end_src
 
-*** COMMENT R-24hr-time-code
+** COMMENT R-24hr-time-code
 #+name:R-24hr-time
 #+begin_src R :session *R* :tangle no :exports none :eval no
   #### name:R-24hr-time####
@@ -3780,7 +3781,7 @@ categories:
     
 #+end_src
 
-** COMMENT TODO R-spss-variable-labels-create
+** COMMENT TODO DEPRECATED SEE TRANSFORMSURVEYTOOLS R-spss-variable-labels-create
 #+name:R-spss-variable-labels
 #+begin_src R :session *R* :tangle no :exports reports :eval no
   ################################################################
