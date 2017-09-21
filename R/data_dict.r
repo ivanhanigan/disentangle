@@ -4,7 +4,7 @@ data_dict <- function(.dataframe, .variable, .show_levels = -1)
 {
 
 summary2 <- function(x){
-  summa <- summary(x, digits = nchar(max(x, na.rm = T))+3)
+  summa <- summary(x, digits = nchar(trunc(max(x, na.rm = T))))
   return(summa)
 }
 
