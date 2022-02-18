@@ -5,6 +5,7 @@ Version: 1.4.6
 Date: 2015-09-15
 Author: ivanhanigan
 Maintainer: <ivan.hanigan@gmail.com>
-Suggests: stringr, ggmap, maps, maptools, rgdal, sqldf
+Suggests: stringr, ggmap, maps, maptools, rgdal
+Imports: lubridate, sqldf, swishdbtools
 Description:  Functions for helping to disentangle data and analysis pipelines.
 License: GPL (>= 2)
